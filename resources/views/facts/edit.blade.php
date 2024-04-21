@@ -3,37 +3,76 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Edit Goal</h1>
-                <form method="POST" action="{{ route('goals.update',$goal) }}">
+                <h1>{{__('Fact')}}</h1>
+                <form method="POST" action="{{ route('facts.update',$fact) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
                     <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ $goal->name }}">
+                        <label for="title">
+                            {{__('Name')}}
+                            </label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ $fact->name }}">
                     </div>
                     <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" id="description" name="description">{!! $goal->description !!} </textarea>
+                        <label for="description">{{__('Description')}}</label>
+                        <textarea class="form-control" id="description" name="description">{!! $fact->description !!} </textarea>
                     </div>
-                    <div class="form-group
-                        <label for="due_date">Due Date</label>
-                        <input type="date" class="form-control" id="due_date" name="due_date" value="{{ $goal->due_date }}">
+                    <div id="image_preview" class="form-group"></div>
+                    <div class="form-group">
+                        <label for="image">{{__('Image')}}</label>
+                        <input type="file" class="form-control" id="image" name="image">
                     </div>
                     <div class="form-group">
-                        <label for="status">Status</label>
+                        <label for="status">{{__('Status')}}</label>
                         <select class="form-control" id="status" name="status">
-                            <option value="0">Not Started</option>
-                            <option value="1">In Progress</option>
-                            <option value="2">Complete</option>
+                            <option value="0">{{__('Not Started')}}</option>
+                             <option value="active" 
+                             @if($fact->status == 'active') 
+                                selected
+                            @endif
+                             >{{__('In Progress')}}</option>
+                            <option value="freeze"
+                            @if($fact->status == 'freeze') 
+                                selected
+                            @endif
+                            >{{__('Freeze')}}</option>
+                            <option value="inactive"
+                            @if($fact->status == 'inactive') 
+                                selected
+                            @endif
+                            >{{__('Inactive')}}</option>
+                            <option value="completed"
+                            @if($fact->status == 'completed') 
+                                selected
+                            @endif
+                            >{{__('Complete')}}</option>   
+                            <option value="closed"
+                            @if($fact->status == 'closed') 
+                                selected
+                            @endif
+                            >{{__('Closed')}}</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="completed_on">Completed On</label>
-                        <input type="date" class="form-control" id="completed_on" name="completed_on">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-primary">
+                        {{__('Update')}}
+                    </button>
                 </form>
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById("image").addEventListener("change", function (event) {
+            var image_preview = document.getElementById("image_preview");
+            while (image_preview.firstChild) {
+                image_preview.removeChild(image_preview.firstChild);
+            }
+            for (var i = 0; i < event.target.files.length; i++) {
+                var img = document.createElement("img");
+                img.src = URL.createObjectURL(event.target.files[i]);
+                img.style.maxWidth = "300px";
+                img.style.maxHeight = "300px";
+                image_preview.appendChild(img);
+            }
+        });
+    </script>
 @endsection

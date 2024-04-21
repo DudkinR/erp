@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Fact;
 
@@ -38,14 +38,13 @@ class FactsController extends Controller
         $fact = new Fact();
         $fact->name = $request->name;
         $fact->description = $request->description;
-         // current date + 30 days
-//$fact -> dedline_date = date('Y-m-d', strtotime('+30 days'));
-        $fact -> status = 'active';
+        $fact->status = $request->status;
+       // $fact -> status = 'active';
         $fact->save();
         // load image if exists rename = fact_id_data and save
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $name = $fact->id . '_data.' . $image->getClientOriginalExtension();
+            $name = $fact->id . '_'.time().'.' . $image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
             $image->move($destinationPath, $name);
             $fact->image = $name;
@@ -80,18 +79,19 @@ class FactsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try{
         $fact = Fact::find($id);
         $fact->name = $request->name;
         $fact->description = $request->description;
+        $fact->status = $request->status;
         $fact->save();
         // load image if exists rename = fact_id_data and save
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $name = $fact->id . '_data.' . $image->getClientOriginalExtension();
+            $name = $fact->id .'_'.time().'.'. $image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
             // delete old image
-            if (file_exists($destinationPath . '/' . $fact->image)) {
+            if ($fact->image && file_exists($destinationPath . '/' . $fact->image)) {
                 unlink($destinationPath . '/' . $fact->image);
             }
             $image->move($destinationPath, $name);
@@ -99,6 +99,10 @@ class FactsController extends Controller
             $fact->save();
         }
         return redirect()->route('facts.index');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('facts.index');
+        }
     }
 
     /**

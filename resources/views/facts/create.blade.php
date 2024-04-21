@@ -19,7 +19,17 @@
                     <div class="form-group">
                         <label for="image">{{__('Image')}}</label>
                         <input type="file" class="form-control" id="image" name="image">
-                        
+                    </div>
+                    <div class="form-group">
+                        <label for="status">{{__('Status')}}</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="0">{{__('Not Started')}}</option>
+                             <option value="active">{{__('In Progress')}}</option>
+                            <option value="freeze">{{__('Freeze')}}</option>
+                            <option value="inactive">{{__('Inactive')}}</option>
+                            <option value="completed">{{__('Complete')}}</option>   
+                            <option value="closed">{{__('Closed')}}</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
