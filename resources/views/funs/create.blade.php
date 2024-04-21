@@ -3,9 +3,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>New Function</h1>
+                <h1>{{__('New Function')}}</h1>
                 <form method="POST" action="{{ route('funs.store') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label for="name"> {{__('Function')}
+                            Name</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
                     <div class="form-group">
                         <label for="description">Description</label>
                         <textarea class="form-control" id="description" name="description"></textarea>

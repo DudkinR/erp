@@ -11,10 +11,15 @@ class Fun extends Model
     // table
     protected $table = 'functs';
     // fillable
-    protected $fillable = ['description'];
+    protected $fillable = ['name','description'];
     // relationships goal_id to funct_id
     public function goals()
     {
         return $this->belongsToMany(Goal::class, 'goals_functs', 'funct_id', 'goal_id');
     }   
+    // positions
+    public function positions()
+    {
+        return $this->belongsToMany(Position::class, 'positions_functs', 'funct_id', 'position_id');
+    }
 }

@@ -14,10 +14,11 @@
                         <label for="description">Description</label>
                         <textarea class="form-control" id="description" name="description"></textarea>
                     </div>
-                    <div class="form-group
+                    <div class="form-group">
                         <label for="due_date">Due Date</label>
-                        <input type="date" class="form-control" id="due_date" name="due_date">
+                        <input type="date" value="{{ date('Y-m-d', strtotime('+1 year')) }}" class="form-control" id="due_date" name="due_date">
                     </div>
+                    
                     <button type="submit" class="btn btn-primary">Create</button>
                 </form>
             </div>
