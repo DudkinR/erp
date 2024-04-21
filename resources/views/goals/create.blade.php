@@ -14,7 +14,7 @@
                         <label for="description">Description</label>
                         <textarea class="form-control" id="description" name="description"></textarea>
                     </div>
-                    <div class="form-group
+                    <div class="form-group">
                         <label for="due_date">Due Date</label>
                         <input type="date" class="form-control" id="due_date" name="due_date">
                     </div>

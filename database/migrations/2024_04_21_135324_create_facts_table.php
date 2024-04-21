@@ -19,9 +19,9 @@ return new class extends Migration
             // name
             $table->string('name');
             // description
-            $table->text('description');
+            $table->text('description')->nullable();
             // image
-            $table->string('image');
+            $table->string('image')->nullable();
             // status 
             $table->enum('status', [
                 'active', 

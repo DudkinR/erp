@@ -51,13 +51,13 @@ Route::put('/criteria/{id}', 'App\Http\Controllers\CriteriaController@update')->
 Route::delete('/criteria/{id}', 'App\Http\Controllers\CriteriaController@destroy')->name('criteria.destroy');
 
 // facts routes
-Route::get('/facts', 'App\Http\Controllers\FactController@index')->name('facts.index');
-Route::get('/facts/create', 'App\Http\Controllers\FactController@create')->name('facts.create');
-Route::post('/facts', 'App\Http\Controllers\FactController@store')->name('facts.store');
-Route::get('/facts/{id}', 'App\Http\Controllers\FactController@show')->name('facts.show');
-Route::get('/facts/{id}/edit', 'App\Http\Controllers\FactController@edit')->name('facts.edit');
-Route::put('/facts/{id}', 'App\Http\Controllers\FactController@update')->name('facts.update');
-Route::delete('/facts/{id}', 'App\Http\Controllers\FactController@destroy')->name('facts.destroy');
+Route::get('/facts', 'App\Http\Controllers\FactsController@index')->name('facts.index');
+Route::get('/facts/create', 'App\Http\Controllers\FactsController@create')->name('facts.create');
+Route::post('/facts', 'App\Http\Controllers\FactsController@store')->name('facts.store');
+Route::get('/facts/{id}', 'App\Http\Controllers\FactsController@show')->name('facts.show');
+Route::get('/facts/{id}/edit', 'App\Http\Controllers\FactsController@edit')->name('facts.edit');
+Route::put('/facts/{id}', 'App\Http\Controllers\FactsController@update')->name('facts.update');
+Route::delete('/facts/{id}', 'App\Http\Controllers\FactsController@destroy')->name('facts.destroy');
 
 
 

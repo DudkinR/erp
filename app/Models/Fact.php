@@ -15,8 +15,6 @@ class Fact extends Model
         'name',
         'description',
         'image',
-        'complite_date',
-        'dedline_date',
         'status'
     ];
     // relations

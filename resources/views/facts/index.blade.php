@@ -3,45 +3,35 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>facts</h1>
-                <a class="text-right" href="{{ route('facts.create') }}">Create Goal</a>
+                <h1>{{__('Facts')}}  </h1>
+                <a class="text-right" href="{{ route('facts.create') }}">{{__('Create fact')}}</a>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Title</th>
-                            <th>Actions</th>
-                        </tr>
+                            <th> {{__('Date')}} </th>
+                            <th> {{__('Name')}} </th>
+                            <th> {{__('Description')}} </th>
+                            <th>{{__('Image')}}</th>
+                       </tr>
                     </thead>
                     <tbody>
-                        @foreach($facts as $goal)
+                        @foreach($facts as $fact)
                             <tr>
-                                <td>{{ $goal->due_date }}</td>
-                                <td class="@if($goal->status == '0') text-muted 
-                                    @elseif($goal->status == '1') text-primary
-                                    @elseif($goal->status == '2') text-success                                    
-                                     @endif">{{ $goal->name }} <hr>
-                                     @if($goal->funs->count()  > 0)
-                                        <h4>Functions</h4>
-                                        <ul>
-                                            @foreach($goal->funs as $fun)
-                                                <li>{{ $fun->name }}</li>
-                                            @endforeach
-                                        </ul>   
-                                    @endif
-                                        Add Function: <a href="{{ route('funs.create', ['gl' => $goal->id]) }}">Add</a>
-                                    </td>
-                                <td>
-                                    <a href="{{ route('facts.show', $goal->id) }}" class="btn btn-default">View</a>
-                                    <a href="{{ route('facts.edit', $goal->id) }}" class="btn btn-warning">Edit</a>
-                                    <form style="display:inline-block" method="POST" action="{{ route('facts.destroy', $goal->id) }}">
-                                        <input type="hidden" name="_method" value="DELETE">
+                                <td>{{ $fact->date }}</td>
+                                <td>{{ $fact->name }}</td>
+                                <td>{!! $fact->description !!}
+                                    <a href="{{ route('facts.show', $fact) }}">{{__('View')}}</a>
+                                    <a href="{{ route('facts.edit', $fact) }}">{{__('Edit')}}</a>
+                                    <form method="POST" action="{{ route('facts.destroy', $fact) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="form-control btn btn-danger">Delete</button>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit">{{__('Delete')}}</button>
                                     </form>
 
                                 </td>
-                            </tr>
+                                <td><img src="{{ asset('storage/'.$fact->image) }}" alt="{{ $fact->name }}" style="max-width: 100px;"></td>
+                               </tr>
+                           
                         @endforeach
                     </tbody>
                 </table>
