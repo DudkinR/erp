@@ -8,7 +8,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th> {{__('Date')}} </th>
+                            <th> {{__('Date create')}} </th>
                             <th> {{__('Name')}} </th>
                             <th> {{__('Description')}} </th>
                             <th>{{__('Image')}}</th>
@@ -17,7 +17,7 @@
                     <tbody>
                         @foreach($facts as $fact)
                             <tr>
-                                <td>{{ $fact->date }}</td>
+                                <td> {{ date('Y-m-d', strtotime($fact->created_at)) }} </td>
                                 <td>{{ $fact->name }}</td>
                                 <td>{!! $fact->description !!}
                                     <a href="{{ route('facts.show', $fact) }}">{{__('View')}}</a>
@@ -29,7 +29,7 @@
                                     </form>
 
                                 </td>
-                                <td><img src="{{ asset('storage/'.$fact->image) }}" alt="{{ $fact->name }}" style="max-width: 100px;"></td>
+                                <td><img src="{{ asset('images/'.$fact->image) }}" alt="{{ $fact->name }}" style="max-width: 100px;"></td>
                                </tr>
                            
                         @endforeach

@@ -60,6 +60,8 @@ class FactsController extends Controller
     public function show(string $id)
     {
         //
+        $fact = Fact::find($id);
+        return view('facts.show', compact('fact'));
     }
 
     /**
@@ -68,6 +70,9 @@ class FactsController extends Controller
     public function edit(string $id)
     {
         //
+        $fact = Fact::find($id);
+        return view('facts.edit', compact('fact'));
+
     }
 
     /**
@@ -76,6 +81,24 @@ class FactsController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $fact = Fact::find($id);
+        $fact->name = $request->name;
+        $fact->description = $request->description;
+        $fact->save();
+        // load image if exists rename = fact_id_data and save
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $name = $fact->id . '_data.' . $image->getClientOriginalExtension();
+            $destinationPath = public_path('/images');
+            // delete old image
+            if (file_exists($destinationPath . '/' . $fact->image)) {
+                unlink($destinationPath . '/' . $fact->image);
+            }
+            $image->move($destinationPath, $name);
+            $fact->image = $name;
+            $fact->save();
+        }
+        return redirect()->route('facts.index');
     }
 
     /**
@@ -84,5 +107,8 @@ class FactsController extends Controller
     public function destroy(string $id)
     {
         //
+        $fact = Fact::find($id);
+        $fact->delete();
+        return redirect()->route('facts.index');
     }
 }
