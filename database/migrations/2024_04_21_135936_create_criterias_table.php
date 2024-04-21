@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('facts')) {
+        if (Schema::hasTable('criterias')) {
             return;
         }
-        Schema::create('facts', function (Blueprint $table) {
+        Schema::create('criterias', function (Blueprint $table) {
             $table->id();
-            // text description 
+            // name
+            $table->string('name');
+            // description
             $table->text('description');
+
             $table->timestamps();
         });
     }
@@ -27,6 +30,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facts');
+        if (!Schema::hasTable('criterias')) {
+            return;
+        }
+        Schema::dropIfExists('criterias');
     }
 };
