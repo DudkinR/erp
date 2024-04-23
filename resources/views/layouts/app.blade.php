@@ -39,6 +39,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('facts.index') }}">Facts</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('cats.index') }}">Category</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('docs.index') }}">Document</a>
+                </li>
 
                 
             </ul>

@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Category;
+
+class CategoryController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+        $categories = Category::all();
+        return view('cats.index', compact('categories'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+        return view('cats.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+        $category = new Category();
+        //['name', 'slug', 'description', 'image', 'parent_id'];
+        $category->name = $request->name;
+        if($request->slug == null)
+            $category->slug = $request->name;
+        else
+            $category->slug = $request->slug;
+        $category->description = $request->description;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $file->move(public_path() . '/imagesCat/', $file->getClientOriginalName());
+            $category->image = $file->getClientOriginalName();
+        }
+        if($request->parent_id == null)
+            $category->parent_id = 0;
+        else
+            $category->parent_id = $request->parent_id;
+        $category->save();
+        return redirect()->route('cats.index');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+        $category = Category::find($id);
+        return view('cats.show', compact('category'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+        $category = Category::find($id);
+        return view('cats.edit', compact('category'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+        $category = Category::find($id);
+        $category->name = $request->name;
+        $category->slug = $request->slug;
+        $category->description = $request->description;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $file->move(public_path() . '/imagesCat/', $file->getClientOriginalName());
+            $category->image = $file->getClientOriginalName();
+        }
+        $category->parent_id = $request->parent_id;
+
+        $category->save();
+        return redirect()->route('cats.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+        $category = Category::find($id);
+        $category->delete();
+        return redirect()->route('cats.index');
+    }
+}

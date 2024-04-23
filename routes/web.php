@@ -59,6 +59,26 @@ Route::get('/facts/{id}/edit', 'App\Http\Controllers\FactsController@edit')->nam
 Route::put('/facts/{id}', 'App\Http\Controllers\FactsController@update')->name('facts.update');
 Route::delete('/facts/{id}', 'App\Http\Controllers\FactsController@destroy')->name('facts.destroy');
 
+// categories routes
+Route::get('/categories', 'App\Http\Controllers\CategoryController@index')->name('cats.index');
+Route::get('/categories/create', 'App\Http\Controllers\CategoryController@create')->name('cats.create');
+Route::post('/categories', 'App\Http\Controllers\CategoryController@store')->name('cats.store');
+Route::get('/categories/{id}', 'App\Http\Controllers\CategoryController@show')->name('cats.show');
+Route::get('/categories/{id}/edit', 'App\Http\Controllers\CategoryController@edit')->name('cats.edit');
+Route::put('/categories/{id}', 'App\Http\Controllers\CategoryController@update')->name('cats.update');
+Route::delete('/categories/{id}', 'App\Http\Controllers\CategoryController@destroy')->name('cats.destroy');
+
+// doc routes
+Route::get('/docs', 'App\Http\Controllers\DocController@index')->name('docs.index');
+Route::get('/docs/create', 'App\Http\Controllers\DocController@create')->name('docs.create');
+Route::post('/docs', 'App\Http\Controllers\DocController@store')->name('docs.store');
+Route::get('/docs/{id}', 'App\Http\Controllers\DocController@show')->name('docs.show');
+Route::get('/docs/{id}/edit', 'App\Http\Controllers\DocController@edit')->name('docs.edit');
+Route::put('/docs/{id}', 'App\Http\Controllers\DocController@update')->name('docs.update');
+Route::delete('/docs/{id}', 'App\Http\Controllers\DocController@destroy')->name('docs.destroy');
+
+
+
 
 
 
