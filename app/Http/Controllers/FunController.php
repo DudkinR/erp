@@ -47,6 +47,10 @@ class FunController extends Controller
         $new_funct->description=$request->description;
         $new_funct->save();
         $new_funct->goals()->attach($request->goal_id);
+        if($request->gl){
+            $new_funct->goals()->attach($request->gl);
+        }
+
         // redirect
         return redirect()->route('funs.index');
     }

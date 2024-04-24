@@ -85,12 +85,9 @@ Route::delete('/docs/{id}', 'App\Http\Controllers\DocController@destroy')->name(
 // тестовый роут
 Route::get('/test',
     function () {
-        $kod='00-000005';
-        $struct = \App\Models\Struct::where('kod', $kod)->first();
-        if($struct)
-            return $struct->id;
-        else
-        return 0;
+      $goal = App\Models\Goal::find(1);
+      return $goal;
+
     }
 )->name('test');
 
