@@ -3,49 +3,72 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Goals</h1>
-                <a class="text-right" href="{{ route('goals.create') }}">Create Goal</a>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Title</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($goals as $goal)
-                            <tr>
-                                <td>{{ $goal->due_date }}</td>
-                                <td class="@if($goal->status == '0') text-muted 
-                                    @elseif($goal->status == '1') text-primary
-                                    @elseif($goal->status == '2') text-success                                    
-                                     @endif">{{ $goal->name }} <hr>
-                                     @if($goal->funs->count()  > 0)
-                                        <h4>Functions</h4>
-                                        <ul>
-                                            @foreach($goal->funs as $fun)
-                                                <li>{{ $fun->name }}</li>
-                                            @endforeach
-                                        </ul>   
-                                    @endif
-                                        Add Function: <a href="{{ route('funs.create', ['gl' => $goal->id]) }}">Add</a>
-                                    </td>
-                                <td>
-                                    <a href="{{ route('goals.show', $goal->id) }}" class="btn btn-default">View</a>
-                                    <a href="{{ route('goals.edit', $goal->id) }}" class="btn btn-warning">Edit</a>
-                                    <form style="display:inline-block" method="POST" action="{{ route('goals.destroy', $goal->id) }}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="form-control btn btn-danger">Delete</button>
-                                    </form>
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <h1>Structures</h1>
+                <a class="text-right" href="{{ route('structure.create') }}">Create Structure</a>
             </div>
         </div>
+        <div class="row">
+<style>
+    .structure {
+    font-family: Arial, sans-serif;
+}
+
+.top-level {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.sub-structure {
+    margin-left: 20px;
+}
+
+.sub-level {
+    background-color: #e6e6e6;
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.sub-structure2 {
+    margin-left: 20px;
+}
+.sub-level2{
+    background-color: #666;
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+</style>
+            <div class="container">
+                @foreach($structuries as $structure)
+                    @if($structure->parent_id == 0)
+                        <div class="col bg-light">
+                            <strong>{{ $structure->name }}</strong>
+                            <div class="col bg-info">
+                                @foreach($structuries as $subStructure)
+                                    @if($subStructure->parent_id == $structure->id)
+                                        <div class="col">
+                                            <strong>{{ $subStructure->name }}</strong>
+                                            <!-- Добавьте дополнительные подуровни, если необходимо -->
+                                            <div class="col bg-warning">
+                                                @foreach($structuries as $subStructure1)
+                                                    @if($subStructure1->parent_id == $subStructure->id)
+                                                        <div class="col">
+                                                            <strong>{{ $subStructure1->name }}</strong>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                                </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
     </div>
 @endsection

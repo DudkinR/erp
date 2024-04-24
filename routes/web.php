@@ -40,6 +40,10 @@ Route::get('/structure/{id}', 'App\Http\Controllers\StructureController@show')->
 Route::get('/structure/{id}/edit', 'App\Http\Controllers\StructureController@edit')->name('structure.edit');
 Route::put('/structure/{id}', 'App\Http\Controllers\StructureController@update')->name('structure.update');
 Route::delete('/structure/{id}', 'App\Http\Controllers\StructureController@destroy')->name('structure.destroy');
+//  structure select csv file for import
+Route::get('/structureimport', 'App\Http\Controllers\StructureController@import')->name('structure.import');
+Route::post('/structureimport', 'App\Http\Controllers\StructureController@importData')->name('structure.importData');
+
 
 // criteria routes
 Route::get('/criteria', 'App\Http\Controllers\CriteriaController@index')->name('criteria.index');
@@ -77,6 +81,18 @@ Route::get('/docs/{id}/edit', 'App\Http\Controllers\DocController@edit')->name('
 Route::put('/docs/{id}', 'App\Http\Controllers\DocController@update')->name('docs.update');
 Route::delete('/docs/{id}', 'App\Http\Controllers\DocController@destroy')->name('docs.destroy');
 
+
+// тестовый роут
+Route::get('/test',
+    function () {
+        $kod='00-000005';
+        $struct = \App\Models\Struct::where('kod', $kod)->first();
+        if($struct)
+            return $struct->id;
+        else
+        return 0;
+    }
+)->name('test');
 
 
 

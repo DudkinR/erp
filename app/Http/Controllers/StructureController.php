@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helpers\StringHelpers as StringHelpers;
+use App\Helpers\FileHelpers as FileHelpers;
 use App\Models\Struct;
 
 class StructureController extends Controller
@@ -13,8 +15,8 @@ class StructureController extends Controller
     public function index()
     {
         //
-        $structures = Struct::all();
-        return view('structure.index', compact('structures'));
+        $structuries = Struct::all();
+        return view('structures.index', compact('structuries'));
 
     }
 
@@ -24,7 +26,7 @@ class StructureController extends Controller
     public function create()
     {
         //
-        return view('structure.create');
+        return view('structures.create');
     }
 
     /**
@@ -33,15 +35,21 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         //
-        $request->validate([
+   /*     $request->validate([
             'abv' => 'required',
             'name' => 'required',
-            'description' => 'required'
+            'description' => 'required',
+
         ]);
+        */
         $struct = new Struct([
             'abv' => $request->get('abv'),
             'name' => $request->get('name'),
-            'description' => $request->get('description')
+            'description' => $request->get('description'),
+            'status' => 'active',
+            'kod' => '0',
+            'parent_id' => '0'
+
         ]);
         $struct->save();
         return redirect('/structure')->with('success', 'Structure saved!');
@@ -55,7 +63,7 @@ class StructureController extends Controller
     {
         //
         $struct = Struct::find($id);
-        return view('structure.show', compact('struct'));
+        return view('structures.show', compact('struct'));
     }
 
     /**
@@ -65,7 +73,7 @@ class StructureController extends Controller
     {
         //
         $struct = Struct::find($id);
-        return view('structure.edit', compact('struct'));
+        return view('structures.edit', compact('struct'));
     }
 
     /**
@@ -98,5 +106,47 @@ class StructureController extends Controller
         $struct->delete();
         return redirect('/structure')->with('success', 'Structure deleted!');
         
+    }
+
+    //import csv file
+    public function import()
+    {
+        return view('structures.import');
+    }
+    // import data from csv file
+    public function importData(Request $request)
+    {
+        // clear table
+         Struct::truncate();
+       $csvData = FileHelpers::csvToArray($request->file('file'));
+      // return $csvData;
+        foreach ($csvData as $line) {
+            $data = str_getcsv($line, ";"); // разбивка строки на столбцы
+            // if $data[1] has format 00-000015
+                if (preg_match('/\d{2}-\d{6}/', $data[1])) {
+                    $struct = new Struct();
+                    $struct->abv=StringHelpers::abv($data[0]);
+                    $struct->name=$data[0];
+                    $struct->description=$data[0];
+                    $struct->status='active';
+                    $struct->kod=$data[1];
+                    $struct->parent_id=$this->parent_id($data[2]);
+                    
+                    $struct->save();
+              }
+        }
+        $structures = Struct::all();
+       // return $structures;
+        return redirect('/structure')->with('success', 'Data imported!');
+        
+    }
+
+    
+    public function parent_id($kod){
+        $struct = \App\Models\Struct::where('kod', $kod)->first();
+        if($struct)
+            return $struct->id;
+        else
+        return 0;
     }
 }

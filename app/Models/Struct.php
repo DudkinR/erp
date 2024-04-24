@@ -11,5 +11,5 @@ class Struct extends Model
     // table name
     protected $table = 'structure';
     // fillable
-    protected $fillable = ['abv','name', 'description'];
+    protected $fillable = ['abv','name', 'description','parent_id','kod','status'];
 }
