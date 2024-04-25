@@ -100,6 +100,18 @@ Route::delete('/types/{id}', 'App\Http\Controllers\TypeController@destroy')->nam
 Route::get('/typesimport', 'App\Http\Controllers\TypeController@import')->name('types.import');
 Route::post('/typesimport', 'App\Http\Controllers\TypeController@importData')->name('types.importData');
 
+// project routes
+Route::get('/projects', 'App\Http\Controllers\ProjectController@index')->name('projects.index');
+Route::get('/projects/create', 'App\Http\Controllers\ProjectController@create')->name('projects.create');
+Route::post('/projects', 'App\Http\Controllers\ProjectController@store')->name('projects.store');
+Route::get('/projects/{id}', 'App\Http\Controllers\ProjectController@show')->name('projects.show');
+Route::get('/projects/{id}/edit', 'App\Http\Controllers\ProjectController@edit')->name('projects.edit');
+Route::put('/projects/{id}', 'App\Http\Controllers\ProjectController@update')->name('projects.update');
+Route::delete('/projects/{id}', 'App\Http\Controllers\ProjectController@destroy')->name('projects.destroy');
+// import data from csv file
+Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');
+Route::post('/projectsimport', 'App\Http\Controllers\ProjectController@importData')->name('projects.importData');
+
 
 // тестовый роут
 Route::get('/test',
