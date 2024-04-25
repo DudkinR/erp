@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('structuries')) {
+        if (Schema::hasTable('status')) {
             return;
         }
-        Schema::create('structuries', function (Blueprint $table) {
+        Schema::create('status', function (Blueprint $table) {
             $table->id();
-            $table->string('abv');
             $table->string('name');
-            $table->string('description')->nullable();
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -28,6 +27,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('structuries');
+        if (!Schema::hasTable('status')) {
+            return;
+        }
+        Schema::dropIfExists('status');
     }
 };

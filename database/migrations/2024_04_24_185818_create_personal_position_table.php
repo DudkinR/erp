@@ -16,8 +16,13 @@ return new class extends Migration
         }
         Schema::create('personal_position', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('personal_id')->constrained()->onDelete('cascade');
-            $table->foreignId('position_id')->constrained()->onDelete('cascade');
+            $table->foreignId('personal_id');
+            $table->foreignId('position_id');
+        });
+        
+        Schema::table('personal_position', function (Blueprint $table) {
+            $table->foreign('personal_id')->references('id')->on('personal')->onDelete('cascade');
+            $table->foreign('position_id')->references('id')->on('positions')->onDelete('cascade');
         });
     }
 

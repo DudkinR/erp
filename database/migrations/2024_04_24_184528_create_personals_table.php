@@ -14,24 +14,7 @@ return new class extends Migration
         if (Schema::hasTable('personals')) {
             return;
         }
-        Schema::create('personals', function (Blueprint $table) {
-            $table->id();
-            // tn
-            $table->string('tn');
-            // name
-            $table->string('name');
-            // surname
-            $table->string('surname');
-            // patronymic
-            $table->string('patronymic');
-            // short_name
-            $table->string('short_name');
-            // email
-            $table->string('email');
-            // phone
-            $table->string('phone');
-            $table->timestamps();
-        });
+
     }
 
     /**

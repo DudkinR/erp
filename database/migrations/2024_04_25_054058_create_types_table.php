@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('structuries')) {
+        if (Schema::hasTable('types')) {
             return;
         }
-        Schema::create('structuries', function (Blueprint $table) {
+        Schema::create('types', function (Blueprint $table) {
             $table->id();
-            $table->string('abv');
             $table->string('name');
             $table->string('description')->nullable();
+            $table->string('icon')->nullable();
+            $table->string('color')->nullable();
+            $table->string('slug')->nullable();
+            // parent type
+            $table->unsignedBigInteger('parent_id')->default(0);
             $table->timestamps();
         });
     }
@@ -28,6 +32,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('structuries');
+        if (!Schema::hasTable('types')) {
+            return;
+        }
+        Schema::dropIfExists('types');
     }
 };

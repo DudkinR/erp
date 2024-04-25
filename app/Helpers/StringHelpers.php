@@ -28,8 +28,6 @@ class StringHelpers extends Helpers
             else {
                $abv .=  mb_strtoupper($firstChar, 'UTF-8');
             }
-
-            
         }
         return $abv;
     }

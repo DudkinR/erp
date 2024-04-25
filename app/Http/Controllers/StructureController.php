@@ -117,7 +117,7 @@ class StructureController extends Controller
     public function importData(Request $request)
     {
         // clear table
-         Struct::truncate();
+        // Struct::truncate();
        $csvData = FileHelpers::csvToArray($request->file('file'));
       // return $csvData;
         foreach ($csvData as $line) {

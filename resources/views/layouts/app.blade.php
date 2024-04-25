@@ -45,6 +45,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('docs.index') }}">Document</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('imports.index') }}">Import</a>
+                </li>
 
                 
             </ul>

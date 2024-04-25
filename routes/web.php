@@ -31,6 +31,10 @@ Route::post('/personal', 'App\Http\Controllers\PersonalController@store')->name(
 Route::get('/personal/{id}', 'App\Http\Controllers\PersonalController@show')->name('personal.show');
 Route::get('/personal/{id}/edit', 'App\Http\Controllers\PersonalController@edit')->name('personal.edit');
 Route::put('/personal/{id}', 'App\Http\Controllers\PersonalController@update')->name('personal.update');
+Route::delete('/personal/{id}', 'App\Http\Controllers\PersonalController@destroy')->name('personal.destroy');
+// import personal data from csv file
+Route::get('/personalimport', 'App\Http\Controllers\PersonalController@import')->name('personal.import');
+Route::post('/personalimport', 'App\Http\Controllers\PersonalController@importData')->name('personal.importData');
 
 // structure routes
 Route::get('/structure', 'App\Http\Controllers\StructureController@index')->name('structure.index');
@@ -81,12 +85,28 @@ Route::get('/docs/{id}/edit', 'App\Http\Controllers\DocController@edit')->name('
 Route::put('/docs/{id}', 'App\Http\Controllers\DocController@update')->name('docs.update');
 Route::delete('/docs/{id}', 'App\Http\Controllers\DocController@destroy')->name('docs.destroy');
 
+//all imports index 
+Route::get('/imports', 'App\Http\Controllers\CommonController@index')->name('imports.index');
+
+//type routes
+Route::get('/types', 'App\Http\Controllers\TypeController@index')->name('types.index');
+Route::get('/types/create', 'App\Http\Controllers\TypeController@create')->name('types.create');
+Route::post('/types', 'App\Http\Controllers\TypeController@store')->name('types.store');
+Route::get('/types/{id}', 'App\Http\Controllers\TypeController@show')->name('types.show');
+Route::get('/types/{id}/edit', 'App\Http\Controllers\TypeController@edit')->name('types.edit');
+Route::put('/types/{id}', 'App\Http\Controllers\TypeController@update')->name('types.update');
+Route::delete('/types/{id}', 'App\Http\Controllers\TypeController@destroy')->name('types.destroy');
+// import data from csv file
+Route::get('/typesimport', 'App\Http\Controllers\TypeController@import')->name('types.import');
+Route::post('/typesimport', 'App\Http\Controllers\TypeController@importData')->name('types.importData');
+
 
 // тестовый роут
 Route::get('/test',
     function () {
-      $goal = App\Models\Goal::find(1);
-      return $goal;
+     // return 'test';
+      $struct = \App\Models\Struct::find(30);
+      return $struct->positions()->get();
 
     }
 )->name('test');

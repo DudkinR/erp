@@ -16,7 +16,7 @@ return new class extends Migration
         }
         Schema::create('personal', function (Blueprint $table) {
             $table->id();
-            $table->integer('tn');
+            $table->string('tn');
             $table->string('nickname');
             $table->string('fio');
             $table->string('email');
