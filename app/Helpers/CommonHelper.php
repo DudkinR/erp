@@ -9,14 +9,22 @@ use DateTime;
 class CommonHelper extends Helpers
 {
    // 
-    public static function formattedDate($date)
-    {
-        $formattedDate ='';
-        if (empty($date)) {
-            return $formattedDate;
-        }
-        $dateTime = DateTime::createFromFormat('d.m.Y', $date);
-        $formattedDate = $dateTime->format('Y-m-d');
-        return $formattedDate;
-    }
+   public static function formattedDate($date)
+   {
+       if (empty($date)) {
+           return NULL;
+       }
+       
+       $dateTime = DateTime::createFromFormat('d.m.Y', $date);
+       
+       // Проверяем, удалось ли преобразовать строку в дату
+       if ($dateTime !== false) {
+           // Если удалось, возвращаем дату в формате Y-m-d для записи в базу данных
+           return $dateTime->format('Y-m-d');
+       } else {
+           // Если не удалось преобразовать строку в дату, возвращаем NULL
+           return NULL;
+       }
+   }
 }
+   

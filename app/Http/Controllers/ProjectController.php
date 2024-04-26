@@ -132,7 +132,7 @@ class ProjectController extends Controller
             $client=$this->client_find($data[4]);
             $project->client = $client;
             $project->current_state = $data[5];
-            $project->execution_period = $data[6];
+            $project->execution_period = CommonHelper::formattedDate($data[6]);
             $project->payment_percentage = $data[7];
             $project->shipping_percentage = $data[8];
             $project->debt_percentage = $data[9];

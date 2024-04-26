@@ -19,34 +19,38 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{{ route('home') }}">Home</a>
+                    <a class="nav-link" href="{{ route('home') }}">{{__('Home')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('goals.index') }}">Goals</a>
+                    <a class="nav-link" href="{{ route('goals.index') }}">{{__('Goals')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('structure.index') }}">Structure </a>
+                    <a class="nav-link" href="{{ route('structure.index') }}">{{__('Structure')}} </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('personal.index') }}">personal</a>
+                    <a class="nav-link" href="{{ route('personal.index') }}">{{__('personal')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('funs.index') }}">funs</a>
+                    <a class="nav-link" href="{{ route('funs.index') }}">{{__('funs')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('criteria.index') }}">Criteria</a>
+                    <a class="nav-link" href="{{ route('criteria.index') }}">{{__('Criteria')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('facts.index') }}">Facts</a>
+                    <a class="nav-link" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('cats.index') }}">Category</a>
+                    <a class="nav-link" href="{{ route('cats.index') }}">{{__('Category')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('docs.index') }}">Document</a>
+                    <a class="nav-link" href="{{ route('docs.index') }}">{{__('Document')}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('imports.index') }}">Import</a>
+                    <a class="nav-link" href="{{ route('projects.index') }}">{{__('Projects')}}</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('imports.index') }}">{{__('Import')}}</a>
                 </li>
 
                 

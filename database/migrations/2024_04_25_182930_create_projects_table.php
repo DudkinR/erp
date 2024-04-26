@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('amount')->nullable();
             $table->string('client')->nullable();
             $table->string('current_state')->nullable();
-            $table->string('execution_period')->nullable();
+            $table->date('execution_period')->nullable();
             $table->string('payment_percentage')->nullable();
             $table->string('shipping_percentage')->nullable();
             $table->string('debt_percentage')->nullable();

@@ -18,9 +18,9 @@ return new class extends Migration
             $table->id();
             // Найменування	Бізнес-регіон	Дата реєстрації	Код
             $table->string('name');
-            $table->string('business_region');
-            $table->date('registration_date');
-            $table->string('code');
+            $table->string('business_region')->nullable();
+            $table->date('registration_date')->nullable();
+            $table->string('code')->nullable();
             $table->timestamps();
         });
     }

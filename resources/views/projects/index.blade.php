@@ -19,8 +19,6 @@
      //   ->with('cliets')
         ->get();
         ?>
-
-               
         @foreach($projects as $project)
             <div class="row">
                 <div class="col-md-12">
