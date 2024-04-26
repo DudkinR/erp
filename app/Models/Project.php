@@ -41,4 +41,11 @@ class Project extends Model
             ->withPivot('status')
             ->withTimestamps();
     }  
+    // clients
+    public function clients()
+    {
+        return $this->belongsToMany(Client::class, 'project_client', 'project_id', 'client_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Str;
 use DateTime;
 
+
 class CommonHelper extends Helpers
 {
    // 

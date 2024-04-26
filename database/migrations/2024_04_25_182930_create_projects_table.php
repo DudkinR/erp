@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             //Пріоритет	Номер	Дата	Сума	Клієнт	Поточний стан	Строк виконання	% оплати	% відвантаження	% боргу	Валюта	Операція
             $table->id();
-            $table->string('name'); 
+            $table->string('name')->nullable(); 
             $table->string('priority')->nullable();
             $table->string('number')->nullable();
             $table->date('date')->nullable();
