@@ -10,10 +10,11 @@ class Dimension extends Model
     use HasFactory;
     // table name
     protected $table = 'dimensions';
-    // `id`, `abv`, `name`, `description`, `formula`, `unit`, `type`, `value`, `min_value`, `max_value`, `step`, `default_value`, `default_min_value`, `default_max_value`, `default_step`, `default_type`, `default_unit`, `created_at`, `updated_at`
+    
     protected $fillable = [
         'abv',
         'name',
+        'kod',
         'description',
         'formula',
         'unit',

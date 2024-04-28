@@ -18,9 +18,7 @@ class Control extends Model
     // steps
     public function steps()
     {
-        return $this->belongsTo(Step::class, 'step_control', 'control_id', 'step_id')
-        ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsTo(Step::class, 'step_control', 'control_id', 'step_id');
     }
     // personals
     public function personals()

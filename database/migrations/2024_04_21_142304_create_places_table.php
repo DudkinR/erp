@@ -19,7 +19,7 @@ return new class extends Migration
             // name
             $table->string('name');
             // description
-            $table->text('description');
+            $table->text('description')->nullable();
             // долгота широта висота
             $table->string('latitude');
             $table->string('longitude');

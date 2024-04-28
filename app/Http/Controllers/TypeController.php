@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Type;
+use App\Helpers\FileHelpers as FileHelpers;
 
 class TypeController extends Controller
 {
@@ -116,26 +118,36 @@ class TypeController extends Controller
     // import data from csv file
     public function importData(Request $request)
     {
-        if($request->has('parent_id')) {
-            $parent_id = $request->parent_id;
-            // delete all records with parent_id=$parent_id
-            Type::where('parent_id', $parent_id)->delete();
-            $csvData = FileHelpers::csvToArray($request->file('file'));
-            foreach ($csvData as $data) {
-                $type = new Type();
-                $type->name = $data['name'];
-                $type->description = $data['description'];
-                if(isset($data['icon'])) {
-                    $type->icon = $data['icon'];
+        if($request->has('type_id')) {
+            $parent_id = $request->type_id;
+             }
+        else {
+            $parent_id = 0;
+        }
+        $csvData = FileHelpers::csvToArray($request->file('file'));
+        // return $csvData;
+        foreach ($csvData as $dt) {
+            $data = str_getcsv($dt, ";");
+            if(Type::where('name', $data[0])->where('parent_id', $parent_id)->exists()) {
+              //  $type = Type::where('name', $data[0])->where('parent_id', $parent_id)->first();
+                continue;
+            }
+            else
+            {
+                if($data[0] != NULL) {
+                    $type = new Type();
+                    $type->name = $data[0];
+                    $type->description = $data[0];
+                    $type->icon = NULL;
+                    $type->slug = NULL;
+                    $type->color = "#FFFFFF";
+                    $type->parent_id = $request->type_id;
+                    $type->save();
                 }
-                $type->color = $data['color'];
-                if(isset($data['slug'])) {
-                    $type->slug = $data['slug'];
-                }
-                $type->parent_id = $parent_id;
-                $type->save();
             }
         }
+    
+        return redirect()->route('types.index');
        
     }
 }

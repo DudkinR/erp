@@ -18,21 +18,17 @@ class Stage extends Model
     // projects
     public function projects()
     {
-        return $this->belongsToMany(Project::class, 'project_stage', 'stage_id', 'project_id')
-        ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsToMany(Project::class, 'project_stage', 'stage_id', 'project_id');
     }
     // steps
     public function steps()
     {
-        return $this->belongsTo(Step::class, 'step_stage', 'stage_id', 'step_id')
-        ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsToMany(Step::class, 'stage_step', 'stage_id', 'step_id');
     }
     // personal
     public function personals()
     {
-        return $this->belongsTo(Personal::class, 'stage_personal', 'stage_id', 'personal_id')
+        return $this->belongsToMany(Personal::class, 'stage_personal', 'stage_id', 'personal_id')
         ->withPivot('status')
             ->withTimestamps();
     }

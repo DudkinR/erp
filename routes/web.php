@@ -108,9 +108,64 @@ Route::get('/projects/{id}', 'App\Http\Controllers\ProjectController@show')->nam
 Route::get('/projects/{id}/edit', 'App\Http\Controllers\ProjectController@edit')->name('projects.edit');
 Route::put('/projects/{id}', 'App\Http\Controllers\ProjectController@update')->name('projects.update');
 Route::delete('/projects/{id}', 'App\Http\Controllers\ProjectController@destroy')->name('projects.destroy');
+// post projects.add_stage
+Route::post('/projectstage/add_stage', 'App\Http\Controllers\ProjectController@add_stage')->name('projects.add_stage');
 // import data from csv file
 Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');
 Route::post('/projectsimport', 'App\Http\Controllers\ProjectController@importData')->name('projects.importData');
+
+// control routes
+Route::get('/controls', 'App\Http\Controllers\ControlController@index')->name('controls.index');
+Route::get('/controls/create', 'App\Http\Controllers\ControlController@create')->name('controls.create');   
+Route::post('/controls', 'App\Http\Controllers\ControlController@store')->name('controls.store');
+Route::get('/controls/{id}', 'App\Http\Controllers\ControlController@show')->name('controls.show');
+Route::get('/controls/{id}/edit', 'App\Http\Controllers\ControlController@edit')->name('controls.edit');
+Route::put('/controls/{id}', 'App\Http\Controllers\ControlController@update')->name('controls.update');
+Route::delete('/controls/{id}', 'App\Http\Controllers\ControlController@destroy')->name('controls.destroy');
+
+// step routes
+Route::get('/steps', 'App\Http\Controllers\StepController@index')->name('steps.index');
+Route::get('/steps/create', 'App\Http\Controllers\StepController@create')->name('steps.create');
+Route::post('/steps', 'App\Http\Controllers\StepController@store')->name('steps.store');
+Route::get('/steps/{id}', 'App\Http\Controllers\StepController@show')->name('steps.show');
+Route::get('/steps/{id}/edit', 'App\Http\Controllers\StepController@edit')->name('steps.edit');
+Route::put('/steps/{id}', 'App\Http\Controllers\StepController@update')->name('steps.update');
+Route::delete('/steps/{id}', 'App\Http\Controllers\StepController@destroy')->name('steps.destroy');
+
+// stage routes
+Route::get('/stages', 'App\Http\Controllers\StageController@index')->name('stages.index');
+Route::get('/stages/create', 'App\Http\Controllers\StageController@create')->name('stages.create');
+Route::post('/stages', 'App\Http\Controllers\StageController@store')->name('stages.store');
+Route::get('/stages/{id}', 'App\Http\Controllers\StageController@show')->name('stages.show');
+Route::get('/stages/{id}/edit', 'App\Http\Controllers\StageController@edit')->name('stages.edit');
+Route::put('/stages/{id}', 'App\Http\Controllers\StageController@update')->name('stages.update');
+Route::delete('/stages/{id}', 'App\Http\Controllers\StageController@destroy')->name('stages.destroy');
+//stages.add_step
+Route::post('/stagestep/add_step', 'App\Http\Controllers\StageController@add_step')->name('stages.add_step');
+
+// dimension routes
+Route::get('/dimensions', 'App\Http\Controllers\DimensioneController@index')->name('dimensions.index');
+Route::get('/dimensions/create', 'App\Http\Controllers\DimensioneController@create')->name('dimensions.create');
+Route::post('/dimensions', 'App\Http\Controllers\DimensioneController@store')->name('dimensions.store');
+Route::get('/dimensions/{id}', 'App\Http\Controllers\DimensioneController@show')->name('dimensions.show');
+Route::get('/dimensions/{id}/edit', 'App\Http\Controllers\DimensioneController@edit')->name('dimensions.edit');
+Route::put('/dimensions/{id}', 'App\Http\Controllers\DimensioneController@update')->name('dimensions.update');
+Route::delete('/dimensions/{id}', 'App\Http\Controllers\DimensioneController@destroy')->name('dimensions.destroy');
+// import data from csv file
+Route::get('/dimensionsimport', 'App\Http\Controllers\DimensioneController@import')->name('dimensions.import');
+Route::post('/dimensionsimport', 'App\Http\Controllers\DimensioneController@importData')->name('dimensions.importData');
+
+//nomenclaturs
+Route::get('/nomenclaturs', 'App\Http\Controllers\NomenclatureController@index')->name('nomenclaturs.index');
+Route::get('/nomenclaturs/create', 'App\Http\Controllers\NomenclatureController@create')->name('nomenclaturs.create');
+Route::post('/nomenclaturs', 'App\Http\Controllers\NomenclatureController@store')->name('nomenclaturs.store');
+Route::get('/nomenclaturs/{id}', 'App\Http\Controllers\NomenclatureController@show')->name('nomenclaturs.show');
+Route::get('/nomenclaturs/{id}/edit', 'App\Http\Controllers\NomenclatureController@edit')->name('nomenclaturs.edit');
+Route::put('/nomenclaturs/{id}', 'App\Http\Controllers\NomenclatureController@update')->name('nomenclaturs.update');
+Route::delete('/nomenclaturs/{id}', 'App\Http\Controllers\NomenclatureController@destroy')->name('nomenclaturs.destroy');
+// import data from csv file
+Route::get('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@import')->name('nomenclaturs.import');
+Route::post('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@importData')->name('nomenclaturs.importData');
 
 
 // тестовый роут

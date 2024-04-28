@@ -22,5 +22,10 @@ class Type extends Model
     {
         return $this->hasMany(Type::class, 'parent_id');
     }
+    // nomenclatures
+    public function nomenclatures()
+    {
+        return $this->belongsToMany(Nomenclature::class , 'nomenclature_type', 'type_id', 'nomenclature_id');
+    }
 
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             // name
             $table->string('name');
             // description
-            $table->text('description');
+            $table->text('description')->nullable();
             // complite date 
             $table->date('complite_date');
             // dedline date

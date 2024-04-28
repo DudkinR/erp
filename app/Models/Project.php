@@ -10,7 +10,6 @@ class Project extends Model
     use HasFactory;
      // table name
     protected $table = 'projects';
-    //    //Пріоритет	Номер	Дата	Сума	Клієнт	Поточний стан	Строк виконання	% оплати	% відвантаження	% боргу	Валюта	Операція
     protected $fillable = [
         'name',
         'description',
@@ -30,9 +29,7 @@ class Project extends Model
     // stages
     public function stages()
     {
-        return $this->belongsToMany(Stage::class, 'project_stage', 'project_id', 'stage_id')
-            ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsToMany(Stage::class, 'project_stage', 'project_id', 'stage_id');
     } 
     // personal
     public function personals()

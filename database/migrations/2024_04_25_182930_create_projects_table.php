@@ -15,21 +15,21 @@ return new class extends Migration
             return;
         }
         Schema::create('projects', function (Blueprint $table) {
-            //Пріоритет	Номер	Дата	Сума	Клієнт	Поточний стан	Строк виконання	% оплати	% відвантаження	% боргу	Валюта	Операція
-            $table->id();
+             $table->id();
             $table->string('name')->nullable(); 
-            $table->string('priority')->nullable();
+            $table->text('description')->nullable();
+            $table->integer('priority')->nullable();
             $table->string('number')->nullable();
             $table->date('date')->nullable();
-            $table->string('amount')->nullable();
-            $table->string('client')->nullable();
+            $table->integer('amount')->nullable();
+            $table->integer('client')->nullable();
             $table->string('current_state')->nullable();
             $table->date('execution_period')->nullable();
-            $table->string('payment_percentage')->nullable();
-            $table->string('shipping_percentage')->nullable();
-            $table->string('debt_percentage')->nullable();
+            $table->integer('payment_percentage')->nullable();
+            $table->integer('shipping_percentage')->nullable();
+            $table->integer('debt_percentage')->nullable();
             $table->string('currency')->nullable();
-            $table->string('operation');
+            $table->string('operation')->nullable();
             $table->timestamps();
         });
     }

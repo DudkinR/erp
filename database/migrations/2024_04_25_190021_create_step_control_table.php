@@ -17,11 +17,8 @@ return new class extends Migration
         Schema::create('step_control', function (Blueprint $table) {
             $table->id();
             $table->foreignId('step_id')->constrained();
-            $table->foreignId('project_id')->constrained();
-            $table->integer('performance')->nullable();
-            $table->date('control_date')->nullable();
-            $table->string('control_result')->nullable();
-            $table->timestamps();
+            $table->foreignId('control_id')->constrained();
+             $table->timestamps();
         });
     }
 

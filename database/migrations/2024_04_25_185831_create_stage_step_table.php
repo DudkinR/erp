@@ -18,9 +18,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('stage_id')->constrained();
             $table->foreignId('step_id')->constrained();
-            $table->integer('performance')->nullable();
-            $table->date('control_date')->nullable();
-            $table->string('control_result')->nullable();
             $table->timestamps();
         });
     }

@@ -18,16 +18,12 @@ class Step extends Model
     // stages
     public function stages()
     {
-        return $this->belongsToMany(Stage::class, 'step_stage', 'step_id', 'stage_id')
-        ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsToMany(Stage::class, 'step_stage', 'step_id', 'stage_id');
     }
     // controls
     public function controls()
     {
-        return $this->belongsToMany(Control::class, 'step_control', 'step_id', 'control_id')
-        ->withPivot('performance', 'control_date', 'control_result')
-            ->withTimestamps();
+        return $this->belongsToMany(Control::class, 'step_control', 'step_id', 'control_id');
     }
     // personals
     public function personals()
