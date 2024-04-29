@@ -116,22 +116,28 @@ class StructureController extends Controller
     // import data from csv file
     public function importData(Request $request)
     {
-        // clear table
-        // Struct::truncate();
-       $csvData = FileHelpers::csvToArray($request->file('file'));
-      // return $csvData;
-        foreach ($csvData as $line) {
+        if($request->type_of_file)
+        $type_of_file =$request->type_of_file;
+        else
+        $type_of_file = 0;
+     //   return $type_of_file;
+        $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
+      //  return $csvData;
+            foreach ($csvData as $line) {
             $data = str_getcsv($line, ";"); // разбивка строки на столбцы
-            // if $data[1] has format 00-000015
+           
                 if (preg_match('/\d{2}-\d{6}/', $data[1])) {
-                    $struct = new Struct();
-                    $struct->abv=StringHelpers::abv($data[0]);
-                    $struct->name=$data[0];
-                    $struct->description=$data[0];
-                    $struct->status='active';
-                    $struct->kod=$data[1];
+                    // find exist struct
+                    $struct = Struct::where('kod', $data[1])->first();
+                    if(!$struct){
+                        $struct = new Struct();
+                        $struct->abv=StringHelpers::abv($data[0]);
+                        $struct->name=$data[0];
+                        $struct->status='active';
+                        $struct->kod=$data[1];
+                        $struct->description=$data[0]; 
+                    }
                     $struct->parent_id=$this->parent_id($data[2]);
-                    
                     $struct->save();
               }
         }

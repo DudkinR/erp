@@ -183,8 +183,11 @@ class DimensioneController extends Controller
     // importdata
     public function importdata(Request $request)
     {
-        $csvData = FileHelpers::csvToArray($request->file('file'));
-        // return $csvData;
+        if($request->type_of_file)
+            $type_of_file =$request->type_of_file;
+            else
+            $type_of_file = 0;
+            $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         foreach ($csvData as $dt) {
             $data = str_getcsv($dt, ";");
             if(Dimension::where('name', $data[0])->exists()){

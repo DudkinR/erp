@@ -1,6 +1,22 @@
 @extends('layouts.app')
 @section('content')
     <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+        <div class="row">
+            <div class="col-md-12">
+            <h1>{{__('Show')}}</h1>
+                <a class="text-right" href="{{ route('projects.index') }}">{{__('Back')}}</a>
+            </div>  
+        </div>
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Project')}}  {{$project->name}} </h1>
@@ -32,11 +48,13 @@
                         <select name="current_state" id="current_state" class="form-control">
                             <option value="Очікується погодження" @if($project->current_state == 'Очікується погодження') selected @endif>{{__('Очікується погодження')}}</option>
                             <option value="Готовий до забезпечення" @if($project->current_state == 'Готовий до забезпечення') selected @endif>{{__('Готовий до забезпечення')}}</option>
+                            <option value="Виготовлення та комплектація" @if($project->current_state == 'Виготовлення та комплектація') selected @endif>{{__('Виготовлення та комплектація')}}</option> 
                             <option value="Готовий до відвантаження" @if($project->current_state == 'Готовий до відвантаження') selected @endif>{{__('Готовий до відвантаження')}}</option>
                             <option value="У процесі відвантаження" @if($project->current_state == 'У процесі відвантаження') selected @endif>{{__('У процесі відвантаження')}}</option>
                             <option value="Очікується оплата (після відвантаження)" @if($project->current_state == 'Очікується оплата (після відвантаження)') selected @endif>{{__('Очікується оплата (після відвантаження)')}}</option>
                             <option value="Готовий до закриття" @if($project->current_state == 'Готовий до закриття') selected @endif>{{__('Готовий до закриття')}}</option>
                             <option value="Закритий" @if($project->current_state == 'Закритий') selected @endif>{{__('Закритий')}}</option>
+                            <option value="Чернетка" @if($project->current_state == 'Чернетка') selected @endif>{{__('Чернетка')}}</option>
                         </select>
                     </div>
                     <div class="form-group mb-2">

@@ -13,6 +13,7 @@ $clients = App\Models\Client::all();
             <div class="col-md-12">
             <h1>{{__('Projects')}}</h1>
                 <a class="text-right" href="{{ route('projects.create') }}">{{__('New project')}}</a>
+                <button class="btn btn-warning" onclick="refresh()" > {{__('refresh')}} </button>
             </div>
         </div>
 
@@ -22,14 +23,17 @@ $clients = App\Models\Client::all();
                     <label for="current_state">{{__('Current State')}}</label>
                     <select name="current_state" id="current_state" class="form-control" onchange="renderProjects()">  
                         <option value="all">{{__('All not closed')}}</option>
+                        <option value="working">{{__('Working')}}</option>
                         <option value="Очікується погодження">{{__('Очікується погодження')}}</option>
+                        <option value="Виготовлення та комплектація">{{__('Виготовлення та комплектація')}}</option>
                         <option value="Готовий до забезпечення">{{__('Готовий до забезпечення')}}</option>
                         <option value="Готовий до відвантаження">{{__('Готовий до відвантаження')}}</option>
                         <option value="У процесі відвантаження">{{__('У процесі відвантаження')}}</option>
                         <option value="Очікується оплата (після відвантаження)">{{__('Очікується оплата (після відвантаження)')}}</option>
                         <option value="Готовий до закриття">{{__('Готовий до закриття')}}</option>
                          <option value="Закритий">{{__('Закритий')}}</option>
-                         <option value="">{{__('Empty')}}</option>
+                        <option value="Чернетка">{{__('Чернетка')}}</option>
+                         <option value="empty">{{__('Empty')}}</option>
                     </select>
                 </div>
             </div>
@@ -37,10 +41,7 @@ $clients = App\Models\Client::all();
                 <div class="form-group mb-2">
                     <label for="client">{{__('Client')}}</label>
                     <select name="client" id="client" class="form-control" onchange="renderProjects()">
-                        <option value="0">{{__('All clients')}}</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}">{{ $client->name }}</option>
-                        @endforeach
+                       
                     </select>
                 </div>
             </div>
@@ -74,8 +75,34 @@ $clients = App\Models\Client::all();
     <script>
         const PRS = @json($projects);
         var PRSW = PRS;
-        const clients = @json($clients);
-      //  console.log(projects);
+        <?php 
+        $clientslist = [];
+        foreach($clients as $client)
+        {
+            $clientslist[$client->id] = $client->name;
+        }
+        // sort by name
+        asort($clientslist);
+
+        ?>
+
+        var clients = @json($clientslist);
+        // sort by values
+        clients = Object.fromEntries(Object.entries(clients).sort(([,a],[,b]) => a.localeCompare(b)));
+
+        // form id client as clients
+        const clientsSelect = document.getElementById('client');
+        const option = document.createElement('option');
+        option.value = 0;
+        option.innerText = 'All clients';
+        clientsSelect.appendChild(option);
+        for (const id in clients) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.innerText = clients[id];
+            clientsSelect.appendChild(option);
+        }
+       // console.log(PRSW);
         const projectsDiv = document.getElementById('projects');
         let sort_date = 0;
         let sort_priority = 0;
@@ -88,6 +115,7 @@ $clients = App\Models\Client::all();
 
         function renderProjects() {
             let projects = PRSW;
+
             projects = show_clients(projects);
             projects = filter_by_current_state(projects);
             projects = sort_by_date(projects);
@@ -117,7 +145,11 @@ $clients = App\Models\Client::all();
                         cardClass += " bg-warning"; // Если осталось меньше 3 дней до периода выполнения
                     }
                 }
-
+                let class_name = 'btn btn-primary';
+                if(project.problems_count>0)
+                {
+                    class_name = 'btn btn-danger';
+                }
                 projectDiv.innerHTML = `
                     <div class="${cardClass}">
                         <div class="card-body">
@@ -127,9 +159,15 @@ $clients = App\Models\Client::all();
                             <p class="card-text">${project.number}</p>
                             <p class="card-text">${project.date}</p>
                             <p class="card-text">${project.amount}</p>
-                            <p class="card-text">${project.client && clients[project.client] ? clients[project.client].name : ''}</p>
+                            <p class="card-text">${clients[project.client]}</p>
                             <p class="card-text">${project.current_state}</p>
                             <p class="card-text">${project.execution_period}</p>
+                            <p class="card-text">
+                            Count of problems: ${project.problems_count} 
+                            <hr>
+                             <a href="/problems/create?project_id=${project.id}" class= "${class_name}">Add problem</a>
+                            <hr>
+                             </p>
                             <a href="/projects/${project.id}/edit" class="btn btn-warning">Edit</a>
                             <a href="/projects/${project.id}" class="btn btn-success">Show</a>
                         </div>
@@ -143,7 +181,7 @@ $clients = App\Models\Client::all();
             if (selected_client == 0) {
                 return projects;
             }
-            return projects.filter(project => project.client_id == selected_client);
+            return projects.filter(project => project.client == selected_client);
         }
         function sort_by_date(projects) {
 
@@ -166,9 +204,18 @@ $clients = App\Models\Client::all();
             if (current_state == 'all') {
                 return projects;
             }
+            else if (current_state == 'working') {
+                // all without closed, draft and empty
+                return projects.filter(project => project.current_state !== 'Закритий'  && project.current_state !== 'Чернетка' && project.current_state !== '');
+            }
+
             return projects.filter(project => project.current_state == current_state);
         }
         renderProjects();
+        function refresh() {
+            PRSW = PRS;
+            renderProjects();
+        }
 
         
     </script>

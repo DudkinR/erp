@@ -5,18 +5,11 @@
             <div class="col-md-12">
                 <h1>{{__('Load Goal')}}</h1>
                 <form method="POST" action="{{ route('structure.importData') }}"  enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <div class="form-group">
-                        <label for="file">{{__('File csv')}}</label>
-                        <input type="file" class="form-control" id="file" name="file">
-
-                       
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        {{__('Load')}}
-                    </button>
+                   <!-- resources\views\layouts\import_block.blade.php -->
+                    @include('layouts.import_block')
                 </form>
             </div>
         </div>
     </div>
+
 @endsection

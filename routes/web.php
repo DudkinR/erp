@@ -113,6 +113,8 @@ Route::post('/projectstage/add_stage', 'App\Http\Controllers\ProjectController@a
 // import data from csv file
 Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');
 Route::post('/projectsimport', 'App\Http\Controllers\ProjectController@importData')->name('projects.importData');
+//testproject
+Route::any('/testproject', 'App\Http\Controllers\ProjectController@testproject')->name('projects.testproject');
 
 // control routes
 Route::get('/controls', 'App\Http\Controllers\ControlController@index')->name('controls.index');
@@ -166,6 +168,15 @@ Route::delete('/nomenclaturs/{id}', 'App\Http\Controllers\NomenclatureController
 // import data from csv file
 Route::get('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@import')->name('nomenclaturs.import');
 Route::post('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@importData')->name('nomenclaturs.importData');
+
+// problems routes
+Route::get('/problems', 'App\Http\Controllers\ProblemController@index')->name('problems.index');
+Route::get('/problems/create', 'App\Http\Controllers\ProblemController@create')->name('problems.create');
+Route::post('/problems', 'App\Http\Controllers\ProblemController@store')->name('problems.store');
+Route::get('/problems/{id}', 'App\Http\Controllers\ProblemController@show')->name('problems.show');
+Route::get('/problems/{id}/edit', 'App\Http\Controllers\ProblemController@edit')->name('problems.edit');
+Route::put('/problems/{id}', 'App\Http\Controllers\ProblemController@update')->name('problems.update');
+Route::delete('/problems/{id}', 'App\Http\Controllers\ProblemController@destroy')->name('problems.destroy');
 
 
 // тестовый роут

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         //
+
         Schema::table('personal', function (Blueprint $table) {
             //'nickname',  'email', 'phone' =  nullable
             $table->string('nickname')->nullable()->change();
@@ -33,13 +34,20 @@ return new class extends Migration
     public function down(): void
     {
         //
-        Schema::table('personal', function (Blueprint $table) {
-            $table->string('nickname')->change();
-            $table->string('email')->change();
-            $table->string('phone')->change();
-            $table->dropColumn('date_start');
-            $table->dropColumn('status');
-            $table->dropColumn('date_status');
-        });
+        if (Schema::hasColumn('personal', 'date_start')) {
+            Schema::table('personal', function (Blueprint $table) {
+                $table->dropColumn('date_start');
+            });
+        }
+        if (Schema::hasColumn('personal', 'status')) {
+            Schema::table('personal', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+        }
+        if (Schema::hasColumn('personal', 'date_status')) {
+            Schema::table('personal', function (Blueprint $table) {
+                $table->dropColumn('date_status');
+            });
+        }
     }
 };

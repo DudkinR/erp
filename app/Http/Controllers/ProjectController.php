@@ -18,8 +18,9 @@ class ProjectController extends Controller
     // index
     public function index()
     {
-        $projects = Project::all();
-        return view('projects.index', compact('projects'));
+        $projects = Project::with('problems')->withCount('problems')->get();
+        $clients = Client::all();
+        return view('projects.index', compact('projects', 'clients'));
     }
     // create
     public function create()
@@ -118,10 +119,15 @@ class ProjectController extends Controller
         // importData
         public function importData(Request $request)
         {   
-            $csvData = FileHelpers::csvToArray($request->file('file'));
+            if($request->type_of_file)
+            $type_of_file =$request->type_of_file;
+            else
+            $type_of_file = 0;
+            $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
             $mass_d = []; // Создаем массив для хранения повторяющихся названий
+            $bad_clients = []; // Создаем массив для хранения названий клиентов, которые не были найдены
             foreach ($csvData as $line) {
-                $data = str_getcsv($line, ";"); 
+                $data = explode(";", $line);
                 if ($project = Project::where('number', 'like', $data[1])->first()) {
                     if (in_array($data[1], $mass_d)) {
                         // Если название уже встречается, добавляем его в массив повторяющихся названий
@@ -129,28 +135,37 @@ class ProjectController extends Controller
                         // Получаем количество повторений для данного названия
                         $count_values = array_count_values($mass_d);
                         $count_data = isset($count_values[$data[1]]) ? $count_values[$data[1]] : 0;
-                        $name = $project->name . "/" . $count_data;
-                        $description = $project->description . "/" . $count_data;
+                        $new_name = $project->name . "/" . $count_data;
+                        $new_description = $project->description . "/" . $count_data;
+                        // Обновляем данные проекта
+                        $project->name = $new_name;
+                        $project->description = $new_description;
                     } else {
                         // Если название встречается впервые, добавляем его в массив повторяющихся названий
                         $mass_d[] = $data[1];
-                        $name = $project->name;
-                        $description = $project->description;
                     }
                 } else {
                     // Если проект с таким названием не найден, создаем новый проект
                     $project = new Project();
-                    $name = $data[1] . " " . $data[4];
-                    $description = $data[1] . " " . $data[4];
+                    $project->name = $data[1] . " " . $data[4];
+                    $project->description = $data[1] . " " . $data[4];
                 }
-                $project->name = $name;
-                $project->description = $description;
+                
+                // Установка остальных значений проекта
+  
                 $project->priority = (int)$data[0];  
                 $project->number = $data[1];
                 $project->date = CommonHelper::formattedDate($data[2]);
                 $project->amount =(int) $data[3];
                 $client=$this->client_find($data[4]);
-                $project->client = $client;
+                // проверим что имя клиента не  совпадает с $data[4]
+                $clt=Client::find($client);
+                if($clt->name!=$data[4]){
+                    $bad_clients[]=[$data[4],$clt->name];
+                }
+                else{
+                    $project->client = $client;
+                }
                 $project->current_state = $data[5];
                 if(isset($data[6])){
                 $project->execution_period = CommonHelper::formattedDate($data[6]);
@@ -172,15 +187,21 @@ class ProjectController extends Controller
                 }
                 $project->save();
                 // add attach client 
+                if($clt->name==$data[4]){
                 $project->clients()->attach($client);
+                }
              }
-             
-            return redirect('/projects')->with('success', 'Projects imported!');
+                if(count($mass_d)>0){
+                    return redirect('/projects')->with('error', 'Projects imported!')->with('mass_d', $mass_d);
+                    }
+                    else{
+                return redirect('/projects')->with('success', 'Projects imported!');
+                    }
         }
 
         public function client_find($name)
         {
-            $client = Client::where('name', $name)->first();
+            $client = Client::where('name','like', $name)->first();
             if($client){
                 return $client->id;
             }else{

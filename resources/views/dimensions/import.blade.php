@@ -5,14 +5,7 @@
             <div class="col-md-12">
                 <h1>{{__('Dimensions')}}</h1>
                 <form method="POST" action="{{ route('dimensions.importData') }}"  enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <div class="form-group">
-                        <label for="file">{{__('File csv')}}</label>
-                        <input type="file" class="form-control" id="file" name="file">
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        {{__('Load')}}
-                    </button>
+                @include('layouts.import_block')
                 </form>
             </div>
         </div>

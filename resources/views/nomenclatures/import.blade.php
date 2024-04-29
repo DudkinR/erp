@@ -5,11 +5,7 @@
             <div class="col-md-12">
                 <h1>{{__('nomenclatures')}}</h1>
                 <form method="POST" action="{{ route('nomenclaturs.importData') }}"  enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <div class="form-group">
-                        <label for="file">{{__('File csv')}}</label>
-                        <input type="file" class="form-control" id="file" name="file">
-                    </div>
+                @include('layouts.import_block')
                     <div class="form-group row">
                         <label for="type_id" class="col-md-4 col-form-label text-md-right">{{__('Type')}}</label>
                         <div class="col-md-6">
@@ -23,9 +19,6 @@
                             <a href="{{ route('types.create') }}">{{__('Create new type')}}</a>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        {{__('Load')}}
-                    </button>
                 </form>
             </div>
         </div>

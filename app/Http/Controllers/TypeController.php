@@ -124,7 +124,11 @@ class TypeController extends Controller
         else {
             $parent_id = 0;
         }
-        $csvData = FileHelpers::csvToArray($request->file('file'));
+        if($request->type_of_file)
+            $type_of_file =$request->type_of_file;
+            else
+            $type_of_file = 0;
+            $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         // return $csvData;
         foreach ($csvData as $dt) {
             $data = str_getcsv($dt, ";");

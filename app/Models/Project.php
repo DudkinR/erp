@@ -45,4 +45,15 @@ class Project extends Model
             ->withPivot('status')
             ->withTimestamps();
     }
+    // problems where table problems.project_id == project.id
+    public function problems()
+    {
+        return $this->hasMany(Problem::class, 'project_id');
+    }
+    // problems_count
+    public function problemsCount()
+    {
+        return $this->hasMany(Problem::class, 'project_id')->count();
+    }
+    // 
 }

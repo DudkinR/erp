@@ -74,9 +74,16 @@ class NomenclatureController extends Controller
     // importData
     public function importData(Request $request)
     {
-        $csvData = FileHelpers::csvToArray($request->file('file'));
-        $type_id = $request->type_id;
-       // return $csvData;
+        if($request->type_of_file)
+            $type_of_file =$request->type_of_file;
+            else
+            $type_of_file = 0;
+            $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
+        if($request->type_id)
+            $type_id =$request->type_id;
+            else
+            $type_id = 0;    
+       
         foreach ($csvData as $dt) {
             $data = str_getcsv($dt, ";");
          //   return $data;

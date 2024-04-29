@@ -117,9 +117,11 @@ class PersonalController extends Controller
     // import personal data from csv file to database
     public function importData(Request $request)
     {
-        // clear table personal 
-      //  Personal::truncate();
-        $csvData = FileHelpers::csvToArray($request->file('file'));
+        if($request->type_of_file)
+        $type_of_file =$request->type_of_file;
+        else
+        $type_of_file = 0;
+        $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         //return $csvData;
         foreach ($csvData as $line) {
         $data = str_getcsv($line, ";"); 
