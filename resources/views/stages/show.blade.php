@@ -25,7 +25,7 @@
                         <?php $steps = App\Models\Step::all(); ?>
                         <ul>
                             @foreach($steps as $step)
-                                @if (!$stages ->contains($step))
+                                @if (!$stage -> steps -> contains($step))
                                     <li>
                                         <button class="btn btn-danger" onclick="add_step_to_stage({{$step->id}})"  >{{ $step->name }}</button>
                                     </li>

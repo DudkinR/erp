@@ -90,6 +90,8 @@ class StageController extends Controller
         $stage->name = $request->name;
         $stage->description = $request->description;
         $stage->save();
+        
+        return redirect()->route('stages.show', $id);
     }
 
     /**

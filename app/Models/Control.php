@@ -18,7 +18,7 @@ class Control extends Model
     // steps
     public function steps()
     {
-        return $this->belongsTo(Step::class, 'step_control', 'control_id', 'step_id');
+        return $this->belongsToMany(Step::class, 'step_control', 'control_id', 'step_id');
     }
     // personals
     public function personals()
@@ -26,5 +26,10 @@ class Control extends Model
         return $this->belongsTo(Personal::class, 'control_personal', 'control_id', 'personal_id')
         ->withPivot('status')
             ->withTimestamps();
+    }
+    // dimensions
+    public function dimensions()
+    {
+        return $this->belongsToMany(Dimension::class, 'control_dimension', 'control_id', 'dimension_id');
     }
 }

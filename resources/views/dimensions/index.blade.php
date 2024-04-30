@@ -6,15 +6,18 @@
             <h1>{{__('Dimension')}}</h1>
                 <a class="text-right" href="{{ route('dimensions.create') }}">{{__('Create new')}}</a>
             </div>
+        </div>
             @foreach($dimensions as $dimension)
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <a href="{{ route('dimensions.show',$dimension) }}">{{ $dimension->name }}</a>
-                        </div>
-                        <div class="card-body">
-                            <p>{{ $dimension->description }}</p>
-                            <a href="{{ route('dimensions.edit',$dimension) }}">{{__('Edit')}}</a>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                {{ $dimension->name }}
+                            </div>
+                            <div class="card-body">
+                                <p>{{ $dimension->description }}</p>
+                                <a href="{{ route('dimensions.edit',$dimension) }}">{{__('Edit')}}</a>
+                            </div>
                         </div>
                     </div>
                 </div>

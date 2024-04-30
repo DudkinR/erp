@@ -39,20 +39,12 @@ class StepController extends Controller
         $step->description = $request->description;
         $step->save();
         // if $request->stages is not empty || 0
-        if ($request->stages) {
-            $step->stages()->attach($request->stages);
+        if ($request->stages_id) {
+            $step->stages()->attach($request->stages_id);
         }
         // if $request->controls is not empty || 0
-        if ($request->controls) {
-            $step->controls()->attach($request->controls);
-        }
-        // if $request->add_new_control_name and $request->add_new_control_description are not empty
-        if ($request->add_new_control_name && $request->add_new_control_description) {
-            $control = new Control();
-            $control->name = $request->add_new_control_name;
-            $control->description = $request->add_new_control_description;
-            $control->save();
-            $step->controls()->attach($control->id);
+        if ($request->controls_id) {
+            $step->controls()->attach($request->controls_id);
         }
         return redirect()->route('steps.index');
     }
@@ -65,7 +57,6 @@ class StepController extends Controller
         //
         $step = Step::find($id);
         return view('steps.show', compact('step'));
-
     }
 
     /**
@@ -76,9 +67,7 @@ class StepController extends Controller
         //
         $step = Step::find($id);
         return view('steps.edit', compact('step'));
-
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -89,6 +78,14 @@ class StepController extends Controller
         $step->name = $request->name;
         $step->description = $request->description;
         $step->save();
+        // stages 
+        if ($request->stages_id) {
+            $step->stages()->sync($request->stages_id);
+        }
+        // controls
+        if ($request->controls_id) {
+            $step->controls()->sync($request->controls_id);
+        }
         return redirect()->route('steps.index');
     }
 

@@ -51,9 +51,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('problems.index') }}">{{__('Problems')}}</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('imports.index') }}">{{__('Import')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('steps.index') }}">{{__('Step')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
                 </li>
 
                 

@@ -64,49 +64,49 @@
                     <div class="form-group row">
                         <label for="value" class="col-md-4 col-form-label text-md-right">{{__('Value')}}</label>
                         <div class="col-md-6">
-                            <input id="value" type="text" class="form-control" name="value" value="{{ old('value') }}"  autofocus>
+                            <input id="value" type="number" class="form-control" name="value" value="{{ old('value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="min_value" class="col-md-4 col-form-label text-md-right">{{__('Min value')}}</label>
                         <div class="col-md-6">
-                            <input id="min_value" type="text" class="form-control" name="min_value" value="{{ old('min_value') }}"  autofocus>
+                            <input id="min_value" type="number" class="form-control" name="min_value" value="{{ old('min_value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="max_value" class="col-md-4 col-form-label text-md-right">{{__('Max value')}}</label>
                         <div class="col-md-6">
-                            <input id="max_value" type="text" class="form-control" name="max_value" value="{{ old('max_value') }}"  autofocus>
+                            <input id="max_value" type="number" class="form-control" name="max_value" value="{{ old('max_value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="step" class="col-md-4 col-form-label text-md-right">{{__('Step')}}</label>
                         <div class="col-md-6">
-                            <input id="step" type="text" class="form-control" name="step" value="{{ old('step') }}"  autofocus>
+                            <input id="step" type="number" class="form-control" name="step" value="{{ old('step') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="default_value" class="col-md-4 col-form-label text-md-right">{{__('Default value')}}</label>
                         <div class="col-md-6">
-                            <input id="default_value" type="text" class="form-control" name="default_value" value="{{ old('default_value') }}"  autofocus>
+                            <input id="default_value" type="number" class="form-control" name="default_value" value="{{ old('default_value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="default_min_value" class="col-md-4 col-form-label text-md-right">{{__('Default min value')}}</label>
                         <div class="col-md-6">
-                            <input id="default_min_value" type="text" class="form-control" name="default_min_value" value="{{ old('default_min_value') }}"  autofocus>
+                            <input id="default_min_value" type="number" class="form-control" name="default_min_value" value="{{ old('default_min_value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="default_max_value" class="col-md-4 col-form-label text-md-right">{{__('Default max value')}}</label>
                         <div class="col-md-6">
-                            <input id="default_max_value" type="text" class="form-control" name="default_max_value" value="{{ old('default_max_value') }}"  autofocus>
+                            <input id="default_max_value" type="number" class="form-control" name="default_max_value" value="{{ old('default_max_value') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="default_step" class="col-md-4 col-form-label text-md-right">{{__('Default step')}}</label>
                         <div class="col-md-6">
-                            <input id="default_step" type="text" class="form-control" name="default_step" value="{{ old('default_step') }}"  autofocus>
+                            <input id="default_step" type="number" class="form-control" name="default_step" value="{{ old('default_step') }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
