@@ -71,6 +71,8 @@ function add_step_to_stage(step_id, stage_id){
     });
 }
 
+
+
 // addControl
 function addControl(step_id){
     const url =  "/controls";

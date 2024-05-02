@@ -32,4 +32,15 @@ class Stage extends Model
         ->withPivot('status')
             ->withTimestamps();
     }
+    // $table->foreignId('stage_id')->constrained(); $table->foreignId('next_stage_id')->constrained('stages');
+    public function nextStages()
+    {
+        return $this->belongsToMany(Stage::class, 'stage_stage', 'stage_id', 'next_stage_id')
+            ->withTimestamps();
+    }
+    public function previousStages()
+    {
+        return $this->belongsToMany(Stage::class, 'stage_stage', 'next_stage_id', 'stage_id')
+            ->withTimestamps();
+    }
 }

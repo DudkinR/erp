@@ -110,13 +110,7 @@ class StageController extends Controller
         return redirect()->route('stages.index');
     }
 
-    // stages.add_step
-    public function add_step(Request $request)
-    {
-        $stage = Stage::find($request->stage);
-        $stage->steps()->attach($request->step);
-        return response()->json((object)['status' => 'success']);
-    }
+
     //remove_step
     public function remove_step(Request $request)
     {
