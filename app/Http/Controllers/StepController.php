@@ -14,8 +14,11 @@ class StepController extends Controller
      */
     public function index()
     {
-        //
-        $steps = Step::all();
+        // order  by id desc steps not         has controls
+        $steps = Step::orderBy('id', 'desc')
+            ->whereDoesntHave('controls')
+            ->get();
+        // Step::orderBy('id', 'desc')->get();
         return view('steps.index', compact('steps'));
     }
 
@@ -33,19 +36,30 @@ class StepController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // 
+        $name = $request->name;
+        $step = Step::where('name', $name)->first();
+        if (!$step) {
         $step = new Step();
         $step->name = $request->name;
         $step->description = $request->description;
         $step->save();
+        }
         // if $request->stages is not empty || 0
         if ($request->stages_id) {
+        $step->stages()->detach();
             $step->stages()->attach($request->stages_id);
         }
         // if $request->controls is not empty || 0
         if ($request->controls_id) {
+            $step->controls()->detach();
             $step->controls()->attach($request->controls_id);
         }
+        if($request->novisiability == '1'){
+            $steps = Step::all();
+             return ['step'=>$step->id,'steps'=> $steps];
+        }
+        else
         return redirect()->route('steps.index');
     }
 

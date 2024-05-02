@@ -144,6 +144,8 @@ Route::put('/stages/{id}', 'App\Http\Controllers\StageController@update')->name(
 Route::delete('/stages/{id}', 'App\Http\Controllers\StageController@destroy')->name('stages.destroy');
 //stages.add_step
 Route::post('/stagestep/add_step', 'App\Http\Controllers\StageController@add_step')->name('stages.add_step');
+// /stagesstep/remove_step
+Route::any('stagesstep/remove_step', 'App\Http\Controllers\StageController@remove_step')->name('stages.remove_step');
 
 // dimension routes
 Route::get('/dimensions', 'App\Http\Controllers\DimensioneController@index')->name('dimensions.index');

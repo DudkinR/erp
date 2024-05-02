@@ -23,9 +23,11 @@
                         <tr>
                             <td>{{ $stage->id }}</td>
                             <td>{{ $stage->name }}</td>
-                            <td>{{ $stage->description }}</td>
+                            <td>{!! nl2br(e($stage->description)) !!}</td>
+
                             <td>
                                 <a href="{{ route('stages.edit',$stage) }}" class="btn btn-primary">{{__('Edit')}}</a>
+                                <a href="{{ route('stages.show',$stage) }}" class="btn btn-success">{{__('Show')}}</a>
                                 <form method="POST" action="{{ route('stages.destroy',$stage) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="DELETE">

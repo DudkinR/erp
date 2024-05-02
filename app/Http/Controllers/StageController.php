@@ -12,8 +12,8 @@ class StageController extends Controller
      */
     public function index()
     {
-        //
-        $stages = Stage::all();
+        // order desc where description empty
+        $stages =  Stage::orderBy('id', 'desc')->get();
         return view('stages.index', compact('stages'));
     }
 
@@ -90,6 +90,11 @@ class StageController extends Controller
         $stage->name = $request->name;
         $stage->description = $request->description;
         $stage->save();
+        if(isset($request->steps_id)){
+            // clear old steps
+            $stage->steps()->detach();
+            $stage->steps()->sync($request->steps_id);
+        }
         
         return redirect()->route('stages.show', $id);
     }
@@ -110,6 +115,13 @@ class StageController extends Controller
     {
         $stage = Stage::find($request->stage);
         $stage->steps()->attach($request->step);
+        return response()->json((object)['status' => 'success']);
+    }
+    //remove_step
+    public function remove_step(Request $request)
+    {
+        $stage = Stage::find($request->stage_id);
+        $stage->steps()->detach($request->step_id);
         return response()->json((object)['status' => 'success']);
     }
 }

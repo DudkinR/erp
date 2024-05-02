@@ -18,7 +18,7 @@ class Step extends Model
     // stages
     public function stages()
     {
-        return $this->belongsToMany(Stage::class, 'step_stage', 'step_id', 'stage_id');
+        return $this->belongsToMany(Stage::class, 'stage_step', 'step_id', 'stage_id');
     }
     // controls
     public function controls()

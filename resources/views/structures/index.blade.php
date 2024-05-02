@@ -43,19 +43,37 @@
             <div class="container">
                 @foreach($structuries as $structure)
                     @if($structure->parent_id == 0)
-                        <div class="col-md-12 bg-light">
+                        <div class="col-md-12 bg-primary">
                             
                             <div class="row">
                                 @if($structure->positions()->get()->count() == 0)
-                                    <div class="col-md-12 bg-danger">
+                                    <div class="col-md-12 bg-primary">
                                     <strong>{{ $structure->name }}</strong>
-                                        <strong>Positions not found</strong>
-                                    </div>
-                                    
                                 @endif
                                 @foreach($structure->positions()->get() as $position)
                                 <div class="col-md-2 border  bg-info">
                                         <strong>{{ $position->name }}</strong>
+                                        <?php 
+                                        $position_id = $position->id;
+                                        $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
+                                        ->whereHas('positions', function ($query) use ($position_id) {
+                                            $query->where('position_id', $position_id);
+                                        })
+                                        ->get();
+                                        ?>
+                                        <div class="row">
+                                            @if($personals->count() == 0)
+                                                <div class="col-md-12 bg-danger">
+                                                    <strong>{{__("free") }}</strong>
+                                                </div>
+                                            @else
+                                            @foreach($personals as $personal)
+                                                <div class="col-md-12 border  bg-light">
+                                                    <strong>{{ $personal->nickname }}</strong>
+                                                </div>
+                                            @endforeach
+                                            @endif
+                                                </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -66,14 +84,35 @@
                                             
                                             <div class="row">
                                                 @if($subStructure->positions()->get()->count() == 0)
-                                                    <div class="col-md-12 bg-danger">
+                                                    <div class="col-md-12 bg-primary">
                                                         <strong>{{ $subStructure->name }}</strong>
-                                                        <strong>Positions not found</strong>
+                                                
                                                     </div>
                                                     @endif
                                             @foreach($subStructure->positions()->get() as $position)
                                             <div class="col-md-2 border bg-info">
                                                     <strong>{{ $position->name }}</strong>
+                                                    <?php 
+                                                    $position_id = $position->id;
+                                                    $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
+                                                    ->whereHas('positions', function ($query) use ($position_id) {
+                                                        $query->where('position_id', $position_id);
+                                                    })
+                                                    ->get();
+                                                    ?>
+                                                    <div class="row">
+                                                        @if($personals->count() == 0)
+                                                            <div class="col-md-12 bg-danger">
+                                                                <strong>{{__("free") }}</strong>
+                                                            </div>
+                                                        @else
+                                                        @foreach($personals as $personal)
+                                                            <div class="col-md-12 border  bg-light">
+                                                                <strong>{{ $personal->nickname }}</strong>
+                                                            </div>
+                                                        @endforeach
+                                                        @endif
+                                                        </div>
                                                 </div>
                                             @endforeach
                                             </div>
@@ -86,13 +125,37 @@
                                                             <div class="row">
                                                                 @if($subStructure1->positions()->get()->count() == 0)
 
-                                                                    <div class="col-md-12 bg-danger">
-                                                                        <strong>Positions not found</strong>
+                                                                    <div class="col-md-12 bg-primary">
+                                                                        <strong>{{ $subStructure1->name }}</strong>
+                                                                        
+                                                                       
                                                                     </div>
                                                                 @endif
                                                             @foreach($subStructure1->positions()->get() as $position)
                                                                 <div class="col-md-2 border  bg-info">
                                                                     <strong>{{ $position->name }}</strong>
+                                                                    <?php
+                                                                    $position_id = $position->id;
+                                                                    $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
+                                                                    ->whereHas('positions', function ($query) use ($position_id) {
+                                                                        $query->where('position_id', $position_id);
+                                                                    })
+                                                                    ->get();
+                                                                    ?>
+                                                                    <div class="row">
+                                                                        @if($personals->count() == 0)
+                                                                            <div class="col-md-12 bg-danger">
+                                                                                <strong>{{__("free") }}</strong>
+                                                                            </div>
+                                                                        @else
+                                                                        @foreach($personals as $personal)
+                                                                            <div class="col-md-12 border  bg-light">
+                                                                                <strong>{{ $personal->nickname }}</strong>
+                                                                            </div>
+                                                                        @endforeach
+                                                                        @endif
+                                                                        </div>
+                                                                        
                                                                 </div>
                                                             @endforeach
                                                             </div>

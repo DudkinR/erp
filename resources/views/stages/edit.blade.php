@@ -4,6 +4,12 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Stages')}}</h1>
+                <a class="text-right
+                " href="{{ route('stages.index') }}">Back</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <form method="POST" action="{{ route('stages.update',$stage) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
@@ -24,12 +30,18 @@
                             @endforeach
                         </select>
                     </div>
-
-                    
-                   
-                    <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
+                    <div class="form-group mb-2">
+                        <label>{{__('New Step')}} <div id="succesful_step"></div> </label>
+                        <input type="text" class="form-control" name="new_step" id="new_step" value="">
+                        <button type="button" class="btn btn-primary" onclick="add_new_step({{$stage->id}})">{{__('Add')}}</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{{__('Edit')}}</button>
                 </form>
             </div>
         </div>
+    
+
     </div>
+    <script>
+     
 @endsection

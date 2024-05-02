@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+
     <title>PPAPP</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+   <script src="{{ asset('js/app.js') }}" defer></script>
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+
 
 </head>
 <body>
@@ -21,47 +31,29 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ route('home') }}">{{__('Home')}}</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('goals.index') }}">{{__('Goals')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('structure.index') }}">{{__('Structure')}} </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('personal.index') }}">{{__('personal')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('funs.index') }}">{{__('funs')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('criteria.index') }}">{{__('Criteria')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('cats.index') }}">{{__('Category')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('docs.index') }}">{{__('Document')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('projects.index') }}">{{__('Projects')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('problems.index') }}">{{__('Problems')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('imports.index') }}">{{__('Import')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('steps.index') }}">{{__('Step')}}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
+               
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('More')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('goals.index') }}">Goals</a>
+                        <a class="dropdown-item" href="{{ route('structure.index') }}">Structure</a>
+                        <a class="dropdown-item" href="{{ route('personal.index') }}">Personal</a>
+                        <a class="dropdown-item" href="{{ route('funs.index') }}">Funs</a>
+                        <a class="dropdown-item" href="{{ route('criteria.index') }}">Criteria</a>
+                        <a class="dropdown-item" href="{{ route('facts.index') }}">Facts</a>
+                        <a class="dropdown-item" href="{{ route('cats.index') }}">Category</a>
+                        <a class="dropdown-item" href="{{ route('docs.index') }}">Document</a>
+                        <a class="dropdown-item" href="{{ route('projects.index') }}">Projects</a>
+                        <a class="dropdown-item" href="{{ route('problems.index') }}">Problems</a>
+                        
+                        <a class="dropdown-item" href="{{ route('stages.index') }}">Stages</a>
+                        <a class="dropdown-item" href="{{ route('steps.index') }}">Step</a>
+                        <a class="dropdown-item" href="{{ route('controls.index') }}">Controls</a>
+                        <a class="dropdown-item" href="{{ route('dimensions.index') }}">Dimensions</a>
+                        <a class="dropdown-item" href="{{ route('imports.index') }}">Import</a>
+                    </div>
                 </li>
 
                 

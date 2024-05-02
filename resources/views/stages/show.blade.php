@@ -12,26 +12,31 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        {{ $stage->name }}
+                        <H1>{{ $stage->name }}</H1>
                     </div>
                     <div class="card-body">
-                        <p>{{ $stage->description }}</p>
+                        <p>{!! nl2br(e($stage->description)) !!}</p>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body"> <ul>
                         @foreach($stage->steps as $step)
-                            <a href="{{route("steps.show",$step->id)}}">{{ $step->name }}</a>
+                            <li id="work_step_id_{{$step->id}}">
+                                <a href="{{route("steps.show",$step->id)}}">{{ $step->name }}</a> 
+                                <button class="btn btn-danger" onclick="remove_step_from_stage({{$step->id}},{{$stage->id}})"  >{{__('Remove')}}{{$step->id}},{{$stage->id}}</button>
+                         </li>
                         @endforeach
+                    </ul>
                         <hr>
                         <?php $steps = App\Models\Step::all(); ?>
-                        <ul>
+                           <h1> {{__('Add step to stage')}}</h1>
+                           <select name="steps_id" id="steps_id" class="form-control">
                             @foreach($steps as $step)
                                 @if (!$stage -> steps -> contains($step))
-                                    <li>
+                                    
                                         <button class="btn btn-danger" onclick="add_step_to_stage({{$step->id}})"  >{{ $step->name }}</button>
-                                    </li>
+                                    
                                 @endif
                             @endforeach
-                        </ul>
+                       
                         <hr>
                        
                         <a href="{{ route('steps.create') }}?stage={{$stage->id}}" class="btn btn-primary"> {{__('Add new step')}}</a>
@@ -49,30 +54,4 @@
             </div>
         </div>
    </div>
-   <script>
-        function add_step_to_stage(step_id){
-            const url = "{{route('stages.add_step')}}";
-            const data = {
-                "_token": "{{ csrf_token() }}",
-                "step_id": step_id,
-                "stage_id": {{$stage->id}}
-            };
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                location.reload();
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        }
-    </script>
-   </script>
 @endsection

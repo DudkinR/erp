@@ -32,10 +32,25 @@ class ControlController extends Controller
     public function store(Request $request)
     {
         //
+        $name = $request->name;
+        $control = Control::where('name', $name)->first();
+        if (!$control) {
         $control = new Control();
         $control->name = $request->name;
         $control->description = $request->description;
         $control->save();
+        }
+        if ($request->step_id) {
+            $control->steps()->attach($request->step_id);
+        }
+        // novisiability
+        if($request->novisiability == '1'){
+            $controls = Control::all();
+            $data= ['control'=>$control,'controls'=> $controls];
+            // return json
+            return response()->json($data);
+        }
+        else
         return redirect()->route('controls.index');
     }
 
