@@ -99,18 +99,14 @@
                         </select>
                     </div>
                     <?php
-                     $personals = \App\Models\Personal::where('status',  'Робота')->get();
+                     $positions = \App\Models\Position::all();
                      ?>
                     <div class="form-group mb-2">
-                        <label for="personal">{{__('Personal')}}</label>
-                        <select name="personal" id="personal" class="form-control">
-                            <option value="0">{{__('Не призначен')}}</option>
-                            @foreach($personals as $personal)
-                                <option value="{{ $personal->id }}"
-                                @if($personal_id && $personal_id == $personal->id)
-                                    selected
-                                @endif
-                                >{{ $personal->nickname }}</option>
+                        <label for="positions">{{__('Positions')}}</label>
+                        <select name="positions" id="positions" class="form-control">
+                            
+                            @foreach($positions as $position)
+                                <option value="{{ $position->id }}">{{ $position->name }}</option>
                             @endforeach
                         </select>
                     </div>
