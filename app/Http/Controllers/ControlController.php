@@ -85,6 +85,18 @@ class ControlController extends Controller
         $control->name = $request->name;
         $control->description = $request->description;
         $control->save();
+        // steps_id
+        if($request->steps_id){
+            $control->steps()->attach($request->steps_id);
+        }
+        //dimensions_id
+        if($request->dimensions_id){
+            $control->dimensions()->attach($request->dimensions_id);
+        }
+
+        return redirect()->route('controls.index');
+
+
     }
 
     /**

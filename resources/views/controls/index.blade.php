@@ -23,7 +23,9 @@
                     <tbody>
                         @foreach($controls as $control)
                             <tr>
-                                <td>{{ $control->name }}</td>
+                                <td>
+                                    <a href="{{ route('controls.show',$control) }}">{{ $control->name }}</a>
+                                </td>
                                 <td>{{ $control->description }}</td>
                                 <td>
                                     @foreach($control->steps as $step)

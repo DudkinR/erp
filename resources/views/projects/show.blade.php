@@ -27,6 +27,13 @@
                         <p>{{ $project->priority }}</p>
                         <p>{{ $project->start_date }}</p>
                         <p>{{ $project->end_date }}</p>
+                        <p>
+                            <a href="{{route('projects.add_stage_form')}}?project_id={{$project->id}}" class="btn btn-primary"> {{__('Stages')}}</a>
+                        </p>
+                        <p>
+                            <a href="{{route('projects.projectstgantt',$project->id)}}" class="btn btn-primary"> {{__('Gantt')}}</a>
+                        </p>
+
                     </div>
                     <div class="card-footer">
                         @foreach($project->stages as $stage)
@@ -35,16 +42,40 @@
                         </a>    
                         @endforeach
                         <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                               <ul>
+                                <?php $stages = App\Models\Stage::all(); ?> 
+                                    @foreach($stages as $stage)
+                                        @if (!$project->stages->contains($stage))
+                                            <li>
+                                                <button class="btn btn-danger" onclick="add_stage_to_project(
+                                                    {{$stage->id}},
+                                                    {{$project->id}} , 
+                                                    document.getElementById('deadline').value,
+                                                    document.getElementById('responsible_position_id').value
+                                                                                                      
+                                            )"  >{{ $stage->name }}</button>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul> 
+                            </div>
+                            <div class="col-md-6">
+                                <label for ="deadline"> {{__('Deadline')}}</label>
+                                <input type="date" id="deadline" class="form-control">
+                                <label for ="responsible_position_id"> {{__('Responsible Position')}}</label>
+                                <select id="responsible_position_id" class="form-control">
+                                    <option value="">{{__('Select')}}</option>
+                                    <?php $positions = App\Models\Position::all(); ?>
+                                    @foreach($positions as $position)
+                                        <option value="{{$position->id}}">{{$position->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <?php $stages = App\Models\Stage::all(); ?>
-                        <ul>
-                            @foreach($stages as $stage)
-                                @if (!$project->stages->contains($stage))
-                                    <li>
-                                        <button class="btn btn-danger" onclick="add_stage_to_project({{$stage->id}})"  >{{ $stage->name }}</button>
-                                    </li>
-                                @endif
-                            @endforeach
-                        </ul>
+                        
                         <hr>
                        
                         <a href="{{ route('stages.create') }}?project={{$project->id}}" class="btn btn-primary"> {{__('Add new stage')}}</a>
@@ -54,29 +85,6 @@
         </div>
    </div>
    <script>
-         function add_stage_to_project(stage_id){
-             const url = "{{route('projects.add_stage')}}";
-             const data = {
-                "_token": "{{ csrf_token() }}",
-                 "stage_id": stage_id,
-                 "project_id": "{{$project->id}}"
-             };
-             console.log(data);
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    location.reload();
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
+        
    </script>
 @endsection

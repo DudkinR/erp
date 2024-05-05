@@ -82,6 +82,14 @@ class DimensioneController extends Controller
             $dimension->description = $request->description;
         }
         $dimension->save();
+        if($request->novisiability == '1'){
+            $data= ['name'=>$dimension->name,'id'=>$dimension->id];
+            if($request->control_id){
+                $dimension->controls()->attach($request->control_id);
+            }
+           // return response()->json($data);
+        }
+        else
         return redirect()->route('dimensions.index');
     }
 
@@ -159,7 +167,10 @@ class DimensioneController extends Controller
             $dimension->default_unit = $request->default_unit;
         }
         $dimension->save();
-        // show
+        // Steps
+        if($request->control_id){
+            $dimension->controls()->sync($request->control_id);
+        }
         return redirect()->route('dimensions.show', $id);
     }
 

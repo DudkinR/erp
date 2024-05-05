@@ -33,9 +33,14 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group mb-2">
+                        <label for="dimensions_new">{{__('New Dimension')}}</label>
+                        <input type="text" class="form-control" id="dimensions_new" name="dimensions_new">
+                        <button type="button" class="btn btn-primary" onclick="add_dimension_to_control({{ $control->id }})">{{__('Add')}}</button>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">{{__('Update')}}</button>
 
-                   
-                    <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
             </div>
         </div>

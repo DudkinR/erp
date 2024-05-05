@@ -16,10 +16,11 @@
                     <div class="form-group row">
                         <label for="description" class="col-md-4 col-form-label text-md-right">{{__('Description')}}</label>
                         <div class="col-md-6">
-                            <input id="description" type="text" class="form-control" name="description" value="{{ $dimension->description }}"  autofocus>
+                          <textarea id="description" class="form-control" name="description" autofocus>{{ $dimension->description }}</textarea>
+
                         </div>
                     </div>
-                    <?php $controls = \App\Control::all(); ?>
+                    <?php $controls = \App\Models\Control::all(); ?>
                     <div class="form-group row">
                         <label for="control_id" class="col-md-4 col-form-label text-md-right">{{__('Control')}}</label>
                         <div class="col-md-6">
@@ -61,12 +62,6 @@
                         <label for="type" class="col-md-4 col-form-label text-md-right">{{__('Type')}}</label>
                         <div class="col-md-6">
                             <input id="type" type="text" class="form-control" name="type" value="{{ $dimension->type }}"  autofocus>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="value" class="col-md-4 col-form-label text-md-right">{{__('Value')}}</label>
-                        <div class="col-md-6">
-                            <input id="value" type="number" class="form-control" name="value" value="{{ $dimension->value }}"  autofocus>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -130,7 +125,10 @@
                             <input id="default_unit" type="text" class="form-control" name="default_unit" value="{{ $dimension->default_unit }}"  autofocus>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
+                    <div class="form-group row">
+                        <button type="submit" class="btn btn-primary w-100">{{__('Edit')}}</button>
+                    </div>
+                    
                 </form>
             </div>
         </div>

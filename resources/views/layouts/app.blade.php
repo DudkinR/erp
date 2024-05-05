@@ -47,12 +47,15 @@
                         <a class="dropdown-item" href="{{ route('docs.index') }}">Document</a>
                         <a class="dropdown-item" href="{{ route('projects.index') }}">Projects</a>
                         <a class="dropdown-item" href="{{ route('problems.index') }}">Problems</a>
+                        <a class="dropdown-item" href="{{ route('tasks.index') }}">Tasks</a>
+                        <a class="dropdown-item" href="{{ route('positions.index') }}">Positions</a>
                         
                         <a class="dropdown-item" href="{{ route('stages.index') }}">Stages</a>
                         <a class="dropdown-item" href="{{ route('steps.index') }}">Step</a>
                         <a class="dropdown-item" href="{{ route('controls.index') }}">Controls</a>
                         <a class="dropdown-item" href="{{ route('dimensions.index') }}">Dimensions</a>
                         <a class="dropdown-item" href="{{ route('imports.index') }}">Import</a>
+
                     </div>
                 </li>
 

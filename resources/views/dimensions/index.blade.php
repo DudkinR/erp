@@ -17,6 +17,12 @@
                             <div class="card-body">
                                 <p>{{ $dimension->description }}</p>
                                 <a href="{{ route('dimensions.edit',$dimension) }}">{{__('Edit')}}</a>
+                                <hr>
+                                <form method="POST" action="{{ route('dimensions.destroy',$dimension) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit">{{__('Delete')}}</button>
+                                </form>
                             </div>
                         </div>
                     </div>

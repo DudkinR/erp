@@ -10,6 +10,7 @@ use App\Models\Control;
 use App\Models\Personal;
 use App\Models\Dimension;
 use App\Models\Client;
+use App\Models\Task;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Helpers\CommonHelper as CommonHelper;
 
@@ -215,9 +216,27 @@ class ProjectController extends Controller
         public function add_stage(Request $request)
         {
             $project = Project::find($request->project_id);
-            $project->stages()->attach($request->stage_id);
-            // return success message
-            return response()->json(['success' => 'Stage added!']);
+            $project->stages()->attach($request->stage_id); 
+            $commonHelper = new CommonHelper();
+          return   $commonHelper->addNewStages($request);
+            $tasks = Task::where('project_id', $request->project_id)->get();
+            return $tasks;
+            
+            redirect('/projects/' . $request->project_id)->with('success', 'Stage added!');
+        }
+        // add_stage_form
+        public function add_stage_form()
+        {
+            
+            return view('projects.formproject');
+        }
+
+        //projectstgantt
+        public function projectstgantt($id)
+        {
+            $project = Project::find($id);
+            $tasks = Task::where('project_id', $id)->get();
+            return view('projects.projectstgantt', compact('project', 'tasks'));
         }
 
 }

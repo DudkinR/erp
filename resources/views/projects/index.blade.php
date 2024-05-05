@@ -170,6 +170,7 @@ $clients = App\Models\Client::all();
                              </p>
                             <a href="/projects/${project.id}/edit" class="btn btn-warning">Edit</a>
                             <a href="/projects/${project.id}" class="btn btn-success">Show</a>
+                            <a href="/projectstgantt/${project.id}" class="btn btn-primary">Gantt</a>
                         </div>
                     </div>
                 `;

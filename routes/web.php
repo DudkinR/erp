@@ -110,6 +110,11 @@ Route::put('/projects/{id}', 'App\Http\Controllers\ProjectController@update')->n
 Route::delete('/projects/{id}', 'App\Http\Controllers\ProjectController@destroy')->name('projects.destroy');
 // post projects.add_stage
 Route::post('/projectstage/add_stage', 'App\Http\Controllers\ProjectController@add_stage')->name('projects.add_stage');
+// formprojectts.add_stage 
+Route::any('/formprojectts/add_stage', 'App\Http\Controllers\ProjectController@add_stage_form')->name('projects.add_stage_form');
+// /projectstgantt
+Route::get('/projectstgantt/{id}', 'App\Http\Controllers\ProjectController@projectstgantt')->name('projects.projectstgantt');
+
 // import data from csv file
 Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');
 Route::post('/projectsimport', 'App\Http\Controllers\ProjectController@importData')->name('projects.importData');
@@ -128,7 +133,7 @@ Route::delete('/controls/{id}', 'App\Http\Controllers\ControlController@destroy'
 // step routes
 Route::get('/steps', 'App\Http\Controllers\StepController@index')->name('steps.index');
 Route::get('/steps/create', 'App\Http\Controllers\StepController@create')->name('steps.create');
-Route::post('/steps', 'App\Http\Controllers\StepController@store')->name('steps.store');
+Route::any('/steps', 'App\Http\Controllers\StepController@store')->name('steps.store');
 Route::get('/steps/{id}', 'App\Http\Controllers\StepController@show')->name('steps.show');
 Route::get('/steps/{id}/edit', 'App\Http\Controllers\StepController@edit')->name('steps.edit');
 Route::put('/steps/{id}', 'App\Http\Controllers\StepController@update')->name('steps.update');
@@ -179,6 +184,25 @@ Route::get('/problems/{id}', 'App\Http\Controllers\ProblemController@show')->nam
 Route::get('/problems/{id}/edit', 'App\Http\Controllers\ProblemController@edit')->name('problems.edit');
 Route::put('/problems/{id}', 'App\Http\Controllers\ProblemController@update')->name('problems.update');
 Route::delete('/problems/{id}', 'App\Http\Controllers\ProblemController@destroy')->name('problems.destroy');
+// tasks routes
+Route::get('/tasks', 'App\Http\Controllers\TaskController@index')->name('tasks.index');
+Route::get('/tasks/create', 'App\Http\Controllers\TaskController@create')->name('tasks.create');
+Route::post('/tasks', 'App\Http\Controllers\TaskController@store')->name('tasks.store');
+Route::get('/tasks/{id}', 'App\Http\Controllers\TaskController@show')->name('tasks.show');
+Route::get('/tasks/{id}/edit', 'App\Http\Controllers\TaskController@edit')->name('tasks.edit');
+Route::put('/tasks/{id}', 'App\Http\Controllers\TaskController@update')->name('tasks.update');
+Route::delete('/tasks/{id}', 'App\Http\Controllers\TaskController@destroy')->name('tasks.destroy');
+// add new stages
+Route::post('/addNewStages', 'App\Http\Controllers\TaskController@addNewStages')->name('tasks.addNewStages');
+// positions routes
+Route::get('/positions', 'App\Http\Controllers\PositionController@index')->name('positions.index');
+Route::get('/positions/create', 'App\Http\Controllers\PositionController@create')->name('positions.create');
+Route::post('/positions', 'App\Http\Controllers\PositionController@store')->name('positions.store');
+Route::get('/positions/{id}', 'App\Http\Controllers\PositionController@show')->name('positions.show');
+Route::get('/positions/{id}/edit', 'App\Http\Controllers\PositionController@edit')->name('positions.edit');
+Route::put('/positions/{id}', 'App\Http\Controllers\PositionController@update')->name('positions.update');
+Route::delete('/positions/{id}', 'App\Http\Controllers\PositionController@destroy')->name('positions.destroy');
+
 
 
 // тестовый роут

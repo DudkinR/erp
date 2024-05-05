@@ -1,6 +1,4 @@
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
 function add_new_step(stage_id) {
     const succesful_step = document.getElementById('succesful_step');
     const url = "/steps";
@@ -48,6 +46,9 @@ function add_new_step(stage_id) {
 
 
 function add_step_to_stage(step_id, stage_id){
+    
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     const url =  "/stagestep/add_step";
     const data = {
         "_token":  csrfToken,
@@ -75,6 +76,9 @@ function add_step_to_stage(step_id, stage_id){
 
 // addControl
 function addControl(step_id){
+    
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     const url =  "/controls";
     const data = {
         "_token":  csrfToken,
@@ -105,6 +109,9 @@ function addControl(step_id){
 
 // remove_step_from_stage
 function remove_step_from_stage(step_id, stage_id){
+    
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     const url =  "/stagesstep/remove_step";
     const data = {
         "_token":  csrfToken,
@@ -137,3 +144,62 @@ function remove_step_from_stage(step_id, stage_id){
     }); 
      
 }
+
+// add_dimension_to_control
+function add_dimension_to_control(control_id){
+    
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    const url =  "/dimensions";
+    const name = document.getElementById('dimensions_new').value;
+    const data = {
+        "_token":  csrfToken,
+        "control_id": control_id,
+        "name": name,
+        "description": "",
+        "novisability": "1",
+    };
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        location.reload();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+function add_stage_to_project(stage_id,project_id,deadline ,responsible_position_id){ 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const url = "/projectstage/add_stage";
+    const data = {
+       "_token":   csrfToken,
+        "stage_id": stage_id,
+        "project_id": project_id,
+        "deadline" : deadline,
+        "responsible_position_id": responsible_position_id,
+    };
+    console.log(data);
+       fetch(url, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+           },
+           body: JSON.stringify(data),
+       })
+       .then(response => response.json())
+       .then(data => {
+           console.log('Success:', data);
+           location.reload();
+       })
+       .catch((error) => {
+           console.error('Error:', error);
+       });
+   }

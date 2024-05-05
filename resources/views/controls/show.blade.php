@@ -33,9 +33,7 @@
                             @endforeach
                         </ul>
                         <hr>
-                       
                         <a href="{{ route('steps.create') }}?control={{$control->id}}" class="btn btn-primary"> {{__('Add new step')}}</a>
-      
                     </div>
                     <div class="card-footer">
                         <a href="{{ route('controls.edit',$control) }}" class="btn btn-primary">{{__('Edit')}}</a>

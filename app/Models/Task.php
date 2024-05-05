@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Task extends Model
+{
+    use HasFactory;
+    // table name 
+    protected $table = 'tasks';
+    // fillable fields `id`, `project_id`, `stage_id`, `step_id`, `dimension_id`, `control_id`, `deadline_date`, `status`, `responsible_position_id`, `dependent_task_id`, `parent_task_id`, `real_start_date`, `real_end_date`, `created_at`, `updated_at`
+    protected $fillable = ['project_id', 'stage_id', 'step_id', 'dimension_id', 'control_id', 'deadline_date', 'status', 'responsible_position_id', 'dependent_task_id', 'parent_task_id', 'real_start_date', 'real_end_date'];
+    // relationships
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+    //parent_task_id
+    public function parentTask()
+    {
+        return $this->belongsTo(Task::class, 'parent_task_id');
+    }
+}

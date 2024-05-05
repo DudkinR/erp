@@ -56,4 +56,8 @@ class Project extends Model
         return $this->hasMany(Problem::class, 'project_id')->count();
     }
     // 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'project_id');
+    }
 }
