@@ -3,38 +3,41 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>{{__('Facts')}}  </h1>
-                <a class="text-right" href="{{ route('facts.create') }}">{{__('Create fact')}}</a>
-                <table class="table">
+                <h1>{{__('Docs')}}  </h1>
+                <a class="text-right" href="{{ route('docs.create') }}">{{__('Create Doc')}}</a>
+                 <table class="table">
                     <thead>
                         <tr>
-                            <th> {{__('Date create')}} </th>
-                            <th> {{__('Name')}} </th>
-                            <th> {{__('Description')}} </th>
-                            <th>{{__('Image')}}</th>
-                       </tr>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Path')}}</th>
+                            <th>{{__('Slug')}}</th>
+                            <th>{{__('Description')}}</th>
+                            <th>{{__('Category')}}</th>
+                            <th>{{__('Actions')}}</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        @foreach($facts as $fact)
+                        @foreach($docs as $doc)
                             <tr>
-                                <td> {{ date('Y-m-d', strtotime($fact->created_at)) }} </td>
-                                <td>{{ $fact->name }}</td>
-                                <td>{!! $fact->description !!}
-                                    <a href="{{ route('facts.show', $fact) }}">{{__('View')}}</a>
-                                    <a href="{{ route('facts.edit', $fact) }}">{{__('Edit')}}</a>
-                                    <form method="POST" action="{{ route('facts.destroy', $fact) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit">{{__('Delete')}}</button>
+                                <td>{{ $doc->name }}</td>
+                                <td>{!! $doc->path !!}</td>
+                                <td>{{ $doc->slug }}</td>
+                                <td>{{ $doc->description }}</td>                              
+                                <td>{{ $doc->category_id }}</td>
+                                <td>
+                                    <a href="{{ route('docs.edit', $doc->id) }}" class="btn btn-warning">{{__('Edit')}}</a>
+                                    <a href="{{ route('docs.show', $doc->id) }}" class="btn btn-primary">{{__('View')}}</a>
+                                    <form method="POST" action="{{ route('docs.destroy', $doc->id) }}" style="display:inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
                                     </form>
-
                                 </td>
-                                <td><img src="{{ asset('images/'.$fact->image) }}" alt="{{ $fact->name }}" style="max-width: 100px;"></td>
-                               </tr>
-                           
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
+                
             </div>
         </div>
     </div>

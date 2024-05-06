@@ -11,7 +11,7 @@ class Doc extends Model
     // table name
     protected $table = 'documentations';    
     // fillable fields
-    protected $fillable = ['name', 'slug', 'description', 'revision_date', 'publication_date', 'creation_date', 'deletion_date', 'last_change_date', 'last_view_date', 'category_id'];
+    protected $fillable = ['name', 'path', 'slug', 'description', 'revision_date', 'publication_date', 'creation_date', 'deletion_date', 'last_change_date', 'last_view_date', 'category_id'];
     // relationship doc - doc
     public function relatedDocs()
     {

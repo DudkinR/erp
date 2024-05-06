@@ -84,6 +84,9 @@ Route::get('/docs/{id}', 'App\Http\Controllers\DocController@show')->name('docs.
 Route::get('/docs/{id}/edit', 'App\Http\Controllers\DocController@edit')->name('docs.edit');
 Route::put('/docs/{id}', 'App\Http\Controllers\DocController@update')->name('docs.update');
 Route::delete('/docs/{id}', 'App\Http\Controllers\DocController@destroy')->name('docs.destroy');
+// import data 
+Route::get('/docsimport', 'App\Http\Controllers\DocController@import')->name('docs.import');
+Route::post('/docsimport', 'App\Http\Controllers\DocController@importData')->name('docs.importData');
 
 //all imports index 
 Route::get('/imports', 'App\Http\Controllers\CommonController@index')->name('imports.index');

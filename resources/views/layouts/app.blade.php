@@ -16,50 +16,74 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
    <script src="{{ asset('js/app.js') }}" defer></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
-
-
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ route('home') }}">PPAPP</a>
+        <a class="navbar-brand" href="{{ route('home') }}">
+           <img src="{{ asset('logo/logo.png') }}" alt="logo" style="width: 150px;">
+        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ route('home') }}">{{__('Home')}}</a>
-                </li>
-               
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{__('More')}}
+                        {{__('Projects')}}
+
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('goals.index') }}">Goals</a>
-                        <a class="dropdown-item" href="{{ route('structure.index') }}">Structure</a>
-                        <a class="dropdown-item" href="{{ route('personal.index') }}">Personal</a>
-                        <a class="dropdown-item" href="{{ route('funs.index') }}">Funs</a>
-                        <a class="dropdown-item" href="{{ route('criteria.index') }}">Criteria</a>
-                        <a class="dropdown-item" href="{{ route('facts.index') }}">Facts</a>
-                        <a class="dropdown-item" href="{{ route('cats.index') }}">Category</a>
-                        <a class="dropdown-item" href="{{ route('docs.index') }}">Document</a>
-                        <a class="dropdown-item" href="{{ route('projects.index') }}">Projects</a>
-                        <a class="dropdown-item" href="{{ route('problems.index') }}">Problems</a>
-                        <a class="dropdown-item" href="{{ route('tasks.index') }}">Tasks</a>
-                        <a class="dropdown-item" href="{{ route('positions.index') }}">Positions</a>
-                        
-                        <a class="dropdown-item" href="{{ route('stages.index') }}">Stages</a>
-                        <a class="dropdown-item" href="{{ route('steps.index') }}">Step</a>
-                        <a class="dropdown-item" href="{{ route('controls.index') }}">Controls</a>
-                        <a class="dropdown-item" href="{{ route('dimensions.index') }}">Dimensions</a>
-                        <a class="dropdown-item" href="{{ route('imports.index') }}">Import</a>
+                        <a class="dropdown-item" href="{{ route('projects.index') }}">{{__('List')}}</a>
+                       <a class="dropdown-item" href="{{ route('problems.index') }}">{{__('Problems')}}</a>
+                       <a class="dropdown-item" href="{{ route('tasks.index') }}">{{__('Tasks')}}</a>
+                      
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('Quality')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('goals.index') }}"> {{__('Goals')}}</a>
+                           <a class="dropdown-item" href="{{ route('facts.index') }}">{{('Facts')}}</a>
+                        <a class="dropdown-item" href="{{ route('cats.index') }}">{{('Category')}}</a>
+                         <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
+                        <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
+                        <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
+                        <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a>
+                        <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
 
                     </div>
                 </li>
-
-                
+              
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('Personal')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('structure.index') }}"> {{__('Structure')}}</a>
+                         <a class="dropdown-item" href="{{ route('personal.index') }}"> {{__('Personal')}}</a>
+                        <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Funs')}}</a>
+                        <a class="dropdown-item" href="{{ route('criteria.index') }}">{{('Criteria')}}</a>
+                     <a class="dropdown-item" href="{{ route('positions.index') }}">{{__('Positions')}}</a>
+                  </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('Documentation')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('docs.index') }}">{{('Document')}}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('Nomenclatures')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('nomenclaturs.index') }}">{{('Nomenclatures')}}</a>
+                    </div>
+                </li>
             </ul>
         </div>
     </nav>
