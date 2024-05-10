@@ -16,6 +16,10 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
    <script src="{{ asset('js/app.js') }}" defer></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+<!-- Scripts -->
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -87,6 +91,7 @@
             </ul>
         </div>
     </nav>
+    @include('layouts.navigation')
     @yield('content')
     
 </body>
