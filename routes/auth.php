@@ -33,6 +33,8 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
                 ->name('password.store');
+   
+
 });
 
 Route::middleware('auth')->group(function () {
@@ -46,9 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
                 ->middleware('throttle:6,1')
                 ->name('verification.send');
-
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-                ->name('password.confirm');
+                ->name('auth.password.confirm');  // Измените имя на уникальное
+        
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
