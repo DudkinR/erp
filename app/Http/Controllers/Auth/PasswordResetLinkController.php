@@ -15,6 +15,7 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): View
     {
+        return view('home');
         return view('auth.forgot-password');
     }
 
@@ -25,6 +26,7 @@ class PasswordResetLinkController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        return view('home');
         $request->validate([
             'email' => ['required', 'email'],
         ]);

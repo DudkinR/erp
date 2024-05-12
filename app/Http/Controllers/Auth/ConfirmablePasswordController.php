@@ -16,7 +16,8 @@ class ConfirmablePasswordController extends Controller
      */
     public function show(): View
     {
-        return view('auth.confirm-password');
+       // return view('auth.confirm-password');
+        return view('home');
     }
 
     /**
@@ -24,6 +25,8 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        return view('home');
+        
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
