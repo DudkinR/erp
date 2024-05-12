@@ -11,7 +11,7 @@ class Doc extends Model
     // table name
     protected $table = 'documentations';    
     // fillable fields
-    protected $fillable = ['name', 'path', 'slug', 'description', 'revision_date', 'publication_date', 'creation_date', 'deletion_date', 'last_change_date', 'last_view_date', 'category_id'];
+    protected $fillable = ['name', 'path', 'slug', 'link', 'description', 'revision_date', 'publication_date', 'creation_date', 'deletion_date', 'last_change_date', 'last_view_date', 'category_id', 'status'];
     // relationship doc - doc
     public function relatedDocs()
     {
@@ -26,5 +26,5 @@ class Doc extends Model
     public function category()
     {
         return $this->belongsTo(Category::class , 'category_id');
-
+    }
 }

@@ -17,12 +17,27 @@
                         <label for="description">{{__('Description')}}</label>
                         <textarea class="form-control" id="description" name="description">{!! $category->description !!} </textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="slug">{{__('Slug')}}</label>
+                        <input type="text" class="form-control" id="slug" name="slug" value="{{ $category->slug }}">
+                    </div>
                     <div id="image_preview" class="form-group"></div>
                     <div class="form-group">
                         <label for="image">{{__('Image')}}</label>
                         <input type="file" class="form-control" id="image" name="image">
                     </div>
                     <div class="form-group">
+                        <label for="parent_id">{{__('Parent')}}</label>
+                        <select class="form-control" id="parent_id" name="parent_id">
+                            <option value="0" selected>{{__('First')}}</option>
+                            <?php
+                            $cats = \App\Models\Category::all();
+                            ?>
+                            @foreach($cats as $cat)
+                                <option value="{{$cat->id}}" @if($category->parent_id == $cat->id) selected @endif>{{$cat->name}}</option>
+                            @endforeach
+                        </select>
+
                        
                     </div>
                     <button type="submit" class="btn btn-primary">

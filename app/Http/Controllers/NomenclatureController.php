@@ -39,9 +39,9 @@ class NomenclatureController extends Controller
         $nomenclature->name = $request->name;
         $nomenclature->article = $request->article;
         $nomenclature->description = $request->description;
-        $nomenclature->image = $request->image;
-        //>hasOne
-        $nomenclature->type()->associate(Type::find($request->type_id));
+
+        //$nomenclature->image = $request->image;
+        //git$nomenclature-
         // save
         $nomenclature->save();
         return redirect()->route('nomenclaturs.index');

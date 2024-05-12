@@ -62,9 +62,8 @@
 
                 </div>
                 <div class="col-md-2">
-                    <a href="{{ route('nomenclaturs.edit', '') }}/${nomenclature.id}">{{__('Edit')}}</a>
-                    <a href="{{ route('nomenclaturs.destroy', '') }}/${nomenclature.id}">{{__('Delete')}}</a>
-                    <a href="{{ route('nomenclaturs.show', '') }}/${nomenclature.id}">{{__('Show')}}</a>
+                    <a href="nomenclaturs/${nomenclature.id}/edit">{{__('Edit')}}</a>
+                    <a href="nomenclaturs/${nomenclature.id}/show">{{__('Show')}}</a>
                     </div>
                 </div>
             `;          

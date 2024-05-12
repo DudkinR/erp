@@ -5,13 +5,12 @@
             <div class="col-md-12">
                 <h1>{{__('nomenclatures')}}</h1>
                 <a class="text-right btn btn-primary" href="{{ route('nomenclaturs.index') }}">{{__('Back')}}</a>
-                </div>
-                
+            </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('nomenclature')}}</h1>
-                <form method="POST" action="{{ route('nomenclaturs.store') }}">
+                <form method="POST" action="{{ route('nomenclaturs.store') }}" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label for="name">{{__('Name')}}</label>
@@ -27,7 +26,16 @@
                     </div>
                     <div class="form-group">
                         <label for="image">{{__('Image')}}</label>
-                        <input type="text" class="form-control" id="image" name="image" value="{{ old('image') }}">
+                        <input type="file" class="form-control" id="image" name="image" value="{{ old('image') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="types">{{__('Types')}}</label>
+                        <select class="form-control" id="types" name="types[]" multiple>
+                            <?php $types = App\Models\Type::all(); ?>
+                            @foreach($types as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                         <button type="submit" class="btn btn-primary w-100">{{__('Create')}}</button>
                 </form>

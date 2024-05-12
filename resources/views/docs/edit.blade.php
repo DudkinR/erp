@@ -3,56 +3,85 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>{{__('Fact')}}</h1>
-                <form method="POST" action="{{ route('facts.update',$fact) }}">
+                <h1>{{__('Documentation')}}</h1>
+                <form method="POST" action="{{ route('docs.update',$doc) }}" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
                     <div class="form-group">
                         <label for="title">
                             {{__('Name')}}
                             </label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ $fact->name }}">
+                        <input type="text" class="form-control" id="name" name="name" value="{{ $doc->name }}">
                     </div>
                     <div class="form-group">
                         <label for="description">{{__('Description')}}</label>
-                        <textarea class="form-control" id="description" name="description">{!! $fact->description !!} </textarea>
+                        <textarea class="form-control" id="description" name="description">{!! $doc->description !!} </textarea>
                     </div>
-                    <div id="image_preview" class="form-group"></div>
                     <div class="form-group">
-                        <label for="image">{{__('Image')}}</label>
-                        <input type="file" class="form-control" id="image" name="image">
+                        <label for="path">{{__('Path')}}</label>
+                        <input type="text" class="form-control" id="path" name="path" value="{{ $doc->path }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="file">{{__('File')}}</label>
+                        <input type="file" class="form-control" id="file" name="file">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">{{__('Category of document')}}</label>
+                        <select class="form-control" id="category_id" name="category_id">
+                            <?php $categories = App\Models\Category::where('parent_id', '>=',1)->get(); ?>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" 
+                                    @if($doc->category_id == $category->id) 
+                                    selected
+                                    @endif
+                                    >{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="file_name">{{__('File Name')}}</label>
+                        <input type="text" class="form-control" id="file_name" name="file_name" value="{{ $doc->file_name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="link">{{__('Link other resource')}}</label>
+                        <input type="text" class="form-control" id="link" name="link" value="{{ $doc->link }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="slug">{{__('Slug')}}</label>
+                        <input type="text" class="form-control" id="slug" name="slug" value="{{ $doc->slug }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="revision_date">{{__('Revision Date')}}</label>
+                        <input type="date" class="form-control" id="revision_date" name="revision_date" value="{{ $doc->revision_date }}">
+
+                    </div>
+                    <div class="form-group">
+                        <label for="publication_date">{{__('Publication Date')}}</label>
+                        <input type="date" class="form-control" id="publication_date" name="publication_date" value="{{ $doc->publication_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="creation_date">{{__('Creation Date')}}</label>
+                        <input type="date" class="form-control" id="creation_date" name="creation_date" value="{{ $doc->creation_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="deletion_date">{{__('Deletion Date')}}</label>
+                        <input type="date" class="form-control" id="deletion_date" name="deletion_date" value="{{ $doc->deletion_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_change_date">{{__('Last Change Date')}}</label>
+                        <input type="date" class="form-control" id="last_change_date" name="last_change_date" value="{{ $doc->last_change_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_view_date">{{__('Last View Date')}}</label>
+                        <input type="date" class="form-control" id="last_view_date" name="last_view_date" value="{{ $doc->last_view_date }}">
                     </div>
                     <div class="form-group">
                         <label for="status">{{__('Status')}}</label>
                         <select class="form-control" id="status" name="status">
-                            <option value="0">{{__('Not Started')}}</option>
-                             <option value="active" 
-                             @if($fact->status == 'active') 
-                                selected
-                            @endif
-                             >{{__('In Progress')}}</option>
-                            <option value="freeze"
-                            @if($fact->status == 'freeze') 
-                                selected
-                            @endif
-                            >{{__('Freeze')}}</option>
-                            <option value="inactive"
-                            @if($fact->status == 'inactive') 
-                                selected
-                            @endif
-                            >{{__('Inactive')}}</option>
-                            <option value="completed"
-                            @if($fact->status == 'completed') 
-                                selected
-                            @endif
-                            >{{__('Complete')}}</option>   
-                            <option value="closed"
-                            @if($fact->status == 'closed') 
-                                selected
-                            @endif
-                            >{{__('Closed')}}</option>
+                            <option value="0" @if($doc->status == 0) selected @endif>{{__('Draft')}}</option>
+                            <option value="1" @if($doc->status == 1) selected @endif>{{__('Published')}}</option>
                         </select>
-                    </div>
+                    </div>          
                     <button type="submit" class="btn btn-primary">
                         {{__('Update')}}
                     </button>

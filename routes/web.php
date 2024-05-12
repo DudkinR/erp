@@ -242,13 +242,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profileimport', 'App\Http\Controllers\ProfileController@import')->name('profiles.import');
 
     // тестовый роут
-    Route::get('/test',
-        function () {
-        // return 'test';
-       $user = Auth::user();
-        return $user->profile;
-        }
-    )->name('test');
+    Route::get('/test', 'App\Http\Controllers\DocController@test')->name('test');
 });
 
 

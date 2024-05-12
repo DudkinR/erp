@@ -15,6 +15,10 @@
                         <label for="description">{{__('Description')}}</label>
                         <textarea class="form-control" id="description" name="description" rows="10" ></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="slug">{{__('Slug')}}</label>
+                        <input type="text" class="form-control" id="slug" name="slug">
+                    </div>
                     <div id="image_preview" class="form-group"></div>
                     <div class="form-group">
                         <label for="image">{{__('Image')}}</label>
