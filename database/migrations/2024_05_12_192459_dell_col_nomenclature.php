@@ -17,8 +17,11 @@ return new class extends Migration
             if (Schema::hasColumn('nomenclature', 'image')) {
                 $table->dropColumn('image');
             }
+            if (Schema::hasColumn('nomenclature', 'nomenclature_type_id_foreign')) {
+                $table->dropColumn('nomenclature_type_id_foreign');
+            }
+            
             if (Schema::hasColumn('nomenclature', 'type_id')) {
-                $table->dropForeign('nomenclature_type_id_foreign');
                 $table->dropColumn('type_id');
             }
         });
