@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\User;
+use App\Models\Personal;
 
 class ProfileController extends Controller
 {
@@ -63,5 +65,25 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+ 
+    // import
+
+    public function import(Request $request): View
+    {
+       $personals = Personal::where('status','!=' ,'Звільнення')->get();
+       // delete all users accept id=1
+         User::where('id', '!=', 1)->delete();
+       foreach($personals as $personal){
+        $user = User::where('email', $personal->tn.'@promprylad.ua')->first();
+        if(!$user){
+            $user = new User();
+            $user->name = $personal->fio;
+            $user->email = $personal->tn.'@promprylad.ua';
+            $user->password = bcrypt($personal->tn);
+            $user->save();
+        }
+       }
+      return $users = User::all();
     }
 }

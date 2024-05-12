@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
+    // use in docs 
     use HasFactory;
     // table name
     protected $table = 'category';
@@ -22,4 +23,10 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+    // relationship docs
+    public function docs()
+    {
+        return $this->belongsToMany(Doc::class, 'category_doc');
+    }
+
 }

@@ -195,7 +195,16 @@ Route::middleware('auth')->group(function () {
     // import data from csv file
     Route::get('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@import')->name('nomenclaturs.import');
     Route::post('/nomenclaturesimport', 'App\Http\Controllers\NomenclatureController@importData')->name('nomenclaturs.importData');
-
+    //nomenclatures.docs.create
+    Route::get('/nomenclatures/{id}/docs/create', 'App\Http\Controllers\NomenclatureController@createDoc')->name('nomenclatures.docs.create');
+    //nomenclatures.docs.store
+    Route::post('/nomenclatures/docs/store', 'App\Http\Controllers\NomenclatureController@storeDoc')->name('nomenclatures.docs.store');
+    //nomenclatures.img.create
+    Route::get('/nomenclatures/{id}/img/create', 'App\Http\Controllers\NomenclatureController@createImg')->name('nomenclatures.img.create');
+    //nomenclatures.img.store
+    Route::post('/nomenclatures/img/store', 'App\Http\Controllers\NomenclatureController@storeImg')->name('nomenclatures.img.store');
+    
+    
     // problems routes
     Route::get('/problems', 'App\Http\Controllers\ProblemController@index')->name('problems.index');
     Route::get('/problems/create', 'App\Http\Controllers\ProblemController@create')->name('problems.create');
@@ -229,13 +238,15 @@ Route::middleware('auth')->group(function () {
    Route::get('/profile/{id}', 'App\Http\Controllers\ProfileController@show')->name('profiles.show');
      Route::put('/profile/{id}', 'App\Http\Controllers\ProfileController@update')->name('profiles.update');
     Route::delete('/profile/{id}', 'App\Http\Controllers\ProfileController@destroy')->name('profiles.destroy');
+    // import data 
+    Route::get('/profileimport', 'App\Http\Controllers\ProfileController@import')->name('profiles.import');
 
     // тестовый роут
     Route::get('/test',
         function () {
         // return 'test';
-        $struct = \App\Models\Struct::find(30);
-        return $struct->positions()->get();
+       $user = Auth::user();
+        return $user->profile;
         }
     )->name('test');
 });

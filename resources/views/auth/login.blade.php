@@ -8,7 +8,7 @@
                 @csrf
                 <div class="form-group">
                     <label for="email">{{__('Email')}}</label>
-                    <input type="email" name="email" id="email" class="form-control" required autofocus>
+                    <input type="text" name="email" id="email" class="form-control"  autofocus>
                     @error('email')
                         <div class="alert alert-danger">{{ $message }}</div>
                     @enderror

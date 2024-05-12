@@ -26,6 +26,7 @@ class DocController extends Controller
     public function create()
     {
         //
+        return view('docs.create');
     }
 
     /**
@@ -34,6 +35,9 @@ class DocController extends Controller
     public function store(Request $request)
     {
         //
+        $doc = new Doc();
+        $doc->name = $request->name;
+        
     }
 
     /**

@@ -12,6 +12,8 @@
                     <li><a href="{{ route('dimensions.import') }}"> {{__('Dimensions import')}}</a></li>
                     <li><a href="{{ route('nomenclaturs.import') }}"> {{__('Nomenclatures import')}}</a></li>
                     <li><a href="{{ route('docs.import') }}"> {{__('Docs import')}}</a></li>
+                  
+                    <li><a href="{{ route('profiles.import') }}"> {{__('Profiles import')}}</a></li>
 
                </ul>
                

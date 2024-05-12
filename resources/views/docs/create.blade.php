@@ -20,6 +20,7 @@
                         <label for="image">{{__('Image')}}</label>
                         <input type="file" class="form-control" id="image" name="image">
                     </div>
+                    <?php 
                     <div class="form-group">
                         <label for="status">{{__('Status')}}</label>
                         <select class="form-control" id="status" name="status">

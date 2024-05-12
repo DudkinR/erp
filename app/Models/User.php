@@ -44,4 +44,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // add personal as profile where profile.tn  and user.mail = tn.'@promprylad.ua
+    public function profile()
+    {
+       $tn = explode('@', $this->email);
+       return $this->
+       belongsTo
+       (Personal::class, 'tn', $tn[0]);
+    }
 }

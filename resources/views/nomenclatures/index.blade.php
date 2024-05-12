@@ -39,10 +39,13 @@
     const types = @json($types);
     const div_numenclatures = document.getElementById('numenclatures');
     var NMS = nomenclatures;
-    function renderNomenclatures() {
+   // console.log(NMS);
+   // console.log(types);
+  function renderNomenclatures() {
         div_numenclatures.innerHTML = '';
         NMS.forEach(nomenclature => {
             const div = document.createElement('div');
+            const typeName = types.find(type => type.id === nomenclature.type_id)?.name || 'Unknown Type';
             div.innerHTML = `
               <div class ="row border">
                 <div class="col-md-1">
@@ -55,7 +58,8 @@
                     ${nomenclature.description}
                 </div>
                 <div class="col-md-3">
-                    ${types.find(type => type.id === nomenclature.type_id).name}
+                    ${typeName}
+
                 </div>
                 <div class="col-md-2">
                     <a href="{{ route('nomenclaturs.edit', '') }}/${nomenclature.id}">{{__('Edit')}}</a>
@@ -78,8 +82,6 @@
          });
          console.log(NMS);
         renderNomenclatures(); // Render the filtered nomenclatures
-    }
-            
-           
+    }       
     </script>
 @endsection

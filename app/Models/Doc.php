@@ -17,5 +17,14 @@ class Doc extends Model
     {
         return $this->belongsToMany(Doc::class, 'doc_doc', 'doc_id', 'related_doc_id');
     }   
+    // relationship doc - nomenclature
+    public function nomenclatures()
+    {
+        return $this->belongsToMany(Nomenclature::class, 'numenclature_doc', 'nomenclature_id', 'doc_id');
+    }
+    // relationship doc - category category_doc
+    public function category()
+    {
+        return $this->belongsTo(Category::class , 'category_id');
 
 }

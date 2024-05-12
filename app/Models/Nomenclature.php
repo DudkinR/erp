@@ -16,5 +16,10 @@ class Nomenclature extends Model
     {
         return $this->belongsTo(Type::class);
     }    
+    // docs 
+    public function docs()
+    {
+        return $this->belongsToMany(Doc::class, 'nomenclature_doc', 'nomenclature_id', 'doc_id');
+    }
 
 }
