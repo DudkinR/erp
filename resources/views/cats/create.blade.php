@@ -19,11 +19,7 @@
                         <label for="slug">{{__('Slug')}}</label>
                         <input type="text" class="form-control" id="slug" name="slug">
                     </div>
-                    <div id="image_preview" class="form-group"></div>
-                    <div class="form-group">
-                        <label for="image">{{__('Image')}}</label>
-                        <input type="file" class="form-control" id="image" name="image">
-                    </div>
+                    @include('components.input_file_image')
                     <div class="form-group">
                         <label for="parent_id">{{__('Parent')}}</label>
                         <select class="form-control" id="status" name="status">
@@ -52,18 +48,6 @@
         </div>
     </div>
     <script>
-        document.getElementById("image").addEventListener("change", function (event) {
-            var image_preview = document.getElementById("image_preview");
-            while (image_preview.firstChild) {
-                image_preview.removeChild(image_preview.firstChild);
-            }
-            for (var i = 0; i < event.target.files.length; i++) {
-                var img = document.createElement("img");
-                img.src = URL.createObjectURL(event.target.files[i]);
-                img.style.maxWidth = "300px";
-                img.style.maxHeight = "300px";
-                image_preview.appendChild(img);
-            }
-        });
+
     </script>
 @endsection

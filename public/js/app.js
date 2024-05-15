@@ -218,3 +218,16 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
     }
 
 }
+document.getElementById("image").addEventListener("change", function (event) {
+    var image_preview = document.getElementById("image_preview");
+    while (image_preview.firstChild) {
+        image_preview.removeChild(image_preview.firstChild);
+    }
+    for (var i = 0; i < event.target.files.length; i++) {
+        var img = document.createElement("img");
+        img.src = URL.createObjectURL(event.target.files[i]);
+        img.style.maxWidth = "300px";
+        img.style.maxHeight = "300px";
+        image_preview.appendChild(img);
+    }
+});

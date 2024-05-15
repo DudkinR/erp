@@ -18,4 +18,14 @@ class Image extends Model
     {
         return $this->belongsToMany(Nomenclature::class, 'image_nomenclature', 'image_id', 'nomenclature_id');
     }
+    // problems
+    public function problems()
+    {
+        return $this->belongsToMany(Problem::class, 'problem_image', 'image_id', 'problem_id');
+    }
+    // categories
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_image', 'image_id', 'category_id');
+    }
 }

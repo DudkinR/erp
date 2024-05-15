@@ -165,12 +165,12 @@ $clients = App\Models\Client::all();
                             <p class="card-text">
                             Count of problems: ${project.problems_count} 
                             <hr>
-                             <a href="/problems/create?project_id=${project.id}" class= "${class_name}">Add problem</a>
+                             <a href="/problems/create?project_id=${project.id}" class= "${class_name}">{{__('Add problem')}}</a>
                             <hr>
                              </p>
-                            <a href="/projects/${project.id}/edit" class="btn btn-warning">Edit</a>
-                            <a href="/projects/${project.id}" class="btn btn-success">Show</a>
-                            <a href="/projectstgantt/${project.id}" class="btn btn-primary">Gantt</a>
+                            <a href="/projects/${project.id}/edit" class="btn btn-warning"> {{__('Edit')}}</a>
+                            <a href="/projects/${project.id}" class="btn btn-success"> {{__('Show')}}</a>
+                            <a href="/projectstgantt/${project.id}" class="btn btn-primary"> {{__('Gantt')}}</a>
                         </div>
                     </div>
                 `;

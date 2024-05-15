@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Problem;
+use App\Models\Image;
 
 class ProblemController extends Controller
 {
@@ -17,7 +18,6 @@ class ProblemController extends Controller
         return view('problems.index', compact('problems'));
 
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -44,15 +44,12 @@ class ProblemController extends Controller
             $personal_id = $request->personal_id;
         }
         return view('problems.create', compact('project_id', 'stage_id', 'step_id', 'control_id', 'personal_id'));
-       
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        // // 'name', 'description', 'priority', 'date_start', 'date_end', 'deadline', 'status', 'project_id', 'stage_id', 'step_id', 'control_id'
         $problem = new Problem();
         $problem->name = $request->name;
         if($request->description){
@@ -85,7 +82,23 @@ class ProblemController extends Controller
         if($request->control_id){
             $problem->control_id = $request->control_id;
         }
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $file->move(public_path() . '/ProblemImages/', $file->getClientOriginalName());
+            $img = new Image();
+            $img->name = $file->getClientOriginalName();
+            $img->path = public_path() . '/ProblemImages/' . $file->getClientOriginalName();
+            $img->extension = $file->getClientOriginalExtension();
+            $img->size = $file->getSize();
+            $img->mime_type = $file->getMimeType();
+            $img->url = '/ProblemImages/' . $file->getClientOriginalName();
+            $img->save();
+        }
         $problem->save();
+        // add img to problem
+        if($img){
+            $problem->images()->attach($img->id);
+        }
         if($request->personal_id&& $request->personal_id!==0){
             $problem->personals()->attach($request->personal_id);
         }

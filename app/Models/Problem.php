@@ -21,5 +21,9 @@ class Problem extends Model
         return $this->belongsToMany(Personal::class, 'problem_personal', 'problem_id', 'personal_id')
         ->withPivot('view', 'comment');
     }
-
+    // images 
+    public function images()
+    {
+        return $this->belongsToMany(Image::class, 'problem_image', 'problem_id', 'image_id');
+    }
 }

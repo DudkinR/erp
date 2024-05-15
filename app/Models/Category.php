@@ -28,5 +28,10 @@ class Category extends Model
     {
         return $this->belongsToMany(Doc::class, 'category_doc');
     }
+    // relationship images
+    public function images()
+    {
+        return $this->belongsToMany(Image::class, 'category_image');
+    }
 
 }

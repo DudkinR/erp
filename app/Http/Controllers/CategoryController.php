@@ -44,12 +44,25 @@ class CategoryController extends Controller
             $file = $request->file('image');
             $file->move(public_path() . '/imagesCat/', $file->getClientOriginalName());
             $category->image = $file->getClientOriginalName();
+            $img = new Image();
+            $img->name = $file->getClientOriginalName();
+            $img->path = public_path() . '/imagesCat/'. $file->getClientOriginalName();
+            $img->extension = $file->getClientOriginalExtension();
+            $img->size = $file->getSize();
+            $img->mime_type = $file->getMimeType();
+            $img->url = public_path() . '/imagesCat/' . $file->getClientOriginalName();
+            $img->alt = $file->getClientOriginalName();
+            $img->title = $file->getClientOriginalName();
+            $img->description = $file->getClientOriginalName();
+            $img->save();
+
         }
         if($request->parent_id == null)
             $category->parent_id = 0;
         else
             $category->parent_id = $request->parent_id;
         $category->save();
+        $category->images()->attach($img->id);
         return redirect()->route('cats.index');
     }
 
@@ -87,10 +100,21 @@ class CategoryController extends Controller
             $file = $request->file('image');
             $file->move(public_path() . '/imagesCat/', $file->getClientOriginalName());
             $category->image = $file->getClientOriginalName();
+            $img = new Image();
+            $img->name = $file->getClientOriginalName();
+            $img->path = public_path() . '/imagesCat/'. $file->getClientOriginalName();
+            $img->extension = $file->getClientOriginalExtension();
+            $img->size = $file->getSize();
+            $img->mime_type = $file->getMimeType();
+            $img->url = public_path() . '/imagesCat/' . $file->getClientOriginalName();
+            $img->alt = $file->getClientOriginalName();
+            $img->title = $file->getClientOriginalName();
+            $img->description = $file->getClientOriginalName();
+            $img->save();
         }
         $category->parent_id = $request->parent_id;
-
         $category->save();
+        $category->images()->attach($img->id);
         return redirect()->route('cats.index');
     }
 
