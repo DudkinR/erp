@@ -7,6 +7,7 @@ use App\Models\Doc;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use App\Models\Category;
+use App\Helpers\StringHelpers as StringHelpers;
 
 class DocController extends Controller
 {
@@ -15,7 +16,7 @@ class DocController extends Controller
      */
     public function index()
     {
-        $docs = Doc::all();
+        $docs = Doc::orderBy('id', 'desc')->get();
         return view('docs.index', compact('docs'));
 
     }
@@ -43,6 +44,7 @@ class DocController extends Controller
         if(!$doc){
             $doc = new Doc();
         }
+        $request->slug = StringHelpers::slugifyNoSpace($request->slug);
         $doc->name = $request->name;
         if($request->hasFile('file')){
             $path = $this->category_path($request->category_id, '');
@@ -56,11 +58,19 @@ class DocController extends Controller
                 $doc->path = $path.'/'.$filename;
                 if($old_path){
                     Storage::delete($old_path);
-                }
+                } 
             }
             $doc->path = $path.'/'.$filename;
         }
+        $doc->category_id = $request->category_id;
         $doc->slug = $request->slug;
+        // lng
+        if($request->lng){
+            $doc->lng = $request->lng;
+        }else{
+            $doc->lng = 'uk';
+        }
+        
         if($request->link){
             $doc->link = $request->link;
         }
@@ -87,26 +97,25 @@ class DocController extends Controller
         $doc->status = $request->status;
         $doc->save();
         return redirect()->route('docs.index');
-
-
     }
     public function category_path($category_id, $path = '')
     {
         $category = Category::find($category_id);
-       // return  $category;
-        if(!$category)
-            return $path;
-        else
-        {
-            $path =$category->slug.'/'.$path;
+        if (!$category) {
+            return rtrim($path, '/'); // Обрезаем лишние слеши справа
+        } else {
+            if (empty($path)) {
+                $path = $category->slug; // Если path пуст, просто используем slug
+            } else {
+                $path = $category->slug . '/' . $path; // Иначе добавляем slug и path через слеш
+            }
             return $this->category_path($category->parent_id, $path);
         }
     }
     public function test(Request $request)
-    {
-        $category_id = $request->cat; 
-        $path = $this->category_path($category_id, '');
-        return $path;
+    { //config app locate
+         $locate = config('app.locale');
+            return $locate;
     }
 
     /**
@@ -126,6 +135,7 @@ class DocController extends Controller
     {
         //
         $doc = Doc::find($id);
+      //  return $doc;
         return view('docs.edit', compact('doc'));
     }
 
@@ -136,6 +146,7 @@ class DocController extends Controller
     {
         $doc = Doc::find($id);
         $doc->name = $request->name;
+        $request->slug = StringHelpers::slugifyNoSpace($request->slug);
         if($request->hasFile('file')){
             $path = $this->category_path($request->category_id, '');
             $file = $request->file('file');
@@ -148,10 +159,32 @@ class DocController extends Controller
             // download file
             $file->storeAs($path, $filename);
             $doc->path = $path.'/'.$filename;
-
-            
+        }else{
+            $path = $this->category_path($request->category_id, '');
+            // проверяем на null значение переменной $path
+            if($path !== null){
+                // имя файла с расширением берем из старого пути
+                $filename =  pathinfo($doc->path, PATHINFO_BASENAME);
+                if($doc->path !== $path.'/'.$filename)
+                {
+                    // копируем старый файл в новый путь и удаляем старый файл
+                    //  $old_path  string
+                    $old_path = $doc->path;
+                    // проверяем существование файла
+                    if($old_path !== NULL && Storage::exists($old_path) ){               
+                        Storage::copy($old_path, $path.'/'.$filename);
+                        if($old_path){
+                            Storage::delete($old_path);
+                        }
+                    }
+                    $doc->path = $path.'/'.$filename;
+                }
+            }
         }
+        
+
         $doc->slug = $request->slug;
+        $doc->category_id = $request->category_id;
         if($request->link){
             $doc->link = $request->link;
         }

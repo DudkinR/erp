@@ -30,9 +30,19 @@
                             <option value="0" selected >{{__('First')}}</option>
                             <?php
                             $cats = \App\Models\Category::all();
+                            if(isset($_GET['parent_id'])){
+                                $parent = $_GET['parent_id'];
+                            }
+                            else {
+                                $parent = 0;
+                            }
                             ?>
                             @foreach($cats as $cat)
-                                <option value="{{$cat->id}}">{{$cat->name}}</option>
+                                <option value="{{$cat->id}}"
+                                    @if($cat->id == $parent)
+                                    selected
+                                    @endif
+                                >{{$cat->name}}</option>
                             @endforeach
                         </select>
                     </div>

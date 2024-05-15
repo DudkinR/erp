@@ -13,18 +13,22 @@ return new class extends Migration
     {
         //
         Schema::table('nomenclature', function (Blueprint $table) {
-           // dell column image if has
-            if (Schema::hasColumn('nomenclature', 'image')) {
-                $table->dropColumn('image');
-            }
-            if (Schema::hasColumn('nomenclature', 'nomenclature_type_id_foreign')) {
-                $table->dropColumn('nomenclature_type_id_foreign');
-            }
-            
-            if (Schema::hasColumn('nomenclature', 'type_id')) {
-                $table->dropColumn('type_id');
-            }
-        });
+
+        $table->dropForeign(['type_id']);
+
+        // Drop column if exists
+        if (Schema::hasColumn('nomenclature', 'image')) {
+            $table->dropColumn('image');
+        }
+        if (Schema::hasColumn('nomenclature', 'nomenclature_type_id_foreign')) {
+            $table->dropColumn('nomenclature_type_id_foreign');
+        }
+        
+        // Now drop the 'type_id' column
+        if (Schema::hasColumn('nomenclature', 'type_id')) {
+            $table->dropColumn('type_id');
+        }
+    });
     }
 
     /**

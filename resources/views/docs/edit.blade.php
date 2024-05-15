@@ -28,7 +28,7 @@
                     <div class="form-group">
                         <label for="category">{{__('Category of document')}}</label>
                         <select class="form-control" id="category_id" name="category_id">
-                            <?php $categories = App\Models\Category::where('parent_id', '>=',1)->get(); ?>
+                            <?php $categories = App\Models\Category::where('parent_id', '>=',0)->get(); ?>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" 
                                     @if($doc->category_id == $category->id) 
@@ -40,7 +40,7 @@
                     </div>
                     <div class="form-group">
                         <label for="file_name">{{__('File Name')}}</label>
-                        <input type="text" class="form-control" id="file_name" name="file_name" value="{{ $doc->file_name }}">
+                        <input type="text" class="form-control" id="file_name" name="file_name" value="{{ $doc->slug }}">
                     </div>
                     <div class="form-group">
                         <label for="link">{{__('Link other resource')}}</label>
@@ -80,8 +80,43 @@
                         <select class="form-control" id="status" name="status">
                             <option value="0" @if($doc->status == 0) selected @endif>{{__('Draft')}}</option>
                             <option value="1" @if($doc->status == 1) selected @endif>{{__('Published')}}</option>
+                            <option value="2" @if($doc->status == 2) selected @endif>{{__('Overdue')}}</option>
+                            <option value="3" @if($doc->status == 3) selected @endif>{{__('Archived')}}</option>
+                            <option value="4" @if($doc->status == 4) selected @endif>{{__('Reference')}}</option>
+                            <option value="5" @if($doc->status == 5) selected @endif>{{__('Deleted')}}</option>
                         </select>
-                    </div>          
+                    </div>   
+                    <div class="form-group">
+                        <label for="document_releted">{{__('Document Releted')}} 
+                            <input type="text" id="find_document" placeholder="{{__('Find document')}}" onkeyup="findDocument()">
+                        </label>
+                        <?php $docs = App\Models\Doc::all(); ?>
+                        <select class="form-control" id="document_releted" name="document_releted[]" multiple>
+                            @foreach($docs as $doc)
+                                <option value="{{ $doc->id }}">{{ $doc->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>  
+                    <div class="form-group">
+                        <label for="lng">{{__('Language')}}</label>
+                        <select class="form-control" id="lng" name="lng">
+                        <option value="uk" 
+                            @if($doc->lng == 'uk') 
+                            selected
+                            @endif
+                        >{{__('Ukrainian')}}</option>
+                            <option value="ru"
+                                @if($doc->lng == 'ru') 
+                                selected
+                                @endif
+                            >{{__('Russian')}}</option>
+                            <option value="en"
+                                @if($doc->lng == 'en') 
+                                selected
+                                @endif
+                            >{{__('English')}}</option>
+                        </select>
+                    </div>     
                     <button type="submit" class="btn btn-primary">
                         {{__('Update')}}
                     </button>

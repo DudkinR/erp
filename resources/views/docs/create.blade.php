@@ -22,8 +22,8 @@
                     </div>
                     <div class="form-group">
                         <label for="category">{{__('Category of document')}}</label>
-                        <select class="form-control" id="category" name="category">
-                            <?php $categories = App\Models\Category ::where('parent_id', '>=',1)->get(); ?>
+                        <select class="form-control" id="category_id" name="category_id">
+                            <?php $categories = App\Models\Category ::where('parent_id', '>=',0)->get(); ?>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
@@ -77,12 +77,22 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="document_releted">{{__('Document Releted')}}</label>
+                        <label for="document_releted">{{__('Document Releted')}} 
+                            <input type="text" id="find_document" placeholder="{{__('Find document')}}" onkeyup="findDocument()">
+                        </label>
                         <?php $docs = App\Models\Doc::all(); ?>
                         <select class="form-control" id="document_releted" name="document_releted[]" multiple>
                             @foreach($docs as $doc)
                                 <option value="{{ $doc->id }}">{{ $doc->name }}</option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lng">{{__('Language')}}</label>
+                        <select class="form-control" id="lng" name="lng">
+                        <option value="uk" selected>{{__('Ukrainian')}}</option>
+                            <option value="ru">{{__('Russian')}}</option>
+                            <option value="en">{{__('English')}}</option>
                         </select>
                     </div>
 
@@ -92,6 +102,7 @@
         </div>
     </div>
     <script>
+        const docs= @json($docs);
         document.getElementById("image").addEventListener("change", function (event) {
             var image_preview = document.getElementById("image_preview");
             while (image_preview.firstChild) {
@@ -105,5 +116,6 @@
                 image_preview.appendChild(img);
             }
         });
+
     </script>
 @endsection

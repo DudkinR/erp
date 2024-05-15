@@ -10,7 +10,7 @@
                         <tr>
                             <th>{{__('Name')}}</th>
                             <th>{{__('Path')}}</th>
-                            <th>{{__('Slug')}}</th>
+                            <th>{{__('Language')}}</th>
                             <th>{{__('Description')}}</th>
                             <th>{{__('Category')}}</th>
                             <th>{{__('Actions')}}</th>
@@ -21,9 +21,31 @@
                             <tr>
                                 <td>{{ $doc->name }}</td>
                                 <td>{!! $doc->path !!}</td>
-                                <td>{{ $doc->slug }}</td>
-                                <td>{{ $doc->description }}</td>                              
-                                <td>{{ $doc->category_id }}</td>
+                                <td>{{ $doc->lng }}</td>
+                                <td>{{ $doc->description }}
+                                @if($doc->path && $doc->path != '')
+                                    @php
+                                        // Путь к файлу
+                                        $path = public_path('files/' . $doc->path);
+                                    @endphp
+                                    @if(file_exists($path))
+                                        <a href="{{ url('files/' . $doc->path) }}" target="_blank">{{ __('File') }}</a>
+                                        <br>
+                                    @endif
+                                @endif
+
+
+                                    @if($doc->link&&$doc->link!='')
+                                        <a href="{{ $doc->link }}" target="_blank">{{__('Link')}}</a>
+                                        <br>
+                                    @endif
+                                </td>                              
+                                <td>
+                                    <?php $category = App\Models\Category::find($doc->category_id); ?>
+                                    @if($category)
+                                        {{ $category->name }}
+                                    @endif
+                                </td>
                                 <td>
                                     <a href="{{ route('docs.edit', $doc->id) }}" class="btn btn-warning">{{__('Edit')}}</a>
                                     <a href="{{ route('docs.show', $doc->id) }}" class="btn btn-primary">{{__('View')}}</a>

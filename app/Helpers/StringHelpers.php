@@ -31,4 +31,9 @@ class StringHelpers extends Helpers
         }
         return $abv;
     }
+    // убираем пробелы со слага
+    public static function slugifyNoSpace(string $string): string
+    {
+        return Str::slug($string, '-');
+    }
 }

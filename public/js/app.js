@@ -203,3 +203,18 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
            console.error('Error:', error);
        });
    }
+   function findDocument() {
+    //find words in docs (name, description) and show (id) in select 
+    // Ранее выбраные документы  должны отображаться в списке
+    var find = document.getElementById("find_document").value;
+    var select = document.getElementById("document_releted");  
+    var old_selected = select.selectedOptions;
+    for (var i = 0; i < select.options.length; i++) {
+        select.options[i].style.display = "none";
+        if (docs[i].name.includes(find) || docs[i].description.includes(find)) {
+            select.options[i].style.display = "block";
+        }
+        
+    }
+
+}

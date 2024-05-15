@@ -48,8 +48,8 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ route('goals.index') }}"> {{__('Goals')}}</a>
-                           <a class="dropdown-item" href="{{ route('facts.index') }}">{{('Facts')}}</a>
-                        <a class="dropdown-item" href="{{ route('cats.index') }}">{{('Category')}}</a>
+                           <a class="dropdown-item" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
+                        <a class="dropdown-item" href="{{ route('cats.index') }}">{{__('Category')}}</a>
                          <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
                         <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
                         <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
@@ -76,7 +76,7 @@
                         {{__('Documentation')}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('docs.index') }}">{{('Document')}}</a>
+                        <a class="dropdown-item" href="{{ route('docs.index') }}">{{__('Document')}}</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
