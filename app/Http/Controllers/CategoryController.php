@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Image;
 use App\Models\Doc;
-// file for upload
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
@@ -128,7 +127,7 @@ class CategoryController extends Controller
             $img->save();
         }
         $category->parent_id = $request->parent_id;
-        $category->save();
+        $category->save(); 
         $category->images()->attach($img->id);
         return redirect()->route('cats.index');
     }
