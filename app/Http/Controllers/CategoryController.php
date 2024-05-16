@@ -45,6 +45,12 @@ class CategoryController extends Controller
         else
             $category->slug = $this->unicslug($request->slug);
         $category->description = $request->description;
+       
+        if($request->parent_id == null)
+            $category->parent_id = 0;
+        else
+            $category->parent_id = $request->parent_id;
+        $category->save();
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $file->move(public_path() . '/imagesCat/', $file->getClientOriginalName());
@@ -60,14 +66,9 @@ class CategoryController extends Controller
             $img->title = $file->getClientOriginalName();
             $img->description = $file->getClientOriginalName();
             $img->save();
-
+            $category->images()->attach($img->id);
         }
-        if($request->parent_id == null)
-            $category->parent_id = 0;
-        else
-            $category->parent_id = $request->parent_id;
-        $category->save();
-        $category->images()->attach($img->id);
+        $category ->save();
         return redirect()->route('cats.index');
     }
     public function unicslug($slug)
