@@ -96,6 +96,8 @@ class DocController extends Controller
         $doc->category_id = $request->category_id;
         $doc->status = $request->status;
         $doc->save();
+        //category belongto docs
+        $doc->categories()->attach($request->category_id);
         return redirect()->route('docs.index');
     }
     public function category_path($category_id, $path = '')
@@ -113,9 +115,11 @@ class DocController extends Controller
         }
     }
     public function test(Request $request)
-    { //config app locate
-         $locate = config('app.locale');
-            return $locate;
+    { 
+        $category_id = $request->id;
+        $cat = Category::find($category_id);
+        return $cat->docs;
+
     }
 
     /**
@@ -210,6 +214,8 @@ class DocController extends Controller
         $doc->category_id = $request ->category_id;
         $doc->status = $request->status;
         $doc->save();
+        //category belongto docs
+        $doc->categories()->attach($request->category_id);
         return redirect()->route('docs.show', $id);
     }
 

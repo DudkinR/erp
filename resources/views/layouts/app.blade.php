@@ -84,15 +84,15 @@
                         {{__('Nomenclatures')}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('nomenclaturs.index') }}">{{('Nomenclatures')}}</a>
+                        <a class="dropdown-item" href="{{ route('nomenclaturs.index') }}">{{__('Nomenclatures')}}</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{__('Profiles')}}
+                        {{__('Profile')}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('profiles.index') }}">{{('Profiles')}}</a>
+                        <a class="dropdown-item" href="{{ route('profiles.index') }}">{{__('Profile')}}</a>
                         <!-- logout -->
                         <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{__('Logout')}}</a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

@@ -26,7 +26,7 @@ class Category extends Model
     // relationship docs
     public function docs()
     {
-        return $this->belongsToMany(Doc::class, 'category_doc');
+        return $this->belongsToMany(Doc::class, 'category_doc', 'category_id', 'doc_id');
     }
     // relationship images
     public function images()

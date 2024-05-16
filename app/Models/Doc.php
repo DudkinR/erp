@@ -22,9 +22,9 @@ class Doc extends Model
     {
         return $this->belongsToMany(Nomenclature::class, 'numenclature_doc', 'nomenclature_id', 'doc_id');
     }
-    // relationship doc - category category_doc
-    public function category()
+    // relationship doc - category category_doc belongsToMany
+    public function  categories()
     {
-        return $this->belongsTo(Category::class , 'category_id');
+        return $this->belongsToMany(Category::class, 'category_doc', 'doc_id', 'category_id');
     }
 }
