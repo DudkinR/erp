@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/docs', 'App\Http\Controllers\DocController@index')->name('docs.index');
     Route::get('/docs/create', 'App\Http\Controllers\DocController@create')->name('docs.create');
     Route::post('/docs', 'App\Http\Controllers\DocController@store')->name('docs.store');
+    Route::any('/apistoredocs', 'App\Http\Controllers\DocController@apistoredocs')->name('docs.apistoredocs');
     Route::get('/docs/{id}', 'App\Http\Controllers\DocController@show')->name('docs.show');
     Route::get('/docs/{id}/edit', 'App\Http\Controllers\DocController@edit')->name('docs.edit');
     Route::put('/docs/{id}', 'App\Http\Controllers\DocController@update')->name('docs.update');

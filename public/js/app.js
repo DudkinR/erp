@@ -218,16 +218,48 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
     }
 
 }
-document.getElementById("image").addEventListener("change", function (event) {
-    var image_preview = document.getElementById("image_preview");
-    while (image_preview.firstChild) {
-        image_preview.removeChild(image_preview.firstChild);
-    }
-    for (var i = 0; i < event.target.files.length; i++) {
-        var img = document.createElement("img");
-        img.src = URL.createObjectURL(event.target.files[i]);
-        img.style.maxWidth = "300px";
-        img.style.maxHeight = "300px";
-        image_preview.appendChild(img);
-    }
-});
+// if getElementById("image") has on page
+if (document.getElementById("image")) {
+    document.getElementById("image").addEventListener("change", function (event) {
+        var image_preview = document.getElementById("image_preview");
+        while (image_preview.firstChild) {
+            image_preview.removeChild(image_preview.firstChild);
+        }
+        for (var i = 0; i < event.target.files.length; i++) {
+            var img = document.createElement("img");
+            img.src = URL.createObjectURL(event.target.files[i]);
+            img.style.maxWidth = "300px";
+            img.style.maxHeight = "300px";
+            image_preview.appendChild(img);
+        }
+    });
+}
+
+function addDraftDocument(){
+    const draft_document_name = document.getElementById("find_document").value;
+    //ajax metod post to  store docs
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const url = "/apistoredocs";
+    const data = {
+        "_token": csrfToken,
+        "name": draft_document_name,
+        "description": "",
+        "status": 0,
+    };
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+      //  location.reload();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+
+}

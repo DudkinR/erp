@@ -5,6 +5,7 @@
             <div class="col-md-12">
                 <h1>{{__('New Document')}}
                     </h1>
+                <a href="{{ route('docs.index') }}" class="btn btn-secondary mb-3">{{__('Back')}}</a>
                 <form method="POST" action="{{ route('docs.store') }}" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
@@ -25,7 +26,11 @@
                         <select class="form-control" id="category_id" name="category_id">
                             <?php $categories = App\Models\Category ::where('parent_id', '>=',0)->get(); ?>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                <option value="{{ $category->id }}"
+                                @if(isset($_GET['category_id']) && $_GET['category_id'] == $category->id)
+                                    selected
+                                @endif  
+                                >{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -79,6 +84,7 @@
                     <div class="form-group">
                         <label for="document_releted">{{__('Document Releted')}} 
                             <input type="text" id="find_document" placeholder="{{__('Find document')}}" onkeyup="findDocument()">
+                            <button type="button" class="btn border" onclick="addDraftDocument()">{{__('Add draft')}}</button>
                         </label>
                         <?php $docs = App\Models\Doc::all(); ?>
                         <select class="form-control" id="document_releted" name="document_releted[]" multiple>
@@ -103,19 +109,6 @@
     </div>
     <script>
         const docs= @json($docs);
-        document.getElementById("image").addEventListener("change", function (event) {
-            var image_preview = document.getElementById("image_preview");
-            while (image_preview.firstChild) {
-                image_preview.removeChild(image_preview.firstChild);
-            }
-            for (var i = 0; i < event.target.files.length; i++) {
-                var img = document.createElement("img");
-                img.src = URL.createObjectURL(event.target.files[i]);
-                img.style.maxWidth = "300px";
-                img.style.maxHeight = "300px";
-                image_preview.appendChild(img);
-            }
-        });
-
+     
     </script>
 @endsection

@@ -97,8 +97,22 @@ class DocController extends Controller
         $doc->status = $request->status;
         $doc->save();
         //category belongto docs
+        // delete old category
+        $doc->categories()->detach();
         $doc->categories()->attach($request->category_id);
         return redirect()->route('docs.index');
+    }
+    // apidocs 
+    public function apistoredocs(Request $request)
+    {
+       // return 55555;
+        $doc = new Doc();
+        $doc->name = $request->name;
+        $doc->status= $request->status;
+        // save
+        $doc->save();
+        return response()->json($doc);
+
     }
     public function category_path($category_id, $path = '')
     {
@@ -215,6 +229,8 @@ class DocController extends Controller
         $doc->status = $request->status;
         $doc->save();
         //category belongto docs
+        // delete old category
+        $doc->categories()->detach();
         $doc->categories()->attach($request->category_id);
         return redirect()->route('docs.show', $id);
     }

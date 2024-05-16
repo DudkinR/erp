@@ -13,6 +13,8 @@
             <div class="row mb-3 border">
                 <div class="col-12 border">
                     <h2>{{ $category0->name }}</h2>
+                    <h6>{{ __('Add docs to this category') }}</h6>
+                    <a href="{{ route('docs.create', ['category_id' => $category0->id]) }}" class="btn border">{{ __('Create Doc') }}</a>
                 </div>
                 @foreach ($category0->docs as $doc)
                 <div class="col-4">
@@ -28,6 +30,8 @@
                 @foreach ($category0->children as $category1)
                 <div class="col-12 ">
                     <h3>{{ $category1->name }}</h3>
+                    <h6>{{ __('Add docs to this category') }}</h6>
+                    <a href="{{ route('docs.create', ['category_id' => $category1->id]) }}" class="btn border">{{ __('Create Doc') }}</a>
                 </div>
                 @foreach ($category1->docs as $doc)
                 <div class="col-4">

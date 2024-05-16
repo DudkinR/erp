@@ -4,6 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('Documentation')}}</h1>
+                <a href="{{ route('docs.index') }}" class="btn btn-secondary mb-3">{{__('Back')}}</a>
                 <form method="POST" action="{{ route('docs.update',$doc) }}" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
@@ -89,6 +90,8 @@
                     <div class="form-group">
                         <label for="document_releted">{{__('Document Releted')}} 
                             <input type="text" id="find_document" placeholder="{{__('Find document')}}" onkeyup="findDocument()">
+                            <button type="button" class="btn border" onclick="addDraftDocument()">{{__('Add draft')}}</button>
+             
                         </label>
                         <?php $docs = App\Models\Doc::all(); ?>
                         <select class="form-control" id="document_releted" name="document_releted[]" multiple>
@@ -125,18 +128,6 @@
         </div>
     </div>
     <script>
-        document.getElementById("image").addEventListener("change", function (event) {
-            var image_preview = document.getElementById("image_preview");
-            while (image_preview.firstChild) {
-                image_preview.removeChild(image_preview.firstChild);
-            }
-            for (var i = 0; i < event.target.files.length; i++) {
-                var img = document.createElement("img");
-                img.src = URL.createObjectURL(event.target.files[i]);
-                img.style.maxWidth = "300px";
-                img.style.maxHeight = "300px";
-                image_preview.appendChild(img);
-            }
-        });
+
     </script>
 @endsection
