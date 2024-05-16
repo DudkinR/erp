@@ -263,3 +263,38 @@ function addDraftDocument(){
     });
 
 }
+const abc_uk=['а','б','в','г','ґ','д','е','є','ж','з','и','і','ї','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ь','ю','я','А','Б','В','Г','Ґ','Д','Е','Є','Ж','З','И','І','Ї','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ь','Ю','Я','1','2','3','4','5','6','7','8','9','0',' ','/',':'];
+const abc_en=['a','b','v','h','g','d','e','ye','zh','z','y','i','yi','y','k','l','m','n','o','p','r','s','t','u','f','kh','ts','ch','sh','shch','`','yu','ya','A','B','V','H','G','D','E','Ye','Zh','Z','Y','I','Yi','Y','K','L','M','N','O','P','R','S','T','U','F','Kh','Ts','Ch','Sh','Shch','`','Yu','Ya','1','2','3','4','5','6','7','8','9','0','-','-','-'];
+const bad_symbols = [ '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '=', '+', '[', ']', '{', '}', ';',  '"', "'", ',', '<', '>', '.',  '?', '\\', '|'];
+if(document.getElementById('name') && document.getElementById('slug') && document.getElementById('slug').value ==''){
+    document.getElementById('name').addEventListener('blur', function(){
+        var name = document.getElementById('name').value;
+        var name_words = name.split(/\s+/); // Разделяем строку по пробелам, но сохраняем пробелы
+        var slug_words = [];
+        var slug_text = '';
+        for (var i = 0; i < name_words.length; i++) {
+            var word = name_words[i];
+            for (var j = 0; j < word.length; j++) {
+                var symbol = word[j];
+                if (abc_uk.includes(symbol)) {
+                    var index = abc_uk.indexOf(symbol);
+                    slug_words.push(abc_en[index]);
+                } else if (abc_en.includes(symbol)) {
+                    slug_words.push(symbol);
+                }
+            }
+            if (slug_words.length > 0) {
+                slug_text += slug_words.join('') + '-'; // Присоединяем слова без тире
+                slug_words = []; // Очищаем массив для следующего слова
+            }
+            if (slug_text.length > 15) {
+                break;
+            }
+        }
+        // Убираем последнее тире, если оно лишнее
+        if (slug_text.endsWith('-')) {
+            slug_text = slug_text.slice(0, -1);
+        }
+        document.getElementById('slug').value = slug_text;
+    });
+}

@@ -67,7 +67,7 @@
                         <a class="dropdown-item" href="{{ route('structure.index') }}"> {{__('Structure')}}</a>
                          <a class="dropdown-item" href="{{ route('personal.index') }}"> {{__('Personal')}}</a>
                         <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Funs')}}</a>
-                        <a class="dropdown-item" href="{{ route('criteria.index') }}">{{('Criteria')}}</a>
+                        <a class="dropdown-item" href="{{ route('criteria.index') }}">{{__('Criteria')}}</a>
                      <a class="dropdown-item" href="{{ route('positions.index') }}">{{__('Positions')}}</a>
                   </div>
                 </li>

@@ -96,7 +96,11 @@
                         <?php $docs = App\Models\Doc::all(); ?>
                         <select class="form-control" id="document_releted" name="document_releted[]" multiple>
                             @foreach($docs as $doc)
-                                <option value="{{ $doc->id }}">{{ $doc->name }}</option>
+                                <option value="{{ $doc->id }}"
+                                    @if(in_array($doc->id, $doc->relatedDocs->pluck('id')->toArray()))
+                                    selected
+                                    @endif
+                                >{{ $doc->name }}</option>
                             @endforeach
                         </select>
                     </div>  

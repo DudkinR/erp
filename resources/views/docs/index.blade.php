@@ -3,8 +3,10 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h1>{{ __('Docs') }}</h1>
+        <div class="col-md-12">
+            <h1>{{ __('Docs') }}</h1>
             <a href="{{ route('docs.create') }}" class="btn btn-primary mb-3 float-right">{{ __('Create Doc') }}</a>
+    </div>
     </div>
     <div class="row border">
         <div class="col-md-12">
@@ -48,5 +50,23 @@
             @endforeach
         </div>
     </div>
-</div>
+    @php $docs_witout_category = App\Models\Doc::where('category_id', NULL)->get(); @endphp
+    <div class="row border">
+        <div class="col-md-12">
+            <h2>{{ __('Docs without category') }}</h2>
+            <h6>{{ __('Add docs to this category') }}</h6>
+            @foreach ($docs_witout_category as $doc)
+            <div class="col-4">
+                <div class="card mb-2">
+                    <div class="card-header">{{ $doc->name }}</div>
+                    <div class="card-body">
+                        <a href="{{ route('docs.show', $doc->id) }}" class="btn btn-primary">{{ __('View') }}</a>
+                        <a href="{{ route('docs.edit', $doc->id) }}" class="btn btn-warning">{{ __('Edit') }}</a>
+
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
 @endsection

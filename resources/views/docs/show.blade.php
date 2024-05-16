@@ -32,12 +32,24 @@
                           <p>{{__('Print')}}:
                             <a href="{{  $doc->path}}" target="_blank" class="btn border" >{{__('Download')}}</a>
                         </p>
+                        @if($doc->revision_date)
                         <p> {{__('Revision Date')}}: {{ date('Y-m-d', strtotime($doc->revision_date)) }}</p>
+                        @endif
+                        @if($doc->publication_date)
                         <p> {{__('Publication Date')}}: {{ date('Y-m-d', strtotime($doc->publication_date)) }}</p>
+                        @endif
+                        @if($doc->creation_date)
                         <p> {{__('Creation Date')}}: {{ date('Y-m-d', strtotime($doc->creation_date)) }}</p>
+                        @endif
+                        @if($doc->deletion_date)
                         <p> {{__('Deletion Date')}}: {{ date('Y-m-d', strtotime($doc->deletion_date)) }}</p>
+                        @endif
+                        @if($doc->last_change_date)
                         <p> {{__('Last Change Date')}}: {{ date('Y-m-d', strtotime($doc->last_change_date)) }}</p>
+                        @endif
+                        @if($doc->last_print_date)
                         <p> {{__('Last View Date')}}: {{ date('Y-m-d', strtotime($doc->last_view_date)) }}</p> 
+                        @endif
                         <p> {{__('Status')}}: 
                             @if($doc->status == 0){{__('Draft')}}
                             @elseif($doc->status == 1){{__('Published')}}

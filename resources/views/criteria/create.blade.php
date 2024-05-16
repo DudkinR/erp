@@ -3,20 +3,16 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>{{__('Create Goal')}}</h1>
-                <form method="POST" action="{{ route('goals.store') }}">
+                <h1>{{__('Criteria')}}</h1>
+                <form method="POST" action="{{ route('criteria.store') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
-                        <label for="title">{{__('Title')}}</label>
+                        <label for="title">{{__('Name')}}</label>
                         <input type="text" class="form-control" id="name" name="name">
                     </div>
                     <div class="form-group">
                         <label for="description">{{__('Description')}}</label>
-                        <textarea class="form-control" rows=10 id="description" name="description"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="due_date">{{__('Due Date')}}</label>
-                        <input type="date" value="{{ date('Y-m-d', strtotime('+1 year')) }}" class="form-control" id="due_date" name="due_date">
+                        <textarea class="form-control" id="description" name="description" rows="10" ></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>

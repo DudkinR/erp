@@ -100,6 +100,11 @@ class DocController extends Controller
         // delete old category
         $doc->categories()->detach();
         $doc->categories()->attach($request->category_id);
+        // document_releted[] attach to  relatedDocs  
+        if($request->document_releted){
+            $doc->relatedDocs()->detach();
+            $doc->relatedDocs()->attach($request->document_releted);
+        }
         return redirect()->route('docs.index');
     }
     // apidocs 
@@ -232,6 +237,11 @@ class DocController extends Controller
         // delete old category
         $doc->categories()->detach();
         $doc->categories()->attach($request->category_id);
+        // document_releted[] attach to  relatedDocs
+        if($request->document_releted){
+            $doc->relatedDocs()->detach();
+            $doc->relatedDocs()->attach($request->document_releted);
+        }
         return redirect()->route('docs.show', $id);
     }
 
@@ -243,6 +253,7 @@ class DocController extends Controller
         //
         $doc = Doc::find($id);
         $doc->delete();
+        return redirect()->route('docs.index');
     }
     //import
     public function import()

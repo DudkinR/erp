@@ -3,14 +3,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Goals</h1>
-                <a class="text-right" href="{{ route('goals.create') }}">Create Goal</a>
+                <h1>{{__('Goals')}}</h1>
+                <a class="text-right" href="{{ route('goals.create') }}">{{__('Create Goal')}}</a>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Title</th>
-                            <th>Actions</th>
+                            <th>{{__('Date')}}</th>
+                            <th>{{__('Title')}}</th>
+                            <th>{{__('Actions')}}</th>
                         </tr>
                     </thead>
                     <tbody>
