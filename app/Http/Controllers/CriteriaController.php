@@ -21,11 +21,13 @@ class CriteriaController extends Controller
     //store  'name',        'description'
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required'
+        $name = $request->name;
+        $description = $request->description;
+        Criteria::create([
+            'name' => $name,
+            'description' => $description
         ]);
-        Criteria::create($request->all());
+
         return redirect()->route('criteria.index');
     }
     //edit
@@ -36,16 +38,19 @@ class CriteriaController extends Controller
     //update
     public function update(Request $request, Criteria $criteria)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required'
+        $name = $request->name;
+        $description = $request->description;
+        $criteria->update([
+            'name' => $name,
+            'description' => $description
         ]);
-        $criteria->update($request->all());
+
         return redirect()->route('criteria.index');
     }
     //destroy
-    public function destroy(Criteria $criteria)
+    public function destroy($id)
     {
+        $criteria = Criteria::find($id);
         $criteria->delete();
         return redirect()->route('criteria.index');
     }

@@ -15,6 +15,10 @@
                         <label for="description">{{__('Description')}}</label>
                         <textarea class="form-control" id="description" name="description" rows="10" >{!! $criteria->description !!} </textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="weight">{{__('Weight')}}</label>
+                        <input type="number" class="form-control" id="weight" name="weight" value="{{ $criteria->weight }}">
+                    </div>
 
                    
                     <button type="submit" class="btn btn-primary">{{__('Update')}}</button>

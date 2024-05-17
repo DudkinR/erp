@@ -94,7 +94,7 @@ $clients = App\Models\Client::all();
         const clientsSelect = document.getElementById('client');
         const option = document.createElement('option');
         option.value = 0;
-        option.innerText = 'All clients';
+        option.innerText = '{{__('All clients')}}';
         clientsSelect.appendChild(option);
         for (const id in clients) {
             const option = document.createElement('option');

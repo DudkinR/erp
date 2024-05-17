@@ -22,22 +22,22 @@
                                     @elseif($goal->status == '2') text-success                                    
                                      @endif">{{ $goal->name }} <hr>
                                      @if($goal->funs->count()  > 0)
-                                        <h4>Functions</h4>
+                                        <h4>{{__('Functions')}}</h4>
                                         <ul>
                                             @foreach($goal->funs as $fun)
                                                 <li>{{ $fun->name }}</li>
                                             @endforeach
                                         </ul>   
                                     @endif
-                                        Add Function: <a href="{{ route('funs.create', ['gl' => $goal->id]) }}">Add</a>
+                                        {{__('Add Function')}}: <a href="{{ route('funs.create', ['gl' => $goal->id]) }}">{{__('Add')}}</a>
                                     </td>
                                 <td>
-                                    <a href="{{ route('goals.show', $goal->id) }}" class="btn btn-default">View</a>
-                                    <a href="{{ route('goals.edit', $goal->id) }}" class="btn btn-warning">Edit</a>
+                                    <a href="{{ route('goals.show', $goal->id) }}" class="btn btn-default">{{__('View')}}</a>
+                                    <a href="{{ route('goals.edit', $goal->id) }}" class="btn btn-warning">{{__('Edit')}}</a>
                                     <form style="display:inline-block" method="POST" action="{{ route('goals.destroy', $goal->id) }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="form-control btn btn-danger">Delete</button>
+                                        <button type="submit" class="form-control btn btn-danger">{{__('Delete')}}</button>
                                     </form>
 
                                 </td>

@@ -14,6 +14,10 @@
                         <label for="description">{{__('Description')}}</label>
                         <textarea class="form-control" id="description" name="description" rows="10" ></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="weight">{{__('Weight')}}</label>
+                        <input type="number" class="form-control" id="weight" name="weight" value="1">
+                    </div>
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
             </div>
