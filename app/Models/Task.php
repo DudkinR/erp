@@ -17,9 +17,36 @@ class Task extends Model
     {
         return $this->belongsTo(Project::class);
     }
+    //stage
+    public function stage()
+    {
+        return $this->belongsTo(Stage::class);
+    }
+    //step
+    public function step()
+    {
+        return $this->belongsTo(Step::class);
+    }
     //parent_task_id
     public function parentTask()
     {
         return $this->belongsTo(Task::class, 'parent_task_id');
+    }
+    // nomenclature
+    public function nomenclatures()
+    {
+        return $this->belongsToMany(Nomenclature::class, 'nomenclature_task', 'task_id', 'nomenclature_id');
+    }
+    //structures
+    public function structures()
+    {
+        return $this->belongsToMany(Struct::class, 'struct_task', 'task_id', 'struct_id');
+    }
+    //dimensions
+    public function dimensions()
+    {
+        return $this->belongsToMany(Dimension::class, 'dimension_task', 'task_id', 'dimension_id')
+        ->withPivot('value', 'fact', 'status', 'comment', 'personal_id')
+        ->withTimestamps();
     }
 }

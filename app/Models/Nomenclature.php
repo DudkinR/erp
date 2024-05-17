@@ -26,5 +26,10 @@ class Nomenclature extends Model
     {
         return $this->belongsToMany(Image::class, 'image_nomenclature', 'nomenclature_id', 'image_id');
     }
+    // tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'nomenclature_task', 'nomenclature_id', 'task_id');
+    }
 
 }

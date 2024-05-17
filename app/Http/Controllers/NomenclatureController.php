@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Nomenclature;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Models\Type;
+use App\Models\Project;
+use App\Models\Struct;
+use App\Models\Stage;
+use App\Models\Step;
+use App\Models\Task;
+use App\Models\Dimension;
+;
 
 class NomenclatureController extends Controller
 {
@@ -15,7 +22,10 @@ class NomenclatureController extends Controller
     public function index()
     {
         //
-        $nomenclatures = Nomenclature::all();
+        $nomenclatures = Nomenclature::with('types')
+        // 100 - limit
+        ->limit(100)
+        ->get();
        // return $nomenclatures;
         return view('nomenclatures.index', compact('nomenclatures'));
     }
@@ -77,9 +87,10 @@ class NomenclatureController extends Controller
         $nomenclature->name = $request->name;
         $nomenclature->article = $request->article;
         $nomenclature->description = $request->description;
-        $nomenclature->image = $request->image;
-        //>hasOne
-        $nomenclature->type()->associate(Type::find($request->type_id));
+        //$nomenclature->image = $request->image;
+        //>belongsToMany
+        $nomenclature->types()->detach();
+        $nomenclature->types()->sync($request->types);
         // save
         $nomenclature->save();
         return redirect()->route('nomenclaturs.index');
@@ -157,12 +168,106 @@ class NomenclatureController extends Controller
             $nomenclature = new Nomenclature();
             $nomenclature->name = $data[0];
             $nomenclature->article = $data[1];
-            //>hasOne
-            $nomenclature->type()->associate(Type::find($type_id));
             // save 
             $nomenclature->save();
+            $nomenclature->types()-> attach($type_id);
 
         }
         return redirect()->route('nomenclaturs.index');
     }
+
+    public function search(Request $request)
+    {
+        // Получаем параметры из запроса
+        $search = $request->input('search', '');
+        $type = $request->input('type'); // Используйте input для получения данных формы или query-параметров
+    
+        // Разделяем поисковый запрос на слова
+        $searchWords = explode(' ', $search);
+    
+        // Осуществляем поиск по номенклатурам
+        $nomenclatures = Nomenclature::query()
+            ->where(function($query) use ($searchWords) {
+                foreach ($searchWords as $word) {
+                    $query->orWhere('name', 'LIKE', "%{$word}%")
+                          ->orWhere('description', 'LIKE', "%{$word}%");
+                }
+            })
+            ->when($type, function($query, $type) {
+                // Уточняем условие поиска по типу, явно указывая, что id относится к таблице types
+                return $query->whereHas('types', function($query) use ($type) {
+                    $query->where('types.id', $type); // Указываем алиас types для таблицы
+                });
+            })
+            ->with('types') // Подгружаем связанные типы сразу
+            ->limit(100) // Ограничиваем количество результатов
+            ->get();
+    
+        return response()->json($nomenclatures);
+    }
+
+    public function addNomenclatureToProject(Request $request)
+    {
+        $projectId = $request->input('project_id');
+        $nomenclatureId = $request->input('nomenclature_id');
+       $positionId = $request->input('position_id');
+        $quantity = $request->input('quantity');
+        $stage_name = $request->input('stage_name');
+        $step_name = $request->input('step_name');
+        $stage = Stage::where('name', $stage_name)->first();
+        if(!$stage)
+        {
+            $stage = new Stage();
+            $stage->name = $stage_name;
+            $stage->save();
+        }
+        $step = Step::where('name', $step_name)->first();
+        if(!$step)
+        {
+            $step = new Step();
+            $step->name = $step_name;
+            $step->save();
+        }
+       
+        $project = Project::find($projectId);
+        $nomenclature = Nomenclature::find($nomenclatureId);
+        //$structure = Struct::find($structureId);
+        $date = new \DateTime();
+        // form task : // fillable fields `id`, `project_id`, `stage_id`, `step_id`, `dimension_id`, `control_id`, `deadline_date`, `status`, `responsible_position_id`, `dependent_task_id`, `parent_task_id`, `real_start_date`, `real_end_date`, `created_at`, `updated_at`
+        $task = new Task();
+        $task->project_id = $projectId;
+        $task->stage_id = $stage->id;
+        $task->step_id = $step->id;
+        
+        $dism = Disn::where('name', 'штук')->first();
+        if(!$dism)
+        {
+            $dism = new Dimension();
+            $dism->name = 'штук';
+            $dism->unit = 'шт';
+            $dism->type = 'int';
+            $dism->save();
+        }
+        // нужна ссылка на dimension которая отвечает за количество а в нее добавить количество и параметры контроля
+        $task->dimension_id = $dism->id;
+        $task->control_id = 0;
+        $task->deadline_date = $date->modify('+1 month')->format('Y-m-d');
+        $task->responsible_position_id = $positionId;
+        $task->dependent_task_id = 0;
+        $task->parent_task_id = 0;
+        $task->real_start_date = date('Y-m-d');
+        $task->real_end_date =  $date->modify('+1 month')->format('Y-m-d');
+        $task->save();
+        $task->nomenclatures()->attach($nomenclatureId);
+        //y Struct belongsToMan positions
+        $structures_responsible =  Struct::whereHas('positions', function($query) use ($positionId) {
+            $query->where('positions.id', $positionId);
+        })->first();
+        $task->structures()->attach($structures_responsible);
+        // create dimension_task
+        $task->dimensions()->attach($dism->id, ['value' => $quantity, 'fact' => 0, 'status' => 'new', 'comment' => '']);
+        return  response()->json(['success' => true]);
+          
+    }
+    
 }

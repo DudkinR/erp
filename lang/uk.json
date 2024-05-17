@@ -212,7 +212,27 @@
     "Add docs to this category" : "Додати документи до цієї категорії",
     "Data" : "Дані",
     "Due Date" : "Дата закінчення",
-        "Your email is" : "Ваш email"
+    "Import" : "Імпорт",
+    "Structure import" : "Імпорт структури",
+    "Personal import" : "Імпорт персоналу",
+    "Types import" : "Імпорт типів",
+    "Projects import" : "Імпорт проектів",
+    "Projects load" : "Завантаження проектів",
+    "Dimensions import" : "Імпорт розмірів",
+    "Nomenclatures import" : "Імпорт номенклатур",
+    "Docs import" : "Імпорт документів",
+    "Profiles import" : "Імпорт профілів",
+    "File csv" : "Файл csv",
+    "Type of file" : "Тип файлу",
+    "Load" : "Завантажити",
+    "Update" : "Оновити",
+    "Create new parent" : "Створити нового батька",
+    "First parent" : "Перший батько",
+    "Create fact" : "Створити факт",
+    "Search" : "Пошук",
+    "All" : "Всі",
+    "Add to project" : "Додати до проекту",
+    "Your email is" : "Ваш email"
 
 
 

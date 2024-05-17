@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Type;
 use App\Helpers\FileHelpers as FileHelpers;
+use App\Helpers\StringHelpers as StringHelpers;
+// DB
+use Illuminate\Support\Facades\DB;
 
 class TypeController extends Controller
 {
@@ -129,6 +132,22 @@ class TypeController extends Controller
             else
             $type_of_file = 0;
             $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
+            // если есть файл очищаем таблицу выставляем инкремент 1
+            if($csvData) {
+                // очищаем таблицу type_type
+                $types = Type::all();
+                foreach ($types as $type) {
+                    //belongsTo parent 
+                    $type->parent()->dissociate();
+                    //hasMany children
+                    $type->children()->delete();
+                    $type->nomenclatures()->detach();
+                    $type->delete();
+                }
+                // сбрасываем инкремент
+                DB::statement('ALTER TABLE types AUTO_INCREMENT = 1');
+               
+            }
         // return $csvData;
         foreach ($csvData as $dt) {
             $data = str_getcsv($dt, ";");
@@ -140,10 +159,10 @@ class TypeController extends Controller
             {
                 if($data[0] != NULL) {
                     $type = new Type();
-                    $type->name = $data[0];
+                    $type->name = $data[0]; 
                     $type->description = $data[0];
                     $type->icon = NULL;
-                    $type->slug = NULL;
+                    $type->slug = StringHelpers::generateSlug($data[0]);
                     $type->color = "#FFFFFF";
                     $type->parent_id = $request->type_id;
                     $type->save();

@@ -204,7 +204,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/nomenclatures/{id}/img/create', 'App\Http\Controllers\NomenclatureController@createImg')->name('nomenclatures.img.create');
     //nomenclatures.img.store
     Route::post('/nomenclatures/img/store', 'App\Http\Controllers\NomenclatureController@storeImg')->name('nomenclatures.img.store');
-    
+    ///search-nomenclatures
+    Route::any('/search-nomenclatures', 'App\Http\Controllers\NomenclatureController@search')->name('nomenclatures.search');
+    // add-nomenclature-to-project
+    Route::any('/add-nomenclature-to-project', 'App\Http\Controllers\NomenclatureController@addNomenclatureToProject')->name('nomenclatures.addNomenclatureToProject');
     
     // problems routes
     Route::get('/problems', 'App\Http\Controllers\ProblemController@index')->name('problems.index');

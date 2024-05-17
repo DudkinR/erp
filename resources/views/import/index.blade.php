@@ -5,15 +5,32 @@
             <div class="col-md-12">
                 <h1>{{__('Import')}}  </h1>
                <ul>
-                    <li><a href="{{ route('structure.import') }}">{{__('Structure import')}}</a></li>
-                    <li><a href="{{ route('personal.import') }}"> {{__('Personal import')}}</a></li>
-                    <li><a href="{{ route('types.import') }}"> {{__('Types import')}}</a></li>
-                    <li><a href="{{ route('projects.import') }}"> {{__('Projects import')}}</a></li>
-                    <li><a href="{{ route('dimensions.import') }}"> {{__('Dimensions import')}}</a></li>
-                    <li><a href="{{ route('nomenclaturs.import') }}"> {{__('Nomenclatures import')}}</a></li>
-                    <li><a href="{{ route('docs.import') }}"> {{__('Docs import')}}</a></li>
+                    <li><a href="{{ route('structure.import') }}">{{__('Structure import')}}</a>
+                   {{ \App\Models\Struct::count();}}
+                    </li>
+                    <li><a href="{{ route('personal.import') }}"> {{__('Personal import')}}</a>
+                    {{ \App\Models\Personal::count();}}
+                
+                </li>
+                    <li><a href="{{ route('types.import') }}"> {{__('Types import')}}</a>
+                    {{ \App\Models\Type::count();}}
+                </li>
+                    <li><a href="{{ route('projects.import') }}"> {{__('Projects import')}}</a>
+                    {{ \App\Models\Project::count();}}
+                </li>
+                    <li><a href="{{ route('dimensions.import') }}"> {{__('Dimensions import')}}</a>
+                    {{ \App\Models\Dimension::count();}}
+                </li>
+                    <li><a href="{{ route('nomenclaturs.import') }}"> {{__('Nomenclatures import')}}</a>
+                    {{ \App\Models\Nomenclature::count();}}
+                </li>
+                    <li><a href="{{ route('docs.import') }}"> {{__('Docs import')}}</a>
+                    {{ \App\Models\Doc::count();}}
+                </li>
                   
-                    <li><a href="{{ route('profiles.import') }}"> {{__('Profiles import')}}</a></li>
+                    <li><a href="{{ route('profiles.import') }}"> {{__('Profiles import')}}</a>
+                    {{ \App\Models\User::count();}}
+                </li>
 
                </ul>
                

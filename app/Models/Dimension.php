@@ -36,4 +36,11 @@ class Dimension extends Model
         return $this->belongsToMany(Control::class, 'control_dimension', 'dimension_id', 'control_id')    
         ->withTimestamps();
     }
+    // task
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'dimension_task', 'dimension_id', 'task_id')
+        ->withPivot('value', 'fact', 'status', 'comment', 'personal_id')
+        ->withTimestamps();
+    }   
 }

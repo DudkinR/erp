@@ -3,15 +3,28 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('nomenclatures')}}</h1>
+            <h1>{{__('Nomenclatures')}}</h1>
                 <a class="text-right" href="{{ route('nomenclaturs.create') }}">{{__('Create')}}</a>
             </div>
         </div> 
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="search" name="search" placeholder="{{__('Search')}}" onkeyup="findWords()">     </div>                   
+                    <input type="text" class="form-control" id="search" name="search" placeholder="{{__('Search')}}" onkeyup="findWords()">     
+                </div>                   
             </div>
+            <div class="col-md-6">
+                <div class="form-group"> 
+                    @php $types = \App\Models\Type::all(); @endphp
+                    <select class="form-control" id="type" name="type" onchange="findWords()">
+                        <option value="">{{__('All')}}</option>
+                        @foreach($types as $type)
+                            <option value="{{$type->id}}">{{$type->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                </div>
+
         </div>
         <div class="row">
             <div class="col-md-1">
@@ -45,7 +58,6 @@
         div_numenclatures.innerHTML = '';
         NMS.forEach(nomenclature => {
             const div = document.createElement('div');
-            const typeName = types.find(type => type.id === nomenclature.type_id)?.name || 'Unknown Type';
             div.innerHTML = `
               <div class ="row border">
                 <div class="col-md-1">
@@ -58,29 +70,121 @@
                     ${nomenclature.description}
                 </div>
                 <div class="col-md-3">
-                    ${typeName}
+                    ${nomenclature.types.map(type => type.name).join(', ')}
 
                 </div>
                 <div class="col-md-2">
                     <a href="nomenclaturs/${nomenclature.id}/edit">{{__('Edit')}}</a>
                     <a href="nomenclaturs/${nomenclature.id}/show">{{__('Show')}}</a>
+                    <button onclick="addToProject(${nomenclature.id})">{{__('Add to project')}}</button>
                     </div>
                 </div>
             `;          
             div_numenclatures.appendChild(div);
         });
     }
-    renderNomenclatures();
-    function findWords() {
-        const search = document.getElementById('search').value.toLowerCase(); // Convert to lowercase for case-insensitive search
-        NMS = nomenclatures.filter(nomenclature => {
-        // Check if nomenclature.name and nomenclature.description are not null before calling toLowerCase()
-        const nameMatches = nomenclature.name && nomenclature.name.toLowerCase().includes(search);
-        const descriptionMatches = nomenclature.description && nomenclature.description.toLowerCase().includes(search);
-        return nameMatches || descriptionMatches;
-         });
-         console.log(NMS);
-        renderNomenclatures(); // Render the filtered nomenclatures
-    }       
+
+function findWords() {
+        const search = document.getElementById('search').value.toLowerCase();
+        const type = document.getElementById('type').value;
+        fetch(`/search-nomenclatures?search=${search}&type=${type}`)
+            .then(response => response.json())
+            .then(data => {
+             //   console.log(data); // For debugging
+                NMS = data;
+                renderNomenclatures();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+        renderNomenclatures();
+    @php 
+    $Work_projects = \App\Models\Project::where('current_state', '!=' ,'Закритий')->get(); 
+    $positions = \App\Models\Position::all();
+    @endphp
+
+    const Work_projects = @json($Work_projects);
+    const positions = @json($positions);
+    function addToProject(nomenclature_id) {
+     // открываем всплывающее окно где выбираем проэкт из выпадающего списка и ставим количество отсылаем пост запросом на 
+        // добавление в таблицу project_nomenclature
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <div class="modal" tabindex="-1" role="dialog" id="modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{__('Add to project')}}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body
+                        ">
+                            <select class="form-control" id="project_id">
+                                ${Work_projects.map(project => `<option value="${project.id}">${project.name}</option>`).join('')}
+                            </select>
+                            <select class="form-control" id="position_id">
+                                ${positions.map(position => `<option value="${position.id}">${position.name}</option>`).join('')}
+                                   </select>
+                            <input type="number" class="form-control" id="quantity" placeholder="{{__('Quantity')}}">
+                            <input type="text" class="form-control" id="stage_name"  placeholder="{{__('Stage name')}}">
+                            <input type="text" class="form-control" id="step_name"  placeholder="{{__('Step name')}}">
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{__('Close')}}</button>
+                            <button type="button" class="btn btn-primary" onclick="addNomenclatureToProject(${nomenclature_id})">{{__('Add')}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(div);
+        $('#modal').modal('show');
+    }
+    function addNomenclatureToProject(nomenclature_id) {
+    const project_id = document.getElementById('project_id').value;
+    const position_id = document.getElementById('position_id').value;
+    const quantity = document.getElementById('quantity').value;
+    const stage_name = document.getElementById('stage_name').value;
+    const step_name = document.getElementById('step_name').value;
+
+    fetch(`/add-nomenclature-to-project`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            nomenclature_id,
+            project_id,
+            position_id,
+            quantity,
+            stage_name,
+            step_name
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // For debugging
+        if (data.success) {
+            // Assuming the server responds with { success: true } upon successful addition
+            $('#modal').modal('hide');
+        } else {
+            // Handle possible server-side errors
+            console.error('Error from server:', data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    
     </script>
 @endsection
