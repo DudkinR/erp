@@ -10,6 +10,8 @@
         </div>
     </div>
     <div class="container" id="categories_show"></div>
+    <div class="container" id="categories_show_without_category"></div>
+
 </div>
 <script>
     @php 
@@ -121,7 +123,40 @@
             categories_show.appendChild(categoryElement);
         });
     }
-
     showDocs(var_categories);
+    const categories_show_without_category = document.getElementById('categories_show_without_category');
+    categories_show_without_category.innerHTML = `
+        <div class="row mb-3 border">
+            <div class="col-12 border">
+                <h2> {{ __('Uncategorized') }} </h2>
+                <h6> {{ __('Add docs to this category') }} </h6>
+                <a href="/docs/create" class="btn border btn-primary"> {{ __('Create Doc') }} </a>
+            </div>
+            ${var_categories.filter(category => category.docs.length > 0).map(function(category) {
+                return `
+                    <div class="col-12">
+                        <h3>${category.name}</h3>
+                        ${category.description ? `<p>${category.description}</p>` : ''}
+                        <h6> {{ __('Add docs to this category') }} </h6>
+                        <a href="/docs/create?category_id=${category.id}" class="btn border"> {{ __('Create Doc') }} </a>
+                    </div>
+                    ${category.docs.map(function(doc) {
+                        return `
+                            <div class="col-4">
+                                <div class="card mb-2">
+                                    <div class="card-header">${doc.name}</div>
+                                    <div class="card-body">
+                                        ${doc.description ? `<p>${doc.description}</p>` : ''}
+                                        <a href="/docs/${doc.id}" class="btn btn-primary"> {{ __('View') }} </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+            }).join('')}
+        </div>
+    `;
+    
 </script>
 @endsection
