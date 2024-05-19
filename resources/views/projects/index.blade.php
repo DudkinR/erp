@@ -16,7 +16,6 @@ $clients = App\Models\Client::all();
                 <button class="btn btn-warning" onclick="refresh()" > {{__('refresh')}} </button>
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group mb-2">
@@ -41,7 +40,6 @@ $clients = App\Models\Client::all();
                 <div class="form-group mb-2">
                     <label for="client">{{__('Client')}}</label>
                     <select name="client" id="client" class="form-control" onchange="renderProjects()">
-                       
                     </select>
                 </div>
             </div>
@@ -64,14 +62,12 @@ $clients = App\Models\Client::all();
                 <!-- find form -->
                 <div class="form-group mb-2">
                     <input type="text" name="search" id="search" class="form-control" onkeyup="findProjects()">
-                    
                 </div>
             </div>
         </div>
         <div class="container" id="projects">
         </div>
     </div>
-
     <script>
         const PRS = @json($projects);
         var PRSW = PRS;
@@ -83,13 +79,10 @@ $clients = App\Models\Client::all();
         }
         // sort by name
         asort($clientslist);
-
         ?>
-
         var clients = @json($clientslist);
         // sort by values
         clients = Object.fromEntries(Object.entries(clients).sort(([,a],[,b]) => a.localeCompare(b)));
-
         // form id client as clients
         const clientsSelect = document.getElementById('client');
         const option = document.createElement('option');
@@ -112,10 +105,8 @@ $clients = App\Models\Client::all();
             PRSW = PRS.filter(project => project.name.includes(search) || project.description.includes(search) || project.number.includes(search));
             renderProjects();
         }
-
         function renderProjects() {
             let projects = PRSW;
-
             projects = show_clients(projects);
             projects = filter_by_current_state(projects);
             projects = sort_by_date(projects);
@@ -126,7 +117,6 @@ $clients = App\Models\Client::all();
             if (sort_priority == 1) {
                 projects = sort_by_priority(projects);
             }
-
             projectsDiv.innerHTML = '';
             projects.forEach(project => {
                 const projectDiv = document.createElement('div');
@@ -153,24 +143,52 @@ $clients = App\Models\Client::all();
                 projectDiv.innerHTML = `
                     <div class="${cardClass}">
                         <div class="card-body">
-                            <h5 class="card-title text-primary">${project.name}</h5>
-                            <p class="card-text">${project.description}</p> 
-                            <p class="card-text">${project.priority}</p>
-                            <p class="card-text">${project.number}</p>
-                            <p class="card-text">${project.date}</p>
-                            <p class="card-text">${project.amount}</p>
-                            <p class="card-text">${clients[project.client]}</p>
-                            <p class="card-text">${project.current_state}</p>
-                            <p class="card-text">${project.execution_period}</p>
-                            <p class="card-text">
-                            Count of problems: ${project.problems_count} 
-                            <hr>
-                             <a href="/problems/create?project_id=${project.id}" class= "${class_name}">{{__('Add problem')}}</a>
-                            <hr>
-                             </p>
-                            <a href="/projects/${project.id}/edit" class="btn btn-warning"> {{__('Edit')}}</a>
-                            <a href="/projects/${project.id}" class="btn btn-success"> {{__('Show')}}</a>
-                            <a href="/projectstgantt/${project.id}" class="btn btn-primary"> {{__('Gantt')}}</a>
+                            <div class="row">    
+                                <div class="col-md-4">
+                                    <h4 class="card-title text-danger">{{__('General information')}}</h4>    
+                                    <h5 class="card-title text-primary">${project.name}</h5>
+                                    <p class="card-text">${project.description}</p> 
+                                    <p class="card-text">${project.priority}</p>
+                                    <p class="card-text">${project.number}</p>
+                                    <p class="card-text">${project.date}</p>
+                                    <p class="card-text">${project.amount}</p>
+                                    <p class="card-text">${clients[project.client]}</p>
+                                    <p class="card-text">${project.current_state}</p>
+                                    <p class="card-text">${project.execution_period}</p>
+                                    <p class="card-text">
+                                    Count of problems: ${project.problems_count}  </p>
+                                    <hr>
+                                    <a href="/projects/${project.id}/edit" class="btn btn-warning"> {{__('Edit')}}</a>
+                                    <a href="/projects/${project.id}" class="btn btn-success"> {{__('Show')}}</a>
+                                    <a href="/projectstgantt/${project.id}" class="btn btn-primary"> {{__('Gantt')}}</a>
+                                 
+                                       </div>
+                                <div class="col-md-4 border">
+                                    <h4 class="card-title text-danger">
+                                        {{__('Docs')}}
+                                    </h4>     
+                                    <ul>
+                                        ${project.docs.map(doc => `<li>
+                                            <a href="/docs/${doc.id}">${doc.name}</a>
+                                            </li>`).join('')}
+                                    </ul>  
+                                    <a href="/addDocs?project_id=${project.id}" class="btn btn-primary">{{__('Add docs')}}</a>
+                                  
+                                    </div>
+                                <div class="col-md-4">
+                                    <h4 class="card-title text-danger">{{__('Tasks')}}</h4>
+                                    <ul>
+                                        ${project.tasks.map(task => `<li>
+                                            <a href="/tasks/${task.id}">${task.name}</a> - ${task.status}
+                                        </li>`).join('')}
+                                    </ul>
+                                    <hr>
+                                    <a href="/tasks/create?project_id=${project.id}" class="btn btn-warning">{{__('Add task')}}</a>
+                                    <a href="/problems/create?project_id=${project.id}" class= "${class_name}">{{__('Add problem')}}</a>
+                                    <a href="/problems?project_id=${project.id}" class="btn btn-warning">{{__('Show problems')}}</a>
+                               
+                                     </div>
+                            </div>   
                         </div>
                     </div>
                 `;
@@ -209,7 +227,6 @@ $clients = App\Models\Client::all();
                 // all without closed, draft and empty
                 return projects.filter(project => project.current_state !== 'Закритий'  && project.current_state !== 'Чернетка' && project.current_state !== '');
             }
-
             return projects.filter(project => project.current_state == current_state);
         }
         renderProjects();
@@ -217,7 +234,5 @@ $clients = App\Models\Client::all();
             PRSW = PRS;
             renderProjects();
         }
-
-        
     </script>
 @endsection

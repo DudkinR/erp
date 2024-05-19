@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Doc;
+use App\Models\Project;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use App\Models\Category;
@@ -17,6 +18,7 @@ class DocController extends Controller
     public function index()
     {
         $docs = Doc::orderBy('id', 'desc')->get();
+
         return view('docs.index', compact('docs'));
 
     }
@@ -334,7 +336,27 @@ class DocController extends Controller
         $doc->save();
         return $doc;
     }
-    // read file
+    // addDocs
+    public function addDocs(Request $request)
+    {     
+        $project = Project::find($request->project_id);
+        $docs = Doc::all();
+        return view('docs.addDocs', compact('project', 'docs'));
+    }
+    // store_to_project
+    public function store_to_project(Request $request)
+    {
+        if(!$request->doc_id){
+            return response()->json('Error: docs', 400);
+        }
+        if(!$request->project_id){
+            return response()->json('Error:project', 400);
+        }
+        $project = Project::find($request->project_id);
+        //$project->docs()->detach();
+        $project->docs()->attach($request->doc_id);
+        return  response()->json('Success: docs projects', 200);
+    }
        
 
 }

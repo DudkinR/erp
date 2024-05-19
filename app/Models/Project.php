@@ -60,4 +60,11 @@ class Project extends Model
     {
         return $this->hasMany(Task::class, 'project_id');
     }
+    // docs
+    public function docs()
+    {
+        return $this->belongsToMany(Doc::class, 'project_doc', 'project_id', 'doc_id')
+        ->withTimestamps();
+    }
+
 }
