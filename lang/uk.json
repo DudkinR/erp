@@ -252,6 +252,11 @@
     "New Document to project" : "Новий документ до проекту",
     "Docs without category" : "Документи без категорії",
     "category" : "категорія",
+    "Add draft" : "Додати чернетку",
+    "draft document" : "чернетка документа",
+    "Find document" : "Знайти документ",
+    "Search document" : "Пошук документа",
+    "No categories or documents found." : "Категорії або документи не знайдені.",    
     "Your email is" : "Ваш email"
 
 

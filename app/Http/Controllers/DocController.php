@@ -341,6 +341,7 @@ class DocController extends Controller
     {     
         $project = Project::find($request->project_id);
         $docs = Doc::all();
+
         return view('docs.addDocs', compact('project', 'docs'));
     }
     // store_to_project
@@ -355,7 +356,7 @@ class DocController extends Controller
         $project = Project::find($request->project_id);
         //$project->docs()->detach();
         $project->docs()->attach($request->doc_id);
-        return  response()->json('Success: docs projects', 200);
+        return  response()->json($request->doc_id);
     }
        
 
