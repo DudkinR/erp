@@ -246,6 +246,18 @@
     "Create new" : "Створити новий",
     "Position new" : "Нова позиція",
     "Add to project" : "Додати до проекту",
+    "General information" : "Загальна інформація",
+    "Add docs" : "Додати документи",
+    "Add task" :  "Додати завдання",
+    "Show problems" : "Показати проблеми",
+    "New Document to project" : "Новий документ до проекту",
+    "Docs without category" : "Документи без категорії",
+    "category" : "категорія",
+    "Add draft" : "Додати чернетку",
+    "draft document" : "чернетка документа",
+    "Find document" : "Знайти документ",
+    "Search document" : "Пошук документа",
+    "No categories or documents found." : "Категорії або документи не знайдені.",    
     "Your email is" : "Ваш email"
 
 
