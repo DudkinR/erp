@@ -9,7 +9,9 @@
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label for="title">{{__('Title')}}</label>
-                        <input type="text" class="form-control" id="name" name="name">
+                        <input type="text" class="form-control" id="name" name="name"
+                               value="{{ session('name', '') }}">
+
                     </div>
                     <div class="form-group">
                         <label for="description">{{__('Description')}}</label>
@@ -36,6 +38,8 @@
                             @foreach($cats as $cat)
                                 <option value="{{$cat->id}}"
                                     @if($cat->id == $parent)
+                                    selected
+                                    @elseif($cat->id == session('status', ''))
                                     selected
                                     @endif
                                 >{{$cat->name}}</option>

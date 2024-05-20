@@ -3,8 +3,13 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Structures</h1>
-                <a class="text-right" href="{{ route('structure.create') }}">Create Structure</a>
+                <h1>
+                    {{__('Structures')}}
+                </h1>
+                <a class="text-right" href="{{ route('structure.create') }}">
+                    {{__('Create Structure')}}
+                    
+                </a>
             </div>
         </div>
         <div class="row">

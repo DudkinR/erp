@@ -6,6 +6,8 @@ require __DIR__.'/auth.php';
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+// save  var sessions
+Route::get('/ss', 'App\Http\Controllers\ApiController@saveSession')->name('save-session');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -226,6 +228,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks/{id}/edit', 'App\Http\Controllers\TaskController@edit')->name('tasks.edit');
     Route::put('/tasks/{id}', 'App\Http\Controllers\TaskController@update')->name('tasks.update');
     Route::delete('/tasks/{id}', 'App\Http\Controllers\TaskController@destroy')->name('tasks.destroy');
+    //addimg
+    Route::post('/tasks/{id}/img/create', 'App\Http\Controllers\TaskController@createImg')->name('tasks.img.create');
     // add new stages
     Route::post('/addNewStages', 'App\Http\Controllers\TaskController@addNewStages')->name('tasks.addNewStages');
     // positions routes

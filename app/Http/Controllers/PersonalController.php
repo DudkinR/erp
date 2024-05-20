@@ -19,7 +19,9 @@ class PersonalController extends Controller
     public function index()
     {
         //
-        $personals = Personal::where('status','!=' ,'Звільнення')->get();
+        $personals = Personal::where('status','!=' ,'Звільнення')
+        ->with('positions')
+        ->get();
         //$personals = Personal::all();
         return view('personals.index', compact('personals'));
 

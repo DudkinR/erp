@@ -5,7 +5,7 @@
             <div class="col-md-12">
             <h1>{{__('Stage')}}</h1>
                 <a class="text-right
-                " href="{{ route('stages.index') }}">Back</a>
+                " href="{{ route('stages.index') }}"> {{__('Back to list')}}</a>
             </div>  
         </div>
         <div class="row">

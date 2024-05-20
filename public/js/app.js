@@ -298,3 +298,30 @@ if(document.getElementById('name') && document.getElementById('slug') && documen
         document.getElementById('slug').value = slug_text;
     });
 }
+// при изменение любого select и input  отсылать запрос на сервер запоминать в сессии  имя и значение 
+// и при загрузке страницы заполнять поля select и input
+var inputs = document.querySelectorAll( 'input, select' );
+for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('change', function(event) {
+        var name = event.target.name ? event.target.name : event.target.id;
+        var value = event.target.value;
+        console.log(name, value);
+        var data = {
+            ns: name,
+            vs: value
+        };
+        fetch('/ss?'+new URLSearchParams(data), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+}

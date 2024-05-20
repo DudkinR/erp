@@ -74,40 +74,7 @@
 
                                 </div>
                                 <div class="card-body">
-                                     <p>{{__('ID')}}: {{$task->id}}</p>
-                                    <p>{{__('Dimension')}}: 
-                                        <ul>
-                                            @foreach($task->dimensions as $dimension)
-                                                <li>
-                                                ->withPivot('value', 'fact', 'status', 'comment', 'personal_id')
-                                                {{$dimension->pivot->value}}
-                                                     {{$dimension->name}}
-                                                     ({{$dimension->pivot->fact}} - 
-                                                     {{$dimension->pivot->status}} - 
-                                                     {{$dimension->pivot->comment}}   - 
-                                                     
-                                                     {{$dimension->pivot->personal_id}}
-                                                     )
-
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                        
-                                    </p>
-
-
-                                    <p>{{__('Status')}}: {{$task->status}}</p>
-                                 
-                                    <p>{{__('Control')}}: {{$task->control_id}}</p>
-                                    <p>{{__('Deadline')}}: {{$task->deadline_date}}</p>
-                                    <p>{{__('Responsible')}}: {{$task->responsible_position_id}}</p>
-                                    <p>{{__('Dependent')}}: {{$task->dependent_task_id}}</p>
-                                    <p>{{__('Parent')}}: {{$task->parent_task_id}}</p>
-                                    <p>{{__('Real start')}}: {{$task->real_start_date}}</p>
-                                    <p>{{__('Real end')}}: {{$task->real_end_date}}</p>
-
-                                    <p>{{__('Created at')}}: {{$task->created_at}}</p>
-                                    <p>{{__('Updated at')}}: {{$task->updated_at}}</p>
+                                    <p>{{__('Status')}}: {{$task->status}}</p>                                 
                                 </div>
                                 <div class="card-footer">
                                     <a href="{{route('tasks.show', $task->id)}}">{{__('Show')}}</a>
