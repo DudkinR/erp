@@ -4,6 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('Stages')}}</h1>
+                <a class="text-right" href="{{ route('stages.index') }}"> {{__('Back')}}</a>
                 <form method="POST" action="{{ route('stages.store') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group mb-2">

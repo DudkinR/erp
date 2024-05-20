@@ -21,18 +21,66 @@ $clients = App\Models\Client::all();
                 <div class="form-group mb-2">
                     <label for="current_state">{{__('Current State')}}</label>
                     <select name="current_state" id="current_state" class="form-control" onchange="renderProjects()">  
-                        <option value="all">{{__('All not closed')}}</option>
-                        <option value="working">{{__('Working')}}</option>
-                        <option value="Очікується погодження">{{__('Очікується погодження')}}</option>
-                        <option value="Виготовлення та комплектація">{{__('Виготовлення та комплектація')}}</option>
-                        <option value="Готовий до забезпечення">{{__('Готовий до забезпечення')}}</option>
-                        <option value="Готовий до відвантаження">{{__('Готовий до відвантаження')}}</option>
-                        <option value="У процесі відвантаження">{{__('У процесі відвантаження')}}</option>
-                        <option value="Очікується оплата (після відвантаження)">{{__('Очікується оплата (після відвантаження)')}}</option>
-                        <option value="Готовий до закриття">{{__('Готовий до закриття')}}</option>
-                         <option value="Закритий">{{__('Закритий')}}</option>
-                        <option value="Чернетка">{{__('Чернетка')}}</option>
-                         <option value="empty">{{__('Empty')}}</option>
+                        <option
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'all')
+                            selected
+                        @endif
+                         value="all">{{__('All not closed')}}</option>
+                        <option value="working"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'working')
+                            selected
+                        @endif
+                        >{{__('Working')}}</option>
+                        <option value="Очікується погодження"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Очікується погодження')
+                            selected
+                        @endif
+                        >{{__('Очікується погодження')}}</option>
+                        <option value="Виготовлення та комплектація"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Виготовлення та комплектація')
+                            selected
+                        @endif
+                        >{{__('Виготовлення та комплектація')}}</option>
+                        <option value="Готовий до забезпечення"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Готовий до забезпечення')
+                            selected
+                        @endif
+                        >{{__('Готовий до забезпечення')}}</option>
+                        <option value="Готовий до відвантаження"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Готовий до відвантаження')
+                            selected
+                        @endif
+                        >{{__('Готовий до відвантаження')}}</option>
+                        <option value="У процесі відвантаження"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'У процесі відвантаження')
+                            selected
+                        @endif
+                        >{{__('У процесі відвантаження')}}</option>
+                        <option value="Очікується оплата (після відвантаження)"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Очікується оплата (після відвантаження)')
+                            selected
+                        @endif
+                        >{{__('Очікується оплата (після відвантаження)')}}</option>
+                        <option value="Готовий до закриття"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Готовий до закриття')
+                            selected
+                        @endif
+                        >{{__('Готовий до закриття')}}</option>
+                         <option value="Закритий"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Закритий')
+                            selected
+                        @endif
+                         >{{__('Закритий')}}</option>
+                        <option value="Чернетка"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'Чернетка')
+                            selected
+                        @endif
+                        >{{__('Чернетка')}}</option>
+                         <option value="empty"
+                        @if(isset($_SESSION['current_state']) && $_SESSION['current_state'] == 'empty')
+                            selected
+                        @endif
+                         >{{__('Empty')}}</option>
                     </select>
                 </div>
             </div>
@@ -47,8 +95,17 @@ $clients = App\Models\Client::all();
                 <div class="form-group mb-2">
                     <label for="sort_way">{{__('Sort straght')}}</label>
                     <select name="sort_way" id="sort_way" class="form-control" onchange="renderProjects()">
-                        <option value="asc">{{__('Ascending')}}</option>
-                        <option value="desc">{{__('Descending')}}</option>
+                        <option value="desc"
+                        @if(isset($_SESSION['sort_way']) && $_SESSION['sort_way'] == 'desc')
+                            selected
+                        @endif
+                        >{{__('Descending')}}</option>
+                        <option value="asc"
+                        @if(isset($_SESSION['sort_way']) && $_SESSION['sort_way'] == 'asc')
+                            selected
+                        @endif
+                        >{{__('Ascending')}}</option>
+                        
                     </select>
                 </div>
             </div>
@@ -61,7 +118,11 @@ $clients = App\Models\Client::all();
             <div class="col-md-4">
                 <!-- find form -->
                 <div class="form-group mb-2">
-                    <input type="text" name="search" id="search" class="form-control" onkeyup="findProjects()">
+                    <input type="text" name="search" id="search" class="form-control" onkeyup="findProjects()"
+                    @if(isset($_SESSION['search']))
+                        value="{{$_SESSION['search']}}"
+                    @endif
+                    placeholder="{{__('Search')}}">
                 </div>
             </div>
         </div>
