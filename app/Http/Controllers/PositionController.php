@@ -10,7 +10,7 @@ class PositionController extends Controller
     // index 
     public function index()
     {
-        $positions = Position::with('positions')->get();
+        $positions = Position::all();
         return view('positions.index', compact('positions'));
     }
     // create

@@ -5,8 +5,12 @@
     <div class="row">
         <div class="col-md-12">
             <h1>{{ __('Docs') }}</h1>
-            <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}">
-            <a href="{{ route('docs.create') }}" class="btn btn-primary mb-3 float-right">{{ __('Create Doc') }}</a>
+            <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}"
+            @if(isset($_SESSION['search']))
+                value="{{ $_SESSION['search'] }}"
+            @endif
+            >
+                        <a href="{{ route('docs.create') }}" class="btn btn-primary mb-3 float-right">{{ __('Create Doc') }}</a>
         </div>
     </div>
     <div class="container" id="categories_show"></div>

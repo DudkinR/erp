@@ -62,7 +62,7 @@
                         <input type="date" class="form-control" id="execution_period" name="execution_period" value="{{$project->execution_period}}">
                     </div>
 
-                    <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
+                    <button type="submit" class="btn btn-primary">{{__('Update')}}</button>
                 </form>
             </div>
         </div>
