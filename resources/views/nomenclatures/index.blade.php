@@ -52,8 +52,6 @@
     const types = @json($types);
     const div_numenclatures = document.getElementById('numenclatures');
     var NMS = nomenclatures;
-   // console.log(NMS);
-   // console.log(types);
   function renderNomenclatures() {
         div_numenclatures.innerHTML = '';
         NMS.forEach(nomenclature => {
@@ -99,12 +97,23 @@ function findWords() {
 
         renderNomenclatures();
     @php 
-    $Work_projects = \App\Models\Project::where('current_state', '!=' ,'Закритий')->get(); 
-    $positions = \App\Models\Position::all();
+        $Work_projects = \App\Models\Project::where('current_state', '!=' ,'Закритий')->get(); 
+        $positions = \App\Models\Position::all();
+        $stages = \App\Models\Stage::all();
+        $steps = \App\Models\Step::all();
     @endphp
-
     const Work_projects = @json($Work_projects);
     const positions = @json($positions);
+    const stages = @json($stages);
+    const steps = @json($steps);
+
+    var project_id_value = {{ session('project_id') ?? 'null' }};
+    var position_id_value = {{ session('position_id') ?? 'null' }};
+    var quantity_value = {{ session('quantity') ?? 'null' }};
+    var stage_id_value = {{ session('stage_id') ?? 'null' }};
+    var step_id_value   = {{ session('step_id') ?? 'null' }};
+
+
     function addToProject(nomenclature_id) {
      // открываем всплывающее окно где выбираем проэкт из выпадающего списка и ставим количество отсылаем пост запросом на 
         // добавление в таблицу project_nomenclature
@@ -119,20 +128,31 @@ function findWords() {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body
-                        ">
+                        <div class="modal-body">
                             <select class="form-control" id="project_id">
-                                ${Work_projects.map(project => `<option value="${project.id}">${project.name}</option>`).join('')}
+                                ${Work_projects.map(project => `<option value="${project.id}"
+                                    ${project.id === project_id_value ? 'selected' : ''}
+                                >${project.name}</option>`).join('')}
                             </select>
                             <select class="form-control" id="position_id">
-                                ${positions.map(position => `<option value="${position.id}">${position.name}</option>`).join('')}
+                                ${positions.map(position => `<option value="${position.id}"
+                                    ${position.id === position_id_value ? 'selected' : ''}                                
+                                >${position.name}</option>`).join('')}
                                    </select>
-                            <input type="number" class="form-control" id="quantity" placeholder="{{__('Quantity')}}">
-                            <input type="text" class="form-control" id="stage_name"  placeholder="{{__('Stage name')}}">
-                            <input type="text" class="form-control" id="step_name"  placeholder="{{__('Step name')}}">
-
-                        </div>
-
+                            <input type="number" class="form-control" id="quantity" name="quantity"
+                                value="${quantity_value}"
+                             placeholder="{{__('Quantity')}}">
+                            <select class="form-control" id="stage_id">
+                                ${stages.map(stage => `<option value="${stage.id}"
+                                    ${stage.id === stage_id_value ? 'selected' : ''}
+                                >${stage.name}</option>`).join('')}
+                            </select>
+                            <select class="form-control" id="step_id">
+                                ${steps.map(step => `<option value="${step.id}"
+                                    ${step.id === step_id_value ? 'selected' : ''}
+                                >${step.name}</option>`).join('')}
+                            </select>
+                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">{{__('Close')}}</button>
                             <button type="button" class="btn btn-primary" onclick="addNomenclatureToProject(${nomenclature_id})">{{__('Add')}}</button>
@@ -148,8 +168,22 @@ function findWords() {
     const project_id = document.getElementById('project_id').value;
     const position_id = document.getElementById('position_id').value;
     const quantity = document.getElementById('quantity').value;
-    const stage_name = document.getElementById('stage_name').value;
-    const step_name = document.getElementById('step_name').value;
+    const stage_name = document.getElementById('stage_id').value;
+    const step_name = document.getElementById('step_id').value;
+    project_id_value = project_id;
+    position_id_value = position_id;
+    quantity_value = quantity;
+    stage_id_value = stage_name;
+    step_id_value = step_name;
+
+    var data = {
+        nomenclature_id: nomenclature_id,
+        project_id: project_id,
+        position_id: position_id,
+        quantity: quantity,
+        stage_name: stage_name,
+        step_name: step_name
+    };
 
     fetch(`/add-nomenclature-to-project`, {
         method: 'POST',
@@ -157,14 +191,7 @@ function findWords() {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({
-            nomenclature_id,
-            project_id,
-            position_id,
-            quantity,
-            stage_name,
-            step_name
-        })
+        body: JSON.stringify(data)
     })
     .then(response => {
         if (!response.ok) {

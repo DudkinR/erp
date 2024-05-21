@@ -207,39 +207,36 @@ class NomenclatureController extends Controller
     }
 
     public function addNomenclatureToProject(Request $request)
-    {
-        $projectId = $request->input('project_id');
-        $nomenclatureId = $request->input('nomenclature_id');
-       $positionId = $request->input('position_id');
-        $quantity = $request->input('quantity');
-        $stage_name = $request->input('stage_name');
-        $step_name = $request->input('step_name');
-        $stage = Stage::where('name', $stage_name)->first();
-        if(!$stage)
-        {
-            $stage = new Stage();
-            $stage->name = $stage_name;
-            $stage->save();
-        }
-        $step = Step::where('name', $step_name)->first();
-        if(!$step)
-        {
-            $step = new Step();
-            $step->name = $step_name;
-            $step->save();
-        }
+    { 
+       // return $request;
        
+        $projectId = $request->project_id;
+        $nomenclatureId = $request->nomenclature_id;
+        $positionId = $request->position_id;
+        $quantity = $request->quantity;
+        $stageName = $request->stage_name;
+        $stepName = $request->step_name;
+ 
+        session(['project_id' => $projectId]);
+        session(['nomenclature_id' => $nomenclatureId]);
+        session(['position_id' => $positionId]);
+        session(['quantity' => $quantity]);
+        session(['stage_name' => $stageName]);
+        session(['step_name' => $stepName]);
+        
+        $stage = Stage::find( $stageName);
+        $step = Step::find($stepName);
         $project = Project::find($projectId);
         $nomenclature = Nomenclature::find($nomenclatureId);
+
         //$structure = Struct::find($structureId);
         $date = new \DateTime();
-        // form task : // fillable fields `id`, `project_id`, `stage_id`, `step_id`, `dimension_id`, `control_id`, `deadline_date`, `status`, `responsible_position_id`, `dependent_task_id`, `parent_task_id`, `real_start_date`, `real_end_date`, `created_at`, `updated_at`
         $task = new Task();
         $task->project_id = $projectId;
         $task->stage_id = $stage->id;
         $task->step_id = $step->id;
         
-        $dism = Disn::where('name', 'штук')->first();
+        $dism = Dimension::where('name', 'штук')->first();
         if(!$dism)
         {
             $dism = new Dimension();
