@@ -59,7 +59,7 @@
 </div>
 
 <script>
-
+    document.addEventListener("DOMContentLoaded", function() {
         const steps = @json($stage->steps);
         let steps_really = steps;
         const positions = @json(App\Models\Position::all());
@@ -68,6 +68,7 @@
         function order_steps(steps) {
             return steps.map((step, index) => ({ ...step, order: index + 1 }));
         }
+
         function change_order(index, value) {
             steps_really[index].order = parseInt(value);
             steps_really.sort((a, b) => a.order - b.order);
@@ -130,19 +131,15 @@
             steps_really = order_steps(steps_really);
             show_tasks();
         }
- 
 
         function double_task(index, step_id) {
-            // add new step after index
             const step = steps.find(step => step.id === step_id);
             steps_really.splice(index + 1, 0, { ...step, id: null });
-
             steps_really = order_steps(steps_really);
             show_tasks();
         }
 
-        function generate_blank(){
-            // выбрать все позиции для каждого действия и добавить в steps_really  количество действий должно быть равно количеству выбранных позиций * количество действий
+        function generate_blank() {
             let act_pos = document.getElementById('act_pos');
             let act_pos_selected = [];
             for (let i = 0; i < act_pos.options.length; i++) {
@@ -150,24 +147,26 @@
                     act_pos_selected.push(act_pos.options[i].value);
                 }
             }
+
             let new_steps = [];
-            for (let i = 0; i < act_pos_selected.length; i++) {
-                for (let j = 0; j < steps_really.length; j++) {
-                    new_steps.push({...steps_really[j], position_id: act_pos_selected[i]});
+            for (let i = 0; i < steps_really.length; i++) {
+                for (let j = 0; j < act_pos_selected.length; j++) {
+                    new_steps.push({...steps_really[i], position_id: act_pos_selected[j]});
                 }
             }
+
             steps_really = new_steps;
-            
+            steps_really = order_steps(steps_really);
             show_tasks();
-
-
         }
 
         window.move_step = move_step;
         window.double_task = double_task;
+        window.change_order = change_order;
+        window.generate_blank = generate_blank;
 
         steps_really = order_steps(steps_really);
         show_tasks();
-  
+    });
 </script>
 @endsection
