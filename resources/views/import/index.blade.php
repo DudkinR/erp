@@ -32,8 +32,20 @@
                     {{ \App\Models\User::count();}}
                 </li>
 
+
                </ul>
                
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{{__('Clear')}}  </h1>
+                <ul>
+                      <li><a href="{{ route('tasks.clear') }}">{{__('Tasks clear')}}</a>
+                     {{ \App\Models\Task::count();}}
+                     </li>
+                </ul>
+            </div>
+        </div>         
+
     </div>
 @endsection

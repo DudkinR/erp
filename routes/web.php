@@ -157,7 +157,7 @@ Route::middleware('auth')->group(function () {
     // step routes
     Route::get('/steps', 'App\Http\Controllers\StepController@index')->name('steps.index');
     Route::get('/steps/create', 'App\Http\Controllers\StepController@create')->name('steps.create');
-    Route::any('/steps', 'App\Http\Controllers\StepController@store')->name('steps.store');
+    Route::post('/steps', 'App\Http\Controllers\StepController@store')->name('steps.store');
     Route::get('/steps/{id}', 'App\Http\Controllers\StepController@show')->name('steps.show');
     Route::get('/steps/{id}/edit', 'App\Http\Controllers\StepController@edit')->name('steps.edit');
     Route::put('/steps/{id}', 'App\Http\Controllers\StepController@update')->name('steps.update');
@@ -229,7 +229,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/tasks/{id}', 'App\Http\Controllers\TaskController@update')->name('tasks.update');
     Route::delete('/tasks/{id}', 'App\Http\Controllers\TaskController@destroy')->name('tasks.destroy');
     //addimg
-    Route::post('/tasks/{id}/img/create', 'App\Http\Controllers\TaskController@createImg')->name('tasks.img.create');
+    Route::post('/taskimgs/{id}/create', 'App\Http\Controllers\TaskController@createImg')->name('tasksimg.create');
+    //Tasks clear
+    Route::get('/task_clear', 'App\Http\Controllers\TaskController@clear')->name('tasks.clear');
+  
     // add new stages
     Route::post('/addNewStages', 'App\Http\Controllers\TaskController@addNewStages')->name('tasks.addNewStages');
     // positions routes
