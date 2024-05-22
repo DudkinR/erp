@@ -175,6 +175,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/stagestep/add_step', 'App\Http\Controllers\StageController@add_step')->name('stages.add_step');
     // /stagesstep/remove_step
     Route::any('stagesstep/remove_step', 'App\Http\Controllers\StageController@remove_step')->name('stages.remove_step');
+    /// stages.new_steps
+    Route::post('/stages_new_steps', 'App\Http\Controllers\StageController@new_steps')->name('stages.new_steps');
 
     // dimension routes
     Route::get('/dimensions', 'App\Http\Controllers\DimensioneController@index')->name('dimensions.index');
