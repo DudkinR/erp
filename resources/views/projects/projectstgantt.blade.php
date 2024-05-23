@@ -52,7 +52,9 @@
             <div class="col-md-12">
             <h1>{{__('Gant')}}</h1>
                 <a class="text-right
-                " href="{{ route('projects.index') }}">Back</a>
+                " href="{{ route('projects.index') }}">
+                    {{ __('Back') }}
+                </a>
             </div>  
         </div>
         <div class="row">
@@ -109,13 +111,13 @@ foreach ($tasks as $task) {
     
     $demoSource[] = [
         'name' => '<a href="'.route('stages.show', $task->stage_id).'">'.$stage->name.'</a>',
-        'desc' => '<a href="'.route('controls.show', $task->control_id).'">'.$control->name.'</a>',        
+        'desc' => '<a href="'.route('stages.show', $task->stage_id).'">'.$stage->name.'</a>',   
         'values' => [ [
             'from' => strtotime($task->real_start_date),
             'to' => strtotime($task->deadline_date),
-            'label' =>  $dimension->name,
+            'label' =>  $step->name,
             'customClass' => $customClass,
-            'dimension_description' => $dimension->description,
+            'dimension_description' => $step->description,
         ]]
     ];
 }

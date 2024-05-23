@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Stage;
+use App\Models\Task;
+use App\Models\Project;
+use App\Models\Step;
+use App\Models\Dimension;
 
 class StageController extends Controller
 {
@@ -117,5 +121,46 @@ class StageController extends Controller
         $stage = Stage::find($request->stage_id);
         $stage->steps()->detach($request->step_id);
         return response()->json((object)['status' => 'success']);
+    }
+    // new_steps
+    public function new_steps(Request $request)
+    {
+       // return $request->all();{"_token":"lfRKYIfJDNioSd8SiE2D6m9K6sTtq6TZReRsFZ5E","_method":"POST","stage_id":"12","project_id":"204","deadline":"2024-05-24","steps":[{"order":"1","position_id":"1","count":"1","type":"photo","checkpoints":"on","step_id":"12"}
+       // нужно сгенерировать задания и сохранить Task
+       // fillable fields `id`, `project_id`, `stage_id`, `step_id`, `dimension_id`, `control_id`, `deadline_date`, `status`, `responsible_position_id`, `dependent_task_id`, `parent_task_id`, `real_start_date`, `real_end_date`, `created_at`, `updated_at` , 'count'
+       $project_id = $request->project_id;
+       $stage_id = $request->stage_id; 
+       $deadline = $request->deadline;
+      // $count = $request->count;
+      // $type = $request->type;
+       $dimension = Dimension::where('name', 'штук')->first();
+       
+
+       if (!$dimension) {
+           $dimension = new Dimension();
+           $dimension->name = 'штук';
+           $dimension->description = 'штук';
+           $dimension->save();
+       }
+       
+       $dimension_id = $dimension->id;
+       
+       $steps = $request->steps;
+       foreach($steps as $step){
+           $task = new Task();
+           $task->project_id = $project_id;
+           $task->stage_id = $stage_id;
+           $task->step_id = $step['step_id'];
+           $task->dimension_id = $dimension_id;
+           $task->deadline_date = $deadline;
+           $task->status = 'new';
+           $task->responsible_position_id = $step['position_id'];
+           $task->count =  $step['count'];
+              $task->type = $step['type'];
+           $task->save();
+       }
+        // redirect to show project_id
+        return redirect()->route('projects.show', $project_id);
+
     }
 }

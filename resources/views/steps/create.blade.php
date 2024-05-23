@@ -33,7 +33,6 @@
                             @endforeach
                         </select>
                     </div>
-                       
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
             </div>
