@@ -262,6 +262,7 @@
     "Back to list" : "Назад до списку",
     "No categories or documents found." : "Категорії або документи не знайдені.",    
     "tasks" : "завдання",
+    "Count" : "Кількість",
     "Add image" : "Додати зображення",
     "Completed" : "Завершено",
     "Back to tasks" : "Назад до завдань",
@@ -278,6 +279,7 @@
     "Generate blank" : "Генерувати бланк",
     "Action positions" : "Дії з позиціями",
     "Gant" : "Діаграма Ганта",
+    "Execute" : "Виконати",
     "Your email is" : "Ваш email"
 
 

@@ -28,4 +28,9 @@ class Image extends Model
     {
         return $this->belongsToMany(Category::class, 'category_image', 'image_id', 'category_id');
     }
+    // tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'image_task', 'image_id', 'task_id');
+    }
 }

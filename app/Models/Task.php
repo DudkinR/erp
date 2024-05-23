@@ -49,4 +49,9 @@ class Task extends Model
         ->withPivot('value', 'fact', 'status', 'comment', 'personal_id')
         ->withTimestamps();
     }
+    // images
+    public function images()
+    {
+        return $this->belongsToMany(Image::class, 'image_task', 'task_id', 'image_id');
+    }
 }
