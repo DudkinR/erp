@@ -8,6 +8,7 @@ use App\Models\Stage;
 use App\Models\Step;
 use App\Models\Control;
 use App\Models\Personal;
+use App\Models\Position;
 use App\Models\Dimension;
 use App\Models\Client;
 use App\Models\Task;
@@ -245,5 +246,72 @@ class ProjectController extends Controller
             $tasks = Task::where('project_id', $id)->get();
             return view('projects.projectstgantt', compact('project', 'tasks'));
         }
+
+        //stage_tasks/{project_id}/{stage_id}
+        public function stage_tasks( $project_id, $stage_id)
+        {
+            $tasks = Task::where('project_id', $project_id)->where('stage_id', $stage_id)->get();
+            $mass_print =$this->stage_tasks_all($tasks);
+           // return $mass_print['positions'];
+          return    view('projects.stage_tasks', compact('mass_print', 'project_id', 'stage_id'));
+        }
+        /* 
+         получаем все задачи по проекту на стадии 
+         у нас есть шаги но разные исполнители
+         нужно создать массив с шагами и действия исполнителей
+         шаг=>1, position_1=> complected, position_51=> complected, position_11=> new
+         шаг=>2, position_1=> new, position_51=> new, position_11=> new
+         шаг=>3, position_1=> new, position_51=> complected, position_11=> new
+         шаг=>5, position_1=> complected, position_51=> new, position_11=> complected
+         ...
+        */
+        public function stage_tasks_all($tasks)
+        {
+            $mass_print = [];
+            $i = 0;
+            $step_ids = [];
+            $position_ids = [];
+        
+            foreach ($tasks as $task) {
+                // Уникальные step_id
+                if (!in_array($task->step_id, $step_ids)) {
+                    $i++;
+                    $step_ids[] = $task->step_id;
+                }
+        
+                // Организация данных по задачам
+                $mass_print['data'][$task->step_id][$task->responsible_position_id] = [
+                    'status' => $task->status,
+                    'deadline_date' => $task->deadline_date,
+                    'real_start_date' => $task->real_start_date,
+                    'real_end_date' => $task->real_end_date,
+                    'type' => $task->type,
+                    'images' => $task->images,
+                ];
+        
+                // Добавление уникальных позиций в массив positions
+                if (!in_array($task->responsible_position_id, $position_ids)) {
+                    $position_ids[] = $task->responsible_position_id;
+                    $pos = Position::find($task->responsible_position_id);
+                    if ($pos) {
+                        $mass_print['positions'][] = $pos;
+                    }
+                }
+        
+                // Организация данных по step_id
+                $mass_print['data'][$task->step_id]['order'] = $i;
+                $mass_print['data'][$task->step_id]['count'] = $task->count;
+                $mass_print['data'][$task->step_id]['name'] = $task->step->name;
+                $mass_print['data'][$task->step_id]['description'] = $task->step->description;
+        
+                // Установка статуса для step_id
+                if (!isset($mass_print['data'][$task->step_id]['status']) || $mass_print['data'][$task->step_id]['status'] != "completed") {
+                    $mass_print['data'][$task->step_id]['status'] = $task->status;
+                }
+            }
+        
+            return $mass_print;
+        }
+        
 
 }

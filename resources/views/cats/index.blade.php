@@ -34,9 +34,10 @@
 
                                 </td>
                                 <td>
-                                    @if($category->image)
-                                        <img src="{{ asset('imagesCat/'.$category->image) }}" alt="{{ $category->name }}" style="max-width: 100px;">
-                                    @endif
+                                    @foreach($category->images as $image)
+                                    
+                                        <img src="{{ $image->path }}" alt="{{ $image->name }}" style="max-width: 100px;">
+                                    @endforeach
                                 </td>
                             </tr>
                            

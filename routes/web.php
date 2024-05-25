@@ -139,7 +139,11 @@ Route::middleware('auth')->group(function () {
     Route::any('/formprojectts/add_stage', 'App\Http\Controllers\ProjectController@add_stage_form')->name('projects.add_stage_form');
     // /projectstgantt
     Route::get('/projectstgantt/{id}', 'App\Http\Controllers\ProjectController@projectstgantt')->name('projects.projectstgantt');
-
+    // /stage_tasks/${project.id}/${stage.stage_id}
+    Route::get('/stage_tasks/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks')->name('projects.stage_tasks');
+    // stage_tasks_pdf_print/${project.id}/${stage.stage_id}
+    Route::get('/stage_tasks_pdf_print/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks_pdf_print')->name('projects.stage_tasks_pdf_print');
+    
     // import data from csv file
     Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');
     Route::post('/projectsimport', 'App\Http\Controllers\ProjectController@importData')->name('projects.importData');
@@ -237,6 +241,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/task_clear', 'App\Http\Controllers\TaskController@clear')->name('tasks.clear');
     //tasks.problem
     Route::post('/tasks_problem', 'App\Http\Controllers\TaskController@problem')->name('tasks.problem');
+    // tasks.show_today
+    Route::get('/tasks_show_today', 'App\Http\Controllers\TaskController@show_today')->name('tasks.show_today');
   
     // add new stages
     Route::post('/addNewStages', 'App\Http\Controllers\TaskController@addNewStages')->name('tasks.addNewStages');

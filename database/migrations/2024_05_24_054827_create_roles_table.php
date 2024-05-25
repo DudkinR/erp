@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('roles')) {
-            return;
-        }
+        if (!Schema::hasTable('roles')){
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
@@ -21,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();            
             $table->timestamps();
         });
-        // insert default roles
+           // insert default roles
         DB::table('roles')->insert([
             ['name' => 'Super Admin', 'slug' => 'super-admin', 'description' => 'Super Admin Role'],
             ['name' => 'Адмін', 'slug' => 'admin', 'description' => 'Роль админістратора'],
@@ -37,15 +35,16 @@ return new class extends Migration
             ['name' => 'Начальник цеху', 'slug' => 'workshop-chief', 'description' => 'Роль начальника цеху'],
             ['name' => 'Начальник відділу', 'slug' => 'department-chief', 'description' => 'Роль начальника відділу'],
         ]);
-        if (Schema::hasTable('role_user')) {
-            return;
+    }
+     
+        if (!Schema::hasTable('role_user')) {
+            Schema::create('role_user', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('role_id')->constrained();
+                $table->foreignId('user_id')->constrained();
+                $table->timestamps();
+            });
         }
-        Schema::create('role_user', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('role_id')->constrained();
-            $table->foreignId('user_id')->constrained();
-            $table->timestamps();
-        });
         // add users in table column tn
         if (Schema::hasTable('users')
             && !Schema::hasColumn('users', 'tn')) {
@@ -60,17 +59,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (!Schema::hasTable('roles')) {
-            return;
+        if (Schema::hasTable('roles')) {
+          Schema::dropIfExists('roles');
         }
-        Schema::dropIfExists('roles');
-        if (!Schema::hasTable('role_user')) {
-            return;
-        }
+        if (Schema::hasTable('role_user')) {
         Schema::dropIfExists('role_user');
+        }
 
-        if (Schema::hasTable('users')
-            && Schema::hasColumn('users', 'tn')) {
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'tn')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('tn');
             });

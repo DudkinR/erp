@@ -26,11 +26,25 @@ class TaskController extends Controller
     // index
     public function index()
     {
-        //Auth::user();
-        $pers = Personal::where('fio', Auth::user()->name)->first();
-        $positions = Helpers::getSubordinatePositions($pers->positions);
+        $user  = Auth::user();
+    //    $positions = Helpers::getSubordinatePositions($user->positions);
         $tasks = Task::where('status', '!=', 'completed')
-            ->whereIn('responsible_position_id', $positions) 
+            ->whereIn('responsible_position_id', $user
+            ->profile
+            ->positions ->pluck('id')
+            ) 
+            ->with ('project', 'stage', 'step' )    
+            ->orderBy('project_id', 'desc')   
+            ->get();
+        return view('tasks.index', compact('tasks'));
+    }
+    // show_today
+    public function show_today()
+    {
+        $user  = Auth::user();
+        $tasks = Task::where('status', '=', 'completed')
+            ->where('real_end_date', '=', date('Y-m-d'))
+            ->whereIn('responsible_position_id', $user->profile->positions ->pluck('id'))            
             ->with ('project', 'stage', 'step' )    
             ->orderBy('project_id', 'desc')   
             ->get();
@@ -84,7 +98,7 @@ class TaskController extends Controller
         $task = Task::find($id);
        $user = Auth::user();
         $task->status = $request->status;
-        $task->responsible_position_id =  $user->id;
+      //  $task->responsible_position_id =  $user->id;
         $date = date('Y-m-d');
         if($request->status == 'completed')
         {
@@ -95,25 +109,20 @@ class TaskController extends Controller
             $task->real_start_date = $date;
         }        
         $task->save();
-        if(isset($request->image))
-        {
-            //  protected $fillable = ['name', 'path', 'extension', 'size', 'mime_type', 'url', 'alt', 'title', 'description'];
-            // onload file 
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $name = $file->getClientOriginalName();
-            $path = $file->store('images/tasks');
-            $image = new Image();
-            $image->name = $request->image->getClientOriginalName();
-            $image->path = $request->image->store('images');
-            $image->extension = $request->image->extension();
-            $image->size = $request->image->getSize();
-            $image->mime_type = $request->image->getMimeType();
-            $image->url = Storage::url($path);
-
-
-                    $task->images()->attach($image->id);
+            $file->move(public_path() . '/imagesTask/', $file->getClientOriginalName());
+            $img = new Image();
+            $img->name = $file->getClientOriginalName();
+            $img->path = '/imagesTask/'. $file->getClientOriginalName();
+            $img->extension = $file->getClientOriginalExtension();
+            $img->url =  '/imagesTask/' . $file->getClientOriginalName();
+            $img->alt = $file->getClientOriginalName();
+            $img->title = $file->getClientOriginalName();
+            $img->description = $file->getClientOriginalName();
+            $img->save();
+            $task->images()->attach($img->id);
         }
-
         return redirect()->route('tasks.index');
     }
     // destroy

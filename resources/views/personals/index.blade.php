@@ -31,11 +31,12 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>tn</th>
-                            <th>FIO</th>
-                            <th>Position</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th>{{__('id')}}</th>
+                            <th>{{__('tn')}}</th>
+                            <th>{{__('FIO')}}</th>
+                            <th>{{__('Position')}}</th>
+                            <th>{{__('Status')}}</th>
+                            <th>{{__('Action')}}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,6 +46,7 @@
             show_ps.forEach(personal => {
                 tableHTML += `
                     <tr>
+                        <td>${personal.id}</td>
                         <td>${personal.tn}</td>
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>

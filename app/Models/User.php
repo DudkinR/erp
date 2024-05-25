@@ -62,7 +62,9 @@ class User extends Authenticatable
 
     public function positions()
     {
-        return $this->hasManyThrough(Position::class, Personal::class, 'tn', 'id', 'tn', 'personal_id');
+        // return $user->profile->positions;
+        return $this->profile->positions;
+      
     }
 
     public function dependedPositions()

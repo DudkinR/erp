@@ -131,6 +131,8 @@ $clients = App\Models\Client::all();
     </div>
     <script>
         const PRS = @json($projects);
+        @php $stages = App\Models\Stage::all(); @endphp
+        const STS = @json($stages);
         var PRSW = PRS;
         <?php 
         $clientslist = [];
@@ -185,7 +187,6 @@ $clients = App\Models\Client::all();
                 const executionDate = new Date(project.execution_period);
                 const currentDate = new Date();
                 const daysUntilExecution = Math.ceil((executionDate - currentDate) / (1000 * 60 * 60 * 24));
-
                 // Определяем класс карточки в зависимости от временного интервала
                 let cardClass = "card";
                 if(project.current_state !== 'Закритий' && project.current_state !== 'Готовий до закриття' && project.current_state !== 'Очікується оплата (після відвантаження)')
@@ -201,6 +202,12 @@ $clients = App\Models\Client::all();
                 {
                     class_name = 'btn btn-danger';
                 }
+                const uniqueStages = project.tasks.reduce((acc, stage) => {
+                    if (!acc.some(item => item.stage_id === stage.stage_id)) {
+                        acc.push(stage);
+                    }
+                    return acc;
+                }, []);
                 projectDiv.innerHTML = `
                     <div class="${cardClass}">
                         <div class="card-body">
@@ -217,7 +224,7 @@ $clients = App\Models\Client::all();
                                     <p class="card-text">${project.current_state}</p>
                                     <p class="card-text">${project.execution_period}</p>
                                     <p class="card-text">
-                                    Count of problems: ${project.problems_count}  </p>
+                                    Count of problems: ${project.problems_count}</p>
                                     <hr>
                                     <a href="/projects/${project.id}/edit" class="btn btn-warning"> {{__('Edit')}}</a>
                                     <a href="/projects/${project.id}" class="btn btn-success"> {{__('Show')}}</a>
@@ -237,11 +244,18 @@ $clients = App\Models\Client::all();
                                   
                                     </div>
                                 <div class="col-md-4">
+                                    <h4 class="card-title text-danger">{{__('Stages')}}</h4>
+                                    <ul>
+                                        ${uniqueStages.map(stage => `<li>
+                                            <a href="/stage_tasks/${project.id}/${stage.stage_id}"> ${STS.find(st => st.id == stage.stage_id).name}</a>
+                                            </li>`).join('')}
+
+                                    </ul>
                                     <h4 class="card-title text-danger">{{__('Tasks')}}</h4>
                                     <ul>
-                                        ${project.tasks.map(task => `<li>
-                                            <a href="/tasks/${task.id}">${task.name}</a> - ${task.status}
-                                        </li>`).join('')}
+                                        <li> {{__('Completed')}} : ${project.tasks.filter(task => task.status == 'completed').length}</li>
+                                        <li> {{__('New')}} : ${project.tasks.filter(task => task.status == 'new').length}</li>
+                                        <li> {{__('Problem')}} : ${project.tasks.filter(task => task.status == 'problem').length}</li>  
                                     </ul>
                                     <hr>
                                     <a href="/tasks/create?project_id=${project.id}" class="btn btn-warning">{{__('Add task')}}</a>
@@ -256,6 +270,7 @@ $clients = App\Models\Client::all();
                 projectsDiv.appendChild(projectDiv);
             });
         }
+
         function show_clients(projects) {
          let selected_client = document.getElementById('client').value;
             if (selected_client == 0) {

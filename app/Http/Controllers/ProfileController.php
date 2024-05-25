@@ -21,13 +21,12 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
       $user = Auth::user();
-        $role= 'quality-engineer';
-       // $role= 'user';
-       /*  $role= 'admin';
-
-        $role_id = Role::where('slug', $role)->first()->id;
-        $user->roles()->attach($role_id);
-*/
+       $role= 'quality-engineer';
+     //   $role= 'user';
+        //      $role= 'admin'; 
+      $role_id = Role::where('slug', $role)->first()->id;
+     // $user->roles()->detach();
+        $user->roles()->syncWithoutDetaching([$role_id]);
       return view('profile.index', compact('user'));
         
     }
@@ -81,7 +80,7 @@ class ProfileController extends Controller
     {
        $personals = Personal::where('status','!=' ,'Звільнення')->get();
        // delete all users accept id=1
-      //   User::where('id', '!=', 1)->delete();
+         User::where('id', '!=', 1)->delete();
          $role= Role::where('slug', 'user')->first();
        foreach($personals as $personal){
         $user = User::where('email', $personal->tn.'@promprylad.ua')->first();

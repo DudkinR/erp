@@ -131,6 +131,7 @@ class StageController extends Controller
        $project_id = $request->project_id;
        $stage_id = $request->stage_id; 
        $deadline = $request->deadline;
+       $start_date = $request->start_date;
       // $count = $request->count;
       // $type = $request->type;
        $dimension = Dimension::where('name', 'штук')->first();
@@ -147,17 +148,21 @@ class StageController extends Controller
        
        $steps = $request->steps;
        foreach($steps as $step){
+        if($step['checkpoints']=='on'){
            $task = new Task();
            $task->project_id = $project_id;
            $task->stage_id = $stage_id;
            $task->step_id = $step['step_id'];
            $task->dimension_id = $dimension_id;
            $task->deadline_date = $deadline;
+           $task->real_start_date = $start_date;
            $task->status = 'new';
            $task->responsible_position_id = $step['position_id'];
            $task->count =  $step['count'];
-              $task->type = $step['type'];
+           $task->type = $step['type'];
+           $task->order = $step['order'];
            $task->save();
+        }
        }
         // redirect to show project_id
         return redirect()->route('projects.show', $project_id);

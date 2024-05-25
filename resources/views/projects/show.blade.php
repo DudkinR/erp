@@ -4,7 +4,10 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Show')}}</h1>
-                <a class="text-right" href="{{ route('projects.index') }}">Back</a>
+                <a class="text-right" href="{{ route('projects.index') }}">
+                    {{__('Back')}}
+
+                </a>
             </div>  
         </div>
         <div class="row">

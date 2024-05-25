@@ -45,7 +45,11 @@
                         <option value="new" @if($task->status == 'new') selected @endif>{{ __('New') }}</option>
                         <option value="problem" @if($task->status == 'problem') selected @endif>{{ __('Problem') }}</option>
                     </select>
-                    <button class="btn btn-warning mt-2" id="save_button" style="display: none;">{{ __('Save') }}</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-warning mt-2" id="save_button"
+                    @if($task->status != 'completed') style="display: none;" @endif
+                     >{{ __('Save') }}</button>
                 </div>
             </div>
         </form>
@@ -82,6 +86,27 @@
         const status_task = document.getElementById('status_task');
         const imageInput = document.getElementById('image');
         const imagePreview = document.getElementById('image_preview');
+        const url_images = {
+            @foreach($task->images as $image)
+                '{{ $image->id }}': '{{ $image->path }}',
+            @endforeach
+        }
+        function showImagePreview() {
+         // div id = image_preview
+
+            imagePreview.innerHTML = '';
+            for (const id in url_images) {
+                const img = document.createElement('img');
+                img.src = url_images[id];
+                // style="max-width: 300px; max-height: 300px;
+                img.style = 'max-width: 300px; max-height: 300px;';
+                                img.className = 'img-fluid';
+
+                img.alt = id;
+                imagePreview.appendChild(img);
+            }
+        }
+        showImagePreview();
 
         status_task.addEventListener('change', function() {
             if (status_task.value === 'problem') {
@@ -106,20 +131,7 @@
             }
         });
 
-        imageInput.addEventListener('change', function() {
-            imagePreview.innerHTML = ''; // Clear previous image
-            const file = imageInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '100%';
-                    imagePreview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+
 
         document.querySelector('form').addEventListener('submit', function(event) {
             if (status_task.value === 'completed' && !imageInput.value) {

@@ -44,7 +44,26 @@
             <div class="col-md-12">
                 <h1>{{__('Welcome to PPAPP')}}</h1>
                 <p>{{__('You are logged in')}}</p>
+                <p>
+                    {{__('Your id is')}}:
+                    {{Auth::user()->id}}  
+                  </p>
+                  <p>
+                    {{__('Your id is (personal)')}}:
+                  </p>
+                @if (isset(Auth::user()->profile->fio))
                 <p>{{__('Your name is')}}: {{ Auth::user()->profile->fio}}</p>
+
+
+                @endif
+                @if (isset(Auth::user()->profile->positions))
+                <p>{{__('Your positions are')}}: 
+                    <ul>
+                        @foreach(Auth::user()->profile->positions as $position)
+                            <li>{{ $position->id }} {{ $position->name }}</li>
+                        @endforeach
+                    </ul>
+                        @endif  
                 <p>{{__('Your email is')}}: {{ Auth::user()->email }}</p>
 
                 <!-- edit profile -->
