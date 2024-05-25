@@ -41,6 +41,7 @@
                       
                     </div>
                 </li>
+                @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Quality')}}
@@ -58,6 +59,7 @@
                     </div>
                 </li>
               
+              
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Personal')}}
@@ -69,15 +71,17 @@
                         <a class="dropdown-item" href="{{ route('criteria.index') }}">{{__('Criteria')}}</a>
                      <a class="dropdown-item" href="{{ route('positions.index') }}">{{__('Positions')}}</a>
                   </div>
-                </li>
+                </li>  
+                @endif
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Documentation')}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('docs.index') }}">{{__('Document')}}</a>
+                        <a class="dropdown-item" href="{{ route('docs.index') }}">{{__('Documents')}}</a>
                     </div>
                 </li>
+                @if(Auth::user()->hasRole('admin'))
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Nomenclatures')}}
@@ -89,6 +93,7 @@
                     
 
                 </li>
+                @endif
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Profile')}}

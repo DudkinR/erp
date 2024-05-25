@@ -44,7 +44,7 @@
             <div class="col-md-12">
                 <h1>{{__('Welcome to PPAPP')}}</h1>
                 <p>{{__('You are logged in')}}</p>
-                <p>{{__('Your name is')}}: {{ Auth::user()->profile }}</p>
+                <p>{{__('Your name is')}}: {{ Auth::user()->profile->fio}}</p>
                 <p>{{__('Your email is')}}: {{ Auth::user()->email }}</p>
 
                 <!-- edit profile -->

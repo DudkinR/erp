@@ -54,7 +54,7 @@
                     {{ __('Project') }}
                 </h1>
                 @php 
-                    $projects = App\Models\Project::where('current_state', 'У процесі відвантаження')->get();
+                    $projects = App\Models\Project::where('current_state','!=' ,'Закритий')->get();
                     $currentProjectId = session('project_id'); 
                 @endphp
                 <select name="project_id" class="form-control">
@@ -68,12 +68,21 @@
                 </select>
             </div>
         </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <h1>
+                    {{ __('Start date') }}
+                </h1>
+                <input type="date" name="start_date" class="form-control" value="{{ date('Y-m-d') }}">
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <h1>
                     {{ __('Deadline') }}
                 </h1>
-                <input type="date" name="deadline" class="form-control">
+                <input type="date" name="deadline" class="form-control" value="{{ date('Y-m-d') }}">
             </div>
         </div>
         <div id="form_steps">

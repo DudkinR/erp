@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/funs/{id}', 'App\Http\Controllers\FunController@destroy')->name('funs.destroy');
 
     // personal routes
+    
     Route::get('/personal', 'App\Http\Controllers\PersonalController@index')->name('personal.index');
     Route::get('/personal/create', 'App\Http\Controllers\PersonalController@create')->name('personal.create');
     Route::post('/personal', 'App\Http\Controllers\PersonalController@store')->name('personal.store');
@@ -234,6 +235,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/taskimgs/{id}/create', 'App\Http\Controllers\TaskController@createImg')->name('tasksimg.create');
     //Tasks clear
     Route::get('/task_clear', 'App\Http\Controllers\TaskController@clear')->name('tasks.clear');
+    //tasks.problem
+    Route::post('/tasks_problem', 'App\Http\Controllers\TaskController@problem')->name('tasks.problem');
   
     // add new stages
     Route::post('/addNewStages', 'App\Http\Controllers\TaskController@addNewStages')->name('tasks.addNewStages');

@@ -15,7 +15,6 @@ class Struct extends Model
     // relationships positions
     public function positions()
     {
-        // positions_structuries
-        return $this->belongsToMany( Position::class, 'positions_structuries', 'structuries_id', 'positions_id' );
+        return $this->belongsToMany(Position::class, 'positions_structuries', 'structuries_id', 'positions_id');
     }
 }

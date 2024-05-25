@@ -31,7 +31,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>tn</th>
                             <th>FIO</th>
                             <th>Position</th>
                             <th>Status</th>
@@ -45,7 +45,7 @@
             show_ps.forEach(personal => {
                 tableHTML += `
                     <tr>
-                        <td>${personal.id}</td>
+                        <td>${personal.tn}</td>
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>
                         <td>${personal.status}</td>

@@ -19,6 +19,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'tn',
         'password',
     ];
 
@@ -44,12 +45,36 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    // add personal as profile where profile.tn  and user.mail = tn.'@promprylad.ua
+     // add roles
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class , 'role_user');
+    }
+    public function hasRole($roleSlug)
+    {
+        return $this->roles()->where('slug', $roleSlug)->exists();
+    }
+    // positions
     public function profile()
     {
-       $tn = explode('@', $this->email);
-       return $this->
-       belongsTo
-       (Personal::class, 'tn', $tn[0]);
+        return $this->belongsTo(Personal::class, 'tn', 'tn');
     }
+
+    public function positions()
+    {
+        return $this->hasManyThrough(Position::class, Personal::class, 'tn', 'id', 'tn', 'personal_id');
+    }
+
+    public function dependedPositions()
+    {
+        // Manually fetch depended positions from the profile
+        return $this->profile ? $this->profile->dependedPositions() : collect();
+    }
+
+    public function tasks()
+    {
+        // Manually fetch tasks from the profile
+        return $this->profile ? $this->profile->tasks() : collect();
+    }
+
 }

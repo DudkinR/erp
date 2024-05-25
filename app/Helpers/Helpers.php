@@ -25,5 +25,4 @@ abstract class Helpers
         // Возвращаем только уникальные идентификаторы позиций
         return array_unique($ps);
     }
-
 }

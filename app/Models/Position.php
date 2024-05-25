@@ -16,14 +16,13 @@ class Position extends Model
     // relationships
     public function personals()
     {
-        // personal_position
-        return $this->belongsToMany( Personal::class, 'personal_position', 'positions_id', 'personal_id' );
+        return $this->belongsToMany(Personal::class, 'personal_position', 'position_id', 'personal_id');
     }
-    // structuries positions
+
     public function structuries()
     {
-        // positions_structuries
-        return $this->belongsToMany( Struct::class, 'positions_structuries', 'positions_id', 'structuries_id' );
+        return $this->belongsToMany(Struct::class, 'positions_structuries', 'positions_id', 'structuries_id');
     }
+ 
 
 }
