@@ -115,6 +115,7 @@
                     <div class="col-md-2 d-flex align-items-center justify-content-between">
                         <button type="button" class="btn btn-light" onclick="move_step(${index}, 'up')">^</button>
                         <span>${index + 1}</span>
+                        <input type="hidden" name="steps[${index}][step_id]" value="${step.id}">
                         <input type="hidden" name="steps[${index}][order]" value="${index + 1}">
                         <button type="button" class="btn btn-light" onclick="move_step(${index}, 'down')">v</button>
                     </div>
