@@ -292,13 +292,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/equipments/{id}', 'App\Http\Controllers\EquipmentController@update')->name('equipments.update');
     Route::delete('/equipments/{id}', 'App\Http\Controllers\EquipmentController@destroy')->name('equipments.destroy');
     // stores
-    Route::get('/stores', 'App\Http\Controllers\StoryController@index')->name('stores.index');
-    Route::get('/stores/create', 'App\Http\Controllers\StoryController@create')->name('stores.create');
-    Route::post('/stores', 'App\Http\Controllers\StoryController@store')->name('stores.store');
-    Route::get('/stores/{id}', 'App\Http\Controllers\StoryController@show')->name('stores.show');
-    Route::get('/stores/{id}/edit', 'App\Http\Controllers\StoryController@edit')->name('stores.edit');
-    Route::put('/stores/{id}', 'App\Http\Controllers\StoryController@update')->name('stores.update');
-    Route::delete('/stores/{id}', 'App\Http\Controllers\StoryController@destroy')->name('stores.destroy');
+    Route::get('/stores', 'App\Http\Controllers\StoreController@index')->name('stores.index');
+    Route::get('/stores/create', 'App\Http\Controllers\StoreController@create')->name('stores.create');
+    Route::post('/stores', 'App\Http\Controllers\StoreController@store')->name('stores.store');
+    Route::get('/stores/{id}', 'App\Http\Controllers\StoreController@show')->name('stores.show');
+    Route::get('/stores/{id}/edit', 'App\Http\Controllers\StoreController@edit')->name('stores.edit');
+    Route::put('/stores/{id}', 'App\Http\Controllers\StoreController@update')->name('stores.update');
+    Route::delete('/stores/{id}', 'App\Http\Controllers\StoreController@destroy')->name('stores.destroy');
 
     //rooms 
     Route::get('/rooms', 'App\Http\Controllers\RoomController@index')->name('rooms.index');
@@ -308,7 +308,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/rooms/{id}/edit', 'App\Http\Controllers\RoomController@edit')->name('rooms.edit');
     Route::put('/rooms/{id}', 'App\Http\Controllers\RoomController@update')->name('rooms.update');
     Route::delete('/rooms/{id}', 'App\Http\Controllers\RoomController@destroy')->name('rooms.destroy');
-    
+
 
 });
 
