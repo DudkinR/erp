@@ -71,6 +71,16 @@
                         <textarea name="problem" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        @php $positions = \App\Models\Position::all(); @endphp
+                        <select name="position" class="form-control">
+                            @foreach($positions as $position)
+                                <option value="{{ $position->id }}">{{ $position->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ __('Save') }}</button>
@@ -141,35 +151,53 @@
         });
         // send form with ajax modal window
         $('#problemModal button.btn-primary').click(function() {
-            var data = {
-                '_token': '{{ csrf_token() }}',
-                'project_id': '{{ $task->project_id }}',
-                'task_id': '{{ $task->id }}',
-                'stage_id': '{{ $task->stage_id }}',
-                'step_id': '{{ $task->step_id }}',
-                'user_id': '{{ $task->user_id }}',
-                'status': 'problem',
-                'problem': $('#problemModal textarea').val()
-            };
-            const url = '{{ route('tasks.problem') }}';
-            const problem = $('#problemModal textarea').val();
-            if (problem) {
-                fetch(url, {
-                  method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Success:', data);
-                    //  location.reload();
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                    });``
-            }
-        });
+    var problemText = $('#problemModal textarea').val();
+    var position = $('#problemModal select').val();
+    if (problemText.trim() === '') {
+        alert('Please enter a problem description');
+        return;
+    }
+
+    var dt = {
+        '_token': '{{ csrf_token() }}',
+        'project_id': '{{ $task->project_id }}',
+        'task_id': '{{ $task->id }}',
+        'stage_id': '{{ $task->stage_id }}',
+        'step_id': '{{ $task->step_id }}',
+        'user_id': '{{ Auth::id() }}',
+        'position': position,
+        'status': 'problem',
+        'problem': problemText
+    };
+
+    const url_back = '{{ route('tasks.index') }}';
+    const url = '{{ route('tasks.problem') }}';
+
+    console.log('Sending data:', dt); // Используйте 'dt' вместо 'data'
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': dt._token // Добавлено для обеспечения CSRF защиты
+        },
+        body: JSON.stringify(dt)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        // Переход на страницу tasks
+        window.location.href = url_back;
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
+
     </script>
 @endsection

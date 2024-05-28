@@ -142,7 +142,7 @@ Route::middleware('auth')->group(function () {
     // /stage_tasks/${project.id}/${stage.stage_id}
     Route::get('/stage_tasks/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks')->name('projects.stage_tasks');
     // stage_tasks_pdf_print/${project.id}/${stage.stage_id}
-    Route::get('/stage_tasks_pdf_print/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks_pdf_print')->name('projects.stage_tasks_pdf_print');
+    Route::get('/stage_tasks_print/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks_print')->name('projects.stage_tasks_print');
     
     // import data from csv file
     Route::get('/projectsimport', 'App\Http\Controllers\ProjectController@import')->name('projects.import');

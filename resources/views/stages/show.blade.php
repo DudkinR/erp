@@ -51,11 +51,14 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>
-                    {{ __('Project') }}
+                    {{ __('Project') }} 
                 </h1>
                 @php 
                     $projects = App\Models\Project::where('current_state','!=' ,'Закритий')->get();
                     $currentProjectId = session('project_id'); 
+                    if(isset($_GET['project_id'])){
+                        $currentProjectId = $_GET['project_id'];
+                    }
                 @endphp
                 <select name="project_id" class="form-control">
                     @foreach($projects as $project)

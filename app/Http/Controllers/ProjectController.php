@@ -12,6 +12,7 @@ use App\Models\Position;
 use App\Models\Dimension;
 use App\Models\Client;
 use App\Models\Task;
+use PDF;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Helpers\CommonHelper as CommonHelper;
 
@@ -250,10 +251,21 @@ class ProjectController extends Controller
         //stage_tasks/{project_id}/{stage_id}
         public function stage_tasks( $project_id, $stage_id)
         {
-            $tasks = Task::where('project_id', $project_id)->where('stage_id', $stage_id)->get();
+            $tasks = Task::where('project_id', $project_id)
+            ->where('stage_id', $stage_id)->get();
             $mass_print =$this->stage_tasks_all($tasks);
            // return $mass_print['positions'];
           return    view('projects.stage_tasks', compact('mass_print', 'project_id', 'stage_id'));
+        }
+
+        // stage_tasks_pdf_print
+        public function stage_tasks_print($project_id, $stage_id)
+        {
+            $tasks = Task::where('project_id', $project_id)
+            ->where('stage_id', $stage_id)->get();
+            $mass_print = $this->stage_tasks_all($tasks);
+            return    view('projects.stage_tasks_print', compact('mass_print', 'project_id', 'stage_id'));
+     
         }
         /* 
          получаем все задачи по проекту на стадии 

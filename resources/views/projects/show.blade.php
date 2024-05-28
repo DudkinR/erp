@@ -40,7 +40,7 @@
                     </div>
                     <div class="card-footer">
                         @foreach($project->stages as $stage)
-                        <a href="{{route("stages.show",$stage->id)}}?pr=>{{$project->id}}" class="btn btn-primary">
+                        <a href="{{route("stages.show",$stage->id)}}?project_id={{$project->id}}" class="btn btn-primary">
                             {{ $stage->name }}
                         </a>    
                         @endforeach

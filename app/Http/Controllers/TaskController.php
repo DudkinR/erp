@@ -11,6 +11,7 @@ use App\Models\Dimension;
 use App\Models\Control;
 use App\Models\Position;
 use App\Models\Personal;
+use App\Models\Problem;
 use App\Models\Image;
 use App\Helpers\Helpers;
 
@@ -36,7 +37,12 @@ class TaskController extends Controller
             ->with ('project', 'stage', 'step' )    
             ->orderBy('project_id', 'desc')   
             ->get();
-        return view('tasks.index', compact('tasks'));
+            $problems = Problem::where('status', '!=', 'completed') 
+            ->whereIn('responsible_position_id', $user ->profile ->positions ->pluck('id')) 
+            ->with ('project', 'stage', 'step' )
+            ->orderBy('project_id', 'desc')
+            ->get();
+        return view('tasks.index', compact('tasks', 'problems'));
     }
     // show_today
     public function show_today()
@@ -146,6 +152,30 @@ class TaskController extends Controller
         }
         return redirect()->route('tasks.index');    
         
+    }
+    //problem
+    public function problem(Request $request)
+    {
+        $project = Project::find($request->project_id);
+        $problem = new Problem();
+        $problem->name = $request->problem;
+        $problem->description = $request->problem;
+        $problem->priority = 1;
+        $problem->date_start = now();
+        $problem->date_end = $project->date_end;
+        $problem->deadline = $project->date_end;
+        $problem->status = $request->status;
+        $problem->project_id = $request->project_id;
+        $problem->stage_id = $request->stage_id;
+        $problem->step_id = $request->step_id;
+        $problem->task_id = $request->task_id;
+        $problem->user_id = $request->user_id;
+        $problem->responsible_position_id = $request->position;
+        $problem->save();
+        // return json response
+        return response()->json(['success' => 'Problem created successfully.']);
+    
+       
     }
     
 
