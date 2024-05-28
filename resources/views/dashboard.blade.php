@@ -72,6 +72,51 @@
             </div>
         </div>
     </div>
+    <div class="container">
+        @php
+        
+        $projects =\App\Models\Project::orderby('priority')
+        ->where('current_state','!=','Закритий')
+   //  ->where('execution_period', '>=', now())
+   //   -> where('date', '>=', now())
+        ->get(); 
+        @endphp
+        <div class="row">
+            @foreach($projects as $project)
+            @php
+            $class_current_state = "warning";
+             if ($project->current_state == "Закритий") {
+                $class_current_state = "light";
+            }
+            if ($project->current_state == "Очікується оплата (після відвантаження)") {
+                $class_current_state = "success";
+            }
+            if ($project->current_state == "Готовий до закриття") {
+                $class_current_state = "primary";
+            }
+            if ($project->current_state == "Готовий до забезпечення") {
+                $class_current_state = "danger";
+            }
+            @endphp
+
+                <div class="col-md-2 text-center border border-dark rounded bg-{{$class_current_state}}">
+                    <h6
+                    title = "{{ $project->number }} {{ $project->description }}"
+                    >{{ $project->name }}</h6>
+                    <p>
+                    {{__('Execution period')}}: {{ $project->execution_period }}
+                    </p>
+                    <p>
+                    date: {{ $project->date }}
+                    </p>
+                  
+                    <a href="{{ route('projects.show', $project->id) }}" class="btn btn-{{ $class_current_state }} btn-sm"
+                     title = "{{ $project->current_state }}"
+                    >{{__('Show')}}</a>
+                </div>
+            @endforeach
+        </div>
+    </div>
 @endauth
 @endsection
 

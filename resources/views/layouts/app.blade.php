@@ -72,7 +72,20 @@
                      <a class="dropdown-item" href="{{ route('positions.index') }}">{{__('Positions')}}</a>
                   </div>
                 </li>  
-                @endif
+
+                @endif                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{__('Magasines')}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ route('magasines.index') }}">{{__('Magasines')}}</a>
+                        <a class="dropdown-item" href="{{ route('products.index') }}">{{__('Products')}}</a>
+                        <a class="dropdown-item" href="{{ route('equipments.index') }}">{{__('Equipments')}}</a>
+                        <a class="dropdown-item" href="{{ route('stores.index') }}">{{__('Stores')}}</a>
+                        <a class="dropdown-item" href="{{ route('rooms.index') }}">{{__('Rooms')}}</a>
+                    </div>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {{__('Documentation')}}

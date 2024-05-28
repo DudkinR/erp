@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 require __DIR__.'/auth.php';
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return view('dashboard');
+})->middleware(['auth'])->name('home');
 // save  var sessions
 Route::get('/ss', 'App\Http\Controllers\ApiController@saveSession')->name('save-session');
 
@@ -266,6 +266,50 @@ Route::middleware('auth')->group(function () {
 
     // тестовый роут
     Route::get('/test', 'App\Http\Controllers\DocController@test')->name('test');
+
+    // magasines
+    Route::get('/magasines', 'App\Http\Controllers\MagasinController@index')->name('magasines.index');
+    Route::get('/magasines/create', 'App\Http\Controllers\MagasinController@create')->name('magasines.create');
+    Route::post('/magasines', 'App\Http\Controllers\MagasinController@store')->name('magasines.store');
+    Route::get('/magasines/{id}', 'App\Http\Controllers\MagasinController@show')->name('magasines.show');
+    Route::get('/magasines/{id}/edit', 'App\Http\Controllers\MagasinController@edit')->name('magasines.edit');
+    Route::put('/magasines/{id}', 'App\Http\Controllers\MagasinController@update')->name('magasines.update');
+    Route::delete('/magasines/{id}', 'App\Http\Controllers\MagasinController@destroy')->name('magasines.destroy');
+    // products
+    Route::get('/products', 'App\Http\Controllers\ProductController@index')->name('products.index');
+    Route::get('/products/create', 'App\Http\Controllers\ProductController@create')->name('products.create');
+    Route::post('/products', 'App\Http\Controllers\ProductController@store')->name('products.store');
+    Route::get('/products/{id}', 'App\Http\Controllers\ProductController@show')->name('products.show');
+    Route::get('/products/{id}/edit', 'App\Http\Controllers\ProductController@edit')->name('products.edit');
+    Route::put('/products/{id}', 'App\Http\Controllers\ProductController@update')->name('products.update');
+    Route::delete('/products/{id}', 'App\Http\Controllers\ProductController@destroy')->name('products.destroy');
+    // equipments
+    Route::get('/equipments', 'App\Http\Controllers\EquipmentController@index')->name('equipments.index');
+    Route::get('/equipments/create', 'App\Http\Controllers\EquipmentController@create')->name('equipments.create');
+    Route::post('/equipments', 'App\Http\Controllers\EquipmentController@store')->name('equipments.store');
+    Route::get('/equipments/{id}', 'App\Http\Controllers\EquipmentController@show')->name('equipments.show');
+    Route::get('/equipments/{id}/edit', 'App\Http\Controllers\EquipmentController@edit')->name('equipments.edit');
+    Route::put('/equipments/{id}', 'App\Http\Controllers\EquipmentController@update')->name('equipments.update');
+    Route::delete('/equipments/{id}', 'App\Http\Controllers\EquipmentController@destroy')->name('equipments.destroy');
+    // stores
+    Route::get('/stores', 'App\Http\Controllers\StoryController@index')->name('stores.index');
+    Route::get('/stores/create', 'App\Http\Controllers\StoryController@create')->name('stores.create');
+    Route::post('/stores', 'App\Http\Controllers\StoryController@store')->name('stores.store');
+    Route::get('/stores/{id}', 'App\Http\Controllers\StoryController@show')->name('stores.show');
+    Route::get('/stores/{id}/edit', 'App\Http\Controllers\StoryController@edit')->name('stores.edit');
+    Route::put('/stores/{id}', 'App\Http\Controllers\StoryController@update')->name('stores.update');
+    Route::delete('/stores/{id}', 'App\Http\Controllers\StoryController@destroy')->name('stores.destroy');
+
+    //rooms 
+    Route::get('/rooms', 'App\Http\Controllers\RoomController@index')->name('rooms.index');
+    Route::get('/rooms/create', 'App\Http\Controllers\RoomController@create')->name('rooms.create');
+    Route::post('/rooms', 'App\Http\Controllers\RoomController@store')->name('rooms.store');
+    Route::get('/rooms/{id}', 'App\Http\Controllers\RoomController@show')->name('rooms.show');
+    Route::get('/rooms/{id}/edit', 'App\Http\Controllers\RoomController@edit')->name('rooms.edit');
+    Route::put('/rooms/{id}', 'App\Http\Controllers\RoomController@update')->name('rooms.update');
+    Route::delete('/rooms/{id}', 'App\Http\Controllers\RoomController@destroy')->name('rooms.destroy');
+    
+
 });
 
 
