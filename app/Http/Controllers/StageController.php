@@ -147,23 +147,24 @@ class StageController extends Controller
        $dimension_id = $dimension->id;
        
        $steps = $request->steps;
-       foreach($steps as $step){
-        if($step['checkpoints']=='on'){
-           $task = new Task();
-           $task->project_id = $project_id;
-           $task->stage_id = $stage_id;
-           $task->step_id = $step['step_id'];
-           $task->dimension_id = $dimension_id;
-           $task->deadline_date = $deadline;
-           $task->real_start_date = $start_date;
-           $task->status = 'new';
-           $task->responsible_position_id = $step['position_id'];
-           $task->count =  $step['count'];
-           $task->type = $step['type'];
-           $task->order = $step['order'];
-           $task->save();
+       foreach ($steps as $step) {
+        if (isset($step['checkpoints']) && $step['checkpoints'] == 'on') {
+            $task = new Task();
+            $task->project_id = $project_id;
+            $task->stage_id = $stage_id;
+            $task->step_id = $step['step_id'];
+            $task->dimension_id = $dimension_id;
+            $task->deadline_date = $deadline;
+            $task->real_start_date = $start_date;
+            $task->status = 'new';
+            $task->responsible_position_id = $step['position_id'];
+            $task->count = $step['count'];
+            $task->type = $step['type'];
+            $task->order = $step['order'];
+            $task->save();
         }
-       }
+    }
+    
         // redirect to show project_id
         return redirect()->route('projects.show', $project_id);
 

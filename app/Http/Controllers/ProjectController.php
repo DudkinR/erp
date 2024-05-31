@@ -249,14 +249,7 @@ class ProjectController extends Controller
         }
 
         //stage_tasks/{project_id}/{stage_id}
-        public function stage_tasks( $project_id, $stage_id)
-        {
-            $tasks = Task::where('project_id', $project_id)
-            ->where('stage_id', $stage_id)->get();
-            $mass_print =$this->stage_tasks_all($tasks);
-           // return $mass_print['positions'];
-          return    view('projects.stage_tasks', compact('mass_print', 'project_id', 'stage_id'));
-        }
+
 
         // stage_tasks_pdf_print
         public function stage_tasks_print($project_id, $stage_id)
@@ -277,13 +270,21 @@ class ProjectController extends Controller
          шаг=>5, position_1=> complected, position_51=> new, position_11=> complected
          ...
         */
+        public function stage_tasks($project_id, $stage_id)
+        {
+            $tasks = Task::where('project_id', $project_id)
+                ->where('stage_id', $stage_id)->get();
+            $mass_print = $this->stage_tasks_all($tasks);
+            return view('projects.stage_tasks', compact('mass_print', 'project_id', 'stage_id'));
+        }
+        
         public function stage_tasks_all($tasks)
         {
             $mass_print = [];
             $i = 0;
             $step_ids = [];
             $position_ids = [];
-        
+            
             foreach ($tasks as $task) {
                 // Уникальные step_id
                 if (!in_array($task->step_id, $step_ids)) {
@@ -292,6 +293,27 @@ class ProjectController extends Controller
                 }
         
                 // Организация данных по задачам
+                if (!isset($mass_print['data'][$task->step_id])) {
+                    $mass_print['data'][$task->step_id] = [
+                        'order' => $i,
+                        'count' => $task->count,
+                        'name' => $task->step->name,
+                        'description' => $task->step->description,
+                        'status' => 'new', // Initialize with default status
+                    ];
+                }
+        
+                if (!isset($mass_print['data'][$task->step_id][$task->responsible_position_id])) {
+                    $mass_print['data'][$task->step_id][$task->responsible_position_id] = [
+                        'status' => 'new',
+                        'deadline_date' => null,
+                        'real_start_date' => null,
+                        'real_end_date' => null,
+                        'type' => null,
+                        'images' => null,
+                    ];
+                }
+        
                 $mass_print['data'][$task->step_id][$task->responsible_position_id] = [
                     'status' => $task->status,
                     'deadline_date' => $task->deadline_date,
@@ -310,18 +332,12 @@ class ProjectController extends Controller
                     }
                 }
         
-                // Организация данных по step_id
-                $mass_print['data'][$task->step_id]['order'] = $i;
-                $mass_print['data'][$task->step_id]['count'] = $task->count;
-                $mass_print['data'][$task->step_id]['name'] = $task->step->name;
-                $mass_print['data'][$task->step_id]['description'] = $task->step->description;
-        
                 // Установка статуса для step_id
-                if (!isset($mass_print['data'][$task->step_id]['status']) || $mass_print['data'][$task->step_id]['status'] != "completed") {
+                if ($mass_print['data'][$task->step_id]['status'] != "completed") {
                     $mass_print['data'][$task->step_id]['status'] = $task->status;
                 }
             }
-        
+            
             return $mass_print;
         }
         

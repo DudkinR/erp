@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Problem;
+use App\Models\Project;
 use App\Models\Image;
 
 class ProblemController extends Controller
@@ -11,10 +12,18 @@ class ProblemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        //project_id
+        if($request->project_id){
+            $project= Project::find($request->project_id);
+            $problems = $project->problems;
+          
+        }
+        else{
+
         $problems = Problem::where('status','!=', 'closed')->get();
+        }
         return view('problems.index', compact('problems'));
 
     }
@@ -82,6 +91,10 @@ class ProblemController extends Controller
         if($request->control_id){
             $problem->control_id = $request->control_id;
         }
+        if($request->personal_id&& $request->personal_id!==0){
+            $problem->personals()->attach($request->personal_id);
+        }
+        $problem->save();
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $file->move(public_path() . '/ProblemImages/', $file->getClientOriginalName());
@@ -93,15 +106,14 @@ class ProblemController extends Controller
             $img->mime_type = $file->getMimeType();
             $img->url = '/ProblemImages/' . $file->getClientOriginalName();
             $img->save();
+             // add img to problem
+            if($img){
+                $problem->images()->attach($img->id);
+            }
         }
-        $problem->save();
-        // add img to problem
-        if($img){
-            $problem->images()->attach($img->id);
-        }
-        if($request->personal_id&& $request->personal_id!==0){
-            $problem->personals()->attach($request->personal_id);
-        }
+        
+       
+       
         return redirect()->route('problems.show', $problem->id)->with('success', 'Problem created successfully.');
 
 

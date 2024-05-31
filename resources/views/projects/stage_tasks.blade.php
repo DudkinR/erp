@@ -32,10 +32,12 @@
                                 <td>{{ $task['count'] }}</td>
                                 @foreach($mass_print['positions'] as $position)
                                     <td class = "text-center"
-                                        @if($task[$position->id]['status'] == 'new')
+                                        @if (isset($task[$position->id]) && $task[$position->id]['status'] == 'new')
                                             style="background-color: #fffb11;"
-                                        @elseif($task[$position->id]['status'] == 'problem')
+                                        @elseif(isset($task[$position->id]) && $task[$position->id]['status'] =='problem')
                                             style="background-color: #FF6347;"
+                                        @else
+                                            style="background-color: red;"
                                         @endif
                                     > 
                                         @if(isset($task[$position->id]))

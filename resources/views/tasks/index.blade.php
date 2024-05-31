@@ -18,12 +18,13 @@
                 </a>
             </div>
         </div> 
-        @php 
+        @php
         $projects = []; 
         foreach($tasks as $task){
             if(!in_array($task->project, $projects))
             $projects[] = $task->project;
         }
+       
         foreach($problems as $problem){
             if(!in_array($problem->project, $projects))
             $projects[] = $problem->project;
@@ -68,6 +69,7 @@
                     </div>
                 </div>
             @endforeach
+            @if($problems->count() > 0)
             @foreach($problems as $problem)
                 @if($project != $problem->project)
                     @continue
@@ -101,8 +103,11 @@
                     </div>
                 </div>
                 @endforeach
+            @endif
+
 
         @endforeach
+      
 
     </div>
 @endsection

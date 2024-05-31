@@ -54,7 +54,13 @@ class TaskController extends Controller
             ->with ('project', 'stage', 'step' )    
             ->orderBy('project_id', 'desc')   
             ->get();
-        return view('tasks.index', compact('tasks'));
+            $problems = Problem::where('status', '=', 'completed')
+            ->where('date_end', '=', date('Y-m-d'))
+            ->whereIn('responsible_position_id', $user ->profile ->positions ->pluck('id'))
+            ->with ('project', 'stage', 'step' )
+            ->orderBy('project_id', 'desc')
+            ->get();
+        return view('tasks.index', compact('tasks', 'problems'));
     }
      // create
     public function create()

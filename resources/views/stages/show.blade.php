@@ -110,52 +110,54 @@
         }
 
         function show_tasks() {
-            form_steps.innerHTML = '';
-            steps_really.forEach((step, index) => {
-                const div = document.createElement('div');
-                div.classList.add('row', 'border', 'mb-2');
-                div.innerHTML = `
-                    <div class="col-md-2 d-flex align-items-center justify-content-between">
-                        <button type="button" class="btn btn-light" onclick="move_step(${index}, 'up')">^</button>
-                        <span>${index + 1}</span>
-                        <input type="hidden" name="steps[${index}][step_id]" value="${step.id}">
-                        <input type="hidden" name="steps[${index}][order]" value="${index + 1}">
-                        <button type="button" class="btn btn-light" onclick="move_step(${index}, 'down')">v</button>
-                    </div>
-                    <div class="col-md-2">
-                        <p title="${step.description}">${step.name}</p>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="steps[${index}][position_id]" class="form-control">
-                            ${positions.map(position => `<option value="${position.id}" ${position.id == step.position_id ? 'selected' : ''}>${position.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="col-md-1">
-                        <input type="number" name="steps[${index}][count]" class="form-control" value="1"> {{__('things')}}
-                    </div>
-                    <div class="col-md-3">
-                        {{__('Type')}}
-                        <hr>
-                        <input type="radio" name="steps[${index}][type]" value="doc" > {{__('doc')}}
-                        <input type="radio" name="steps[${index}][type]" value="photo" checked> {{__('photo')}}
-                        <input type="radio" name="steps[${index}][type]" value="sertificate"> {{__('sertificate')}}
-                        <input type="radio" name="steps[${index}][type]" value="video"> {{__('video')}}    
-                    </div>
-                        
-                    <div class="col-md-1">
-                        <div class="form-check">
-                            <input type="checkbox" name="steps[${index}][checkpoints]" class="form-check-input" checked>
-                            <label class="form-check-label">{{__('inc')}}</label>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-primary mt-2" onclick="double_task(${index}, ${step.id})">{{ __('Double') }}</button>
-                    </div>
-                    <input type="hidden" name="steps[${index}][step_id]" value="${step.id}">
-                `;
-                form_steps.appendChild(div);
-            });
-        }
+    form_steps.innerHTML = '';
+    steps_really.forEach((step, index) => {
+        const div = document.createElement('div');
+        div.classList.add('row', 'border', 'mb-2');
+        div.innerHTML = `
+            <div class="col-md-2 d-flex align-items-center justify-content-between">
+                <button type="button" class="btn btn-light" onclick="move_step(${index}, 'up')">^</button>
+                <span>${index + 1}</span>
+                <input type="hidden" name="steps[${index}][step_id]" value="${step.id}">
+                <input type="hidden" name="steps[${index}][order]" value="${index + 1}">
+                <button type="button" class="btn btn-light" onclick="move_step(${index}, 'down')">v</button>
+            </div>
+            <div class="col-md-2">
+                <p title="${step.description}">${step.name}</p>
+            </div>
+            <div class="col-md-2">
+                <select name="steps[${index}][position_id]" class="form-control">
+                    ${positions.map(position => `<option value="${position.id}" ${position.id == step.position_id ? 'selected' : ''}>${position.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="col-md-1">
+                <input type="number" name="steps[${index}][count]" class="form-control" value="1"> {{__('things')}}
+            </div>
+            <div class="col-md-3">
+                {{__('Type')}}
+                <hr>
+                <input type="radio" name="steps[${index}][type]" value="doc" > {{__('doc')}}
+                <input type="radio" name="steps[${index}][type]" value="photo" checked> {{__('photo')}}
+                <input type="radio" name="steps[${index}][type]" value="sertificate"> {{__('sertificate')}}
+                <input type="radio" name="steps[${index}][type]" value="video"> {{__('video')}}    
+            </div>
+                
+            <div class="col-md-1">
+                <div class="form-check">
+                    <input type="hidden" name="steps[${index}][checkpoints]" value="off">
+                    <input type="checkbox" name="steps[${index}][checkpoints]" class="form-check-input" checked>
+                    <label class="form-check-label">{{__('inc')}}</label>
+                </div>
+            </div> 
+            <div class="col-md-1">
+                <button type="button" class="btn btn-primary mt-2" onclick="double_task(${index}, ${step.id})">{{ __('Double') }}</button>
+            </div>
+            <input type="hidden" name="steps[${index}][step_id]" value="${step.id}">
+        `;
+        form_steps.appendChild(div);
+    });
+}
+
 
         function move_step(index, direction) {
             if (direction === 'up' && index > 0) {
