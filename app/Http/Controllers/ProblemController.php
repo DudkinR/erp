@@ -207,5 +207,9 @@ class ProblemController extends Controller
     public function destroy(string $id)
     {
         //
+        $problem = Problem::find($id);
+        $problem->delete();
+        return redirect()->route('problems.index')->with('success', 'Problem deleted successfully.');
+        
     }
 }

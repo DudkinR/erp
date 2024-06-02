@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Fact;
+use App\Models\Image;
 
 class FactsController extends Controller
 {
@@ -31,27 +32,47 @@ class FactsController extends Controller
      */
     public function store(Request $request)
     {
-        /*name',
-        'description',
-        'image',
-        'status'*/
-        $fact = new Fact();
-        $fact->name = $request->name;
-        $fact->description = $request->description;
-        $fact->status = $request->status;
-       // $fact -> status = 'active';
-        $fact->save();
-        // load image if exists rename = fact_id_data and save
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $name = $fact->id . '_'.time().'.' . $image->getClientOriginalExtension();
-            $destinationPath = public_path('/images');
-            $image->move($destinationPath, $name);
-            $fact->image = $name;
+        try {
+            Log::info('Store method called');
+            Log::info('Request data:', $request->all());
+
+            $fact = new Fact();
+            $fact->name = $request->name;
+            $fact->description = $request->description;
+            $fact->status = $request->status;
             $fact->save();
+            
+            Log::info('Fact saved successfully, ID: ' . $fact->id);
+
+            if ($request->hasFile('image')) {
+                Log::info('Image file found');
+                $file = $request->file('image');
+                $fileName = time() . '_' . $file->getClientOriginalName(); // Make filename unique
+                $file->move(public_path('imagesFact'), $fileName);
+
+                $img = new Image();
+                $img->name = $fileName;
+                $img->path = 'imagesFact/' . $fileName;
+                $img->extension = $file->getClientOriginalExtension();
+                $img->url = 'imagesFact/' . $fileName;
+                $img->alt = $fileName;
+                $img->title = $fileName;
+                $img->description = $fileName;
+                $img->save();
+
+                $fact->images()->attach($img->id);
+                Log::info('Image saved and attached to fact');
+            } else {
+                Log::info('No image file found');
+            }
+
+            return redirect()->route('facts.index')->with('success', 'Fact created successfully');
+        } catch (\Exception $e) {
+            Log::error('Error creating fact: ' . $e->getMessage());
+            return redirect()->route('facts.index')->withErrors('Failed to create fact');
         }
-        return redirect()->route('facts.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -79,31 +100,40 @@ class FactsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        try{
-        $fact = Fact::find($id);
-        $fact->name = $request->name;
-        $fact->description = $request->description;
-        $fact->status = $request->status;
-        $fact->save();
-        // load image if exists rename = fact_id_data and save
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $name = $fact->id .'_'.time().'.'. $image->getClientOriginalExtension();
-            $destinationPath = public_path('/images');
-            // delete old image
-            if ($fact->image && file_exists($destinationPath . '/' . $fact->image)) {
-                unlink($destinationPath . '/' . $fact->image);
+        try {
+            $fact = Fact::find($id);
+    
+            if (!$fact) {
+                return redirect()->route('facts.index')->withErrors('Fact not found');
             }
-            $image->move($destinationPath, $name);
-            $fact->image = $name;
+    
+            $fact->name = $request->name;
+            $fact->description = $request->description;
+            $fact->status = $request->status;
             $fact->save();
-        }
-        return redirect()->route('facts.index');
+    
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $fileName = time() . '_' . $file->getClientOriginalName(); // Make filename unique
+                $file->move(public_path('imagesFact'), $fileName);
+                $img = new Image();
+                $img->name = $fileName;
+                $img->path = 'imagesFact/' . $fileName;
+                $img->extension = $file->getClientOriginalExtension();
+                $img->url = 'imagesFact/' . $fileName;
+                $img->alt = $fileName;
+                $img->title = $fileName;
+                $img->description = $fileName;
+                $img->save();    
+                $fact->images()->attach($img->id);
+            }    
+            return redirect()->route('facts.index')->with('success', 'Fact updated successfully');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->route('facts.index');
+            return redirect()->route('facts.index')->withErrors('Failed to update fact');
         }
     }
+    
 
     /**
      * Remove the specified resource from storage.

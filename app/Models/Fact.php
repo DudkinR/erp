@@ -26,5 +26,9 @@ class Fact extends Model
     {
         return $this->belongsToMany(Act::class, 'facts_acts');
     }
+    public function images()
+    {
+        return $this->belongsToMany(Image::class, 'fact_image', 'fact_id', 'image_id');
+    }
 
 }

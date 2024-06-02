@@ -47,6 +47,15 @@
                                     >{{ $objective->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="positions">{{__('Positions')}}</label>
+                        <select class="form-control" id="positions" name="positions[]" multiple size = 5>
+                            @foreach($positions as $position)
+                                <option value="{{ $position->id }}">{{ $position->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
             </div>

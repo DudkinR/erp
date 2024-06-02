@@ -3,8 +3,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('_______')}}</h1>
-                <a class="text-right" href="{{ route('_______.create') }}">{{__('_______')}}</a>
+            <h1>{{__('Magasines')}}</h1>
+                <a class="text-right" href="{{ route('magasines.create') }}">{{__('Create')}}</a>
             </div>
         </div>    
     </div>

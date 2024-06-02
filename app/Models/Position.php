@@ -23,6 +23,11 @@ class Position extends Model
     {
         return $this->belongsToMany(Struct::class, 'positions_structuries', 'positions_id', 'structuries_id');
     }
+    // positions_functs
+    public function funs()
+    {
+        return $this->belongsToMany(Fun::class, 'positions_functs', 'position_id', 'funct_id');
+    }
  
 
 }

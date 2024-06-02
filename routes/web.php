@@ -54,7 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/funs/{id}', 'App\Http\Controllers\FunController@destroy')->name('funs.destroy');
     // store_api
     Route::any('/fun/store_api', 'App\Http\Controllers\FunController@store_api')->name('funs.store_api');
-
+//funs.store_positions_api
+    Route::any('/funs.store_positions_api', 'App\Http\Controllers\FunController@store_positions_api')->name('funs.store_positions_api');
     // personal routes
     
     Route::get('/personal', 'App\Http\Controllers\PersonalController@index')->name('personal.index');

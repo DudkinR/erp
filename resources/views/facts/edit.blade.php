@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('Fact')}}</h1>
-                <form method="POST" action="{{ route('facts.update',$fact) }}">
+                <form method="POST" action="{{ route('facts.update',$fact) }}" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
                     <div class="form-group">

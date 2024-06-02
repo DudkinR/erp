@@ -34,7 +34,8 @@ class FunController extends Controller
         $goals = Goal::all();
         $gl = $request->gl;
         $objs= Objective::all();
-        return view('funs.create', compact('goals', 'gl', 'objs'));
+        $positions = Position::all();
+        return view('funs.create', compact('goals', 'gl', 'objs', 'positions'));
     }
     // store
     public function store(Request $request)
@@ -44,12 +45,28 @@ class FunController extends Controller
         $new_funct->name=$request->name;
         $new_funct->description=$request->description;
         $new_funct->save();
-        $new_funct->goals()->attach($request->goal_id);
-        if($request->gl){
-            $new_funct->goals()->attach($request->gl);
+        if($request->goals){
+            // clear old goals
+            $new_funct->goals()->detach();
+            $new_funct->goals()->attach($request->goals);
+        }
+        //objectives
+        if($request->objective){
+            // clear old objectives
+            $new_funct->objectives()->detach();
+            $new_funct->objectives()->attach($request->objective);
+        }
+        // positions
+        if($request->positions){
+            // clear old positions
+            $new_funct->positions()->detach();
+            //  order =1
+            $new_funct->positions()->attach($request->positions, ['order' => 1]);
+            
+
+            
         }
 
-        // redirect
         return redirect()->route('funs.index');
     }
     // store_api
@@ -107,7 +124,19 @@ class FunController extends Controller
             'message' => 'The given data was invalid.',
         ], 422);
     }
-    
+    //store_positions_api
+    public function store_positions_api(Request $request)
+    {
+        $fun= Fun::find($request->fun_id);
+        // clear old positions
+        $fun->positions()->detach();
+        $fun->positions()->attach($request->positions , ['order' => 1]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Position successfully added to fun.',
+            'fun' => $fun
+        ], 200);
+    }
     // show
     public function show($id)
     {
@@ -120,7 +149,8 @@ class FunController extends Controller
         $fun = Fun::find($id);
         $goals = Goal::all();
         $positions = Position::all();
-        return view('funs.edit', compact('fun', 'goals', 'positions'));
+        $objectives = Objective::all();
+        return view('funs.edit', compact('fun', 'goals', 'positions', 'objectives'));
     }
     // update
     public function update(Request $request, $id)
@@ -135,8 +165,26 @@ class FunController extends Controller
         $funct->name=$request->name;
         $funct->description=$request->description;
         $funct->save();
-        $funct->goals()->sync($request->goal_id);
-        $funct->positions()->sync($request->position_id);
+        
+        if($request->goals){
+            // clear old goals
+            $funct->goals()->detach();
+            $funct->goals()->attach($request->goals);
+        }
+        //objectives
+        if($request->objective){
+            // clear old objectives
+            $funct->objectives()->detach();
+            $funct->objectives()->attach($request->objective);
+        }
+        // positions
+        if($request->positions){
+            // clear old positions
+            $funct->positions()->detach();
+            //  order =1
+            $funct->positions()->attach($request->positions, ['order' => 1]);
+        }
+
         
         return redirect()->route('funs.index');
     }

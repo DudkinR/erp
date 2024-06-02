@@ -6,7 +6,7 @@
                 <h1>{{__('New Facts')}}
                     </h1>
                 <form method="POST" action="{{ route('facts.store') }}" enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    @csrf
                     <div class="form-group">
                         <label for="title">{{__('Title')}}</label>
                         <input type="text" class="form-control" id="name" name="name">

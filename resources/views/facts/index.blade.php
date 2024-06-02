@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('Facts')}}  </h1>
-                <a class="text-right" href="{{ route('facts.create') }}">{{__('Create fact')}}</a>
+                <a class="btn btn-info w-100" href="{{ route('facts.create') }}">{{__('Create fact')}}</a>
                 <table class="table">
                     <thead>
                         <tr>
@@ -29,7 +29,11 @@
                                     </form>
 
                                 </td>
-                                <td><img src="{{ asset('images/'.$fact->image) }}" alt="{{ $fact->name }}" style="max-width: 100px;"></td>
+                                <td>
+                                    @foreach($fact->images as $image)
+                                    <img src="{{$image->path }}" alt="{{ $fact->name }}" style="max-width: 100px;">
+                                    @endforeach
+                                </td>
                                </tr>
                            
                         @endforeach

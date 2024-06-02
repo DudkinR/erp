@@ -33,4 +33,10 @@ class Image extends Model
     {
         return $this->belongsToMany(Task::class, 'image_task', 'image_id', 'task_id');
     }
+    // facts
+    public function facts()
+    {
+        return $this->belongsToMany(Fact::class, 'fact_image', 'image_id', 'fact_id');
+    }
+
 }

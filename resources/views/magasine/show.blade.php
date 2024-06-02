@@ -3,9 +3,10 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('_______')}}</h1>
+            <h1>{{__('Magasine')}}</h1>
                 <a class="text-right
-                " href="{{ route('_______.index') }}">Back</a>
+                " href="{{ route('magasines.index') }}">
+                {{__('Back')}}</a>
             </div>  
         </div>
         <div class="row">
