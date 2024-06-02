@@ -34,6 +34,16 @@ Route::middleware('auth')->group(function () {
     Route::put('/goals/{id}', 'App\Http\Controllers\GoalController@update')->name('goals.update');
     Route::delete('/goals/{id}', 'App\Http\Controllers\GoalController@destroy')->name('goals.destroy');
 
+    // objectives routes
+    Route::get('/objectives', 'App\Http\Controllers\ObjectiveController@index')->name('objectives.index');
+    Route::get('/objectives/create', 'App\Http\Controllers\ObjectiveController@create')->name('objectives.create');
+    Route::post('/objectives', 'App\Http\Controllers\ObjectiveController@store')->name('objectives.store');
+    Route::get('/objectives/{id}', 'App\Http\Controllers\ObjectiveController@show')->name('objectives.show');
+    Route::get('/objectives/{id}/edit', 'App\Http\Controllers\ObjectiveController@edit')->name('objectives.edit');
+    Route::put('/objectives/{id}', 'App\Http\Controllers\ObjectiveController@update')->name('objectives.update');
+    Route::delete('/objectives/{id}', 'App\Http\Controllers\ObjectiveController@destroy')->name('objectives.destroy');
+
+
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');
     Route::get('/funs/create', 'App\Http\Controllers\FunController@create')->name('funs.create');
@@ -42,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/funs/{id}/edit', 'App\Http\Controllers\FunController@edit')->name('funs.edit');
     Route::put('/funs/{id}', 'App\Http\Controllers\FunController@update')->name('funs.update');
     Route::delete('/funs/{id}', 'App\Http\Controllers\FunController@destroy')->name('funs.destroy');
+    // store_api
+    Route::any('/fun/store_api', 'App\Http\Controllers\FunController@store_api')->name('funs.store_api');
 
     // personal routes
     

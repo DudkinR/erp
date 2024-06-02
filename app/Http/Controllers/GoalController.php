@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Goal;
+use App\Models\Objective;
 
 class GoalController extends Controller
 {
     // index
     public function index()
     {
-        $goals = Goal::all();
+        $goals = Goal::with('objectives')->get();
         return view('goals.index', compact('goals'));
     }
     // create

@@ -17,6 +17,11 @@ class Fun extends Model
     {
         return $this->belongsToMany(Goal::class, 'goals_functs', 'funct_id', 'goal_id');
     }   
+    // objectives
+    public function objectives()
+    {
+        return $this->belongsToMany(Objective::class, 'objective_funct', 'funct_id', 'objective_id');
+    }
     // positions
     public function positions()
     {

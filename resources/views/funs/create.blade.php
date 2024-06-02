@@ -20,16 +20,33 @@
                     </div>
                     <div class="form-group">
                         <label for="goals">{{__('Goals')}}</label>
+                        @php 
+                            $goal_id = Request::get('goal_id');
+                        @endphp
                         <select class="form-control" id="goals" name="goals[]" multiple size = 5>
                             @foreach($goals as $goal)
                                 <option value="{{ $goal->id }}" 
-                                @if($gl==$goal->id) 
+                                @if($gl==$goal->id || $goal->id == $goal_id)
                                     selected
                                 @endif
                                 >{{ $goal->name }} {{ $goal->id }}</option>
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="objectives">{{__('Objectives')}}</label>
+                        @php 
+                            $objective_id = Request::get('objective_id');
+                        @endphp
+                        <select class="form-control" id="objectives" name="objectives[]" multiple size = 5>
+                            @foreach($objs as $objective)
+                                <option value="{{ $objective->id }}"
+                                @if($objective_id == $objective->id)
+                                    selected
+                                @endif
+                                    >{{ $objective->name }}</option>
+                            @endforeach
+                        </select>
                     <button type="submit" class="btn btn-primary">{{__('Create')}}</button>
                 </form>
             </div>

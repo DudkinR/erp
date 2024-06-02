@@ -43,8 +43,37 @@
                     <tbody>
                         @foreach($funs as $funct)
                             <tr>
-                                <td>{{ $funct->name }}</td>
-                                <td>{{ $funct->description }}</td>
+                                <td
+                                class = "@if($funct->positions->count() == 0)
+                                    bg-danger
+                                    @endif
+                                    "
+                                >
+                                    {{ $funct->name }}
+                                
+                                </td>
+                                <td>
+                                    <p>
+                                    {{ $funct->description }}
+                                </p>
+                                <p>
+                                   <h6> {{__('Goals')}}:</h6>
+                                    <ul>
+                                    @foreach($funct->goals as $goal)
+                                        <li>{{ $goal->name }} </li>
+                                    @endforeach
+                                    </ul>
+
+                                <p>
+                                <h6> {{ __('Objective') }}: </h6>
+                                    <ul>
+                                    @foreach($funct->objectives as $objective)
+                                        <li>{{ $objective->name }} </li>
+                                    @endforeach
+                                    </ul>
+                                </p>
+
+                                </td>
                                 <td>
                                     <a href="{{ route('funs.show', $funct->id) }}" class="btn btn-default">{{ __('View') }}</a>
                                     <a href="{{ route('funs.edit', $funct->id) }}" class="btn btn-warning">{{ __('Edit') }}</a>

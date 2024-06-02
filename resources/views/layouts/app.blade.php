@@ -48,9 +48,12 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ route('goals.index') }}"> {{__('Goals')}}</a>
-                           <a class="dropdown-item" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
+                        <a class="dropdown-item" href="{{ route('objectives.index') }}">{{__('Objectives')}}</a>
+                        
+                        <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Functions')}}</a>
+                        <a class="dropdown-item" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
                         <a class="dropdown-item" href="{{ route('cats.index') }}">{{__('Category')}}</a>
-                         <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
+                        <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
                         <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
                         <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
                         <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a>

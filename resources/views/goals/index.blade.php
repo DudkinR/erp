@@ -19,17 +19,37 @@
                                 <td>{{ $goal->due_date }}</td>
                                 <td class="@if($goal->status == '0') text-muted 
                                     @elseif($goal->status == '1') text-primary
-                                    @elseif($goal->status == '2') text-success                                    
-                                     @endif">{{ $goal->name }} <hr>
-                                     @if($goal->funs->count()  > 0)
-                                        <h4>{{__('Functions')}}</h4>
-                                        <ul>
-                                            @foreach($goal->funs as $fun)
-                                                <li>{{ $fun->name }}</li>
-                                            @endforeach
-                                        </ul>   
+                                    @elseif($goal->status == '2') text-success  
+                                    @elseif($goal->status == '3') text-danger
                                     @endif
-                                        {{__('Add Function')}}: <a href="{{ route('funs.create', ['gl' => $goal->id]) }}">{{__('Add')}}</a>
+                                    border 
+                                     ">{{ $goal->name }} <hr>
+                                     <h4>
+                                        {{__('Objectives')}}:
+                                     </h4>
+                                        <ul>
+                                            @foreach($goal->objectives as $objective)
+                                                <li>
+                                                    <h5> {{ $objective->name }} </h5>
+                                                     <h6>{{__('Functions')}}:</h6>
+                                                    <ul>
+                                                        @foreach($objective->functs as $function)
+                                                            <li>{{ $function->name }}</li>
+                                                        @endforeach
+                                                        <li>
+                                                            <a href="{{route('funs.create')}}?goal_id={{$goal->id}}&objective_id={{$objective->id}}" class = "btn btn-primary">
+                                                                {{__('Add Function')}}
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            @endforeach
+                                            <li>
+                                                <a href="{{route('objectives.create')}}?goal_id={{$goal->id}}" class = "btn btn-success w-100">
+                                                    {{__('Add Objective')}}
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </td>
                                 <td>
                                     <a href="{{ route('goals.show', $goal->id) }}" class="btn btn-default">{{__('View')}}</a>
