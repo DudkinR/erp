@@ -7,6 +7,7 @@ use App\Models\Doc;
 use App\Models\Project;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use App\Helpers\StringHelpers as StringHelpers;
 
@@ -37,78 +38,76 @@ class DocController extends Controller
      */
     public function store(Request $request)
     {
-        // ['name', 'path', 'slug', 'link', 'description', 'revision_date', 'publication_date', 'creation_date', 'deletion_date', 'last_change_date', 'last_view_date', 'category_id', 'status'];
-        $doc = Doc::where('name', $request->name)
-            ->where('slug', $request->slug)
-            ->where('category_id', $request->category_id)
-            ->where('status', $request->status)
-            ->first();
-        if(!$doc){
-            $doc = new Doc();
-        }
-        $request->slug = StringHelpers::slugifyNoSpace($request->slug);
-        $doc->name = $request->name;
-        if($request->hasFile('file')){
-            $path = $this->category_path($request->category_id, '');
-            $file = $request->file('file');
-            $filename = $request->slug.'.'.$file->getClientOriginalExtension();
-            // download file
-            $file->storeAs($path, $filename);
-            if($doc->path !== $path.'/'.$filename)
-            {
-                $old_path = $doc->path;
-                $doc->path = $path.'/'.$filename;
-                if($old_path){
-                    Storage::delete($old_path);
-                } 
+        try {
+            // Логирование запроса для отладки
+            Log::info('Store method called');
+            Log::info('Request data:', $request->all());
+    
+            // Поиск существующего документа
+            $doc = Doc::where('name', $request->name)
+                ->where('slug', $request->slug)
+                ->where('category_id', $request->category_id)
+                ->where('status', $request->status)
+                ->first();
+    
+            if (!$doc) {
+                $doc = new Doc();
             }
-            $doc->path = $path.'/'.$filename;
-        }
-        $doc->category_id = $request->category_id;
-        $doc->slug = $request->slug;
-        // lng
-        if($request->lng){
-            $doc->lng = $request->lng;
-        }else{
-            $doc->lng = 'uk';
-        }
-        
-        if($request->link){
+    
+            $request->slug = StringHelpers::slugifyNoSpace($request->slug);
+            $doc->name = $request->name;
+    
+            if ($request->hasFile('file')) {
+                $path = $this->category_path($request->category_id, '');
+                $file = $request->file('file');
+                $filename = $request->slug . '.' . $file->getClientOriginalExtension();
+    
+                // Сохранение файла
+                $file->storeAs($path, $filename);
+    
+                // Проверка и удаление старого файла, если путь изменился
+                if ($doc->path !== $path . '/' . $filename) {
+                    $old_path = $doc->path;
+                    $doc->path = $path . '/' . $filename;
+                    if ($old_path) {
+                        Storage::delete($old_path);
+                    }
+                }
+                $doc->path = $path . '/' . $filename;
+            }
+    
+            $doc->category_id = $request->category_id;
+            $doc->slug = $request->slug;
+            $doc->lng = $request->lng ?? 'uk';
             $doc->link = $request->link;
-        }
-        $doc->description = $request->description;
-        if($request->revision_date){
+            $doc->description = $request->description;
             $doc->revision_date = $request->revision_date;
-        }
-        if($request->publication_date){
             $doc->publication_date = $request->publication_date;
-        }
-        if($request->creation_date){
             $doc->creation_date = $request->creation_date;
-        }
-        if($request->deletion_date){
             $doc->deletion_date = $request->deletion_date;
-        }
-        if($request->last_change_date){
             $doc->last_change_date = $request->last_change_date;
-        }
-        if($request->last_view_date){
             $doc->last_view_date = $request->last_view_date;
+            $doc->status = $request->status;
+            $doc->save();
+    
+            // Привязка категорий
+            $doc->categories()->detach();
+            $doc->categories()->attach($request->category_id);
+    
+            // Привязка связанных документов
+            if ($request->document_releted) {
+                $doc->relatedDocs()->detach();
+                $doc->relatedDocs()->attach($request->document_releted);
+            }
+    
+            return redirect()->route('docs.index')->with('success', 'Document saved successfully');
+        } catch (\Exception $e) {
+            // Логирование ошибки
+            Log::error('Error storing document: ' . $e->getMessage());
+            return redirect()->route('docs.index')->withErrors('Failed to store document');
         }
-        $doc->category_id = $request->category_id;
-        $doc->status = $request->status;
-        $doc->save();
-        //category belongto docs
-        // delete old category
-        $doc->categories()->detach();
-        $doc->categories()->attach($request->category_id);
-        // document_releted[] attach to  relatedDocs  
-        if($request->document_releted){
-            $doc->relatedDocs()->detach();
-            $doc->relatedDocs()->attach($request->document_releted);
-        }
-        return redirect()->route('docs.index');
     }
+    
     // apidocs 
     public function apistoredocs(Request $request)
     {

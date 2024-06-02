@@ -21,7 +21,6 @@
                             </div>
                             <div class="col-md-6">
                                {{__('path')}} : {{$doc->path}}
-
                             </div>
                         </div>
                     </div>
@@ -29,8 +28,8 @@
                         <p>{{__('Created on')}}: {{ date('Y-m-d', strtotime($doc->created_at)) }}</p>
                         <p>{{__('Updated on')}}: {{ date('Y-m-d', strtotime($doc->updated_at)) }}</p>
                         <p>{!! nl2br($doc->description) !!}</p>
-                          <p>{{__('Print')}}:
-                            <a href="{{  $doc->path}}" target="_blank" class="btn border" >{{__('Download')}}</a>
+                        <p>{{__('Print')}}:{{ $doc->path}} 
+                        </p>
                         </p>
                         @if($doc->revision_date)
                         <p> {{__('Revision Date')}}: {{ date('Y-m-d', strtotime($doc->revision_date)) }}</p>

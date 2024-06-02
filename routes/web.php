@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/addDocs', 'App\Http\Controllers\DocController@addDocs')->name('docs.addDocs');
     Route::any('/store_to_project', 'App\Http\Controllers\DocController@store_to_project')->name('docs.store_to_project');
 
+    Route::get('/documents/{path}', 'App\Http\Controllers\DocumentController@show')->name('documents.show');
+
     //all imports index 
     Route::get('/imports', 'App\Http\Controllers\CommonController@index')->name('imports.index');
 
