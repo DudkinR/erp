@@ -3,7 +3,9 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <a class="btn btn-info w-100" href="{{ route('objectives.index') }}">Back</a>
+            <a class="btn btn-info w-100" href="{{ route('objectives.index') }}">
+                {{ __('Back to Objectives') }}
+            </a>
         </div>
     </div>
     <div class="row">
@@ -17,6 +19,25 @@
                     <p id="functs"></p>
                     <div class="bg-info">
                         <h1>{{ __('Add Function') }}</h1>
+                        @php 
+                            $fun_all = \App\Models\Fun::all();
+                        @endphp
+                        <div class="row">
+                        <div class="col-md-8">
+                            
+                            <select class="form-control" id="exist" name="exist">
+                            <option value="0">{{__('None')}}</option>
+                            @foreach($fun_all as $fun)
+                                <option value="{{ $fun->id }}">{{ $fun->name }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4"><label for="exist">{{__('Exists Function')}}</label>
+                        <button type="button"
+                            onclick="submitajax_exist(document.getElementById('exist').value);"
+                        >{{__('Add')}}</button>
+                        </div>
+                        </div>
                         <div class="container border bg-info">
                             <div class="row">
                                 <div class="col-md-12">
@@ -53,7 +74,7 @@
    <script>
    var Ogoals = @json($objective->goals);
 var Ofuncts = @json($objective->functs);
-
+const all_functs = @json($fun_all);
 function submitajax() {
     var name = document.getElementById('name').value;
     var description = document.getElementById('description').value;
@@ -87,6 +108,35 @@ function submitajax() {
         });
 
  
+}
+function submitajax_exist(fun_id){
+    var objective_id = document.getElementById('objective_id').value;
+    var csrf_token = document.querySelector('input[name="_token"]').value;
+    var url = '{{ route('funs.store_api') }}';
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf_token
+        },
+        body: JSON.stringify({
+            fun_id: fun_id,
+            objective_id: objective_id
+        })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            add_funct(data.fun);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
 }
 
 function add_funct(funct) {

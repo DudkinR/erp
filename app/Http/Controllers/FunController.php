@@ -40,11 +40,19 @@ class FunController extends Controller
     // store
     public function store(Request $request)
     {
-
-        $new_funct = new Fun;
-        $new_funct->name=$request->name;
-        $new_funct->description=$request->description;
-        $new_funct->save();
+        // 
+        if($request->exist !== 0){
+            $new_funct = Fun::find($request->exist);
+        }
+        else{
+            $new_funct = Fun::where('name', $request->name)->where('description', $request->description)->first();
+            if(!$new_funct){
+                $new_funct = new Fun;
+            }
+            $new_funct->name=$request->name;
+            $new_funct->description=$request->description;
+            $new_funct->save();
+        }
         if($request->goals){
             // clear old goals
             $new_funct->goals()->detach();
@@ -62,9 +70,7 @@ class FunController extends Controller
             $new_funct->positions()->detach();
             //  order =1
             $new_funct->positions()->attach($request->positions, ['order' => 1]);
-            
-
-            
+          
         }
 
         return redirect()->route('funs.index');
@@ -72,7 +78,20 @@ class FunController extends Controller
     // store_api
     public function store_api(Request $request)
     {
-    
+       if($request-> fun_id){
+            $fun = Fun::find($request->fun_id);
+            if (isset($request->objective_id)) {
+                $fun->objectives()->attach($request->objective_id);
+            }
+            if (isset($request->goal_id)) {
+                $fun->goals()->attach($request->goal_id);
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Fun successfully updated.',
+                'fun' => $fun
+            ], 200);
+        }
 
         $errors = [];
     

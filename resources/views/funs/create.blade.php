@@ -9,14 +9,28 @@
                     @if($gl)
                         <input type="hidden" name="gl" value="{{ $gl }}">
                     @endif
-                    <div class="form-group">
-                        <label for="name"> {{__('Function Name')}}
-                            </label>
-                        <input type="text" class="form-control" id="name" name="name">
+                    <div class="container border bg-secondary">
+                        <div class="form-group">
+                            <label for="name"> {{__('Function Name')}}
+                                </label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">{{__('Description')}}</label>
+                            <textarea class="form-control" id="description" name="description"></textarea>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="description">{{__('Description')}}</label>
-                        <textarea class="form-control" id="description" name="description"></textarea>
+                        @php 
+                            $fun_all = \App\Models\Fun::all();
+                        @endphp
+                        <label for="exist">{{__('Exists Function')}}</label>
+                        <select class="form-control" id="exist" name="exist">
+                            <option value="0">{{__('None')}}</option>
+                            @foreach($fun_all as $fun)
+                                <option value="{{ $fun->id }}">{{ $fun->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="goals">{{__('Goals')}}</label>

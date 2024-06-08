@@ -303,9 +303,9 @@
 
                 </td>
                 <td>
-                    <a href="{{ route('funs.show', '') }}/${funct.id}" class="btn btn-default">{{ __('View') }}</a>
-                    <a href="{{ route('funs.edit', '') }}/${funct.id}" class="btn btn-warning">{{ __('Edit') }}</a>
-                    <form style="display:inline-block" method="POST" action="{{ route('funs.destroy', '') }}/${funct.id}">
+                    <a href="/funs/${funct.id}" class="btn btn-default">{{ __('View') }}</a>
+                    <a href="/funs/${funct.id}/edit" class="btn btn-warning">{{ __('Edit') }}</a>
+                    <form style="display:inline-block" method="POST" action="/funs/${funct.id}/destroy">
                         @method('DELETE')
                         @csrf
                         <button type="submit" class="form-control btn btn-danger">{{ __('Delete') }}</button>
