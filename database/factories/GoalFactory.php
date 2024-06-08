@@ -32,7 +32,9 @@ class GoalFactory extends Factory
             'due_date' => $faker->date(),
             'completed' => $faker->boolean,
             'completed_date' => $faker->date(),
-            'status' => $faker->randomElement(['виконано', 'в процесі', 'не виконано']),
+            // random 0-10
+            'status' => $faker->randomDigitNotNull,
+
         ];
     }
 }

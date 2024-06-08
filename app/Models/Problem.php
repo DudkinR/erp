@@ -11,21 +11,25 @@ class Problem extends Model
     // use table name
     protected $table = 'problems';
     // use  fillable
+    /*
+    `id`, `project_id`, `stage_id`, `step_id`, `task_id`, `user_id`, `responsible_position_id`, `control_id`, `name`, `description`, `priority`, `date_start`, `date_end`, `deadline`, `status`, `created_at`, `updated_at`
+    */
     protected $fillable = [
-        'name',
-        'description', 
-        'priority', 
-        'date_start', 
-        'date_end', 
-        'deadline', 
-        'status', 
-        'project_id', 
-        'stage_id', 
-        'step_id', 
-        'task_id',
-        'user_id',
-        'responsible_position_id',
-        'control_id'
+    'project_id',
+    'stage_id',
+    'step_id',
+    'task_id',
+    'user_id',
+    'responsible_position_id',
+    'control_id',
+    'name',
+    'description',
+    'priority',
+    'date_start',
+    'date_end',
+    'deadline',
+    'status'
+    
     ];
     // personals  problem_personal
     public function personals()

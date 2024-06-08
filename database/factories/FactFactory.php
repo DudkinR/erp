@@ -23,7 +23,7 @@ class FactFactory extends Factory
         'name',
         'description',
         'image',
-        'status'
+        'status' 'active','freeze','inactive','completed','closed'
     ];
      * @return array<string, mixed>
      */
@@ -34,7 +34,7 @@ class FactFactory extends Factory
             'name' => $faker->company,
             'description' => $faker->paragraph,
             'image' => $faker->imageUrl(),
-            'status' => $faker->randomElement(['виконано', 'в процесі', 'не виконано']),
+            'status' => $faker-> randomElement(['active','freeze','inactive','completed','closed']),
         ];
     }
 }

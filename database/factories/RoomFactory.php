@@ -3,27 +3,33 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Nomenclature;
+use App\Models\Room;
 use Faker\Factory as FakerFactory;
 
 /**
- * 
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Room>
  */
-class NomenclatureFactory extends Factory
+class RoomFactory extends Factory
 {
-    protected $model = Nomenclature::class;
+    protected $model = Room::class;
     /**
      * Define the model's default state.
-     *
+     *  protected $fillable = [
+        'IDname',
+        'name', 
+        'description',
+        'address'
+    ];
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
         $faker = FakerFactory::create('uk_UA');
         return [
+            'IDname' => $faker->company,
             'name' => $faker->company,
-            'article' => $faker->unique()->word,
             'description' => $faker->paragraph,
-          
+            'address' => $faker->address
         ];
     }
 }

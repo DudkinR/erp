@@ -25,7 +25,7 @@ class CategoryFactory extends Factory
             'slug' => $faker->unique()->slug,
             'description' => $faker->sentence(10),
             'image' => $faker->imageUrl(),
-            'parent_id' => null,            
+            'parent_id' => 0,            
         ];
     }
 }

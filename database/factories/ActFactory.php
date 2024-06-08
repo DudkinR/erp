@@ -24,7 +24,7 @@ class ActFactory extends Factory
         'description',
         'complite_date',
         'dedline_date',
-        'status'
+        'status' 'active','freeze','inactive','completed','closed'
     ];
      */
     public function definition(): array
@@ -36,7 +36,7 @@ class ActFactory extends Factory
             'description' => $faker->paragraph,
             'complite_date' => $faker->date(),
             'dedline_date' => $faker->date(),
-            'status' => $faker->randomElement(['виконано', 'в процесі', 'не виконано']),
+            'status' => $faker->randomElement(['active','freeze','inactive','completed','closed']),
         ];
     }
 }

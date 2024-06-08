@@ -23,9 +23,7 @@ class ControlFactory extends Factory
         return [
             'name' => $faker->company,
             'description' => $faker->paragraph,
-            'complite_date' => $faker->date(),
-            'dedline_date' => $faker->date(),
-            'status' => $faker->randomElement(['виконано', 'в процесі', 'не виконано']),
+           
         ];
     }
 }

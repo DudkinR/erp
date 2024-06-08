@@ -16,6 +16,7 @@ class ProjectFactory extends Factory
     /**
      * Define the model's default state.
      *
+     * `name`, `description`, `priority`, `number`, `date`, `amount`, `client`, `current_state`, `execution_period`, `payment_percentage`, `shipping_percentage`, `debt_percentage`, `currency`, `operation`, `created_at`, `updated_at`
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -28,9 +29,9 @@ class ProjectFactory extends Factory
             'number' => $faker->unique()->randomNumber(8),
             'date' => $faker->date(),
             'amount' => $faker->randomFloat(2, 1000, 100000),
-            'client' => $faker->company,
+            'client' =>  $faker->numberBetween(1, 50),
             'current_state' => $faker->randomElement(['ініційований', 'в процесі', 'завершено']),
-            'execution_period' => $faker->numberBetween(1, 24), // in months
+            'execution_period' => NULL, // in months
             'payment_percentage' => $faker->numberBetween(0, 100),
             'shipping_percentage' => $faker->numberBetween(0, 100),
             'debt_percentage' => $faker->numberBetween(0, 100),

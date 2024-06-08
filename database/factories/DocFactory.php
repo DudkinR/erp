@@ -37,7 +37,7 @@ class DocFactory extends Factory
             'deletion_date' => $faker->date(),
             'last_change_date' => $faker->date(),
             'last_view_date' => $faker->date(),
-            'category_id' => $faker
+            'category_id' => $faker->numberBetween(1, 10),
         ];
     }
 }
