@@ -111,12 +111,7 @@ class ProblemController extends Controller
                 $problem->images()->attach($img->id);
             }
         }
-        
-       
-       
         return redirect()->route('problems.show', $problem->id)->with('success', 'Problem created successfully.');
-
-
     }
 
     /**
@@ -146,7 +141,6 @@ class ProblemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
         $problem = Problem::find($id);
         if($request->name){
             $problem->name = $request->name;

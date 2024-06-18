@@ -12,7 +12,7 @@ $clients = App\Models\Client::all();
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Projects')}}</h1>
-                <a class="text-right" href="{{ route('projects.create') }}">{{__('New project')}}</a>
+                <a class="btn btn-info" href="{{ route('projects.create') }}">{{__('New project')}}</a>
                 <button class="btn btn-warning" onclick="refresh()" > {{__('refresh')}} </button>
             </div>
         </div>

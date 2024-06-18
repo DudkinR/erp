@@ -100,8 +100,15 @@
 </div>
 
 <script>
+     var steps = @json($stage->steps);
+     function add_new_step_to_steps(new_step) {
+    steps.push(new_step);
+    steps_really = order_steps(steps);
+    show_tasks();
+}
+
     document.addEventListener("DOMContentLoaded", function() {
-        const steps = @json($stage->steps);
+       
         let steps_really = steps.map((step, index) => ({ ...step, order: index + 1 }));
         const positions = @json(App\Models\Position::all());
         const form_steps = document.getElementById('steps_container');

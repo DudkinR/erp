@@ -340,6 +340,12 @@ class ProjectController extends Controller
             
             return $mass_print;
         }
+        // grantt
+        public function grantt()
+        {
+            $projects = Project::all();
+            return view('projects.grantt', compact('projects'));
+        }
         
 
 }

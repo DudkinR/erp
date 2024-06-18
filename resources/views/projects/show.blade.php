@@ -10,14 +10,16 @@
                 </a>
             </div>  
         </div>
+        <?php $client = App\Models\Client::find($project->client); ?>
+    @if($client)
         <div class="row">
             <div class="col-md-12">
                 <h1>
-                    <?php $client = App\Models\Client::find($project->client); ?>
                     {{ $client->name }}
                 </h1>
             </div>
         </div>
+    @endif
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -36,7 +38,6 @@
                         <p>
                             <a href="{{route('projects.projectstgantt',$project->id)}}" class="btn btn-primary"> {{__('Gantt')}}</a>
                         </p>
-
                     </div>
                     <div class="card-footer">
                         @foreach($project->stages as $stage)

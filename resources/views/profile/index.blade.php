@@ -30,15 +30,8 @@
                         <li>{{$role->name}}</li>
                     @endforeach
                 </ul>
-                <br>
                 @endif
-                 hasRoles('admin') : {{ $user->hasRole('admin') ? 'true' : 'false' }}
                 <br>
-                hasRoles('user') : {{ $user->hasRole('user') ? 'true' : 'false' }}
-                <br>
-                hasRoles('quality-engineer') : {{ $user->hasRole('quality-engineer') ? 'true' : 'false' }}
-                <br>
-                hasRoles('admin', 'user') : {{ $user->hasRole('admin', 'user') ? 'true' : 'false' }}
-        </div>
+            </div>
     </div>
 @endsection

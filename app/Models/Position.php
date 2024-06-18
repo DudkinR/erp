@@ -10,8 +10,8 @@ class Position extends Model
     use HasFactory;
     // table name
     protected $table = 'positions';
-    // fillable fields
-    protected $fillable = ['name', 'description', 'start', 'data_start', 'closed', 'data_closed'];
+    // fillable fields 
+        protected $fillable = ['name', 'description', 'start', 'data_start', 'closed', 'data_closed'];
 
     // relationships
     public function personals()

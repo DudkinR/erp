@@ -8,10 +8,12 @@
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <?php  
                         $projectsList = \App\Models\Project::where('current_state', '<>', 'Закритий')->get(); 
-                    ?>
+                        $type_file="create";
+                   ?>
                     @include('components.select_projects')
                     @include('components.select_stages')
                     @include('components.select_steps')
+                    @include('components.description_steps')
                     @include('components.input_file_image')
                     <div class="row">
                         <div class="col-md-6">

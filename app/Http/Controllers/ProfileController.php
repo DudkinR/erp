@@ -20,13 +20,13 @@ class ProfileController extends Controller
     // index 
     public function index(Request $request)
     {
-      $user = Auth::user();
-       $role= 'quality-engineer';
+    $user = Auth::user();
+      /*   $role= 'quality-engineer';
      //   $role= 'user';
         //      $role= 'admin'; 
       $role_id = Role::where('slug', $role)->first()->id;
      // $user->roles()->detach();
-        $user->roles()->syncWithoutDetaching([$role_id]);
+        $user->roles()->syncWithoutDetaching([$role_id]);*/
       return view('profile.index', compact('user'));
         
     }

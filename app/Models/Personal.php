@@ -11,8 +11,9 @@ class Personal extends Model
     // table name
     protected $table = 'personal';
 
-    // fillable fields
-    protected $fillable = ['tn', 'nickname', 'fio', 'email', 'phone', 'date_start'];
+    // fillable fields `tn`, `nickname`, `fio`, `email`, `phone`, `date_start`, `status`, `date_status`
+
+    protected $fillable = ['tn', 'nickname', 'fio', 'email', 'phone', 'date_start' , 'status', 'date_status'];
 
   
     public function positions()
@@ -40,9 +41,24 @@ class Personal extends Model
             return $childStructury->positions;
         })->unique('id');
     }
+    // связуем roles через  user profile.tn=user.tn у юзера есть роли которые соответствуют персоналу
+    public function user()
+    {
+        return $this->hasOne(User::class, 'tn', 'tn');
+    }
+    public function roles()
+    {
+       return $this->user->roles();
+    }
 
     public function tasks()
     {
         return Task::whereIn('responsible_position_id', $this->positions->pluck('id'))->get();
+    }
+    // personal_comment - таблица связи belongtomany
+
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class, 'personal_comment', 'personal_id', 'comment_id');
     }
 }

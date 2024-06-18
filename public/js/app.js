@@ -1,7 +1,7 @@
 
 function add_new_step(stage_id) {
     const succesful_step = document.getElementById('succesful_step');
-    const url = "/steps";
+    const url = "/api_add_step";
     // Ensure csrfToken is globally available or fetch it inside this function
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const data = {
@@ -15,6 +15,7 @@ function add_new_step(stage_id) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken // Добавляем CSRF-токен в заголовок
         },
         body: JSON.stringify(data)
     })
@@ -26,15 +27,8 @@ function add_new_step(stage_id) {
     })
     .then(data => {
         console.log('Success:', data);
-        const all_steps = data['steps']; // Make sure the 'steps' is correct and provided by your backend
-        const select = document.querySelector('select[name="steps_id[]"]');
-        const option = document.createElement('option');
-        option.value = data.id; // Ensure that your response object has 'id'
-        option.text = data.name; // Ensure that your response object has 'name'
-        select.appendChild(option); // Changed from .add() to .appendChild() to be more universally compatible
-        succesful_step.innerHTML = 'Step added successfully';
-        // clean 
-        document.getElementById('new_step').value = '';
+      location.reload(); 
+      
 
     })
     .catch(error => {

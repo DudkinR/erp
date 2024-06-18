@@ -154,6 +154,8 @@ Route::middleware('auth')->group(function () {
     Route::any('/formprojectts/add_stage', 'App\Http\Controllers\ProjectController@add_stage_form')->name('projects.add_stage_form');
     // /projectstgantt
     Route::get('/projectstgantt/{id}', 'App\Http\Controllers\ProjectController@projectstgantt')->name('projects.projectstgantt');
+    // projects.grantt
+    Route::get('/projects_grantt', 'App\Http\Controllers\ProjectController@grantt')->name('projects.grantt');
     // /stage_tasks/${project.id}/${stage.stage_id}
     Route::get('/stage_tasks/{project_id}/{stage_id}', 'App\Http\Controllers\ProjectController@stage_tasks')->name('projects.stage_tasks');
     // stage_tasks_pdf_print/${project.id}/${stage.stage_id}
@@ -182,6 +184,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/steps/{id}/edit', 'App\Http\Controllers\StepController@edit')->name('steps.edit');
     Route::put('/steps/{id}', 'App\Http\Controllers\StepController@update')->name('steps.update');
     Route::delete('/steps/{id}', 'App\Http\Controllers\StepController@destroy')->name('steps.destroy');
+    // api_add_step
+    Route::any('/api_add_step', 'App\Http\Controllers\StepController@api_add_step')->name('steps.api_add_step');
 
     // stage routes
     Route::get('/stages', 'App\Http\Controllers\StageController@index')->name('stages.index');
@@ -323,7 +327,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/rooms/{id}/edit', 'App\Http\Controllers\RoomController@edit')->name('rooms.edit');
     Route::put('/rooms/{id}', 'App\Http\Controllers\RoomController@update')->name('rooms.update');
     Route::delete('/rooms/{id}', 'App\Http\Controllers\RoomController@destroy')->name('rooms.destroy');
-
+    // roles 
+    Route::get('/roles', 'App\Http\Controllers\RoleController@index')->name('roles.index');
+    Route::get('/roles/create', 'App\Http\Controllers\RoleController@create')->name('roles.create');
+    Route::post('/roles', 'App\Http\Controllers\RoleController@store')->name('roles.store');
+    Route::get('/roles/{id}', 'App\Http\Controllers\RoleController@show')->name('roles.show');
+    Route::get('/roles/{id}/edit', 'App\Http\Controllers\RoleController@edit')->name('roles.edit');
+    Route::put('/roles/{id}', 'App\Http\Controllers\RoleController@update')->name('roles.update');
+    Route::delete('/roles/{id}', 'App\Http\Controllers\RoleController@destroy')->name('roles.destroy');
+    
 
 });
 

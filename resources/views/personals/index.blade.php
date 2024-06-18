@@ -36,7 +36,9 @@
                             <th>{{__('FIO')}}</th>
                             <th>{{__('Position')}}</th>
                             <th>{{__('Status')}}</th>
+                            @if(Auth::user()->hasRole('quality-engineer','admin'))
                             <th>{{__('Action')}}</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -51,14 +53,16 @@
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>
                         <td>${personal.status}</td>
+                        @if(Auth::user()->hasRole('quality-engineer','admin'))
                         <td>
-                            <a href="/personals/${personal.id}/edit">Edit</a>
-                            <form action="/personals/${personal.id}" method="POST" style="display:inline;">
+                            <a href="/personal/${personal.id}/edit">Edit</a>
+                            <form action="/personal/${personal.id}" method="POST" style="display:inline;">
                                 <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
                         </td>
+                        @endif
                     </tr>
                 `;
             });

@@ -62,6 +62,38 @@ class StepController extends Controller
         else
         return redirect()->route('steps.index');
     }
+    // api_add_step
+    public function api_add_step(Request $request)
+    {
+       // return $request->name;
+        $name = $request->name;
+        $step = Step::where('name', $name)->first();
+        if (!$step) {
+            $step = new Step();
+            $step->name = $request->name;
+            $step->description = $request->description;
+            $step->save();
+        }
+        // if $request->stages is not empty || 0
+        if ($request->stages_id) {
+        $step->stages()->detach();
+            $step->stages()->attach($request->stages_id);
+        }
+        // if $request->controls is not empty || 0
+        if ($request->controls_id) {
+            $step->controls()->detach();
+            $step->controls()->attach($request->controls_id);
+        }
+
+        if($request->novisiability == '1'){
+            $steps = Step::all();
+             return ['step'=>$step,'steps'=> $steps];
+        }
+        else
+        {
+            return ['step'=>$step];
+        }
+    }
 
     /**
      * Display the specified resource.

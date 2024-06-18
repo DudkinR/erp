@@ -22,16 +22,20 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         $faker = FakerFactory::create('uk_UA');
+        $data_start = $faker->dateTimeBetween('-1 year', 'now');
+        $rand_month = $faker->numberBetween(1, 12);
+        $data_end = $faker->dateTimeBetween($data_start, $data_start->format('Y-m-d H:i:s').' + '.$rand_month.' months');
         return [
             'name' => $faker->company,
             'description' => $faker->paragraph,
             'priority' => $faker->numberBetween(1, 5),
             'number' => $faker->unique()->randomNumber(8),
-            'date' => $faker->date(),
+        
+            'date' =>  $data_start,
             'amount' => $faker->randomFloat(2, 1000, 100000),
             'client' =>  $faker->numberBetween(1, 50),
             'current_state' => $faker->randomElement(['ініційований', 'в процесі', 'завершено']),
-            'execution_period' => NULL, // in months
+            'execution_period' =>  $data_end,
             'payment_percentage' => $faker->numberBetween(0, 100),
             'shipping_percentage' => $faker->numberBetween(0, 100),
             'debt_percentage' => $faker->numberBetween(0, 100),

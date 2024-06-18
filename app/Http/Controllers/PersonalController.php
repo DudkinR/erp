@@ -7,6 +7,8 @@ use App\Models\Personal;
 use App\Models\Struct;
 use App\Models\Position;
 use App\Models\Status;
+use App\Models\User;
+use App\Models\Comment;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Helpers\StringHelpers as StringHelpers;
 use App\Helpers\CommonHelper as CommonHelper;
@@ -18,14 +20,10 @@ class PersonalController extends Controller
      */
     public function index()
     {
-        //
-        $personals = Personal::where('status','!=' ,'Звільнення')
-        ->with('positions')
+        $personals = Personal::with('positions')
         ->get();
         //$personals = Personal::all();
         return view('personals.index', compact('personals'));
-
-
     }
 
     /**
@@ -33,30 +31,64 @@ class PersonalController extends Controller
      */
     public function create()
     {
-        //
         return view('personals.create');
-
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
-        $request->validate([
-            'abv' => 'required',
-            'name' => 'required',
-            'description' => 'required'
-        ]);
+    {        
+        $personal = Personal::where('tn', $request->tn)
+        ->orWhere('fio', $request->fio)
+        ->first();
+        if($personal){
+            return redirect('/personal')->with('error', 'Personal already exists!');
+        }
         $personal = new Personal([
-            'abv' => $request->get('abv'),
-            'name' => $request->get('name'),
-            'description' => $request->get('description')
+            'tn' => $request->tn,
+            'nickname' => $request->nickname,
+            'fio' => $request->fio,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'date_start' => $request->date_start,
+            'status' => $request->status
         ]);
         $personal->save();
-        return redirect('/personal')->with('success', 'Personal saved!');
+        // find user by tn
+        $user = User::where('tn', $request->tn)->first();
+        if(!$user){
+            $user = new User([
+                'tn' => $request->tn,
+                'name' => $request->fio, // 'name' => 'fio
+                'email' => $request->email,
+                'password' => bcrypt($request->tn)
+            ]);
+            $user->save();            
+        }
+        else {
+            $user->name = $request->fio;
+            $user->email = $request->email;
+            $user->save();
+        }
+        if($request->position){
+            // delete old positions
+            $personal->positions()->detach();
+            $personal->positions()->attach($request->position);
+        }
+        //create comment
+        if($request->comment){
+         $comment = new Comment;
+         $comment->comment = $request->comment;
+         $comment->save();
+         $personal->comments()->attach($comment->id);
+        }
+        // delete old roles
+        $user->roles()->detach();
+        // add user roles
+        $user->roles()->attach($request->roles);
 
+        return redirect('/personal')->with('success', 'Personal saved!');
     }
 
     /**
@@ -64,10 +96,8 @@ class PersonalController extends Controller
      */
     public function show(string $id)
     {
-        //
         $personal = Personal::find($id);
         return view('personals.show', compact('personal'));
-
     }
 
     /**
@@ -75,10 +105,8 @@ class PersonalController extends Controller
      */
     public function edit(string $id)
     {
-        //
         $personal = Personal::find($id);
         return view('personals.edit', compact('personal'));
-
     }
 
     /**
@@ -86,19 +114,42 @@ class PersonalController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
-        $request->validate([
-            'abv' => 'required',
-            'name' => 'required',
-            'description' => 'required'
-        ]);
         $personal = Personal::find($id);
-        $personal->abv = $request->get('abv');
-        $personal->name = $request->get('name');
-        $personal->description = $request->get('description');
+        $personal->tn = $request->tn;
+        $personal->nickname = $request->nickname;
+        $personal->fio = $request->fio;
+        $personal->email = $request->email;
+        $personal->phone = $request->phone;
+        $personal->date_start = $request->date_start;
+        $personal->status = $request->status;
         $personal->save();
+        // find user by tn
+        $user = User::where('tn', $request->tn)->first();
+        if(!$user){
+            $user = new User([
+                'tn' => $request->tn,
+                'email' => $request->email,
+                'password' => bcrypt($request->tn)
+            ]);
+            $user->save();            
+        }
+        if($request->position){
+            // delete old positions
+            $personal->positions()->detach();
+            $personal->positions()->attach($request->position);
+        }
+        // comment add
+        if($request->comment){
+            $comment = new Comment;
+            $comment->comment = $request->comment;
+            $comment->save();
+            $personal->comments()->attach($comment->id);
+        }
+        // delete old roles
+        $user->roles()->detach();
+        // add user roles
+        $user->roles()->attach($request->roles);
         return redirect('/personal')->with('success', 'Personal updated!');
-
     }
 
     /**
@@ -106,7 +157,6 @@ class PersonalController extends Controller
      */
     public function destroy(string $id)
     {
-        //
         $personal = Personal::find($id);
         $personal->delete();
         return redirect('/personal')->with('success', 'Personal deleted!');

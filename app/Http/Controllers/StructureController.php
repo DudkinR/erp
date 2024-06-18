@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Helpers\StringHelpers as StringHelpers;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Models\Struct;
+use App\Models\Position;
 
 class StructureController extends Controller
 {
@@ -26,7 +27,8 @@ class StructureController extends Controller
     public function create()
     {
         //
-        return view('structures.create');
+        $positions = Position::orderBy('name')->get();
+        return view('structures.create', compact('positions'));
     }
 
     /**
@@ -35,23 +37,30 @@ class StructureController extends Controller
     public function store(Request $request)
     {
         //
-   /*     $request->validate([
-            'abv' => 'required',
-            'name' => 'required',
-            'description' => 'required',
-
-        ]);
+   /* protected $fillable = ['abv','name', 'description','parent_id','kod','status'];
         */
         $struct = new Struct([
-            'abv' => $request->get('abv'),
-            'name' => $request->get('name'),
-            'description' => $request->get('description'),
-            'status' => 'active',
-            'kod' => '0',
-            'parent_id' => '0'
+            'abv' => $request->slug,
+            'name' => $request->name,
+            'description' => $request->description,
+            'status' =>  $request->status,
+            'kod' => $request->kod,
+            'parent_id' => $request->parent_id
 
         ]);
         $struct->save();
+        // find position if not exist create new    protected $fillable = ['name', 'description', 'start', 'data_start', 'closed', 'data_closed'];
+        $position = Position::where('name', $request->position)->first();
+        if(!$position){
+            $position = new Position();
+            $position->name = $request->name;
+            $position->description = $request->description;
+            $position->start = $request->status;
+            $position->data_start = date('Y-m-d');
+            $position->save();
+        }
+        // Добавлять только уникальные значения
+        $struct->positions()-> syncWithoutDetaching($position->id);
         return redirect('/structure')->with('success', 'Structure saved!');
 
     }
@@ -82,16 +91,26 @@ class StructureController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $request->validate([
-            'abv' => 'required',
-            'name' => 'required',
-            'description' => 'required'
-        ]);
         $struct = Struct::find($id);
         $struct->abv = $request->get('abv');
         $struct->name = $request->get('name');
         $struct->description = $request->get('description');
+        $struct->status = $request->get('status');
+        $struct->kod = $request->get('kod');
+        $struct->parent_id = $request->get('parent_id');
         $struct->save();
+        //  position
+        $position = Position::where('name', $request->position)->first();
+        if(!$position){
+            $position = new Position();
+            $position->name = $request->name;
+            $position->description = $request->description;
+            $position->start = $request->status;
+            $position->data_start = date('Y-m-d');
+            $position->save();
+        }
+        // Добавлять только уникальные значения
+        $struct->positions()-> syncWithoutDetaching($position->id);
         return redirect('/structure')->with('success', 'Structure updated!');
 
     }

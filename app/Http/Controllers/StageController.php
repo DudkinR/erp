@@ -147,6 +147,7 @@ class StageController extends Controller
        $dimension_id = $dimension->id;
        
        $steps = $request->steps;
+       if($steps){
        foreach ($steps as $step) {
         if (isset($step['checkpoints']) && $step['checkpoints'] == 'on') {
             $task = new Task();
@@ -162,9 +163,9 @@ class StageController extends Controller
             $task->type = $step['type'];
             $task->order = $step['order'];
             $task->save();
+            }
         }
     }
-    
         // redirect to show project_id
         return redirect()->route('projects.show', $project_id);
 
