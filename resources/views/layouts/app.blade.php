@@ -19,7 +19,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{{ route('home') }}">
-           <img src="{{ asset('logo/logo.png') }}" alt="logo" style="width: 150px;">
+           <img src="{{ asset('logo/logo_npp.png') }}" alt="logo" style="width: 50px;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -86,6 +86,7 @@
                         <a class="dropdown-item" href="{{ route('equipments.index') }}">{{__('Equipments')}}</a>
                         <a class="dropdown-item" href="{{ route('stores.index') }}">{{__('Stores')}}</a>
                         <a class="dropdown-item" href="{{ route('rooms.index') }}">{{__('Rooms')}}</a>
+                        <a class="dropdown-item" href="{{ route('organomic.index') }}">{{__('Organomics')}}</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -94,6 +95,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ route('docs.index') }}">{{__('Documents')}}</a>
+                        <a class="dropdown-item" href="{{ route('archives.index') }}">{{__('Archives')}}</a>
                     </div>
                 </li>
                 @if(Auth::user()->hasRole('admin'))

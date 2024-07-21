@@ -168,7 +168,7 @@
     "Image" : "Зображення",
     "Parent" : "Батьківський",
     "New Under Category" : "Новий під категорією Документації",
-    "Welcome to PPAPP" : "Ласкаво просимо до ПромПрилад",
+    "Welcome to PPAPP" : "Ласкаво просимо до ХАЕС",
     "Please log in or register to continue" : "Будь ласка, увійдіть або зареєструйтесь, щоб продовжити",
     "Log in" : "Увійти",
     "You are logged in" : "Ви увійшли",
@@ -328,7 +328,10 @@
     "Create position in structure" : "Створити позицію в структурі",
     "Select parent" : "Виберіть батька",
     "Active" : "Активно",
-    "Your email is" : "Ваш email"
+    "Your email is" : "Ваш email",
+    "Organazed" : "Організовано",
+    "Organomics" : "Органоміка",
+    "Archives" : "Архіви"
 
 
 

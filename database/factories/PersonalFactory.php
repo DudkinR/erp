@@ -19,29 +19,34 @@ class PersonalFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = FakerFactory::create('uk_UA');
-        $users = User::all();
-        foreach ($users as $user) {
-         $personal = Personal::where('tn', $user->tn)->first();
-            if($user->tn == null)
-            {
-                continue;
-            }
 
-            if ($personal) {
-                continue;
-            }
-            else
-            {
-                return [
-                    'tn' => $user->tn,
-                    'nickname' => $this->faker->userName,
-                    'fio' => $this->faker->name,
-                    'email' => $this->faker->unique()->safeEmail,
-                    'phone' => $this->faker->phoneNumber,
-                    'date_start' => $this->faker->date(),
-                ];
-            }
+        $faker = FakerFactory::create('uk_UA');
+        $users = User::whereNull('tn')->get(); // Отримуємо всіх користувачів з tn == null
+
+        if ($users->isEmpty()) {
+            // Якщо немає користувачів з tn == null, повертаємо стандартний набір даних
+            return [
+                'tn' => $faker->unique()->randomNumber(),
+                'nickname' => $faker->userName,
+                'fio' => $faker->name,
+                'email' => $faker->unique()->safeEmail,
+                'phone' => $faker->phoneNumber,
+                'date_start' => $faker->date(),
+            ];
         }
+
+        // Вибираємо випадкового користувача з tn == null
+        $user = $users->random();
+
+        return [
+            'tn' => $user->tn,
+            'nickname' => $faker->userName,
+            'fio' => $faker->name,
+            'email' => $faker->unique()->safeEmail,
+            'phone' => $faker->phoneNumber,
+            'date_start' => $faker->date(),
+        ];
     }
+        
+    
 }

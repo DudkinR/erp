@@ -14,7 +14,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
+            AdminSeeder::class,
+
+/*            UserSeeder::class,
             PersonalSeeder::class,
             PositionSeeder::class,
             ActSeeder::class,
@@ -36,6 +38,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             StageSeeder::class,
             StepSeeder::class,
+            */
         ]);
     }
 }

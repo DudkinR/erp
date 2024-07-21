@@ -108,6 +108,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories/{id}/edit', 'App\Http\Controllers\CategoryController@edit')->name('cats.edit');
     Route::put('/categories/{id}', 'App\Http\Controllers\CategoryController@update')->name('cats.update');
     Route::delete('/categories/{id}', 'App\Http\Controllers\CategoryController@destroy')->name('cats.destroy');
+    //  archives routes
+    Route::get('/archives', 'App\Http\Controllers\ArchiveController@index')->name('archives.index');
+    Route::get('/archives/create', 'App\Http\Controllers\ArchiveController@create')->name('archives.create');
+    Route::post('/archives', 'App\Http\Controllers\ArchiveController@store')->name('archives.store');
+    Route::get('/archives/{id}', 'App\Http\Controllers\ArchiveController@show')->name('archives.show');
+    Route::get('/archives/{id}/edit', 'App\Http\Controllers\ArchiveController@edit')->name('archives.edit');
+    Route::put('/archives/{id}', 'App\Http\Controllers\ArchiveController@update')->name('archives.update');
+    Route::delete('/archives/{id}', 'App\Http\Controllers\ArchiveController@destroy')->name('archives.destroy');
+     // Organomic
+    Route::get('/organomic', 'App\Http\Controllers\OrganomicController@index')->name('organomic.index');
+    Route::get('/organomic/create', 'App\Http\Controllers\OrganomicController@create')->name('organomic.create');
+    Route::post('/organomic', 'App\Http\Controllers\OrganomicController@store')->name('organomic.store');
+    Route::get('/organomic/{id}', 'App\Http\Controllers\OrganomicController@show')->name('organomic.show');
+    Route::get('/organomic/{id}/edit', 'App\Http\Controllers\OrganomicController@edit')->name('organomic.edit');
+    Route::put('/organomic/{id}', 'App\Http\Controllers\OrganomicController@update')->name('organomic.update');
+    Route::delete('/organomic/{id}', 'App\Http\Controllers\OrganomicController@destroy')->name('organomic.destroy');
 
     // doc routes
     Route::get('/docs', 'App\Http\Controllers\DocController@index')->name('docs.index');
