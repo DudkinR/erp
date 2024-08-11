@@ -15,7 +15,7 @@
                         <textarea class="form-control" rows=5 id="description" name="description">{{ old('description') }}</textarea>
                     </div>
                     <div class="form-group mb-2">
-                        <?php $steps = App\Models\Step::all(); ?>
+                        <?php $steps = App\Models\Step::orderBy('id', 'desc')->get(); ?>
                         <label for="steps_id">{{__('Steps')}}</label>
                         <select name="steps_id[]" id="steps_id" class="form-control" multiple>
                             @foreach($steps as $step)
@@ -24,7 +24,7 @@
                         </select>
                     </div>
                     <div class="form-group mb-2">
-                        <?php $dimensions = App\Models\Dimension::all(); ?>
+                        <?php $dimensions = App\Models\Dimension::orderBy('id', 'desc')->get(); ?>
                         <label for="dimensions_id">{{__('Dimensions')}}</label>
                         <select name="dimensions_id[]" id="dimensions_id" class="form-control" multiple>
                             @foreach($dimensions as $dimension)

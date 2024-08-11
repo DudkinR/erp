@@ -15,26 +15,32 @@ class FunController extends Controller
     public function index(Request $request)
     {
         if($request->has('search')){
-            $funs = Fun::where('description', 'like', "%{$request->search}%")->get();
+            $funs = Fun::where('description', 'like', "%{$request->search}%")
+            ->orderBy('id', 'desc')
+            ->get();
         } 
         elseif($request->has('goal_id')){
-            $funs = Fun::where('goal_id', $request->goal_id)->with('goals', 'objectives' )->get();
+            $funs = Fun::where('goal_id', $request->goal_id)->with('goals', 'objectives' )
+            ->orderBy('id', 'desc')
+            ->get();
             $goal = Goal::find($request->goal_id);
             return view('funs.index', compact('funs', 'goal'));
         }
         else {
-            $funs = Fun::with('goals', 'objectives' )->get();
+            $funs = Fun::with('goals', 'objectives' )
+            ->orderBy('id', 'desc')
+            ->get();
         }
-        $positions = Position::all();
+        $positions = Position::orderBy('id', 'desc')->get();
         return view('funs.index', compact('funs', 'positions'));
     }
     // create
     public function create(Request $request)
     {
-        $goals = Goal::all();
+        $goals = Goal::orderBy('id', 'desc')->get();
         $gl = $request->gl;
-        $objs= Objective::all();
-        $positions = Position::all();
+        $objs= Objective::orderBy('id', 'desc')->get();
+        $positions = Position::orderBy('id', 'desc')->get();
         return view('funs.create', compact('goals', 'gl', 'objs', 'positions'));
     }
     // store
@@ -166,9 +172,9 @@ class FunController extends Controller
     public function edit($id)
     {
         $fun = Fun::find($id);
-        $goals = Goal::all();
-        $positions = Position::all();
-        $objectives = Objective::all();
+        $goals = Goal::orderBy('id', 'desc')->get();
+        $positions = Position::orderBy('id', 'desc')->get();
+        $objectives = Objective::orderBy('id', 'desc')->get();
         return view('funs.edit', compact('fun', 'goals', 'positions', 'objectives'));
     }
     // update

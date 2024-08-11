@@ -16,7 +16,7 @@ class StructureController extends Controller
     public function index()
     {
         //
-        $structuries = Struct::all();
+        $structuries = Struct::orderBy('id', 'desc')->get();
         return view('structures.index', compact('structuries'));
 
     }
@@ -160,7 +160,7 @@ class StructureController extends Controller
                     $struct->save();
               }
         }
-        $structures = Struct::all();
+        $structures = Struct::orderBy('id', 'desc')->get();
        // return $structures;
         return redirect('/structure')->with('success', 'Data imported!');
         

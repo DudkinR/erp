@@ -11,7 +11,7 @@
                         <div class="col-md-6">
                             <select class="form-control" id="type_id" name="type_id">
                                 <option value="">{{__('Select type')}}</option>
-                                <?php $types = \App\Models\Type::all(); ?>
+                                <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?>
                                 @foreach($types as $type)
                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
                                 @endforeach

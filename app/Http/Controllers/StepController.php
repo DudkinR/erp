@@ -56,7 +56,7 @@ class StepController extends Controller
             $step->controls()->attach($request->controls_id);
         }
         if($request->novisiability == '1'){
-            $steps = Step::all();
+            $steps = Step::orderBy('id', 'desc')->get();
              return ['step'=>$step->id,'steps'=> $steps];
         }
         else
@@ -86,7 +86,7 @@ class StepController extends Controller
         }
 
         if($request->novisiability == '1'){
-            $steps = Step::all();
+            $steps = Step::orderBy('id', 'desc')->get();
              return ['step'=>$step,'steps'=> $steps];
         }
         else

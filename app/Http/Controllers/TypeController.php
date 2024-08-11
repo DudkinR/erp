@@ -17,7 +17,7 @@ class TypeController extends Controller
     public function index()
     {
         //
-        $types = Type::all();
+        $types = Type::orderBy('id', 'desc')->get();
         return view('types.index', compact('types'));
     }
 
@@ -73,7 +73,7 @@ class TypeController extends Controller
     {
         //
         $type = Type::find($id);
-        $types = Type::all();
+        $types = Type::orderBy('id', 'desc')->get();
         return view('types.edit', compact('type', 'types'));
     }
 
@@ -135,7 +135,7 @@ class TypeController extends Controller
             // если есть файл очищаем таблицу выставляем инкремент 1
             if($csvData) {
                 // очищаем таблицу type_type
-                $types = Type::all();
+                $types = Type::orderBy('id', 'desc')->get();
                 foreach ($types as $type) {
                     //belongsTo parent 
                     $type->parent()->dissociate();

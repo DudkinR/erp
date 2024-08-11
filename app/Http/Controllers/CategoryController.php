@@ -18,7 +18,9 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        $categories = Category::all();
+        $categories = Category::with('images')
+            ->orderBy('id', 'desc')
+        ->get();
         return view('cats.index', compact('categories'));
     }
 

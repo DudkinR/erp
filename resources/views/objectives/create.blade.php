@@ -7,6 +7,19 @@
                 <form method="POST" action="{{ route('objectives.store') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
+                        <label for="parent">{{__('Parent')}}</label>
+                        <select class="form-control" id="parent" name="parent_id">
+                            <option value="">{{__('None')}}</option>
+                            @foreach($objectives as $objective)
+                                <option value="{{$objective->id}}"
+                                    @if(session('parent_id') == $objective->id)
+                                        selected
+                                    @endif
+                                >{{$objective->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="name">{{__('Name')}}</label>
                         <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}">
                     </div>

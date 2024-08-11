@@ -11,7 +11,9 @@ class GoalController extends Controller
     // index
     public function index()
     {
-        $goals = Goal::with('objectives')->get();
+        $goals = Goal::with('objectives')
+        ->orderBy('id', 'DESC')
+        ->get();
         return view('goals.index', compact('goals'));
     }
     // create

@@ -1,5 +1,5 @@
 
-<?php  $stage = \App\Models\Stage::all();                  
+<?php  $stage = \App\Models\Stage::orderBy('id', 'desc')->get();                  
 ?>
 <div class="form-group mb-2">
     <label for="stage">{{__('Stage')}}</label>

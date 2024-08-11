@@ -96,6 +96,6 @@ class ProfileController extends Controller
             $user->roles()->attach($role_id);
         }
        }
-      return $users = User::all();
+      return $users = User::orderBy('id', 'desc')->get();
     }
 }

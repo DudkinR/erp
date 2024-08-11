@@ -13,7 +13,10 @@ class ControlController extends Controller
     public function index()
     {
         //
-        $controls = Control::all();
+        $controls = Control::with('steps')
+        ->orderBy('name', 'asc')
+        ->get();
+        
         return view('controls.index', compact('controls'));
     }
 
@@ -45,7 +48,7 @@ class ControlController extends Controller
         }
         // novisiability
         if($request->novisiability == '1'){
-            $controls = Control::all();
+            $controls = Control::orderBy('id', 'desc')->get();
             $data= ['control'=>$control,'controls'=> $controls];
             // return json
             return response()->json($data);

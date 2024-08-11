@@ -339,7 +339,7 @@ class DocController extends Controller
     public function addDocs(Request $request)
     {     
         $project = Project::find($request->project_id);
-        $docs = Doc::all();
+        $docs = Doc::orderBy('id', 'desc')->get();
 
         return view('docs.addDocs', compact('project', 'docs'));
     }

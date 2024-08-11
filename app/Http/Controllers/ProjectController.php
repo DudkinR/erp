@@ -27,19 +27,20 @@ class ProjectController extends Controller
         ->with('docs')
         ->with('tasks')
         ->with('clients')
+        ->orderBy('id', 'desc')
         ->get();
       //  return  $projects;
-        $clients = Client::all();
+        $clients = Client::orderBy('name', 'asc')->get();
         return view('projects.index', compact('projects', 'clients'));
     }
     // create
     public function create()
     {
-        $stages = Stage::all();
-        $steps = Step::all();
-        $controls = Control::all();
-        $personals = Personal::all();
-        $dimensions = Dimension::all();
+        $stages = Stage::orderBy('name', 'desc')->get();
+        $steps = Step::orderBy('name', 'desc')->get();
+        $controls = Control::orderBy('name', 'desc')->get();
+        $personals = Personal::orderBy('name', 'desc')->get();
+        $dimensions = Dimension::orderBy('name', 'desc')->get();
         return view('projects.create', compact('stages', 'steps', 'controls', 'personals', 'dimensions'));
     }
     // store
@@ -85,11 +86,11 @@ class ProjectController extends Controller
         public function edit($id)
         {
             $project = Project::find($id);
-            $stages = Stage::all();
-            $steps = Step::all();
-            $controls = Control::all();
-            $personals = Personal::all();
-            $dimensions = Dimension::all();
+            $stages = Stage::orderBy('id', 'desc')->get();
+            $steps = Step::orderBy('id', 'desc')->get();
+            $controls = Control::orderBy('id', 'desc')->get();
+            $personals = Personal::orderBy('id', 'desc')->get();
+            $dimensions = Dimension::orderBy('id', 'desc')->get();
             return view('projects.edit', compact('project', 'stages', 'steps', 'controls', 'personals', 'dimensions'));
         }
 
@@ -343,7 +344,7 @@ class ProjectController extends Controller
         // grantt
         public function grantt()
         {
-            $projects = Project::all();
+            $projects = Project::orderBy('id', 'desc')->get();
             return view('projects.grantt', compact('projects'));
         }
         

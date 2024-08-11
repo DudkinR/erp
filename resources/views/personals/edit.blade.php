@@ -27,7 +27,7 @@
                     <div class="form-group">
                         <label for="position">{{__('Position')}}</label>
                         <?php
-                         $positions = App\Models\Position::all(); ?>
+                         $positions = App\Models\Position::orderBy('id', 'desc')->get(); ?>
                         <select class="form-control" id="position" name="position">
                             @foreach($positions as $position)
                                 <option value="{{ $position->id }}" @if($personal->positions->contains($position)) selected @endif>{{ $position->name }}</option>
@@ -67,7 +67,7 @@
                     @endif
                     </div>    
                     <div class="form-group">
-                        <?php $roles = App\Models\Role::all(); ?>
+                        <?php $roles = App\Models\Role::orderBy('id', 'desc')->get(); ?>
                         <label for="roles">{{__('Roles')}}</label>
                         <select class="form-control" id="roles" name="roles[]" multiple>
                             @foreach($roles as $role)

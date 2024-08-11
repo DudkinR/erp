@@ -8,6 +8,19 @@
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
                     <div class="form-group">
+                        <label for="parent">{{__('Parent')}}</label>
+                        <select class="form-control" id="parent" name="parent_id">
+                            <option value="">{{__('None')}}</option>
+                            @foreach($objectives as $obj)
+                                <option value="{{$obj->id}}"
+                                    @if($parent&&$parent->id == $obj->id)
+                                        selected
+                                    @endif
+                                >{{$obj->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="name">{{__('Name')}}</label>
                         <input type="text" class="form-control" id="name" name="name" value="{{ $objective->name }}">                   
                     </div>

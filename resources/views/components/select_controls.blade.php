@@ -1,4 +1,4 @@
-<?php  $control = \App\Models\Control::all(); ?>
+<?php  $control = \App\Models\Control::orderBy('id', 'desc')->get(); ?>
 <div class="form-group mb-2">
     <label for="control">{{__('Control')}}</label>
     <select name="control" id="control" class="form-control">

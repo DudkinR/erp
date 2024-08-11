@@ -86,7 +86,7 @@
                             <input type="text" id="find_document" placeholder="{{__('Find document')}}" onkeyup="findDocument()">
                             <button type="button" class="btn border" onclick="addDraftDocument()">{{__('Add draft')}}</button>
                         </label>
-                        <?php $docs = App\Models\Doc::all(); ?>
+                        <?php $docs = App\Models\Doc::orderBy('id', 'desc')->get(); ?>
                         <select class="form-control" id="document_releted" name="document_releted[]" multiple>
                             @foreach($docs as $doc)
                                 <option value="{{ $doc->id }}">{{ $doc->name }}</option>

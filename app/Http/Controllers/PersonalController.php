@@ -21,8 +21,9 @@ class PersonalController extends Controller
     public function index()
     {
         $personals = Personal::with('positions')
+        ->orderBy('id', 'desc')
         ->get();
-        //$personals = Personal::all();
+        //$personals = Personal::orderBy('id', 'desc')->get();
         return view('personals.index', compact('personals'));
     }
 

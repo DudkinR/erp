@@ -31,7 +31,7 @@
 
                     </div>
                     <div class="card-footer">
-                        <?php $cats = \App\Models\Category::all(); ?>
+                        <?php $cats = \App\Models\Category::orderBy('id', 'desc')->get(); ?>
                         @foreach ($cats as $cat)
                             @if ($cat->id == $category->parent_id)
                                 <p>{{__('Parent')}}: {{ $cat->name }}</p>

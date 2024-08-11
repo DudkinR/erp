@@ -26,7 +26,7 @@
                         <label for="file">{{__('File')}}</label>
                         <input type="file" class="form-control" id="file" name="file">
                     </div>
-                    <?php $types = \App\Models\Type::all(); ?>
+                    <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?>
                     <div class="form-group">
                         <label for="type">{{__('Type')}}</label>
                         <select class="form-control" id="type" name="type">

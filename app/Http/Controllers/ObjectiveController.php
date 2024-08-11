@@ -14,8 +14,11 @@ class ObjectiveController extends Controller
      */
     public function index()
     {
-        //
-        $objectives = Objective::all();
+        //orderBy('id', 'desc')
+        $objectives =Objective::with('goals', 'functs')
+            ->orderBy('id', 'desc')
+            ->get(); 
+        
         return view('objectives.index', compact('objectives'));
     }
 
@@ -25,9 +28,10 @@ class ObjectiveController extends Controller
     public function create()
     {
         //
-        $goals = Goal::all();
-        $functs = Fun::all();
-        return view('objectives.create', compact('goals', 'functs'));
+        $goals = Goal::orderBy('id', 'desc')->get();
+        $functs = Fun::orderBy('id', 'desc')->get();
+        $objectives = Objective::orderBy('id', 'desc')->get();
+        return view('objectives.create', compact('goals', 'functs', 'objectives'));
     }
 
     /**
@@ -46,6 +50,12 @@ class ObjectiveController extends Controller
         if ($request->functs) {
             $objective->functs()->attach($request->functs);
         }
+        //parent_id!==''
+        if($request->parent_id&&$request->parent_id!==''){
+            // find order objective
+            $next_order = Objective::find($request->parent_id)->children()->count();
+            $objective->children()->attach($request->parent_id, ['order' => $next_order]);
+        }
         return redirect()->route('objectives.index');
     }
 
@@ -55,8 +65,10 @@ class ObjectiveController extends Controller
     public function show(string $id)
     {
         //
-        $objective = Objective::find($id)->with('goals', 'functs')->first();
-        return view('objectives.show', compact('objective'));
+        $objective = Objective::find($id);
+        $parent = $objective->parent()->get();
+        //return $parent;
+        return view('objectives.show', compact('objective', 'parent'));
     }
 
     /**
@@ -66,9 +78,13 @@ class ObjectiveController extends Controller
     {
         //
         $objective = Objective::find($id);
-        $goals = Goal::all();
-        $functs = Fun::all();
-        return view('objectives.edit', compact('objective', 'goals', 'functs'));
+        $goals = Goal::orderBy('id', 'desc')->get();
+        $functs = Fun::orderBy('id', 'desc')->get();
+        $objectives = $this->parent_up($id);
+        $chlildren =$objective->children()->orderBy('order', 'asc')->get();
+        $parent = $objective->parent()->first();
+        return view('objectives.edit', compact('objective', 'goals', 'functs',  'chlildren', 'objectives', 'parent'));
+
     }
 
     /**
@@ -87,6 +103,14 @@ class ObjectiveController extends Controller
         if ($request->goals) {
             $objective->goals()->sync($request->goals);
         }
+        //parent_id!==''
+        if($request->parent_id!==''){
+            // find order objective
+            $next_order = Objective::find($request->parent_id)->children()->count();
+            // clear other parent 
+            $objective->parent()->detach();
+           $objective->parent()->attach($request->parent_id, ['order' => $next_order]);
+        }
         return redirect()->route('objectives.index');
     }
 
@@ -102,5 +126,11 @@ class ObjectiveController extends Controller
         $objective->functs()->detach();
         $objective->delete();
         return redirect()->route('objectives.index');
+    }
+
+    public function parent_up($id){
+        // найти все объекты parent_id и все обекты выше их        
+        return   Objective::find($id)->parent()->first()->children()->orderBy('order', 'asc')->get();      
+       
     }
 }

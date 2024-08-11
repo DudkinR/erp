@@ -73,7 +73,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        @php $positions = \App\Models\Position::all(); @endphp
+                        @php $positions = \App\Models\Position::orderBy('id', 'desc')->get(); @endphp
                         <select name="position" class="form-control">
                             @foreach($positions as $position)
                                 <option value="{{ $position->id }}">{{ $position->name }}</option>

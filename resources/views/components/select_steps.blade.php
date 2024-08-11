@@ -1,4 +1,4 @@
-<?php  $step = \App\Models\Step::all(); ?>
+<?php  $step = \App\Models\Step::orderBy('id', 'desc')->get(); ?>
 <div class="form-group mb-2">
     <label for="step">{{__('Step')}}</label>
     <select name="step" id="step" class="form-control">

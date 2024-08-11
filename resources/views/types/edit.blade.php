@@ -47,7 +47,7 @@
                         
                             <select class="form-control" id="parent_id" name="parent_id">
                                 <option value="0">{{__('First parent')}}</option>
-                                <?php $types = \App\Models\Type::all(); ?>
+                                <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?>
                                 @foreach($types as $type)
                                     <option value="{{ $type->id }}"
                                         @if($type->id == $type->parent_id)

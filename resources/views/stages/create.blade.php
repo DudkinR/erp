@@ -15,7 +15,7 @@
                         <label>{{__('Description')}}</label>
                         <textarea class="form-control" name="description" rows="5"></textarea>
                     </div>
-                    <?php $steps = App\Models\Step::all(); ?>
+                    <?php $steps = App\Models\Step::orderBy('id', 'desc')->get(); ?>
                     <div class="form-group mb-2">
                         <label>{{__('Step')}}</label>
                         <select name="step_id[]" class="form-control" multiple>

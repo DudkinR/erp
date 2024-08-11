@@ -13,6 +13,12 @@
             <div class="card">
                 <div class="card-header">{{ __('Objective') }}</div>
                 <div class="card-body">
+                    @if($objective->parent!==null)
+                    <h1>
+                        {{ __('Parent') }} :
+                        {{ $parent->first()->name }}
+                    </h1>
+                    @endif
                     <h2>{{ $objective->name }}</h2>
                     <p>{{ $objective->description }}</p>
                     <p id="goals"></p>
@@ -20,7 +26,7 @@
                     <div class="bg-info">
                         <h1>{{ __('Add Function') }}</h1>
                         @php 
-                            $fun_all = \App\Models\Fun::all();
+                            $fun_all = \App\Models\Fun::orderBy('id', 'desc')->get();
                         @endphp
                         <div class="row">
                         <div class="col-md-8">

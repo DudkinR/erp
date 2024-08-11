@@ -22,7 +22,7 @@
                             <a href="{{route("steps.show",$step->id)}}">{{ $step->name }}</a>
                         @endforeach
                         <hr>
-                        <?php $steps = App\Models\Step::all(); ?>
+                        <?php $steps = App\Models\Step::orderBy('id', 'desc')->get(); ?>
                         <ul>
                             @foreach($steps as $step)
                                 @if (!$control -> steps -> contains($step))

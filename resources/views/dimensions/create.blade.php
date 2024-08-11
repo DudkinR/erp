@@ -18,7 +18,7 @@
                             <textarea id="description" rows=7 class="form-control" name="description"  autofocus>{{ old('description') }}</textarea>         
                         </div>
                     </div>
-                    <?php $controls = \App\Models\Control::all(); ?>
+                    <?php $controls = \App\Models\Control::orderBy('id', 'desc')->get(); ?>
                     <div class="form-group row">
                         <label for="control_id" class="col-md-4 col-form-label text-md-right">{{__('Control')}}</label>
                         <div class="col-md-6">

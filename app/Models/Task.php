@@ -54,4 +54,14 @@ class Task extends Model
     {
         return $this->belongsToMany(Image::class, 'image_task', 'task_id', 'image_id');
     }
+    // task_task table relationship parent_task_id and child_task_id
+    public function children()
+    {
+        return $this->belongsToMany(Task::class, 'task_task', 'parent_task_id', 'child_task_id');
+    }
+    // task_task table relationship parent_task_id and child_task_id
+    public function parents()
+    {
+        return $this->belongsToMany(Task::class, 'task_task', 'child_task_id', 'parent_task_id');
+    }
 }

@@ -6,17 +6,31 @@
                 <h1>{{__('Tasks')}}</h1>
                 <form method="POST" action="{{ route('tasks.store') }}">
                      @php 
-                        $projects = \App\Models\Project::all();
-                        $stages = \App\Models\Stage::all();
-                        $steps = \App\Models\Step::all();
-                        $dimensions = \App\Models\Dimension::all();
-                        $controls = \App\Models\Control::all();
+                        $projects = \App\Models\Project::orderBy('id', 'desc')->get();
+                        $stages = \App\Models\Stage::orderBy('id', 'desc')->get();
+                        $steps = \App\Models\Step::orderBy('id', 'desc')->get();
+                        $dimensions = \App\Models\Dimension::orderBy('id', 'desc')->get();
+                        $controls = \App\Models\Control::orderBy('id', 'desc')->get();
                         $deadline = now()->addMonth()->format('Y-m-d');
-                        $positions = \App\Models\Position::all();
+                        $positions = \App\Models\Position::orderBy('id', 'desc')->get();
                         $tasks = \App\Models\Task::where('status', '!=', 'completed')->get();
                     @endphp
                    
                     @csrf <!-- Использование встроенного Blade-директивы для CSRF токена -->
+                    <div class="form-group">
+                        <label for="parent">{{__('Parent')}}</label>
+                        <select class="form-control" id="parent" name="parent_id">
+                            <option value="">{{__('None')}}</option>
+                            @foreach($tasks as $task)
+                                <option value="{{$task->id}}"
+                                    @if(session('parent_id') == $task->id)
+                                        selected
+                                    @endif
+                                >{{$task->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="project">{{__('Project')}}</label>
                         <select class="form-control" id="project" name="project_id">

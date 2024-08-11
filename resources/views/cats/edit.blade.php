@@ -31,7 +31,7 @@
                         <select class="form-control" id="parent_id" name="parent_id">
                             <option value="0" selected>{{__('First')}}</option>
                             <?php
-                            $cats = \App\Models\Category::all();
+                            $cats = \App\Models\Category::orderBy('id', 'desc')->get();
                             ?>
                             @foreach($cats as $cat)
                                 <option value="{{$cat->id}}" @if($category->parent_id == $cat->id) selected @endif>{{$cat->name}}</option>

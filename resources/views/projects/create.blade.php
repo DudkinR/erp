@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group  mb-2">
                         <label for="client">{{__('Client')}}</label>
-                        <?php $clients = App\Models\Client::all(); ?>
+                        <?php $clients = App\Models\Client::orderBy('id', 'desc')->get(); ?>
                         <select name="client" id="client" class="form-control">
                             <option value="0">{{__('New client')}}</option>
                             @foreach($clients as $client)

@@ -5,7 +5,7 @@
         <?php 
         if(!isset($projectsList))
         {
-            $projectsList = \App\Models\Project::all(); 
+            $projectsList = \App\Models\Project::orderBy('id', 'desc')->get(); 
         }
         if(!isset($project_id))
         {

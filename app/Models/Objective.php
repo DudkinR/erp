@@ -23,5 +23,15 @@ class Objective extends Model
     {
         return $this->belongsToMany(Fun::class, 'objective_funct', 'objective_id', 'funct_id');
     }
+    // objective_objective table relationship parent_objective_id and child_objective_id
+    public function children()
+    {
+        return $this->belongsToMany(Objective::class, 'objective_objective', 'parent_objective_id', 'child_objective_id');
+    }
+    // objective_objective table relationship parent_objective_id and child_objective_id
+    public function parent()
+    {
+        return $this->belongsToMany(Objective::class, 'objective_objective', 'child_objective_id', 'parent_objective_id');
+    }
 
 }

@@ -10,7 +10,7 @@ class StoreController extends Controller
     //
     public function index()
     {
-        $stores = Store::all();
+        $stores = Store::orderBy('id', 'desc')->get();
         return view('stores.index', compact('stores'));
     }
     // create store

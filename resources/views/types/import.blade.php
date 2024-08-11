@@ -9,7 +9,7 @@
                     <div class="form-group">
                         <label for="parent_id">{{__('Parent')}}</label>
                         <select class="form-control" id="type_id" name="type_id">
-                            <?php $types = \App\Models\Type::all(); ?> 
+                            <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?> 
                             @foreach($types as $type)
                                 <option value="{{ $type->id }}">{{ $type->name }}</option>
                             @endforeach

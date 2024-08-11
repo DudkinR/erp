@@ -11,7 +11,7 @@
             <div class="col-md-12">
                 <form action="{{route('projects.add_stage')}}" method="post">
                     @csrf
-                    <?php $projects = App\Models\Project::all(); ?>
+                    <?php $projects = App\Models\Project::orderBy('id', 'desc')->get(); ?>
                     <label for="project_id">{{__('Select Project')}}</label>
                     <select name="project_id" class="form-control">
                         <option value="">{{__('Select')}}</option>
@@ -26,7 +26,7 @@
                     <label for="stage_id">{{__('Select Stage')}}</label>
                     <select name="stage_id" class="form-control">
                         <option value="">{{__('Select')}}</option>
-                        <?php $stages = App\Models\Stage::all(); ?>
+                        <?php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); ?>
                         @foreach($stages as $stage)
                             <option value="{{$stage->id}}">{{$stage->name}}</option>
                         @endforeach
@@ -36,7 +36,7 @@
                     <label for="responsible_position_id">{{__('Responsible Position')}}</label>
                     <select name="responsible_position_id" class="form-control">
                         <option value="">{{__('Select')}}</option>
-                        <?php $positions = App\Models\Position::all(); ?>
+                        <?php $positions = App\Models\Position::orderBy('id', 'desc')->get(); ?>
                         @foreach($positions as $position)
                             <option value="{{$position->id}}">{{$position->name}}</option>
                         @endforeach

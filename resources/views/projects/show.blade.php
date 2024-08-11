@@ -49,7 +49,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                <ul>
-                                <?php $stages = App\Models\Stage::all(); ?> 
+                                <?php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); ?> 
                                     @foreach($stages as $stage)
                                         @if (!$project->stages->contains($stage))
                                             <li>
@@ -71,14 +71,14 @@
                                 <label for ="responsible_position_id"> {{__('Responsible Position')}}</label>
                                 <select id="responsible_position_id" class="form-control">
                                     <option value="">{{__('Select')}}</option>
-                                    <?php $positions = App\Models\Position::all(); ?>
+                                    <?php $positions = App\Models\Position::orderBy('id', 'desc')->get(); ?>
                                     @foreach($positions as $position)
                                         <option value="{{$position->id}}">{{$position->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <?php $stages = App\Models\Stage::all(); ?>
+                        <?php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); ?>
                         
                         <hr>
                        

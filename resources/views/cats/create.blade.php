@@ -27,7 +27,7 @@
                         <select class="form-control" id="status" name="status">
                             <option value="0" selected >{{__('First')}}</option>
                             <?php
-                            $cats = \App\Models\Category::all();
+                            $cats = \App\Models\Category::orderBy('id', 'desc')->get();
                             if(isset($_GET['parent_id'])){
                                 $parent = $_GET['parent_id'];
                             }

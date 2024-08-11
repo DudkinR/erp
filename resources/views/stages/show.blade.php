@@ -36,7 +36,7 @@
         <div class="col-md-9">
             <h2>{{ __('Action positions') }}</h2>
                 <select name="act_pos[]" id="act_pos" class="form-control" multiple>
-                    @php $positions = App\Models\Position::all(); @endphp
+                    @php $positions = App\Models\Position::orderBy('id', 'desc')->get(); @endphp
                     @foreach($positions as $position)
                         <option value="{{ $position->id }}">{{ $position->name }}</option>
                     @endforeach

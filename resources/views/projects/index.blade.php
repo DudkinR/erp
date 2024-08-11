@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <?php
-$clients = App\Models\Client::all();
+$clients = App\Models\Client::orderBy('id', 'desc')->get();
 ?>
     <div class="container">
         @if (session('success'))
@@ -131,7 +131,7 @@ $clients = App\Models\Client::all();
     </div>
     <script>
         const PRS = @json($projects);
-        @php $stages = App\Models\Stage::all(); @endphp
+        @php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); @endphp
         const STS = @json($stages);
         var PRSW = PRS;
         <?php 

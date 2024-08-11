@@ -15,7 +15,7 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group"> 
-                    @php $types = \App\Models\Type::all(); @endphp
+                    @php $types = \App\Models\Type::orderBy('id', 'desc')->get(); @endphp
                     <select class="form-control" id="type" name="type" onchange="findWords()">
                         <option value="">{{__('All')}}</option>
                         @foreach($types as $type)
@@ -48,7 +48,7 @@
     </div>
     <script>
     const nomenclatures = @json($nomenclatures);  
-    <?php $types = \App\Models\Type::all(); ?>  
+    <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?>  
     const types = @json($types);
     const div_numenclatures = document.getElementById('numenclatures');
     var NMS = nomenclatures;
@@ -98,9 +98,9 @@ function findWords() {
         renderNomenclatures();
     @php 
         $Work_projects = \App\Models\Project::where('current_state', '!=' ,'Закритий')->get(); 
-        $positions = \App\Models\Position::all();
-        $stages = \App\Models\Stage::all();
-        $steps = \App\Models\Step::all();
+        $positions = \App\Models\Position::orderBy('id', 'desc')->get();
+        $stages = \App\Models\Stage::orderBy('id', 'desc')->get();
+        $steps = \App\Models\Step::orderBy('id', 'desc')->get();
     @endphp
     const Work_projects = @json($Work_projects);
     const positions = @json($positions);

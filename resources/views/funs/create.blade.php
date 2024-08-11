@@ -22,7 +22,7 @@
                     </div>
                     <div class="form-group">
                         @php 
-                            $fun_all = \App\Models\Fun::all();
+                            $fun_all = \App\Models\Fun::orderBy('id', 'desc')->get();
                         @endphp
                         <label for="exist">{{__('Exists Function')}}</label>
                         <select class="form-control" id="exist" name="exist">

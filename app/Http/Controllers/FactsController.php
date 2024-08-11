@@ -14,7 +14,7 @@ class FactsController extends Controller
     public function index()
     {
         //
-        $facts = Fact::all();
+        $facts = Fact::orderBy('id', 'desc')->get();
         return view('facts.index', compact('facts'));
     }
 

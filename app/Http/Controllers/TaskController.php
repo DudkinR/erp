@@ -148,7 +148,7 @@ class TaskController extends Controller
     // Tasks clear
     public function clear()
     {
-        $tasks = Task::all();
+        $tasks = Task::orderBy('id', 'desc')->get();
         foreach ($tasks as $task) {
             // Delete related nomenclature_task records first
             \DB::table('nomenclature_task')->where('task_id', $task->id)->delete();

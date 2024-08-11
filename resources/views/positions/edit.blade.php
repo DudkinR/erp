@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group">
                         <label for="position_id">{{__('Position')}}</label>
-                        <?php $positions = App\Models\Position::all(); ?>
+                        <?php $positions = App\Models\Position::orderBy('id', 'desc')->get(); ?>
                         <select class="form-control" id="position_id" name="position_id">
                             @foreach($positions as $position)
                                 <option value="{{$position->id}}">{{$position->name}}</option>

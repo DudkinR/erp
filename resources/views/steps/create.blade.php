@@ -16,7 +16,7 @@
                     </div>
 
                     <div class="form-group mb-2">
-                    <?php $controls = App\Models\Control::all(); ?>
+                    <?php $controls = App\Models\Control::orderBy('id', 'desc')->get(); ?>
                         <label for="controls_id">{{__('Controls')}}</label>
                         <select name="controls_id[]" id="controls_id" class="form-control" multiple>
                             @foreach($controls as $control)
@@ -25,7 +25,7 @@
                         </select>
                     </div>
                     <div class="form-group mb-2">
-                        <?php $stages = App\Models\Stage::all(); ?>
+                        <?php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); ?>
                         <label for="stages_id">{{__('Stages')}}</label>
                         <select name="stages_id[]" id="stages_id" class="form-control" multiple>
                             @foreach($stages as $stage)

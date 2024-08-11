@@ -30,7 +30,7 @@
                     <div class="form-group">
                         <label for="types">{{__('Types')}}</label>
                         <select class="form-control" id="types" name="types[]" multiple>
-                            <?php $types = App\Models\Type::all(); ?>
+                            <?php $types = App\Models\Type::orderBy('id', 'desc')->get(); ?>
                             @foreach($types as $type)
                                 <option value="{{ $type->id }}" @if($nomenclature->types->contains($type)) selected @endif>{{ $type->name }}</option>
                             @endforeach

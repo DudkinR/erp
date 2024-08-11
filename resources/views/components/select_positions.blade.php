@@ -1,5 +1,5 @@
 <?php
-$positions = \App\Models\Position::all();
+$positions = \App\Models\Position::orderBy('id', 'desc')->get();
 ?>
 <div class="form-group mb-2">
 <label for="positions">{{__('Positions')}}</label>
