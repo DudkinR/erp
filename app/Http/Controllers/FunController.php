@@ -73,7 +73,7 @@ class FunController extends Controller
         // positions
         if($request->positions){
             // clear old positions
-            $new_funct->positions()->detach();
+          //  $new_funct->positions()->detach();
             //  order =1
             $new_funct->positions()->attach($request->positions, ['order' => 1]);
           
