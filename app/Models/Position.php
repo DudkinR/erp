@@ -28,6 +28,11 @@ class Position extends Model
     {
         return $this->belongsToMany(Fun::class, 'positions_functs', 'position_id', 'funct_id');
     }
+    // positions_divisions
+    public function divisions()
+    {
+        return $this->belongsToMany(Division::class, 'position_division', 'position_id', 'division_id');
+    }
  
 
 }

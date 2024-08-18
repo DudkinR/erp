@@ -25,25 +25,31 @@ use Illuminate\Support\Facades\Auth;
 class TaskController extends Controller
 {
     // index
-    public function index()
-    {
-        $user  = Auth::user();
-    //    $positions = Helpers::getSubordinatePositions($user->positions);
+public function index()
+{
+    $user = Auth::user();
+    
+    if ($user && $user->profile) {
+        $positions = $user->profile->positions->pluck('id');
+        
         $tasks = Task::where('status', '!=', 'completed')
-            ->whereIn('responsible_position_id', $user
-            ->profile
-            ->positions ->pluck('id')
-            ) 
-            ->with ('project', 'stage', 'step' )    
-            ->orderBy('project_id', 'desc')   
-            ->get();
-            $problems = Problem::where('status', '!=', 'completed') 
-            ->whereIn('responsible_position_id', $user ->profile ->positions ->pluck('id')) 
-            ->with ('project', 'stage', 'step' )
+            ->whereIn('responsible_position_id', $positions)
+            ->with('project', 'stage', 'step')
             ->orderBy('project_id', 'desc')
             ->get();
+        
+        $problems = Problem::where('status', '!=', 'completed')
+            ->whereIn('responsible_position_id', $positions)
+            ->with('project', 'stage', 'step')
+            ->orderBy('project_id', 'desc')
+            ->get();
+        
         return view('tasks.index', compact('tasks', 'problems'));
+    } else {
+        // Handle the case where the user does not have a profile
+        return redirect()->route('home')->with('error', 'User profile not found.');
     }
+}
     // show_today
     public function show_today()
     {

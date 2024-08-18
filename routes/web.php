@@ -81,6 +81,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/structureimport', 'App\Http\Controllers\StructureController@import')->name('structure.import');
     Route::post('/structureimport', 'App\Http\Controllers\StructureController@importData')->name('structure.importData');
 
+    // divisions routes
+    Route::get('/divisions', 'App\Http\Controllers\DivisionController@index')->name('divisions.index');
+    Route::get('/divisions/create', 'App\Http\Controllers\DivisionController@create')->name('divisions.create');
+    Route::post('/divisions', 'App\Http\Controllers\DivisionController@store')->name('divisions.store');
+    Route::get('/divisions/{id}', 'App\Http\Controllers\DivisionController@show')->name('divisions.show');
+    Route::get('/divisions/{id}/edit', 'App\Http\Controllers\DivisionController@edit')->name('divisions.edit');
+    Route::put('/divisions/{id}', 'App\Http\Controllers\DivisionController@update')->name('divisions.update');
+    Route::delete('/divisions/{id}', 'App\Http\Controllers\DivisionController@destroy')->name('divisions.destroy');
+
+
 
     // criteria routes
     Route::get('/criteria', 'App\Http\Controllers\CriteriaController@index')->name('criteria.index');

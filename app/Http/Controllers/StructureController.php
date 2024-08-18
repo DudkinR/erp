@@ -7,6 +7,8 @@ use App\Helpers\StringHelpers as StringHelpers;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Models\Struct;
 use App\Models\Position;
+use App\Models\Division;
+
 
 class StructureController extends Controller
 {
@@ -28,7 +30,9 @@ class StructureController extends Controller
     {
         //
         $positions = Position::orderBy('name')->get();
-        return view('structures.create', compact('positions'));
+        $divisions = Division::orderBy('name')->get();
+        $positions = Position::orderBy('name')->get();
+        return view('structures.create', compact('positions', 'divisions', 'positions'));
     }
 
     /**
@@ -61,6 +65,11 @@ class StructureController extends Controller
         }
         // Добавлять только уникальные значения
         $struct->positions()-> syncWithoutDetaching($position->id);
+        // if has division
+        if($request->division_id){
+            $struct->divisions()->attach($request->division_id);
+        }
+
         return redirect('/structure')->with('success', 'Structure saved!');
 
     }
@@ -81,8 +90,11 @@ class StructureController extends Controller
     public function edit(string $id)
     {
         //
-        $struct = Struct::find($id);
-        return view('structures.edit', compact('struct'));
+        $structure = Struct::find($id);
+        $parents = Struct::orderBy('name')->get();
+        $positions = Position::orderBy('name')->get();
+        $divisions = Division::orderBy('name')->get();
+        return view('structures.edit', compact('structure', 'parents', 'positions', 'divisions'));
     }
 
     /**
@@ -92,12 +104,12 @@ class StructureController extends Controller
     {
         //
         $struct = Struct::find($id);
-        $struct->abv = $request->get('abv');
-        $struct->name = $request->get('name');
-        $struct->description = $request->get('description');
-        $struct->status = $request->get('status');
-        $struct->kod = $request->get('kod');
-        $struct->parent_id = $request->get('parent_id');
+        $struct->abv = $request->abv;
+        $struct->name = $request->name;
+        $struct->description = $request->description;
+        $struct->status = $request->status;
+        $struct->kod = $request->kod;
+        $struct->parent_id = $request->parent_id;
         $struct->save();
         //  position
         $position = Position::where('name', $request->position)->first();
@@ -111,8 +123,11 @@ class StructureController extends Controller
         }
         // Добавлять только уникальные значения
         $struct->positions()-> syncWithoutDetaching($position->id);
+        // if has division
+        if($request->division_id){
+            $struct->divisions()->attach($request->division_id);
+        }
         return redirect('/structure')->with('success', 'Structure updated!');
-
     }
 
     /**

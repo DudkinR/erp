@@ -43,7 +43,10 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
-
+a {
+    color: #000;
+    text-decoration: none;
+}   
 </style>
             <div class="container">
                 @foreach($structuries as $structure)
@@ -54,10 +57,12 @@
                                 @if($structure->positions()->get()->count() == 0)
                                     <div class="col-md-12 bg-primary">
                                     <strong>{{ $structure->name }}</strong>
+                                    <a href="{{ route('structure.edit', $structure->id) }}">{{__('+')}}</a>
                                 @endif
                                 @foreach($structure->positions()->get() as $position)
                                 <div class="col-md-2 border  bg-info">
                                         <strong>{{ $position->name }}</strong>
+                                        <a href="{{ route('positions.edit', $position->id) }}" >{{__('+')}}</a>
                                         <?php 
                                         $position_id = $position->id;
                                         $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
@@ -91,7 +96,7 @@
                                                 @if($subStructure->positions()->get()->count() == 0)
                                                     <div class="col-md-12 bg-primary">
                                                         <strong>{{ $subStructure->name }}</strong>
-                                                
+                                                <a href="{{ route('structure.edit', $subStructure->id) }}">{{__('+')}}</a>
                                                     </div>
                                                     @endif
                                             @foreach($subStructure->positions()->get() as $position)
@@ -127,19 +132,21 @@
                                                     @if($subStructure1->parent_id == $subStructure->id)
                                                         <div class="col-md-12">
                                                             <strong>{{ $subStructure1->name }}</strong>
+                                                           <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a>
                                                             <div class="row">
                                                                 @if($subStructure1->positions()->get()->count() == 0)
 
                                                                     <div class="col-md-12 bg-primary">
                                                                         <strong>{{ $subStructure1->name }}</strong>
-                                                                        
+                                                                        <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a> 
                                                                        
                                                                     </div>
                                                                 @endif
                                                             @foreach($subStructure1->positions()->get() as $position)
                                                                 <div class="col-md-2 border  bg-info">
                                                                     <strong>{{ $position->name }}</strong>
-                                                                    <?php
+                                                                  <a href="{{ route('positions.edit', $position->id) }}">{{__('+')}}</a>
+                                                                  <?php
                                                                     $position_id = $position->id;
                                                                     $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
                                                                     ->whereHas('positions', function ($query) use ($position_id) {

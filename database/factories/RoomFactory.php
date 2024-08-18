@@ -18,7 +18,9 @@ class RoomFactory extends Factory
         'IDname',
         'name', 
         'description',
-        'address'
+        'square',
+        'floor',
+
     ];
      * @return array<string, mixed>
      */
@@ -29,7 +31,8 @@ class RoomFactory extends Factory
             'IDname' => $faker->company,
             'name' => $faker->company,
             'description' => $faker->paragraph,
-            'address' => $faker->address
+            'square' => $faker->randomFloat(2, 10, 1000),
+            'floor' => $faker->numberBetween(1, 5),
         ];
     }
 }

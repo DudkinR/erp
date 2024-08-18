@@ -30,6 +30,14 @@
                             <input type="date" class="form-control" id="data_start" name="data_start" placeholder="{{__('Data Start')}}">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="division_id">{{__('Division')}}</label>
+                        <select class="form-control" id="division_id" name="division_id">
+                            @foreach($divisions as $division)
+                                <option value="{{ $division->id }}">{{ $division->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group row">
                         <label for="closed" class="col-sm-2 col-form-label">{{__('Closed')}}</label>
                         <div class="col-sm-10">

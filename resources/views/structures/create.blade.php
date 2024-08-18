@@ -65,6 +65,17 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="division_id">
+                            {{__('Division')}}
+                        </label>                        
+                        <select class="form-control" id="division_id" name="division_id">
+                            <option value="0">{{__('Select division')}}</option>
+                            @foreach($divisions as $division)
+                                <option value="{{$division->id}}">{{$division->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Create</button>
                 </form>
             </div>

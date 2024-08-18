@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Position;
+use App\Models\Division;
 
 class PositionController extends Controller
 {
@@ -16,7 +17,8 @@ class PositionController extends Controller
     // create
     public function create()
     {
-        return view('positions.create');
+        $divisions = Division::orderBy('name')->get();
+        return view('positions.create', compact('divisions'));
     }
     // store
     public function store(Request $request)
@@ -37,6 +39,10 @@ class PositionController extends Controller
             $position->data_closed = $request->data_closed;
         }
         $position->save();
+        // if has division 
+        if($request->division_id){
+            $position->divisions()->attach($request->division_id);
+        }
       //  return $position;
         return redirect()->route('positions.index');
     }
@@ -50,7 +56,8 @@ class PositionController extends Controller
     public function edit($id)
     {
         $position = Position::find($id);
-        return view('positions.edit', compact('position'));
+        $divisions = Division::orderBy('name')->get();
+        return view('positions.edit', compact('position', 'divisions'));
     }
     // update
     public function update(Request $request, $id)
@@ -63,12 +70,18 @@ class PositionController extends Controller
         $position->closed = $request->closed;
         $position->data_closed = $request->data_closed;
         $position->save();
+        // if has division
+        if($request->division_id){
+            $position->divisions()->sync($request->division_id);
+        }
         return redirect()->route('positions.index');
     }
     // destroy
     public function destroy($id)
     {
         $position = Position::find($id);
+        // delete all divisions
+        $position->divisions()->detach();
         $position->delete();
         return redirect()->route('positions.index');
     }

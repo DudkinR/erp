@@ -63,6 +63,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="division">{{__('Division')}}</label>
+                        <select class="form-control" id="division_id" name="division_id">
+                            <option value="0"></option>
+                            @foreach($divisions as $division)
+                                <option value="{{ $division->id }}" >{{ $division->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
                 </form>
             </div>

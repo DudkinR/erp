@@ -9,6 +9,8 @@ use App\Models\Position;
 use App\Models\Status;
 use App\Models\User;
 use App\Models\Comment;
+use App\Models\Role;
+use App\Models\Division;
 use App\Helpers\FileHelpers as FileHelpers;
 use App\Helpers\StringHelpers as StringHelpers;
 use App\Helpers\CommonHelper as CommonHelper;
@@ -32,20 +34,52 @@ class PersonalController extends Controller
      */
     public function create()
     {
-        return view('personals.create');
+        $divisions = Division::orderBy('name')->get();
+        return view('personals.create', compact('divisions'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {        
-        $personal = Personal::where('tn', $request->tn)
+{
+    // Проверка наличия персонала с таким же tn или fio
+    $personal = Personal::where('tn', $request->tn)
         ->orWhere('fio', $request->fio)
         ->first();
-        if($personal){
-            return redirect('/personal')->with('error', 'Personal already exists!');
+        
+    if ($personal) {
+        return redirect('/personal')->with('error', 'Personal already exists!');
+    }
+
+    // Проверка наличия пользователя с таким же email
+    $user = User::where('email', $request->email)->first();
+
+    if ($user) {
+        // Проверка наличия персонала с таким же email
+        $personalWithEmail = Personal::where('email', $request->email)->first();
+        if ($personalWithEmail) {
+            return redirect('/personal')->with('error', 'A personal with this email already exists!');
+        } else {
+            // Создание нового персонала и привязка к существующему пользователю
+            $personal = new Personal([
+                'tn' => $request->tn,
+                'nickname' => $request->nickname,
+                'fio' => $request->fio,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'date_start' => $request->date_start,
+                'status' => $request->status
+            ]);
+            $personal->save();
+
+            // Обновление информации о пользователе
+            $user->tn = $request->tn;
+            $user->name = $request->fio;
+            $user->save();
         }
+    } else {
+        // Создание нового пользователя и персонала
         $personal = new Personal([
             'tn' => $request->tn,
             'nickname' => $request->nickname,
@@ -56,41 +90,42 @@ class PersonalController extends Controller
             'status' => $request->status
         ]);
         $personal->save();
-        // find user by tn
-        $user = User::where('tn', $request->tn)->first();
-        if(!$user){
-            $user = new User([
-                'tn' => $request->tn,
-                'name' => $request->fio, // 'name' => 'fio
-                'email' => $request->email,
-                'password' => bcrypt($request->tn)
-            ]);
-            $user->save();            
-        }
-        else {
-            $user->name = $request->fio;
-            $user->email = $request->email;
-            $user->save();
-        }
-        if($request->position){
-            // delete old positions
-            $personal->positions()->detach();
-            $personal->positions()->attach($request->position);
-        }
-        //create comment
-        if($request->comment){
-         $comment = new Comment;
-         $comment->comment = $request->comment;
-         $comment->save();
-         $personal->comments()->attach($comment->id);
-        }
-        // delete old roles
-        $user->roles()->detach();
-        // add user roles
-        $user->roles()->attach($request->roles);
 
-        return redirect('/personal')->with('success', 'Personal saved!');
+        $user = new User([
+            'tn' => $request->tn,
+            'name' => $request->fio,
+            'email' => $request->email,
+            'password' => bcrypt($request->tn)
+        ]);
+        $user->save();
     }
+
+    // Обновление позиций персонала
+    if ($request->position) {
+        $personal->positions()->detach();
+        $personal->positions()->attach($request->position);
+    }
+    // division
+    if ($request->division_id) {
+        $personal->divisions()->attach($request->division_id);
+    }
+
+    // Добавление комментария
+    if ($request->comment) {
+        $comment = new Comment;
+        $comment->comment = $request->comment;
+        $comment->save();
+        $personal->comments()->attach($comment->id);
+    }
+
+    // Обновление ролей пользователя
+    $user->roles()->detach();
+    $user->roles()->attach($request->roles);
+
+
+    return redirect('/personal')->with('success', 'Personal saved!');
+}
+
 
     /**
      * Display the specified resource.
@@ -107,7 +142,8 @@ class PersonalController extends Controller
     public function edit(string $id)
     {
         $personal = Personal::find($id);
-        return view('personals.edit', compact('personal'));
+        $divisions = Division::orderBy('name')->get();
+        return view('personals.edit', compact('personal', 'divisions'));
     }
 
     /**
@@ -124,6 +160,10 @@ class PersonalController extends Controller
         $personal->date_start = $request->date_start;
         $personal->status = $request->status;
         $personal->save();
+        // division
+        if($request->division_id){
+            $personal->divisions()->sync($request->division_id);
+        }
         // find user by tn
         $user = User::where('tn', $request->tn)->first();
         if(!$user){
@@ -150,6 +190,8 @@ class PersonalController extends Controller
         $user->roles()->detach();
         // add user roles
         $user->roles()->attach($request->roles);
+
+
         return redirect('/personal')->with('success', 'Personal updated!');
     }
 
