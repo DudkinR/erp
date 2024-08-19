@@ -1,0 +1,100 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (Schema::hasTable('master')) {
+            return;
+        }
+        Schema::create('master', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('author_id')->constrained('personal');
+            // text 
+            $table->text('text');
+            // basis
+            $table->text('basis'); 
+            // хто записав або дав доручення 
+            $table->text('who');
+            // терміновість 
+            $table->tinyInteger('urgency')->default(0);
+            // дата час крайнього терміну
+            $table->timestamp('deadline')->nullable();
+            // оцінка виконання в годинах
+            $table->tinyInteger('estimate')->default(1);
+            // початок виконання
+            $table->timestamp('start')->nullable();
+            // закінчення виконання
+            $table->timestamp('end')->nullable();
+            // виконано
+            $table->boolean('done')->default(false);
+            // коментар
+            $table->text('comment');
+            $table->timestamps();
+        });
+
+        // master_doc
+        if(!Schema::hasTable('master_doc')) {
+            Schema::create('master_doc', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('master_id')->constrained('master');
+                $table->foreignId('doc_id')->constrained('docs');
+                // docs number
+                $table->string('number');
+                // name 
+                $table->string('name');
+                $table->timestamps();
+            });
+        }
+        // master_personal
+        if(!Schema::hasTable('master_personal')) {
+            Schema::create('master_personal', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('master_id')->constrained('master');
+                $table->foreignId('personal_id')->constrained('personal');
+                // bool brifing 
+                $table->boolean('brifing')->default(false);
+                $table->timestamps();
+            });
+        }
+        // resources
+        if(!Schema::hasTable('resources')) {
+            Schema::create('resources', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');              
+                $table->timestamps();
+            });
+        }
+        // master_resources
+        if(!Schema::hasTable('master_resources')) {
+            Schema::create('master_resources', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('master_id')->constrained('master');
+                $table->foreignId('resources_id')->constrained('resources');
+                $table->integer('count');
+                $table->timestamps();
+            });
+        }
+        
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('master');
+        Schema::dropIfExists('master_doc');
+        Schema::dropIfExists('master_personal');
+        Schema::dropIfExists('resources');
+        Schema::dropIfExists('master_resources');
+
+    }
+};

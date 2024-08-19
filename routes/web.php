@@ -100,7 +100,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/criteria/{id}/edit', 'App\Http\Controllers\CriteriaController@edit')->name('criteria.edit');
     Route::put('/criteria/{id}', 'App\Http\Controllers\CriteriaController@update')->name('criteria.update');
     Route::delete('/criteria/{id}', 'App\Http\Controllers\CriteriaController@destroy')->name('criteria.destroy');
-
     // facts routes
     Route::get('/facts', 'App\Http\Controllers\FactsController@index')->name('facts.index');
     Route::get('/facts/create', 'App\Http\Controllers\FactsController@create')->name('facts.create');
@@ -109,7 +108,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/facts/{id}/edit', 'App\Http\Controllers\FactsController@edit')->name('facts.edit');
     Route::put('/facts/{id}', 'App\Http\Controllers\FactsController@update')->name('facts.update');
     Route::delete('/facts/{id}', 'App\Http\Controllers\FactsController@destroy')->name('facts.destroy');
-
+    // master routes
+    Route::get('/master', 'App\Http\Controllers\MasterController@index')->name('master.index');
+    Route::get('/master/create', 'App\Http\Controllers\MasterController@create')->name('master.create');
+    Route::post('/master', 'App\Http\Controllers\MasterController@store')->name('master.store');
+    Route::get('/master/{id}', 'App\Http\Controllers\MasterController@show')->name('master.show');
+    Route::get('/master/{id}/edit', 'App\Http\Controllers\MasterController@edit')->name('master.edit');
+    Route::put('/master/{id}', 'App\Http\Controllers\MasterController@update')->name('master.update');
+    Route::delete('/master/{id}', 'App\Http\Controllers\MasterController@destroy')->name('master.destroy');
     // categories routes
     Route::get('/categories', 'App\Http\Controllers\CategoryController@index')->name('cats.index');
     Route::get('/categories/create', 'App\Http\Controllers\CategoryController@create')->name('cats.create');
