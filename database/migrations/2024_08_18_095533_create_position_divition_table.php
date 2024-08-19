@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('personal_divition')) {
+        if (Schema::hasTable('personal_division')) {
             return;
         }
         Schema::create('personal_division', function (Blueprint $table) {
