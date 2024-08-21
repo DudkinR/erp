@@ -8,7 +8,7 @@ use App\Models\Master;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Doc;
 use App\Models\Personal;
-use App\Models\Source;
+use App\Models\Resource;
 
 class MasterController extends Controller
 {
@@ -24,8 +24,8 @@ class MasterController extends Controller
     {
         $docs = Doc::all();
         $personals = Personal::all();
-        $sources = Source::all();
-        return view('master.create', compact('docs', 'personals', 'sources'));
+        $resources = Resource::all();
+        return view('master.create', compact('docs', 'personals', 'resources'));
     }
     // store
     public function store(Request $request)
@@ -33,19 +33,9 @@ class MasterController extends Controller
         $master = new Master();
         $master->author_id = Auth::user()->personal_id;
         $master->text = $request->text;
-        $master->basis = $request->basis;
-        $master->who = $request->who;
         $master->urgency = $request->urgency;
         $master->deadline = $request->deadline;
-        $master->estimate = $request->estimate;
-        $master->start = $request->start;
-        $master->end = $request->end;
-        $master->done = $request->done;
-        $master->comment = $request->comment;
         $master->save();
-        $master->docs()->attach($request->doc_id);
-        $master->personals()->attach($request->personal_id);
-        $master->sources()->attach($request->source_id);
         return redirect()->route('master.index');
     }
     // show
@@ -60,8 +50,8 @@ class MasterController extends Controller
         $master = Master::find($id);
         $docs = Doc::all();
         $personals = Personal::all();
-        $sources = Source::all();
-        return view('master.edit', compact('master', 'docs', 'personals', 'sources'));
+        $resources = Resource::all();
+        return view('master.edit', compact('master', 'docs', 'personals', 'resources'));
     }
     // update
     public function update(Request $request, $id)
@@ -81,7 +71,7 @@ class MasterController extends Controller
         $master->save();
         $master->docs()->sync($request->doc_id);
         $master->personals()->sync($request->personal_id);
-        $master->sources()->sync($request->source_id);
+        $master->resources()->sync($request->resource_id);
         return redirect()->route('master.index');
     }
     // destroy
@@ -91,7 +81,7 @@ class MasterController extends Controller
         // delete all related records
         $master->docs()->detach();
         $master->personals()->detach();
-        $master->sources()->detach();        
+        $master->resources()->detach();        
         $master->delete();
         return redirect()->route('master.index');
     }

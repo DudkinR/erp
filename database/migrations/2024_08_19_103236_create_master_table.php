@@ -64,24 +64,7 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
-        // resources
-        if(!Schema::hasTable('resources')) {
-            Schema::create('resources', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');              
-                $table->timestamps();
-            });
-        }
-        // master_resources
-        if(!Schema::hasTable('master_resources')) {
-            Schema::create('master_resources', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('master_id')->constrained('master');
-                $table->foreignId('resources_id')->constrained('resources');
-                $table->integer('count');
-                $table->timestamps();
-            });
-        }
+     
         
     }
 
@@ -93,8 +76,6 @@ return new class extends Migration
         Schema::dropIfExists('master');
         Schema::dropIfExists('master_doc');
         Schema::dropIfExists('master_personal');
-        Schema::dropIfExists('resources');
-        Schema::dropIfExists('master_resources');
 
     }
 };
