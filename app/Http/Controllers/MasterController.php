@@ -15,7 +15,7 @@ class MasterController extends Controller
     // index
     public function index()
     {
-        $I_M= Auth::user()->personal_id;
+        $I_M=  Auth::user()->profile()->pluck('id')->first();
         $masters = Master::where('author_id', $I_M)->get();
         return view('master.index', compact('masters'));
     }
@@ -30,11 +30,16 @@ class MasterController extends Controller
     // store
     public function store(Request $request)
     {
+        $author_id =  Auth::user()->profile()->pluck('id')->first();
         $master = new Master();
-        $master->author_id = Auth::user()->personal_id;
-        $master->text = $request->text;
+        $master->author_id = $author_id;
+        $master->text = $request->task;
         $master->urgency = $request->urgency;
         $master->deadline = $request->deadline;
+        $master->basis = $request->basis;
+        // comment
+        $master->comment = $request->comment;
+        $master->who = $request->who;
         $master->save();
         return redirect()->route('master.index');
     }
@@ -52,6 +57,27 @@ class MasterController extends Controller
         $personals = Personal::all();
         $resources = Resource::all();
         return view('master.edit', compact('master', 'docs', 'personals', 'resources'));
+    }
+    // step 1
+    public function step1($id)
+    {
+        $master = Master::find($id);
+        $docs = Doc::all();
+        $personals = Personal::all();
+        $resources = Resource::all();
+        return view('master.step1', compact('master', 'docs', 'personals', 'resources'));
+    }
+    // step 2 Request $request, $id
+    public function step2(Request $request, $id)
+    {
+        $master = Master::find($id);
+        $master->estimate = $request->estimate;
+
+        $master->save();
+        $master->docs()->sync($request->doc_id);
+        $master->personals()->sync($request->personal_id);
+        $master->resources()->sync($request->resource_id);
+        return redirect()->route('master.index');
     }
     // update
     public function update(Request $request, $id)

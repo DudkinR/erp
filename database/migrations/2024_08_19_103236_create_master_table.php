@@ -20,7 +20,7 @@ return new class extends Migration
             // text 
             $table->text('text');
             // basis
-            $table->text('basis'); 
+            $table->text('basis')->nullable();
             // хто записав або дав доручення 
             $table->text('who');
             // терміновість 
@@ -36,35 +36,10 @@ return new class extends Migration
             // виконано
             $table->boolean('done')->default(false);
             // коментар
-            $table->text('comment');
+            $table->text('comment') ->nullable();
             $table->timestamps();
         });
 
-        // master_doc
-        if(!Schema::hasTable('master_doc')) {
-            Schema::create('master_doc', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('master_id')->constrained('master');
-                $table->foreignId('doc_id')->constrained('docs');
-                // docs number
-                $table->string('number');
-                // name 
-                $table->string('name');
-                $table->timestamps();
-            });
-        }
-        // master_personal
-        if(!Schema::hasTable('master_personal')) {
-            Schema::create('master_personal', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('master_id')->constrained('master');
-                $table->foreignId('personal_id')->constrained('personal');
-                // bool brifing 
-                $table->boolean('brifing')->default(false);
-                $table->timestamps();
-            });
-        }
-     
         
     }
 
@@ -74,8 +49,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('master');
-        Schema::dropIfExists('master_doc');
-        Schema::dropIfExists('master_personal');
+      
 
     }
 };

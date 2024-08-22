@@ -334,7 +334,30 @@
     "Cancel" : "Скасувати",
     "Divisions" : "Підрозділи",
     "Division" : "Підрозділ",
+    "Urgency" : "Терміновість",
     "Abbreviation" : "Абревіатура",
+    "Hand Order" : "Распорядження",
+    "Order" : "Наряд",
+    "Orders" : "Наряди",
+    "Reglament" : "Регламент",
+    "Reglaments" : "Регламенти",
+    "Instruction" : "Інструкція",
+    "Instructions" : "Інструкції",
+    "Manual" : "Положення",
+    "Who give task" : "Хто дав завдання",
+    "Termine" : "Термін",
+    "Finish" : "Конець",
+    "Workers" : "Робітники",
+    "Select" : "Вибрати",
+    "Planed Time (h)" : "Планований час (год)",
+    "Select Documents" : "Вибрати документи",
+    "Clear" : "Очистити",
+    "Next" : "Далі",
+    "Analize of work" : "Аналіз роботи",
+
+    "Basis" : "Підстава",
+    
+    
     "Archives" : "Архіви"
 
 

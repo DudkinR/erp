@@ -114,6 +114,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/master', 'App\Http\Controllers\MasterController@store')->name('master.store');
     Route::get('/master/{id}', 'App\Http\Controllers\MasterController@show')->name('master.show');
     Route::get('/master/{id}/edit', 'App\Http\Controllers\MasterController@edit')->name('master.edit');
+    // step1
+    Route::get('/master/{id}/step1', 'App\Http\Controllers\MasterController@step1')->name('master.step1');
+    // step2
+    Route::post('/master/{id}/step2', 'App\Http\Controllers\MasterController@step2')->name('master.step2');
+    // step3
+    Route::get('/master/{id}/step3', 'App\Http\Controllers\MasterController@step3')->name('master.step3');
+     
     Route::put('/master/{id}', 'App\Http\Controllers\MasterController@update')->name('master.update');
     Route::delete('/master/{id}', 'App\Http\Controllers\MasterController@destroy')->name('master.destroy');
     // categories routes
