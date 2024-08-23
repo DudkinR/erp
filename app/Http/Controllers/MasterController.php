@@ -72,13 +72,29 @@ class MasterController extends Controller
     {
         $master = Master::find($id);
         $master->estimate = $request->estimate;
+       return $resources=$request->resource;
+        $rsrs=[];
+        foreach($resources as $resource){
+            $rsr=Resource::find($resource);
+            if(!$rsr){
+                $rsr = new Resource();
+                $rsr->name= $resource;
+                $rsr->save();
+                $rsrs[]=$rsr->id;
+            }
+            else {
+                $rsrs[]=$resource;
+            }
+
+        }
 
         $master->save();
         $master->docs()->sync($request->doc_id);
         $master->personals()->sync($request->personal_id);
-        $master->resources()->sync($request->resource_id);
+        $master->resources()->sync($rsrs);
         return redirect()->route('master.index');
     }
+    
     // update
     public function update(Request $request, $id)
     {

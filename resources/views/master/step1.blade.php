@@ -112,15 +112,20 @@
         document.getElementById('add_resource').addEventListener('click', function() {
             var resource = document.getElementById('resource');
             var option = document.createElement('option');
-            option.value = document.getElementById('my_resource').value;
-            option.text = document.getElementById('my_resource').options[document.getElementById('my_resource').selectedIndex].text;
+            var new_resource= document.getElementById('new_resource');
+            option.value = new_resource.value; 
+            option.text = new_resource.value;
+          
             resource.add(option);
-            document.getElementById('my_resource').value = '';
+              // and selected new  
+
             document.getElementById('new_resource').value = '';
         });
         // add new resource to select list value = text
         document.getElementById('my_resource').addEventListener('change', function() {
-            document.getElementById('new_resource').value = this.options[this.selectedIndex].text;
+        // добавляем новую позицию как в селект  add_resource так и в my_resource 
+        var resource = document.getElementById('resource');
+        var option = document.createElement('option');
             // clear new resource field
             this.value = '';
 

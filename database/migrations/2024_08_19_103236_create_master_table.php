@@ -16,7 +16,7 @@ return new class extends Migration
         }
         Schema::create('master', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('author_id')->constrained('personal');
+            $table->foreignId('author_id')->constrained('personal')->nullable();
             // text 
             $table->text('text');
             // basis
