@@ -24,9 +24,13 @@ class Building extends Model
         'status',
         'image'
     ];
-    //rooms building_room
+    //rooms building_id
+
     public function rooms()
     {
-        return $this-> belongsToMany(Room::class , 'building_room', 'building_id', 'room_id');
+        return $this->hasMany(Room::class);  
     }
+     
+
+     
 }

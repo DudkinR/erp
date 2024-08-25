@@ -5,16 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Building;
 
+use App\Models\Division;
+use App\Models\Room;
+use App\Helpers\FileHelpers;
+use App\Helpers\StringHelpers; 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
+
+
 class BuildingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+     public   $stat_data = [
+        'address' => '',
+        'city' => 'Нетішин',
+        'state' => 'Хмельницька область',
+        'zip' => '30100',
+        'country' => 'Україна',
+        'organization' => 'Хмельницька АЕС',
+        'status' => '1',
+        'image' => ''
+    ];
     public function index()
     {
         //
-        $bouldings = Building::orderBy('name', 'asc')->get();
-        return view('building.index', compact('buildings'));
+        $buildings = Building::orderBy('name', 'asc')->get();
+        return view('buildings.index', compact('buildings'));
 
     }
 
@@ -24,6 +44,7 @@ class BuildingController extends Controller
     public function create()
     {
         //
+        return view('buildings.create');
         
     }
 
@@ -33,6 +54,19 @@ class BuildingController extends Controller
     public function store(Request $request)
     {
         //
+        $building = new Building([
+            'name' => $request->name,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+            'zip' => $request->zip,
+            'country' => $request->country,
+            'organization' => $request->organization,
+            'status' => $request->status,
+            'image' => $request->image
+        ]);
+        $building->save();
+        return redirect()->route('buildings.index');
     }
 
     /**
@@ -66,4 +100,149 @@ class BuildingController extends Controller
     {
         //
     }
+    
+    public function import()
+    {
+        return view('buildings.import');
+    }
+    public function importData(Request $request)
+    {
+      
+
+        $type_of_file = $request->type_of_file ?? 0;
+        $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
+        $type_id = $request->type_id ?? 0;
+
+       // DB::beginTransaction();
+       
+        try {
+            foreach ($csvData as $dt) {
+                $data = str_getcsv($dt, ";");
+               // return $data;
+
+                if ($data[1] !== 'ID_ROOM') {
+                    $building = Building::lockForUpdate()->find($data[2]);
+                   // return $data[0];
+                    if (!$building) {
+                        // Создание нового здания
+                        $building = new Building([
+                            'id' => $data[2],
+                            'name' => $data[4],
+                            'address' => $this->stat_data['address'],
+                            'city' => $this->stat_data['city'],
+                            'state' => $this->stat_data['state'],
+                            'zip' => $this->stat_data['zip'],
+                            'country' => $this->stat_data['country'],
+                            'abv' => $data[3],
+                            'slug' => StringHelpers::generateSlug($data[4]),
+                            'organization' => $this->stat_data['organization'],
+                            'status' => $this->stat_data['status'],
+                            'image' => $this->stat_data['image']
+                        ]);
+                        $building->save();
+                       
+                    }
+                    else{
+                        $building->name = $data[4];
+                        $building->abv = $data[3];
+                        $building->slug = StringHelpers::generateSlug($data[4]);
+                        $building->save();
+                    }
+//return $building;
+                    $owner_division = null;
+                    $owner_subdivision = null;
+//return $data[11];
+                    if (!empty($data[11])) {
+                        $division = Division::firstOrCreate(
+                            ['name' => $data[11]],
+                            [
+                                'description' => $data[11],
+                                'abv' => $data[11],
+                                'slug' => StringHelpers::generateSlug($data[11]),
+                                'parent_id' => 0
+                            ]
+                        );
+                        $division->name = $data[11];
+                        $division->description = $data[11];
+                        $division->abv = $data[11];
+                        $division->slug = StringHelpers::generateSlug($data[11]);
+                        $division->parent_id = 0;
+                        $division->save();
+
+                        $owner_division = $division->id;
+                       // return $division;
+
+                        if (!empty($data[12])) {
+                            $subdivision = Division::firstOrCreate(
+                                ['name' => $data[12]],
+                                [
+                                    'description' => $data[12],
+                                    'abv' => $data[12],
+                                    'slug' => StringHelpers::generateSlug($data[12]),
+                                    'parent_id' => $division->id
+                                ]
+                            );
+                            $subdivision->name = $data[12];
+                            $subdivision->description = $data[12];
+                            $subdivision->abv = $data[12];
+                            $subdivision->slug = StringHelpers::generateSlug($data[12]);
+                            $subdivision->parent_id = $division->id;
+                            $subdivision->save();
+
+                            $owner_subdivision = $subdivision->id;
+                        }
+                    }
+
+                    $room = Room::lockForUpdate()->find($data[1]);
+                    $RadiationSafetyZone=0;
+                    if (!$room) {
+                        // Создание новой комнаты
+                        //Undefined array key 10
+                        if ( isset($data[10]) && $data[10] !== 'так' && $data[10] !== 'ні')
+                          {  $RadiationSafetyZone=1;}
+
+                        $room = new Room([
+                            'id' => $data[1],
+                            'IDname' => $data[0] ?? '',
+                            'name' => $data[5] ?? '',
+                            'description' => $data[6] ?? '',
+                            'square' => $data[8] ?? 0,
+                            'floor' => $data[7] ?? 0,
+                            'building_id' => $building->id,
+                            'category_PB' => $data[9] ?? '',
+                            'RadiationSafetyZone' => $RadiationSafetyZone,
+                            'owner_division' => $owner_division,
+                            'owner_subdivision' => $owner_subdivision
+                        ]);
+                        $room->save();
+                    }
+                    else{
+                        $room->IDname = $data[0];
+                        $room->name = $data[5];
+                        $room->description = $data[6];
+                        $room->square = $data[8];
+                        $room->floor = $data[7];
+                        $room->building_id = $building->id;
+                        $room->category_PB = $data[9];
+                        $room->RadiationSafetyZone = $RadiationSafetyZone;
+                        $room->owner_division = $owner_division;
+                        $room->owner_subdivision = $owner_subdivision;
+                        $room->save();
+                    }
+                }
+            }
+
+            DB::commit();
+        } catch (QueryException $e) {
+            DB::rollBack();
+            Log::error("Error in importData: " . $e->getMessage());
+            Log::error("SQL: " . $e->getSql());
+            Log::error("Bindings: " . json_encode($e->getBindings()));
+            return redirect()->route('buildings.index')->withErrors(['msg' => 'Error during import']);
+        }
+$rooms = Room::all();
+        return $rooms;
+       // return redirect()->route('buildings.index')->with('success', 'Data imported successfully');
+    }
 }
+

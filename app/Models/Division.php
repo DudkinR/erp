@@ -26,10 +26,10 @@ class Division extends Model
     {
         return $this->belongsToMany(Position::class, 'position_division');
     }
-    // structure_divition
+    // structure_division
     public function structures()
     {
-        return $this->belongsToMany(Struct::class, 'structure_divition');
+        return $this->belongsToMany(Struct::class, 'structure_division');
     }
 
 }

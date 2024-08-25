@@ -30,5 +30,10 @@ class Master extends Model
         return $this->belongsToMany(Resource::class , 'master_resource', 'master_id', 'resource_id');
         
     }
+    // briefing
+    public function briefing()
+    {
+        return $this->hasOne(Briefing::class, 'master_id');  // Укажите 'master_id' как внешний ключ
+    }
 
 }

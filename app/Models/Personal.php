@@ -66,4 +66,28 @@ class Personal extends Model
     {
         return $this->belongsToMany(Division::class, 'personal_division', 'personal_id', 'division_id');
     }
+    // personal_briefing - таблица связи  one 
+    public function briefings()
+    {
+        return $this->belongsToMany(Briefing::class, 'briefing_personal', 'personal_id', 'briefing_id');
+    }
+    // personal_phone - таблица связи  one
+    public function phones()
+    {
+        return $this->belongsToMany(Phone::class, 'personal_phone', 'personal_id', 'phone_id');
+    }
+    // personal_position - таблица связи  one
+
+    // personal_room - таблица связи  one
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class, 'personal_room', 'personal_id', 'room_id');
+    }
+    // personal_building - таблица связи  one
+    public function buildings()
+    {
+        return $this->belongsToMany(Building::class, 'personal_building', 'personal_id', 'building_id');
+    }
+
+
 }

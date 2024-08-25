@@ -11,19 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        
-        // master_doc
-        if(!Schema::hasTable('master_doc')) {
-            Schema::create('master_doc', function (Blueprint $table) {
+        if (!Schema::hasTable('briefing')) {
+            Schema::create('briefing', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('master_id')->constrained('master');
-                $table->foreignId('doc_id')->constrained('docs');
-
+                $table->foreignId('master_id')->constrained();
                 $table->timestamps();
             });
         }
-       
-     
+
     }
 
     /**
@@ -31,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_doc');
+        Schema::dropIfExists('briefing');
     }
 };

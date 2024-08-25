@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Doc;
 use App\Models\Personal;
 use App\Models\Resource;
+use App\Models\Briefing;
 
 class MasterController extends Controller
 {
@@ -16,7 +17,9 @@ class MasterController extends Controller
     public function index()
     {
         $I_M=  Auth::user()->profile()->pluck('id')->first();
-        $masters = Master::where('author_id', $I_M)->get();
+        $masters = Master::where('author_id', $I_M)
+        ->with('docs', 'personals', 'resources')
+        ->get();
         return view('master.index', compact('masters'));
     }
     // create
@@ -61,10 +64,13 @@ class MasterController extends Controller
     // step 1
     public function step1($id)
     {
-        $master = Master::find($id);
-        $docs = Doc::all();
-        $personals = Personal::all();
-        $resources = Resource::all();
+       
+        $master = Master::with('docs', 'personals', 'resources')->find($id);
+        $docs = Doc::whereNotIn('id', $master->docs->pluck('id'))->get();        
+        $personals = Personal::whereNotIn('id', $master->personals->pluck('id'))
+            ->get();
+        $resources = Resource::whereNotIn('id', $master->resources->pluck('id'))
+            ->get();
         return view('master.step1', compact('master', 'docs', 'personals', 'resources'));
     }
     // step 2 Request $request, $id
@@ -72,9 +78,15 @@ class MasterController extends Controller
     {
         $master = Master::find($id);
         $master->estimate = $request->estimate;
-       return $resources=$request->resource;
+        $resources=$request->resource;
         $rsrs=[];
+        if(!$resources){
+            $resources=[];
+        }
         foreach($resources as $resource){
+            if($resource==''){
+                continue;
+            }
             $rsr=Resource::find($resource);
             if(!$rsr){
                 $rsr = new Resource();
@@ -87,12 +99,40 @@ class MasterController extends Controller
             }
 
         }
-
         $master->save();
-        $master->docs()->sync($request->doc_id);
-        $master->personals()->sync($request->personal_id);
+        $master->docs()->sync($request->docs);
+        $master->personals()->sync($request->workers);
         $master->resources()->sync($rsrs);
         return redirect()->route('master.index');
+    }
+    public function step3($id){
+        $master = Master::find($id);
+        return view('master.step3', compact('master'));
+    }
+    // инструктаж
+    public function briefing(Request $request)
+    {
+        // Найти Master по ID
+         $master = Master::find($request->master_id);
+        $personal = Personal::find($request->personal_id);
+
+        // Найти инструктаж для Master
+        $briefing = $master->briefing;
+
+        // Если инструктажа нет, создать его
+        if (!$briefing) {
+            $briefing = new Briefing();
+            $briefing->master_id = $master->id;  // Установить связь с мастером
+            $briefing->save();
+        }
+
+        // Проверка табельного номера и добавление связи между персоналом и инструктажем
+        if ($personal && $personal->tn == $request->tn) {
+            $briefing->personals()->attach($personal->id);
+            return response()->json(['status' => 'success', 'worker_id'=>$personal->id, 'briefing' => $briefing], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Personal not found or TN does not match'], 400);
+        }
     }
     
     // update

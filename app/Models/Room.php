@@ -9,12 +9,19 @@ class Room extends Model
 {
     use HasFactory;
 
+/// table name
+    protected $table = 'rooms';
     protected $fillable = [
         'IDname',
         'name', 
         'description',
         'square',
-        'floor',
+        'floor',        
+        'building_id',
+        'category_PB',
+        'RadiationSafetyZone',
+        'owner_division',
+        'owner_subdivision'
     ];
     // phone_room
     public function phones()

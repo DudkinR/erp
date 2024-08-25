@@ -16,8 +16,8 @@ class AdminSeeder extends Seeder
         //INSERT INTO `users` (`id`, `name`, `email`, `tn`, `email_verified_at`, `password`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`) VALUES (NULL, 'Дудкін Роман Євгенович', 'dudkinr@ukr.net', '2191', NULL, '$2y$12$b0zzHmQ.3jQ2WEJ.cycwUuq0DJcHjHIp/ik.YqkI5KRVoAgHmY9Rm', NULL, NULL, NULL, NULL, '2024-06-16 06:51:01', '2024-06-16 06:51:01');
         $user = new \App\Models\User();
         $user->name = 'Дудкін Роман Євгенович';
-        $user->email = 'dudkinr@ukr.net';
-        $user->tn = '2191';
+        $user->email = 'dudkin@khnpp.atom.gov.ua';
+        $user->tn = '13344';
         $user->password = bcrypt('Qwerty123');
         $user->save();     
         // INSERT INTO `role_user` (`id`, `role_id`, `user_id`, `created_at`, `updated_at`) VALUES (NULL, '', '', NULL, NULL);

@@ -31,6 +31,9 @@
                     <li><a href="{{ route('profiles.import') }}"> {{__('Profiles import')}}</a>
                     {{ \App\Models\User::count();}}
                 </li>
+                    <li><a href="{{ route('buildings.import') }}"> {{__('Buildings import')}}</a>
+                    {{ \App\Models\Building::count();}}
+                </li>
 
 
                </ul>

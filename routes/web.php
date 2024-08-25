@@ -120,6 +120,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/master/{id}/step2', 'App\Http\Controllers\MasterController@step2')->name('master.step2');
     // step3
     Route::get('/master/{id}/step3', 'App\Http\Controllers\MasterController@step3')->name('master.step3');
+    // post briefing
+    Route::post('/masterbriefing', 'App\Http\Controllers\MasterController@briefing')->name('masterbriefing');
      
     Route::put('/master/{id}', 'App\Http\Controllers\MasterController@update')->name('master.update');
     Route::delete('/master/{id}', 'App\Http\Controllers\MasterController@destroy')->name('master.destroy');
@@ -252,6 +254,19 @@ Route::middleware('auth')->group(function () {
     // import data from csv file
     Route::get('/dimensionsimport', 'App\Http\Controllers\DimensioneController@import')->name('dimensions.import');
     Route::post('/dimensionsimport', 'App\Http\Controllers\DimensioneController@importData')->name('dimensions.importData');
+
+    // buildings routes
+    Route::get('/buildings', 'App\Http\Controllers\BuildingController@index')->name('buildings.index');
+    Route::get('/buildings/create', 'App\Http\Controllers\BuildingController@create')->name('buildings.create');
+    Route::post('/buildings', 'App\Http\Controllers\BuildingController@store')->name('buildings.store');
+    Route::get('/buildings/{id}', 'App\Http\Controllers\BuildingController@show')->name('buildings.show');
+    Route::get('/buildings/{id}/edit', 'App\Http\Controllers\BuildingController@edit')->name('buildings.edit');
+    Route::put('/buildings/{id}', 'App\Http\Controllers\BuildingController@update')->name('buildings.update');
+    Route::delete('/buildings/{id}', 'App\Http\Controllers\BuildingController@destroy')->name('buildings.destroy');
+    // import data from csv file
+    Route::get('/buildingsimport', 'App\Http\Controllers\BuildingController@import')->name('buildings.import');
+    Route::post('/buildingsimport', 'App\Http\Controllers\BuildingController@importData')->name('buildings.importData');
+
 
     //nomenclaturs
     Route::get('/nomenclaturs', 'App\Http\Controllers\NomenclatureController@index')->name('nomenclaturs.index');

@@ -33,6 +33,16 @@ class Position extends Model
     {
         return $this->belongsToMany(Division::class, 'position_division', 'position_id', 'division_id');
     }
- 
+    // position_room
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class, 'position_room', 'position_id', 'room_id');
+    }
+    // position_building
+
+    public function buildings()
+    {
+        return $this->belongsToMany(Building::class, 'position_building', 'position_id', 'building_id');
+    }
 
 }

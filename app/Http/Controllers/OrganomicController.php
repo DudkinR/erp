@@ -3,6 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+// building
+use App\Models\Building;
+use App\Models\Division;
+use App\Models\Room;
+// personal
+use App\Models\Personal;
+use App\Models\Position;
+// phone
+use App\Models\Phone;
 
 class OrganomicController extends Controller
 {
@@ -12,139 +21,28 @@ class OrganomicController extends Controller
     public function index(Request $request)
     {
   
-        $personals = [
-            [
-                'id' => 1,
-                'room' => 'D15',
-                'group' => 'A',
-                'department' => 'IT',
-                'phone' => '62611',                
-            ],
-            [
-                'id' => 2,
-                'room' => 'A15',
-                'group' => 'A',
-                'department' => 'IT',
-                'phone' => '62611',
-            ],
-            [
-                'id' => 3,
-                'room' => 'A15',
-                'group' => 'A',
-                'department' => 'IT',
-                'phone' => '62611',
-            ],
-            [
-                'id' => 4,
-                'room' => 'B15',
-                'group' => 'B',
-                'department' => 'IT',
-                'phone' => '12345',
-            ],
-            [
-                'id' => 5,
-                'room' => 'A15',
-                'group' => 'A',
-                'department' => 'IT',
-                'phone' => '62611',
-            ],
-            [
-                'id' => 6,
-                'room' => 'B15',
-                'group' => 'B',
-                'department' => 'IT',
-                'phone' => '12345',
-            ],
-            [
-                'id' => 7,
-                'room' => 'C15',
-                'group' => 'C',
-                'department' => 'IT',
-                'phone' => '12345',
-            ],
-            [
-                'id' => 8,
-                'room' => 'D15',
-                'group' => 'D',
-                'department' => 'IT',
-                'phone' => '12345',
-            ]
-        ];
-        
+       $buildings = Building::orderBy('id', 'asc')
+       ->limit(100)
+       ->get();
+       foreach ($buildings as $building) {
         $rooms = [
-            [
-                'id' => 1,
-                'name' => 'A15',
-                'area' => 9,
-                'building' => 'A',
-                'floor' => 1,
-                'air_conditioned' => 1,
-            ],
-            [
-                'id' => 2,
-                'name' => 'B15',
-                'area' => 10.3,
-                'building' => 'B',
-                'floor' => 2,
-                'air_conditioned' => 0,
-            ],
-            [
-                'id' => 3,
-                'name' => 'C15',
-                'area' => 8.5,
-                'building' => 'C',
-                'floor' => 3,
-                'air_conditioned' => 1,
-            ],
-            [
-                'id' => 4,
-                'name' => 'D15',
-                'area' => 9.5,
-                'building' => 'D',
-                'floor' => 4,
-                'air_conditioned' => 0,
-    ],
-        ];
-
-        $equipments = [
-            [
-                'id' => 1,
-                'name' => 'SA54D01',
-                'type' => 'pump',
-                'building' => 'A',
-                'floor' => 1,
-                'air_conditioned' => 1,
-            ],
-            [
-                'id' => 2,
-                'name' => 'B15',
-                'area' => 10.3,
-                'building' => 'B',
-                'floor' => 2,
-                'air_conditioned' => 0,
-            ],
-            [
-                'id' => 3,
-                'name' => 'C15',
-                'area' => 8.5,
-                'building' => 'C',
-                'floor' => 3,
-                'air_conditioned' => 1,
-            ],
-            [
-                'id' => 4,
-                'name' => 'D15',
-                'area' => 9.5,
-                'building' => 'D',
-                'floor' => 4,
-                'air_conditioned' => 0,
-            ]
-
-    ];
-  
+            'building_id' => $building->id,
+            'rooms' => $building->rooms()->get()
+        ] ; 
+       }
       
-        // organomics
-        return view('organomics.index', compact('personals', 'rooms', 'equipments'));
+       return $rooms;
+        return view('organomics.index', compact('buildings'));
+    }
+
+    public function effectivness($building_id, $division_id)
+    {
+        $division = Division::find($division_id);
+        $subdivisions = Division::where('parent_id', $division_id)->get();
+        $personal = Personal::where('division_id', $division_id)->get();
+        // найти все комнаты в здании и считаем количество рабочих мест и  площадь которую они занимают 
+        $rooms = Room::where('building_id', $building_id)->get();
+
     }
 
     /**
