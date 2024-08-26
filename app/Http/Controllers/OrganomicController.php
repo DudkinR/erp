@@ -21,17 +21,18 @@ class OrganomicController extends Controller
     public function index(Request $request)
     {
   
-       $buildings = Building::orderBy('id', 'asc')
-       ->limit(100)
-       ->get();
-       foreach ($buildings as $building) {
-        $rooms = [
-            'building_id' => $building->id,
-            'rooms' => $building->rooms()->get()
-        ] ; 
-       }
-      
-       return $rooms;
+       $building = Building::find(1);
+       $rooms= Room::where('building_id', $building->id)->get();
+      // return $rooms;
+      $room= Room::find(3);
+      return $room->personal;
+      $effectivness = []; 
+        foreach ($rooms as $room) {
+            $effectivness[$room->id] = $room->personal->count();
+        }
+       return $effectivness;
+
+       
         return view('organomics.index', compact('buildings'));
     }
 

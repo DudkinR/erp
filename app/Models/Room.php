@@ -33,4 +33,10 @@ class Room extends Model
     {
         return $this->belongsToMany(Building::class, 'building_room', 'room_id', 'building_id');
     }
+    // personal_room
+    public function personals()
+    {
+        return $this->belongsToMany(Personal::class, 'personal_room', 'room_id', 'personal_id');
+    }
+
 }

@@ -127,6 +127,7 @@ class BuildingController extends Controller
                         // Создание нового здания
                         $building = new Building([
                             'id' => $data[2],
+                            'IDBuilding' => $data[2],
                             'name' => $data[4],
                             'address' => $this->stat_data['address'],
                             'city' => $this->stat_data['city'],
@@ -203,7 +204,7 @@ class BuildingController extends Controller
 
                         $room = new Room([
                             'id' => $data[1],
-                            'IDname' => $data[0] ?? '',
+                            'IDname' => $data[1] ?? '',
                             'name' => $data[5] ?? '',
                             'description' => $data[6] ?? '',
                             'square' => $data[8] ?? 0,
@@ -217,7 +218,9 @@ class BuildingController extends Controller
                         $room->save();
                     }
                     else{
-                        $room->IDname = $data[0];
+                        if ( isset($data[10]) && $data[10] !== 'так' && $data[10] !== 'ні')
+                          {  $RadiationSafetyZone=1;}
+                        $room->IDname = $data[1];
                         $room->name = $data[5];
                         $room->description = $data[6];
                         $room->square = $data[8];

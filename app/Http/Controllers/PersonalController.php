@@ -218,10 +218,10 @@ class PersonalController extends Controller
     // import personal data from csv file to database
     public function importData(Request $request)
     {
-
+  // 0	1TAB_NO	2PIB	3DEPT	4UCHASTOK	5POSADA	ROOM	6KORPUS	7NOMER_ROOM	8NAME_ROOM	9TEL_NUMBER
+     
        // Maximum execution time of 60 seconds exceeded
         set_time_limit(0);
-
         if($request->type_of_file)
         $type_of_file =$request->type_of_file;
         else
@@ -229,39 +229,38 @@ class PersonalController extends Controller
         $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         //return $csvData;
         foreach ($csvData as $line) {
-        $data = str_getcsv($line, ";"); 
-        // 0	1TAB_NO	2PIB	3DEPT	4UCHASTOK	5POSADA	ROOM	6KORPUS	7NOMER_ROOM	8NAME_ROOM	9TEL_NUMBER
-        if($data[1]=='TAB_NO') continue;
-
-        $personal = Personal::where('tn', $data[1])->first();
-        if(!$personal){
-            $personal = new Personal();
-            $personal->tn = $data[1];
-            $personal->nickname = $this->nickname($data[2]);
-            $personal->fio = $data[2];
-            $email = StringHelpers::generateSlug($data[2]) . '@khnpp.atom.gov.ua';
-            $personal->email = $email;
-            // phone
-            $personal->phone = $data[10];
-            $personal->date_start = CommonHelper::formattedDate(now( ));
-            $personal->status = 'На роботі';
-            $personal->save();
-        }
-            else{
+            $data = str_getcsv($line, ";"); 
+            if($data[1]=='TAB_NO') {continue;}
+            $personal = Personal::where('tn', $data[1])->first();
+            if(!$personal){
+                $personal = new Personal();
                 $personal->tn = $data[1];
                 $personal->nickname = $this->nickname($data[2]);
                 $personal->fio = $data[2];
+                $fi = explode(' ', $data[2]);
+                if(count($fi)>1){
+                $email = StringHelpers::generateSlug($fi[0].'.'. $fi[1]). '@khnpp.atom.gov.ua';            
+                $email=  strtolower($email);
+                $personal->email = $email;
                 // phone
                 $personal->phone = $data[10];
-
-                $email = StringHelpers::generateSlug($data[2]).'.'. $data[1]. '@khnpp.atom.gov.ua';
-                $email=  strtolower($email);
-                // - to _
-                $email = str_replace('-', '_', $email);
-                $personal->email = $email;
-                $personal->date_start = CommonHelper::formattedDate(now( ));
+                $personal->date_start = CommonHelper::formattedDate(now());
                 $personal->status = 'На роботі';
-            }
+                $personal->save();
+             }
+                else
+             {
+                $personal->tn = $data[1];
+                $personal->nickname = $this->nickname($data[2]);
+                $personal->fio = $data[2];
+                $fi = explode(' ', $data[2]);
+                $email = StringHelpers::generateSlug($fi[0].'.'.$fi[1]).'@khnpp.atom.gov.ua';
+                $personal->phone = $data[10];               
+                $email=  strtolower($email);
+                $personal->email = $email;
+                $personal->date_start = CommonHelper::formattedDate(now());
+                $personal->status = 'На роботі';
+           }
             $personal->save();
             $phone = Phone::firstOrCreate(
                 ['phone' => $data[10]],
@@ -272,66 +271,31 @@ class PersonalController extends Controller
          // Обновление телефонов
             $personal->phones()->detach();
             $personal->phones()->attach($phone->id);
-
-            // Обновление подразделения (Division)
             $divisionName = $this->insert_text($data[4], 1, 0, ' ');
-            $division = Division::firstOrCreate(
-                ['name' => $divisionName],
-                [
-                    'description' => $divisionName,
-                    'abv' => StringHelpers::abv($divisionName),
-                    'slug' => StringHelpers::generateSlug($divisionName),
-                ] // добавьте другие поля по необходимости
-            );
-            $personal->divisions()->detach();
-            $personal->divisions()->attach($division->id);
-
-            // Обновление здания (Building)
-            $buildingName = $this->insert_text($data[4], 1, 0, '-');
-            $building = Building::firstOrCreate(
-                ['name' => $buildingName],
-                ['address' => 'default address'] // добавьте другие поля по необходимости
-            );
-            $personal->buildings()->detach();
-            $personal->buildings()->attach($building->id);
-
-            // Обновление комнаты (Room)
-            $room = Room::firstOrCreate(
-                [
-                    'name' => $data[7],
-                    'building_id' => $building->id
-                ],
-                ['description' => 'default description'] // добавьте другие поля по необходимости
-            );
-            $personal->rooms()->detach();
-            $personal->rooms()->attach($room->id);
-
-            // Обновление должности (Position)
-            $position = $this->pos_struct($data[3], $data[4], $data[5]);
-            $personal->positions()->detach();
-            $personal->positions()->attach($position);
-
-
-            $status = $this->pos_status($data[4]);
-            $data_status = CommonHelper::formattedDate('На роботі');
-            $personal->status = $data_status;
-
-         
+            $division = Division::where('name', '%LIKE%', $divisionName)->first();
+            if($division){
+                $personal->divisions()->detach();
+                $personal->divisions()->attach($division->id);
             }
-         
-          $personals = Personal::all();
-            foreach ($personals as $personal) {
-             $user = User::where('tn', $personal->tn)->first();             
-             if(!$user){
-                 $user = new User([
-                     'tn' => $personal->tn,
-                     'name' => $personal->fio,
-                     'email' => $personal->email,
-                     'password' => bcrypt($personal->tn)
-                 ]);
-                 $user->save();
-             }
-    }
+           // Обновление здания (Building)
+            $buildingName = $data[6];
+            $building = Building::where(                    
+                'name', $buildingName
+            )->first();
+            if($building){
+                $personal->buildings()->detach();
+                $personal->buildings()->attach($building->id);
+            }
+            // Обновление комнаты (Room)
+            $roomName = $data[8];
+            $room = Room::where('name',  $roomName)->first();
+            if($room){
+                $personal->rooms()->detach();
+                $personal->rooms()->attach($room->id);
+            }
+
+            }
+        }
     return redirect('/personal')->with('success', 'Personal data imported!');
     }
     public function insert_text($text, $start, $end, $separator = ' ')
