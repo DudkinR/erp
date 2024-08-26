@@ -120,8 +120,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/master/{id}/step2', 'App\Http\Controllers\MasterController@step2')->name('master.step2');
     // step3
     Route::get('/master/{id}/step3', 'App\Http\Controllers\MasterController@step3')->name('master.step3');
+    Route::get('/master/{id}/step4', 'App\Http\Controllers\MasterController@step4')->name('master.step4');
+    Route::get('/master/{id}/step5', 'App\Http\Controllers\MasterController@step5')->name('master.step5');
     // post briefing
     Route::post('/masterbriefing', 'App\Http\Controllers\MasterController@briefing')->name('masterbriefing');
+    //master_running
+    Route::get('/master_running', 'App\Http\Controllers\MasterController@running')->name('master_running');
+    // master/{id}ending
+    Route::post('/master/{id}/ending', 'App\Http\Controllers\MasterController@ending')->name('master_ending');
      
     Route::put('/master/{id}', 'App\Http\Controllers\MasterController@update')->name('master.update');
     Route::delete('/master/{id}', 'App\Http\Controllers\MasterController@destroy')->name('master.destroy');

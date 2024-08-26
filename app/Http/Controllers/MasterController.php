@@ -10,6 +10,8 @@ use App\Models\Doc;
 use App\Models\Personal;
 use App\Models\Resource;
 use App\Models\Briefing;
+use GuzzleHttp\Psr7\Response;
+use Whoops\Exception\Formatter;
 
 class MasterController extends Controller
 {
@@ -109,6 +111,38 @@ class MasterController extends Controller
         $master = Master::find($id);
         return view('master.step3', compact('master'));
     }
+    public function step4($id){
+        $master = Master::find($id);
+        return view('master.step4', compact('master'));
+    }
+    public function step5($id){
+        $master = Master::find($id);
+        return view('master.step5', compact('master'));
+    }
+    public function ending(Request $request, $id){
+         $master = Master::find($id);
+         if($request->done==0){
+            // Создать новое задание
+            $newMaster = $master->replicate(); // Создать копию текущего задания
+            $newMaster->start = null; // Установить время старта в null
+            $newMaster->end = null; // Установить время окончания в null
+            $newMaster->done = 0; // Новое задание не завершено
+            $newMaster->save(); // Сохранить новое задание
+
+            // Очистить назначенных персоналов для нового задания
+            $newMaster->personals()->detach(); // Удалить все назначенные персонал
+            // Закрыть текущее задание
+            $master->end = now();
+            $master->done = 1;
+            $master->save();
+         }
+         else{
+            $master->done=1;
+            $master ->end=now();
+            $master ->save();
+         }
+         return redirect()->route('master.index');
+    }
     // инструктаж
     public function briefing(Request $request)
     {
@@ -134,6 +168,13 @@ class MasterController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Personal not found or TN does not match'], 400);
         }
     }
+     // running
+     public function running(Request $request){
+         $master= Master::find($request->mi);
+          $master->start = now();
+          $master->save();
+         return redirect()->route('master.index');
+     }
     
     // update
     public function update(Request $request, $id)

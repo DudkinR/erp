@@ -354,11 +354,22 @@
     "Clear" : "Очистити",
     "Next" : "Далі",
     "Analize of work" : "Аналіз роботи",
-    "Analize" : "Аналіз",
+    "Analyze" : "Аналіз",
     "Master" : "Майстер",
     "Briafing" : "Інструктаж",
     "Tab num" : "Табельний номер",
     "Give" : "Давати",
+    "Brief given" : "Інструктаж провів",
+    "Complet" : "Завершено",
+    "Stop" : "Припинено",
+    "Not Set" : "Ні вст.",
+    "Mistakes": "Помилки",
+    "Good practices":"Хороші практики",
+    "Spent time":"Витрачений час",
+    "Analyze Completion":"Проаналізуйте завершення",
+    "End":"Кінець",
+
+
 
     "Basis" : "Підстава",
     

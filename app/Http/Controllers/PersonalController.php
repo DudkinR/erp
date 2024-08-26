@@ -231,6 +231,7 @@ class PersonalController extends Controller
         foreach ($csvData as $line) {
         $data = str_getcsv($line, ";"); 
         // 0	1TAB_NO	2PIB	3DEPT	4UCHASTOK	5POSADA	ROOM	6KORPUS	7NOMER_ROOM	8NAME_ROOM	9TEL_NUMBER
+        if($data[1]=='TAB_NO') continue;
 
         $personal = Personal::where('tn', $data[1])->first();
         if(!$personal){
