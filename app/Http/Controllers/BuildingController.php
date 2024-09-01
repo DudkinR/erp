@@ -108,7 +108,8 @@ class BuildingController extends Controller
     public function importData(Request $request)
     {
       
-
+        set_time_limit(0);
+        
         $type_of_file = $request->type_of_file ?? 0;
         $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
         $type_id = $request->type_id ?? 0;
