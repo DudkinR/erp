@@ -368,12 +368,39 @@
     "Spent time":"Витрачений час",
     "Analyze Completion":"Проаналізуйте завершення",
     "End":"Кінець",
-
-
-
+    "Floor":"Поверх",
+"Tasks magazine":"Журнал завдань",
+"New task":"Нове завдання",
+"Text of task":"Текст завдання",
+"1 - not urgent, 10 - very urgent":"1 - не терміново, 10 - дуже терміново",
+"Date and time of task completion":"Дата та час завершення завдання",
+"The basis for the assignment of the task":"Підстава для призначення завдання",
+"Select basis":"Виберіть підставу",
+"Position of the person who gives the task or his name":"Посада особи, яка дав завдання або їого призвіще",
+"Additional information":"Додаткова інформація",
     "Basis" : "Підстава",
-    
-    
+    "Plan" : "План",
+    "Scadule" : "Графік",
+    "Letter" : "Лист",
+    "Email" : "Електронна пошта",
+    "Phone call" : "Телефонний дзвінок",
+    "Conversation" : "Розмова",
+    "Planned Resource" : "Запланові ресурси",
+    "My Resource" : "Мої ресурси",
+    "New Resource" : "Додати новий ресурс",
+    "Who gave the task" : "Хто дав завдання",
+    "Urgency Level" : "Рівень терміновості",
+    "Planned Time" : "Запланований час",
+    "hours" : "годин",
+    "Select the workers involved in the task" : "Виберіть працівників, які беруть участь в завданні",
+    "Available personals for assignment" : "Доступний персонал для призначення",
+    "Documents associated with the task" : "Документи, пов'язані з завданням",
+    "Choose additional documents if needed" : "Виберіть додаткові документи, якщо потрібно",
+    "Resources planned for the task" : "Ресурси, заплановані для завдання",
+    "Choose or add your resources" : "Виберіть або додайте свої ресурси",
+    "Analysis of Work" : "Аналіз роботи",
+    "Briefing" : "Інструктаж",
+    "Your request failed" : "Ваш запит не вдався",
     "Archives" : "Архіви"
 
 

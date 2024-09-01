@@ -20,7 +20,7 @@
     <script>
         const personals = @json($personals);
         var show_ps = personals;
-        console.log( show_ps );
+     //   console.log( show_ps );
         const show_personals = document.getElementById('show_personals');
         function show() {
             const show_personals = document.getElementById('show_personals');
@@ -35,7 +35,7 @@
                             <th>{{__('tn')}}</th>
                             <th>{{__('FIO')}}</th>
                             <th>{{__('Position')}}</th>
-                            <th>{{__('Status')}}</th>
+                            <th>{{__('Data')}}</th>
                             @if(Auth::user()->hasRole('quality-engineer','admin'))
                             <th>{{__('Action')}}</th>
                             @endif
@@ -52,7 +52,14 @@
                         <td>${personal.tn}</td>
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>
-                        <td>${personal.status}</td>
+                        <td>
+                            {{__('Phones')}}:<br>
+                            ${personal.phones.map(phone => phone.phone).join(', ')}
+                            <hr>
+                            {{__('Email')}}:<br>
+                            ${personal.email}
+
+                        </td>
                         @if(Auth::user()->hasRole('quality-engineer','admin'))
                         <td>
                             <a href="/personal/${personal.id}/edit">Edit</a>
@@ -81,12 +88,34 @@
         search.addEventListener('keyup', (e) => {
             // пошук по fio та positions 
             const searchString = e.target.value.toLowerCase();
-            const filtered_ps = personals.filter(personal => {
-                return personal.fio.toLowerCase().includes(searchString) || personal.positions.map(position => position.name).join(', ').toLowerCase().includes(searchString);
-            });
-            show_ps = filtered_ps;
+            if (searchString.length > 0) {
+                // Виконати запит до сервера
+                fetch('/search-personal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Додати CSRF токен
+
+                    },
+                    body: JSON.stringify({ search: searchString })
+                })
+                .then(response => response.json()) // Обробка відповіді у форматі JSON
+                .then(data => {
+                   show_ps =data; // Виклик функції для відображення результатів
+                   //console.log(show_ps);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                clearResults(); // Очищення результатів, якщо поле порожнє
+            }
             show();
         });
+
+        function clearResults() {
+            show_ps = personals;
+        }
 
     </script>
 

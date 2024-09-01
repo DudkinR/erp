@@ -19,5 +19,10 @@ class Phone extends Model
     {
         return $this-> belongsToMany(Room::class , 'phone_room', 'phone_id', 'room_id');
     }
+    //personal personal_phone
+    public function personals()
+    {
+        return $this-> belongsToMany(Personal::class , 'personal_phone', 'phone_id', 'personal_id');
+    }
 
 }

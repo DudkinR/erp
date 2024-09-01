@@ -119,9 +119,28 @@ class BuildingController extends Controller
             foreach ($csvData as $dt) {
                 $data = str_getcsv($dt, ";");
                // return $data;
+// 0	1ID_ROOM	2ID_BUILDING	3Будівля	4NAME_BUILDING	5Номер приміщення	6Назва приміщення	7Відмітка	8Площа	9Кат.ПБ	10ЗСР	11Підрозділ-власник	12Дільниця
 
                 if ($data[1] !== 'ID_ROOM') {
-                    $building = Building::lockForUpdate()->find($data[2]);
+                    $building = Building::firstOrCreate(
+                        ['IDBuilding' => $data[2]],
+                        [
+                            'IDBuilding' => $data[2],
+                            'name' => $data[4],
+                            'address' => $this->stat_data['address'],
+                            'city' => $this->stat_data['city'],
+                            'state' => $this->stat_data['state'],
+                            'zip' => $this->stat_data['zip'],
+                            'country' => $this->stat_data['country'],
+                            'abv' => $data[3],
+                            'slug' => StringHelpers::generateSlug($data[4]),
+                            'organization' => $this->stat_data['organization'],
+                            'status' => $this->stat_data['status'],
+                            'image' => $this->stat_data['image']
+                        ]
+                    );
+                    
+                    /*lockForUpdate()->find($data[2]);
                    // return $data[0];
                     if (!$building) {
                         // Создание нового здания
@@ -142,13 +161,7 @@ class BuildingController extends Controller
                         ]);
                         $building->save();
                        
-                    }
-                    else{
-                        $building->name = $data[4];
-                        $building->abv = $data[3];
-                        $building->slug = StringHelpers::generateSlug($data[4]);
-                        $building->save();
-                    }
+                    }*/
 //return $building;
                     $owner_division = null;
                     $owner_subdivision = null;
@@ -217,21 +230,8 @@ class BuildingController extends Controller
                         ]);
                         $room->save();
                     }
-                    else{
-                        if ( isset($data[10]) && $data[10] !== 'так' && $data[10] !== 'ні')
-                          {  $RadiationSafetyZone=1;}
-                        $room->IDname = $data[1];
-                        $room->name = $data[5];
-                        $room->description = $data[6];
-                        $room->square = $data[8];
-                        $room->floor = $data[7];
-                        $room->building_id = $building->id;
-                        $room->category_PB = $data[9];
-                        $room->RadiationSafetyZone = $RadiationSafetyZone;
-                        $room->owner_division = $owner_division;
-                        $room->owner_subdivision = $owner_subdivision;
-                        $room->save();
-                    }
+                $building->rooms()->syncWithoutDetaching([$room->id]);
+                   
                 }
             }
 

@@ -6,108 +6,157 @@
                 
                 <a class="text-right" href="{{ route('master.index') }}">{{__('Back')}}</a>
                 
-                <h2>{{__('Analize of work')}}</h2>
-                <h3>{{__('Task')}}: {{ $master->text }}</h3>
-                @php $color = $master->urgency > 5 ? 'red' : ($master->urgency > 3 ? 'orange' : 'green') @endphp
-                <h3>{{__('Urgency')}}: <span style="color: {{ $color }}">{{ $master->deadline }}</span></h3>
-                <h3>{{__('Basis')}}: {{ $master->basis }}</h3>
-                <h3>{{__('Who give task')}}: {{ $master->who }}</h3>
-                <h3>{{__('Comment')}}: {{ $master->comment }}</h3>
-                <form method="POST" action="{{ route('master.step2', $master->id) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="master_id" value="{{ $master->id }}">
-                    <div class="form-group">
-                        <label for="estimate">{{__('Planed Time (h)')}}</label>
-                        <input type="number" class="form-control" id="estimate" name="estimate" value="{{$master->estimate}}" min="1" max="100">
+                <div class="container mt-4">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h2 class="card-title">{{ __('Analysis of Work') }}</h2>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="mb-3"><strong>{{ __('Task') }}:</strong> {{ $master->text }}</h4>
+                
+                            <h5>
+                            @php if($master->urgency <= 3) {
+                                $color = 'green';
+                            } elseif($master->urgency <= 7) {
+                                $color = 'yellow';
+                            } else {
+                                $color = 'red';
+                            }
+                            @endphp
+                                <strong>{{ __('Urgency') }}:</strong>
+                                <span class="badge" style="background-color: {{ $color }}">
+                                    {{ $master->deadline }}
+                                </span>
+                            </h5>
+                
+                            <div class="mt-2">
+                                <span class="badge bg-secondary">{{ __('Urgency Level') }}: </span>
+                                <span class="badge" style="background-color: {{ $color }}">{{ $master->urgency }}</span>
+                            </div>
+                
+                            <h5 class="mt-3">
+                                <strong>{{ __('Basis') }}:</strong> 
+                                <span class="text-primary">{{ $master->basis }}</span>
+                            </h5>
+                
+                            <h5 class="mt-2">
+                                <strong>{{ __('Who gave the task') }}:</strong> 
+                                <span class="text-success">{{ $master->who }}</span>
+                            </h5>
+                
+                            <h5 class="mt-2">
+                                <strong>{{ __('Comment') }}:</strong> 
+                                <p class="text-muted">{{ $master->comment }}</p>
+                            </h5>
+                        </div>
                     </div>
-
-                    <div class="row">
+                </div>
+                
+                <form method="POST" action="{{ route('master.step2', $master->id) }}" class="p-3 border rounded shadow-sm bg-light">
+                    @csrf
+                    <input type="hidden" name="master_id" value="{{ $master->id }}">
+                
+                    <!-- Planned Time -->
+                    <div class="form-group d-flex align-items-center gap-3 mb-4">
+                        <label for="estimate" class="form-label fw-semibold">{{ __('Planned Time') }}</label>
+                        <input type="number" class="form-control form-control-sm w-auto" id="estimate" name="estimate" value="{{ $master->estimate }}" min="1" max="100">
+                        <span class="text-muted">{{ __('hours') }}</span>
+                    </div>
+                
+                    <!-- Workers and Personals -->
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <div class="form-group" style="margin-top: 20px;">
-                                <label for="workers">{{__('Workers')}}</label>
-                                <select class="form-control" id="workers"  name="workers[]" size="5" multiple>
+                            <div class="form-group">
+                                <label for="workers">{{ __('Workers') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Select the workers involved in the task') }})</b></small>
+                                <select class="form-control" id="workers" name="workers[]" size="5" multiple>
                                     @foreach ($master->personals as $personal)
                                         <option value="{{ $personal->id }}" selected>{{ $personal->fio }}</option>
-                                    @endforeach                           
+                                    @endforeach
                                 </select>
-                                <button type="button" class="btn btn-primary" id="clear_workers">{{__('Clear')}}</button>
-                                </div>
-                        </div>
-                        <div class="col-md-6">
-                             <div class="form-group">
-                            <label for="personals">{{__('Personals')}}</label>
-                            <select class="form-control" id="personals"  size="5">
-                                <option value="" selected>{{__('Select')}}</option>
-                                @foreach ($personals as $personal)
-                                    <option value="{{ $personal->id }}">{{ $personal->fio }}</option>
-                                @endforeach
-                            </select>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="clear_workers">{{ __('Clear') }}</button>
                             </div>
                         </div>
-
-                    </div>
-                  
-                    <div class="row">
                         <div class="col-md-6">
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label for="docs">{{__('Docs')}}</label>
-                        <select class="form-control" id="docs"  name="docs[]" size="5" multiple>
-                            @foreach ($master->docs as $document)
-                                <option value="{{ $document->id }}" selected>{{ $document->name }}</option>
-                            @endforeach
-                        </select>
-                        <button type="button" class="btn btn-primary" id="clear_docs">{{__('Clear')}}</button>
+                            <div class="form-group">
+                                <label for="personals">{{ __('Personals') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Available personals for assignment') }})</b></small>
+                                <select class="form-control" id="personals" size="5">
+                                    <option value="" selected>{{ __('Select') }}</option>
+                                    @foreach ($personals as $personal)
+                                        <option value="{{ $personal->id }}">{{ $personal->fio }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="documents">{{__('Select Documents')}}</label>
-                        <select class="form-control" id="documents" size="5">
-                            <option value="" selected>{{__('Select')}}</option>
-                            @foreach ($docs as $document)
-                                <option value="{{ $document->id }}">{{ $document->name }}</option>
-                            @endforeach
-                        </select>
+                
+                    <!-- Docs -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="docs">{{ __('Docs') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Documents associated with the task') }})</b></small>
+                                <select class="form-control" id="docs" name="docs[]" size="5" multiple>
+                                    @foreach ($master->docs as $document)
+                                        <option value="{{ $document->id }}" selected>{{ $document->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="clear_docs">{{ __('Clear') }}</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="documents">{{ __('Select Documents') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Choose additional documents if needed') }})</b></small>
+                                <select class="form-control" id="documents" size="5">
+                                    <option value="" selected>{{ __('Select') }}</option>
+                                    @foreach ($docs as $document)
+                                        <option value="{{ $document->id }}">{{ $document->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div> 
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="resource">{{__('Planed Resource')}}</label>
-                        <select class="form-control" id="resource" name="resource[]" size="5" multiple>
-                            
-                            @foreach ($master->resources as $resource)
-                                <option value="{{ $resource->id }}" selected>{{ $resource->name }}</option>
-                            @endforeach
-                        </select>
-                        <button type="button" class="btn btn-primary" id="clear_resource">{{__('Clear')}}</button>
-
+                
+                    <!-- Resources -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="resource">{{ __('Planned Resource') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Resources planned for the task') }})</b></small>
+                                <select class="form-control" id="resource" name="resource[]" size="5" multiple>
+                                    @foreach ($master->resources as $resource)
+                                        <option value="{{ $resource->id }}" selected>{{ $resource->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="clear_resource">{{ __('Clear') }}</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="my_resource">{{ __('My Resource') }}</label>
+                                <small class="d-block text-muted"><b>({{ __('Choose or add your resources') }})</b></small>
+                                <select class="form-control" id="my_resource" name="my_resource" size="5">
+                                    <option value="" selected>{{ __('Select') }}</option>
+                                    @foreach ($resources as $resource)
+                                        <option value="{{ $resource->id }}">{{ $resource->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label class="mt-3">{{ __('New Resource') }}</label>
+                                <input type="text" class="form-control form-control-sm mb-2" id="new_resource" name="new_resource" value="{{ old('new_resource') }}">
+                                <button type="button" class="btn btn-sm btn-primary" id="add_resource">{{ __('Add') }}</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group"> 
-                        <label for="my_resource">{{__('My Resource')}}</label>
-                        <select class="form-control" id="my_resource" name="my_resource" size="5">
-                            <option value="" selected>{{__('Select')}}</option>
-                            @foreach ($resources as $resource)
-                                <option value="{{ $resource->id }}">{{ $resource->name }}</option>
-                            @endforeach
-                        </select>
-                        <h3>
-                            {{__('New Resource')}}
-                            <input type="text" class="form-control" id="new_resource" name="new_resource" value="{{ old('new_resource') }}">
-                            <button type="button" class="btn btn-primary" id="add_resource">{{__('Add')}}</button>
-                        </h3>
+                
+                    <!-- Submit and Cancel Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">{{ __('Next') }}</button>
+                        <a href="{{ route('master.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                     </div>
-                </div>
-            </div>
-
-               
-                    <button type="submit" class="btn btn-primary">{{__('Next')}}</button>
-                    <a href="{{ route('master.index') }}" class="btn btn-secondary">{{__('Cancel')}}</a>
                 </form>
+                
             </div>
         </div>
     </div>

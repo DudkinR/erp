@@ -3,16 +3,52 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('_______')}}</h1>
-                <a class="text-right
-                " href="{{ route('_______.index') }}">Back</a>
-            </div>  
-        </div>
+            <h1>{{__('Organomics')}}</h1>               
+            </div>
+        </div> 
         <div class="row">
             <div class="col-md-12">
-                <div class="card">
-               </div>
+        <a class="btn btn-primary" href="{{ route('organomic.index') }}">{{__('Back')}}</a>
             </div>
         </div>
-   </div>
+        <div class="row">
+            <div class="col-md-2">                
+                {{__('Name')}}            
+            </div>
+            <div class="col-md-6">
+                {{__('Description')}}
+            </div>
+            <div class="col-md-2">
+                {{__('Personal Count')}}
+            </div>
+            <div class="col-md-2">
+                {{__('Effectiveness')}}
+            </div>
+        </div>
+        @php $floor= null; @endphp
+        @foreach($effectiveness as $room)
+        @if($floor != $room['floor'])
+        <div class="row">
+            <div class="col-md-12">
+                <h2>{{__('Floor')}} {{$room['floor']}}</h2>
+            </div>
+        </div>
+        @php $floor = $room['floor']; @endphp
+        @endif
+        <div class="row  @if($room['personal_count']>0) bg-warning @endif">
+            <div class="col-md-2">                
+                {{$room['name']}}            
+            </div>
+            <div class="col-md-6">
+                {{$room['description']}}
+            </div>
+            <div class="col-md-2">
+                {{$room['personal_count']}}
+            </div>
+            <div class="col-md-2">
+                {{$room['effectiveness']}}
+            </div>
+        </div>
+        @endforeach
+    </div>
 @endsection

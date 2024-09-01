@@ -4,37 +4,28 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Organomics')}}</h1>
-                <a class="text-right" href="{{ route('organomic.create') }}">{{__('Add')}}</a>
+              
             </div>
-        </div> 
+        </div>
+        @forEach($buildings as $building)
         <div class="row">
-            <div class="col-md-12">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>{{__('Name')}}</th>
-                            <th>{{__('Efectivness')}}</th>
-                     
-                            <th>{{__('Action')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($buildings as $building)
-                            <tr>
-                                <td>{{ $building->name }}</td>
-                                <td>{{ $building->effectivness }}</td>
-                
-                                <td>
-                                
-                                    <a href="{{ route('organomic.show', $building->id) }}">{{__('Show')}}</a>
-                                   
-                                </td>
-                            </tr>   
-                          
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="col-md-2">                
+                {{$building->abv}}            
             </div>
-        
+            <div class="col-md-8">
+
+                {{$building->name}}            
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-primary" href="{{ route('organomic.show', $building->id) }}">{{__('Show')}}</a>
+            </div>
+        </div>
+        @endForEach
+
+
     </div>
+    <script>
+   
+    </script>
+    
 @endsection

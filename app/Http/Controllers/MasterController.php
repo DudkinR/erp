@@ -32,6 +32,22 @@ class MasterController extends Controller
         $resources = Resource::all();
         return view('master.create', compact('docs', 'personals', 'resources'));
     }
+    //search_text_task
+    public function search_text_task(Request $request)
+    {
+        // Проверяем, передан ли параметр task в запросе
+        if (!$request->has('task') || empty($request->task)) {
+            return response()->json(['error' => 'Параметр task не указан'], 400);
+        }
+    
+        // Выполняем поиск по тексту с учетом указанного параметра task
+        $tasks = Master::where('text', 'like', '%' . $request->task . '%')->pluck('text');
+    
+    
+        // Возвращаем найденные результаты
+        return response()->json($tasks);
+    }
+    
     // store
     public function store(Request $request)
     {

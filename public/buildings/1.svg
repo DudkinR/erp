@@ -1,0 +1,51 @@
+<svg width="827" height="1169" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Building -->
+  <rect id="Building_1" x="60" y="220" width="750" height="360" fill="none" stroke="black" stroke-width="2">
+    <title>Building (value="1")</title>
+  </rect>
+
+  <!-- Room 6145 -->
+  <rect id="Room_6145" x="60" y="420" width="210" height="160" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6145</title>
+  </rect>
+
+  <!-- Room 6157 -->
+  <rect id="Room_6157" x="270" y="420" width="210" height="160" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6157</title>
+  </rect>
+
+  <!-- Room 6094 -->
+  <rect id="Room_6094" x="480" y="420" width="210" height="160" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6094</title>
+  </rect>
+
+  <!-- Room 6053 -->
+  <rect id="Room_6053" x="60" y="220" width="210" height="130" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6053</title>
+  </rect>
+
+  <!-- Room 6115 -->
+  <rect id="Room_6115" x="270" y="220" width="210" height="130" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6115</title>
+  </rect>
+
+  <!-- Room 6043 -->
+  <rect id="Room_6043" x="470" y="220" width="210" height="130" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6043</title>
+  </rect>
+
+  <!-- Hallway 6025 -->
+  <rect id="Hallway_6025" x="60" y="350" width="750" height="70" fill="none" stroke="black" stroke-width="1">
+    <title>Hallway 6025</title>
+  </rect>
+
+  <!-- Room 6174 -->
+  <rect id="Room_6174" x="680" y="220" width="130" height="130" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6174</title>
+  </rect>
+
+  <!-- Room 6194 -->
+  <rect id="Room_6194" x="690" y="420" width="120" height="160" fill="none" stroke="black" stroke-width="1">
+    <title>Room 6194</title>
+  </rect>
+</svg>

@@ -65,6 +65,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/personal/{id}/edit', 'App\Http\Controllers\PersonalController@edit')->name('personal.edit');
     Route::put('/personal/{id}', 'App\Http\Controllers\PersonalController@update')->name('personal.update');
     Route::delete('/personal/{id}', 'App\Http\Controllers\PersonalController@destroy')->name('personal.destroy');
+    // search personal
+    Route::any('/search-personal', 'App\Http\Controllers\PersonalController@search')->name('personal.search');
     // import personal data from csv file
     Route::get('/personalimport', 'App\Http\Controllers\PersonalController@import')->name('personal.import');
     Route::post('/personalimport', 'App\Http\Controllers\PersonalController@importData')->name('personal.importData');
@@ -111,6 +113,8 @@ Route::middleware('auth')->group(function () {
     // master routes
     Route::get('/master', 'App\Http\Controllers\MasterController@index')->name('master.index');
     Route::get('/master/create', 'App\Http\Controllers\MasterController@create')->name('master.create');
+    ///search-text-task'
+    Route::any('/search-text-task', 'App\Http\Controllers\MasterController@search_text_task')->name('master.search_text_task');
     Route::post('/master', 'App\Http\Controllers\MasterController@store')->name('master.store');
     Route::get('/master/{id}', 'App\Http\Controllers\MasterController@show')->name('master.show');
     Route::get('/master/{id}/edit', 'App\Http\Controllers\MasterController@edit')->name('master.edit');

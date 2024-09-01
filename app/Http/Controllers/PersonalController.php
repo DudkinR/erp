@@ -27,12 +27,48 @@ class PersonalController extends Controller
      */
     public function index()
     {
+      // return  Personal::find(1)->positions()->get();
         $personals = Personal::with('positions')
         ->orderBy('id', 'desc')
-        ->limit(1000)
+        ->limit(10)
+        ->with('positions', 'divisions','rooms','phones')
         ->get();
         //$personals = Personal::orderBy('id', 'desc')->get();
         return view('personals.index', compact('personals'));
+    }
+    public function search(Request $request)
+    {
+        $search = $request->search;
+        $personals = Personal::where('fio', 'like', '%' . $search . '%')
+            ->orWhere('tn', 'like', '%' . $search . '%')
+            ->orWhere('fio', 'like', '%' . $search . '%')
+            ->orWhere('email', 'like', '%' . $search . '%')
+            // position->name search
+            ->orWhereHas('positions', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            // division->name search
+            ->orWhereHas('divisions', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            // room->name search
+            ->orWhereHas('rooms', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            })
+            // phone->phone search
+            ->orWhereHas('phones', function ($query) use ($search) {
+                $query->where('phone', 'like', '%' . $search . '%');
+            })
+            ->orderBy('id', 'desc')
+            ->limit(100)
+            ->with('positions', 'divisions','rooms','phones')
+            ->get();
+            foreach($personals as $personal){
+             $this->cleaning_double($personal->id);
+            }
+        return $personals;
+
     }
 
     /**
@@ -167,9 +203,7 @@ class PersonalController extends Controller
         $personal->status = $request->status;
         $personal->save();
         // division
-        if($request->division_id){
-            $personal->divisions()->sync($request->division_id);
-        }
+        
         // find user by tn
         $user = User::where('tn', $request->tn)->first();
         if(!$user){
@@ -217,85 +251,63 @@ class PersonalController extends Controller
     }
     // import personal data from csv file to database
     public function importData(Request $request)
-    {
-  // 0	1TAB_NO	2PIB	3DEPT	4UCHASTOK	5POSADA	ROOM	6KORPUS	7NOMER_ROOM	8NAME_ROOM	9TEL_NUMBER
-     
-       // Maximum execution time of 60 seconds exceeded
-        set_time_limit(0);
-        if($request->type_of_file)
-        $type_of_file =$request->type_of_file;
-        else
-        $type_of_file = 0;
-        $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
-        //return $csvData;
-        foreach ($csvData as $line) {
-            $data = str_getcsv($line, ";"); 
-            if($data[1]=='TAB_NO') {continue;}
-            $personal = Personal::where('tn', $data[1])->first();
-            if(!$personal){
-                $personal = new Personal();
-                $personal->tn = $data[1];
-                $personal->nickname = $this->nickname($data[2]);
-                $personal->fio = $data[2];
-                $fi = explode(' ', $data[2]);
-                if(count($fi)>1){
-                $email = StringHelpers::generateSlug($fi[0].'.'. $fi[1]). '@khnpp.atom.gov.ua';            
-                $email=  strtolower($email);
-                $personal->email = $email;
-                // phone
-                $personal->phone = $data[10];
-                $personal->date_start = CommonHelper::formattedDate(now());
-                $personal->status = 'На роботі';
-                $personal->save();
-             }
-                else
-             {
-                $personal->tn = $data[1];
-                $personal->nickname = $this->nickname($data[2]);
-                $personal->fio = $data[2];
-                $fi = explode(' ', $data[2]);
-                $email = StringHelpers::generateSlug($fi[0].'.'.$fi[1]).'@khnpp.atom.gov.ua';
-                $personal->phone = $data[10];               
-                $email=  strtolower($email);
-                $personal->email = $email;
-                $personal->date_start = CommonHelper::formattedDate(now());
-                $personal->status = 'На роботі';
-           }
-            $personal->save();
-            $phone = Phone::firstOrCreate(
-                ['phone' => $data[10]],
-                ['phone' => $data[10]]
-            );
-            $phone->save();
-            // personal_phone
-         // Обновление телефонов
-            $personal->phones()->detach();
-            $personal->phones()->attach($phone->id);
-            $divisionName = $this->insert_text($data[4], 1, 0, ' ');
-            $division = Division::where('name', '%LIKE%', $divisionName)->first();
-            if($division){
-                $personal->divisions()->detach();
-                $personal->divisions()->attach($division->id);
-            }
-           // Обновление здания (Building)
-            $buildingName = $data[6];
-            $building = Building::where(                    
-                'name', $buildingName
-            )->first();
-            if($building){
-                $personal->buildings()->detach();
-                $personal->buildings()->attach($building->id);
-            }
-            // Обновление комнаты (Room)
-            $roomName = $data[8];
-            $room = Room::where('name',  $roomName)->first();
-            if($room){
-                $personal->rooms()->detach();
-                $personal->rooms()->attach($room->id);
-            }
+{
+    set_time_limit(0);
 
-            }
+    $type_of_file = $request->type_of_file ?? 0;
+    $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
+
+    foreach ($csvData as $line) {
+        $data = str_getcsv($line, ";"); 
+
+        if ($data[1] === 'TAB_NO') {
+            continue;
         }
+
+        $personal = Personal::where('tn', $data[1])->first();
+        if (!$personal) {
+            $personal = new Personal();
+            $personal->tn = $data[1];
+            $personal->nickname = $this->nickname($data[2]);
+            $personal->fio = $data[2];
+            $fi = explode(' ', $data[2]);
+            if (count($fi) > 1) {
+                $email = strtolower(StringHelpers::generateSlug($fi[0] . '.' . $fi[1])) . '@khnpp.atom.gov.ua';
+                $personal->email = $email;
+            }
+            $personal->phone = $data[11];
+            $personal->date_start = CommonHelper::formattedDate(now());
+            $personal->status = 'На роботі';
+            $personal->save();
+        }
+
+        $phone = Phone::firstOrCreate(['phone' => $data[11]]);
+
+        // Обновление телефонов
+        $personal->phones()->syncWithoutDetaching($phone->id);
+
+
+        // Обновление комнаты (Room)
+        $IDroom = $data[10];
+        $room = Room::where('IDname', $IDroom)->first();
+        if ($room) {
+            $personal->rooms()->syncWithoutDetaching([$room->id]);
+        }
+
+        // Обновление позиции (Position)
+        $position = Position::where('name', $data[5])->first();
+        if (!$position) {
+            $position = new Position([
+                'name' => $data[5],
+                'description' => $data[5],
+                'start' => 'active'
+            ]);
+            $position->save();
+        }
+        $personal->positions()->sync($position->id);
+        $this->cleaning_double($personal->id);
+    }
+    
     return redirect('/personal')->with('success', 'Personal data imported!');
     }
     public function insert_text($text, $start, $end, $separator = ' ')
@@ -396,4 +408,25 @@ class PersonalController extends Controller
         }
         return $status->id;
     }
+    public function cleaning_double($id){
+        $personal = Personal::find($id);
+        $phones = $personal->phones;
+        $phones = $phones->unique('id');
+        $personal->phones()->sync($phones);
+        // positions
+        $positions = $personal->positions;
+        $positions = $positions->unique('id');
+        $personal->positions()->sync($positions);
+        // divisions
+        $divisions = $personal->divisions;
+        $divisions = $divisions->unique('id');
+        $personal->divisions()->sync($divisions);
+        // rooms
+        $rooms = $personal->rooms;
+        $rooms = $rooms->unique('id');
+        $personal->rooms()->sync($rooms);
+      return $personal;
+
+    }
+
 }
