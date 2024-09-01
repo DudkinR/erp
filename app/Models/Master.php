@@ -35,5 +35,15 @@ class Master extends Model
     {
         return $this->hasOne(Briefing::class, 'master_id');  // Укажите 'master_id' как внешний ключ
     }
+    // mistakes
+    public function mistakes(){
+        return $this->belongsToMany(Mistake::class , 'master_mistake', 'master_id', 'mistake_id');
+        
+    }
+    // goodpractices
+    public function goodpractices(){
+        return $this->belongsToMany(Goodpractice::class , 'master_goodpractice', 'master_id', 'goodpractice_id');
+        
+    }
 
 }

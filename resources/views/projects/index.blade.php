@@ -130,185 +130,198 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
         </div>
     </div>
     <script>
+        // Initializing projects and stages data from server-side variables
         const PRS = @json($projects);
         @php $stages = App\Models\Stage::orderBy('id', 'desc')->get(); @endphp
         const STS = @json($stages);
-        var PRSW = PRS;
-        <?php 
-        $clientslist = [];
-        foreach($clients as $client)
-        {
-            $clientslist[$client->id] = $client->name;
-        }
-        // sort by name
-        asort($clientslist);
-        ?>
-        var clients = @json($clientslist);
-        // sort by values
-        clients = Object.fromEntries(Object.entries(clients).sort(([,a],[,b]) => a.localeCompare(b)));
-        // form id client as clients
+        let PRSW = [...PRS];
+    
+        // Generating a sorted clients list from PHP
+        let clients = @json($clients->pluck('name', 'id')->sort()->toArray());
+    
+        // Populate client selection dropdown
         const clientsSelect = document.getElementById('client');
-        const option = document.createElement('option');
-        option.value = 0;
-        option.innerText = '{{__('All clients')}}';
-        clientsSelect.appendChild(option);
-        for (const id in clients) {
+        addOption(clientsSelect, 0, '{{__('All clients')}}');
+        Object.entries(clients).forEach(([id, name]) => addOption(clientsSelect, id, name));
+    
+        // Utility function to add options to a select element
+        function addOption(select, value, text) {
             const option = document.createElement('option');
-            option.value = id;
-            option.innerText = clients[id];
-            clientsSelect.appendChild(option);
+            option.value = value;
+            option.innerText = text;
+            select.appendChild(option);
         }
-       // console.log(PRSW);
+    
+        // Main element for rendering projects
         const projectsDiv = document.getElementById('projects');
-        let sort_date = 0;
-        let sort_priority = 0;
+        let sortDate = 0;
+        let sortPriority = 0;
+    
+        // Search and filter projects
         function findProjects() {
-            let search = document.getElementById('search').value;
-            // ищем в названии и описании проекта в номере проекта
-            PRSW = PRS.filter(project => project.name.includes(search) || project.description.includes(search) || project.number.includes(search));
+            const search = document.getElementById('search').value.toLowerCase();
+            PRSW = PRS.filter(project =>
+                project.name.toLowerCase().includes(search) ||
+                project.description.toLowerCase().includes(search) ||
+                project.number.toLowerCase().includes(search)
+            );
             renderProjects();
         }
+    
+        // Render filtered and sorted projects
         function renderProjects() {
-            let projects = PRSW;
-            projects = show_clients(projects);
-            projects = filter_by_current_state(projects);
-            projects = sort_by_date(projects);
-            projects = sort_by_priority(projects);
-            if (sort_date == 1) {
-                projects = sort_by_date(projects);
-            }
-            if (sort_priority == 1) {
-                projects = sort_by_priority(projects);
-            }
+            let projects = showClients(PRSW);
+            projects = filterByCurrentState(projects);
+            projects = sortByDate(projects);
+            projects = sortByPriority(projects);
+    
             projectsDiv.innerHTML = '';
-            projects.forEach(project => {
-                const projectDiv = document.createElement('div');
-                 // Вычисляем временной интервал между текущей датой и датой выполнения проекта
-                const executionDate = new Date(project.execution_period);
-                const currentDate = new Date();
-                const daysUntilExecution = Math.ceil((executionDate - currentDate) / (1000 * 60 * 60 * 24));
-                // Определяем класс карточки в зависимости от временного интервала
-                let cardClass = "card";
-                if(project.current_state !== 'Закритий' && project.current_state !== 'Готовий до закриття' && project.current_state !== 'Очікується оплата (після відвантаження)')
-                {
-                    if (daysUntilExecution <= 0) {
-                        cardClass += " bg-danger"; // Если период выполнения прошел
-                    } else if (daysUntilExecution <= 3) {
-                        cardClass += " bg-warning"; // Если осталось меньше 3 дней до периода выполнения
-                    }
-                }
-                let class_name = 'btn btn-primary';
-                if(project.problems_count>0)
-                {
-                    class_name = 'btn btn-danger';
-                }
-                const uniqueStages = project.tasks.reduce((acc, stage) => {
-                    if (!acc.some(item => item.stage_id === stage.stage_id)) {
-                        acc.push(stage);
-                    }
-                    return acc;
-                }, []);
-                projectDiv.innerHTML = `
-                    <div class="${cardClass}">
-                        <div class="card-body">
-                            <div class="row">    
-                                <div class="col-md-4">
-                                    <h4 class="card-title text-danger">{{__('General information')}}</h4>    
-                                    <h5 class="card-title text-primary">${project.name}</h5>
-                                    <p class="card-text">${project.description}</p> 
-                                    <p class="card-text">${project.priority}</p>
-                                    <p class="card-text">${project.number}</p>
-                                    <p class="card-text">${project.date}</p>
-                                    <p class="card-text">${project.amount}</p>
-                                    <p class="card-text">${clients[project.client]}</p>
-                                    <p class="card-text">${project.current_state}</p>
-                                    <p class="card-text">${project.execution_period}</p>
-                                    <p class="card-text">
-                                    Count of problems: ${project.problems_count}</p>
-                                    <hr>
-                                    <a href="/projects/${project.id}/edit" class="btn btn-warning"> {{__('Edit')}}</a>
-                                    <a href="/projects/${project.id}" class="btn btn-success"> {{__('Show')}}</a>
-                                    <a href="/projectstgantt/${project.id}" class="btn btn-primary"> {{__('Gantt')}}</a>
-                                 
-                                       </div>
-                                <div class="col-md-4 border">
-                                    <h4 class="card-title text-danger">
-                                        {{__('Docs')}}
-                                    </h4>     
-                                    <ul>
-                                        ${project.docs.map(doc => `<li>
-                                            <a href="/docs/${doc.id}">${doc.name}</a>
-                                            </li>`).join('')}
-                                    </ul>  
-                                    <a href="/addDocs?project_id=${project.id}" class="btn btn-primary">{{__('Add docs')}}</a>
-                                  
-                                    </div>
-                                <div class="col-md-4">
-                                    <h4 class="card-title text-danger">{{__('Stages')}}</h4>
-                                    <ul>
-                                        ${uniqueStages.map(stage => `<li>
-                                            <a href="/stage_tasks/${project.id}/${stage.stage_id}"> ${STS.find(st => st.id == stage.stage_id).name}</a>
-                                            </li>`).join('')}
-
-                                    </ul>
-                                    <h4 class="card-title text-danger">{{__('Tasks')}}</h4>
-                                    <ul>
-                                        <li> {{__('Completed')}} : ${project.tasks.filter(task => task.status == 'completed').length}</li>
-                                        <li> {{__('New')}} : ${project.tasks.filter(task => task.status == 'new').length}</li>
-                                        <li> {{__('Problem')}} : ${project.tasks.filter(task => task.status == 'problem').length}</li>  
-                                    </ul>
-                                    <hr>
-                                    <a href="/tasks/create?project_id=${project.id}" class="btn btn-warning">{{__('Add task')}}</a>
-                                    <a href="/problems/create?project_id=${project.id}" class= "${class_name}">{{__('Add problem')}}</a>
-                                    <a href="/problems?project_id=${project.id}" class="btn btn-warning">{{__('Show problems')}}</a>
-                               
-                                     </div>
-                            </div>   
-                        </div>
+            projects.forEach(project => projectsDiv.appendChild(createProjectCard(project)));
+        }
+    
+        // Create project card element
+        function createProjectCard(project) {
+            const projectDiv = document.createElement('div');
+            projectDiv.className = getCardClass(project);
+    
+            projectDiv.innerHTML = `
+                <div class="card-body">
+                    <div class="row">
+                        ${getGeneralInfoColumn(project)}
+                        ${getDocsColumn(project)}
+                        ${getStagesTasksColumn(project)}
                     </div>
-                `;
-                projectsDiv.appendChild(projectDiv);
-            });
+                </div>
+            `;
+            return projectDiv;
         }
-
-        function show_clients(projects) {
-         let selected_client = document.getElementById('client').value;
-            if (selected_client == 0) {
-                return projects;
+    
+        // Get card class based on execution period and current state
+        function getCardClass(project) {
+            const executionDate = new Date(project.execution_period);
+            const daysUntilExecution = Math.ceil((executionDate - new Date()) / (1000 * 60 * 60 * 24));
+            let cardClass = "card";
+    
+            if (!['{{__("Closed")}}', '{{__("Ready for closure")}}', '{{__("Awaiting payment (post-shipment)")}}'].includes(project.current_state)) {
+                if (daysUntilExecution <= 0) cardClass += " bg-danger"; // Execution period has passed
+                else if (daysUntilExecution <= 3) cardClass += " bg-warning"; // Less than 3 days left until execution period
             }
-            return projects.filter(project => project.client == selected_client);
+            return cardClass;
         }
-        function sort_by_date(projects) {
-
-            let sort_way = document.getElementById('sort_way').value;
-            if (sort_way == 'asc') {
-                return projects.sort((a, b) => new Date(a.date) - new Date(b.date));
-            }
-            return projects.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+        // Generate general information column HTML
+        function getGeneralInfoColumn(project) {
+            return `
+                <div class="col-md-4">
+                    <h4 class="card-title text-danger">{{__('General information')}}</h4>
+                    <h5 class="card-title text-primary">${project.name}</h5>
+                    <p class="card-text">${project.description}</p>
+                    <p class="card-text">${project.priority}</p>
+                    <p class="card-text">${project.number}</p>
+                    <p class="card-text">${project.date}</p>
+                    <p class="card-text">${project.amount}</p>
+                    <p class="card-text">${clients[project.client]}</p>
+                    <p class="card-text">${project.current_state}</p>
+                    <p class="card-text">${project.execution_period}</p>
+                    <p class="card-text">{{__('Count of problems')}}: ${project.problems_count}</p>
+                    <hr>
+                    <a href="/projects/${project.id}/edit" class="btn btn-warning">{{__('Edit')}}</a>
+                    <a href="/projects/${project.id}" class="btn btn-success">{{__('Show')}}</a>
+                    <a href="/projectstgantt/${project.id}" class="btn btn-primary">{{__('Gantt')}}</a>
+                </div>
+            `;
         }
-        function sort_by_priority(projects) {
-            let sort_way = document.getElementById('sort_way').value;
-            if (sort_way == 'asc') {
-                return projects.sort((a, b) => a.priority - b.priority);
-            }
-            return projects.sort((a, b) => b.priority - a.priority);
+    
+        // Generate documents column HTML
+        function getDocsColumn(project) {
+            return `
+                <div class="col-md-4 border">
+                    <h4 class="card-title text-danger">{{__('Docs')}}</h4>
+                    <ul>
+                        ${project.docs.map(doc => `<li><a href="/docs/${doc.id}">${doc.name}</a></li>`).join('')}
+                    </ul>
+                    <a href="/addDocs?project_id=${project.id}" class="btn btn-primary">{{__('Add docs')}}</a>
+                </div>
+            `;
         }
-        // current_state
-        function filter_by_current_state(projects) {
-            let current_state = document.getElementById('current_state').value;
-            if (current_state == 'all') {
-                return projects;
-            }
-            else if (current_state == 'working') {
-                // all without closed, draft and empty
-                return projects.filter(project => project.current_state !== 'Закритий'  && project.current_state !== 'Чернетка' && project.current_state !== '');
-            }
-            return projects.filter(project => project.current_state == current_state);
+    
+        // Generate stages and tasks column HTML
+        function getStagesTasksColumn(project) {
+            const uniqueStages = getUniqueStages(project);
+            const problemButtonClass = project.problems_count > 0 ? 'btn btn-danger' : 'btn btn-primary';
+    
+            return `
+                <div class="col-md-4">
+                    <h4 class="card-title text-danger">{{__('Stages')}}</h4>
+                    <ul>
+                        ${uniqueStages.map(stage => `<li><a href="/stage_tasks/${project.id}/${stage.stage_id}">${getStageName(stage.stage_id)}</a></li>`).join('')}
+                    </ul>
+                    <h4 class="card-title text-danger">{{__('Tasks')}}</h4>
+                    <ul>
+                        <li>{{__('Completed')}}: ${countTasks(project, 'completed')}</li>
+                        <li>{{__('New')}}: ${countTasks(project, 'new')}</li>
+                        <li>{{__('Problem')}}: ${countTasks(project, 'problem')}</li>
+                    </ul>
+                    <hr>
+                    <a href="/tasks/create?project_id=${project.id}" class="btn btn-warning">{{__('Add task')}}</a>
+                    <a href="/problems/create?project_id=${project.id}" class="${problemButtonClass}">{{__('Add problem')}}</a>
+                    <a href="/problems?project_id=${project.id}" class="btn btn-warning">{{__('Show problems')}}</a>
+                </div>
+            `;
         }
+    
+        // Get unique stages for a project
+        function getUniqueStages(project) {
+            return project.tasks.reduce((acc, stage) => {
+                if (!acc.some(item => item.stage_id === stage.stage_id)) acc.push(stage);
+                return acc;
+            }, []);
+        }
+    
+        // Get stage name by ID
+        function getStageName(stageId) {
+            return STS.find(st => st.id == stageId)?.name || '';
+        }
+    
+        // Count tasks by status
+        function countTasks(project, status) {
+            return project.tasks.filter(task => task.status === status).length;
+        }
+    
+        // Filter projects by selected client
+        function showClients(projects) {
+            const selectedClient = document.getElementById('client').value;
+            return selectedClient == 0 ? projects : projects.filter(project => project.client == selectedClient);
+        }
+    
+        // Sort projects by date
+        function sortByDate(projects) {
+            const sortWay = document.getElementById('sort_way').value;
+            return projects.sort((a, b) => (sortWay === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date)));
+        }
+    
+        // Sort projects by priority
+        function sortByPriority(projects) {
+            const sortWay = document.getElementById('sort_way').value;
+            return projects.sort((a, b) => (sortWay === 'asc' ? a.priority - b.priority : b.priority - a.priority));
+        }
+    
+        // Filter projects by current state
+        function filterByCurrentState(projects) {
+            const currentState = document.getElementById('current_state').value;
+            if (currentState === 'all') return projects;
+            if (currentState === 'working') return projects.filter(project => !['{{__("Closed")}}', '{{__("Draft")}}', ''].includes(project.current_state));
+            return projects.filter(project => project.current_state === currentState);
+        }
+    
+        // Initial render
         renderProjects();
+    
+        // Refresh function to reset filters
         function refresh() {
-            PRSW = PRS;
+            PRSW = [...PRS];
             renderProjects();
         }
     </script>
+    
 @endsection

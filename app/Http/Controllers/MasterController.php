@@ -12,6 +12,10 @@ use App\Models\Resource;
 use App\Models\Briefing;
 use GuzzleHttp\Psr7\Response;
 use Whoops\Exception\Formatter;
+// Mistake
+use App\Models\Mistake;
+use App\Models\Goodpractice;
+
 
 class MasterController extends Controller
 {
@@ -20,6 +24,7 @@ class MasterController extends Controller
     {
         $I_M=  Auth::user()->profile()->pluck('id')->first();
         $masters = Master::where('author_id', $I_M)
+        ->where('done','<', 2)
         ->with('docs', 'personals', 'resources')
         ->get();
         return view('master.index', compact('masters'));
@@ -131,10 +136,34 @@ class MasterController extends Controller
         $master = Master::find($id);
         return view('master.step4', compact('master'));
     }
-    public function step5($id){
+    public function step5(Request $request, $id)
+    {
         $master = Master::find($id);
-        return view('master.step5', compact('master'));
+        $master->done = 2;
+        $master->save();
+        $user_id = Auth::user()->profile()->pluck('id')->first();
+        $mistakes = $request->input('mistakes', []);
+        $good_practices = $request->input('good_practices', []);
+    
+        foreach ($mistakes as $mistakeText) {
+            $mistake = new Mistake();
+            $mistake->user_id = $user_id;
+            $mistake->text = $mistakeText;
+            $mistake->save();
+            $master->mistakes()->attach($mistake->id);
+        }
+    
+        foreach ($good_practices as $practiceText) {
+            $good_practice = new Goodpractice();
+            $good_practice->user_id = $user_id;
+            $good_practice->text = $practiceText;
+            $good_practice->save();
+            $master->goodpractices()->attach($good_practice->id);
+        }
+    
+        return redirect()->route('master.index');
     }
+    
     public function ending(Request $request, $id){
          $master = Master::find($id);
          if($request->done==0){
