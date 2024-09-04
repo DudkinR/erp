@@ -31,5 +31,10 @@ class Division extends Model
     {
         return $this->belongsToMany(Struct::class, 'structure_division');
     }
+    // personal_division
+    public function personals()
+    {
+        return $this->belongsToMany(Personal::class, 'personal_division');
+    }
 
 }

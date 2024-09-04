@@ -66,8 +66,55 @@ class DivisionController extends Controller
     {
         //
         $division = Division::find($id);
-      //  return $division;
-        return view('divisions.show', compact('division'));
+        $under_divisions = Division::where('parent_id', $id)->get();
+        $count_personal = $this->personalDivisionCount($id);
+        $rooms = $this->roomsInDivision($id);
+        $buildings = $this->buildingsInDivision($id);
+        return view('divisions.show', compact('division', 'under_divisions', 'count_personal', 'rooms', 'buildings'));
+    }
+
+    // personal division count all with under divisions
+    public function personalDivisionCount(string $id)
+    {
+        $count=0;
+        $division = Division::find($id);
+        $under_divisions = Division::where('parent_id', $id)->get();
+        $count += $division->personals->count();
+        foreach ($under_divisions as $under_division) {
+            $count += $this->personalDivisionCount($under_division->id);
+        }
+        return $count;
+    }
+    // all rooms in division
+    public function roomsInDivision(string $id)
+    {
+        $rooms = [];
+        $division = Division::find($id);
+    
+        // Ініціалізуємо як масив, якщо $division->rooms є null
+        $rooms = $division->rooms ?? [];
+    
+        $under_divisions = Division::where('parent_id', $id)->get();
+    
+        foreach ($under_divisions as $under_division) {
+            // Використовуємо array_merge тільки з масивами
+            $rooms = array_merge($rooms, $this->roomsInDivision($under_division->id) ?? []);
+        }
+    
+        return $rooms;
+    }
+    
+    // all buildengs where division is located
+    public function buildingsInDivision(string $id,$buildings = [])
+    {
+        $rooms = $this->roomsInDivision($id);
+        foreach ($rooms as $room) {
+          //only unique buildings
+            if (!in_array($room->building, $buildings)) {
+                $buildings[] = $room->building;
+            }
+        }
+        return $buildings;
     }
 
     /**
