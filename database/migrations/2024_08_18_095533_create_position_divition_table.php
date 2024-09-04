@@ -16,8 +16,8 @@ return new class extends Migration
         
         Schema::create('personal_division', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('personal_id')->constrained()->onDelete('cascade');
-            $table->foreignId('division_id')->constrained()->onDelete('cascade');
+            $table->foreignId('personal_id')->constrained();
+            $table->foreignId('division_id')->constrained();
             $table->timestamps();
         });
          }
