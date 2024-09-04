@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('personal_division')) {
-            return;
-        }
+        if (!Schema::hasTable('personal_division')) {
+            
+        
         Schema::create('personal_division', function (Blueprint $table) {
             $table->id();
             $table->foreignId('personal_id')->constrained()->onDelete('cascade');
             $table->foreignId('division_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
+         }
     }
 
     /**
@@ -27,6 +28,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::hasTable('personal_division')) {
         Schema::dropIfExists('personal_division');
+        }
     }
 };
