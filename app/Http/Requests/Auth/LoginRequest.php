@@ -24,13 +24,15 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
-    public function rules(): array
-    {
-        return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ];
-    }
+// LoginRequest.php
+public function rules(): array
+{
+    return [
+        'employee_number' => 'required|string', // Изменено с 'email' на 'employee_number'
+        'password' => 'required|string',
+    ];
+}
+
 
     /**
      * Attempt to authenticate the request's credentials.

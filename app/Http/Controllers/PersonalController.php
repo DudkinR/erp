@@ -184,6 +184,18 @@ class PersonalController extends Controller
     public function edit(string $id)
     {
         $personal = Personal::find($id);
+        // find user by tn
+        $user = User::where('tn', $personal->tn)->first();
+        if(!$user){
+            $user = new User([
+                'tn' => $personal->tn,
+                'email' => $personal->email,
+                'password' => bcrypt($personal->tn)
+            ]);
+            $user->save();            
+            // add user roles
+            $user->roles()->attach(4);
+        }
         $divisions = Division::orderBy('name')->get();
         return view('personals.edit', compact('personal', 'divisions'));
     }

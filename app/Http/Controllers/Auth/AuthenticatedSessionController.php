@@ -21,16 +21,32 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
-     */
+   
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate(); 
 
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
+  */
+  public function store(LoginRequest $request): RedirectResponse
+    {
+        // Используем 'employee_number' вместо 'email' для аутентификации
+        $credentials = $request->only('employee_number', 'password');
 
+        if (Auth::attempt(['tn' => $credentials['employee_number'], 'password' => $credentials['password']], $request->filled('remember'))) {
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        // Если аутентификация не удалась
+        return back()->withErrors([
+            'employee_number' => __('These credentials do not match our records.'),
+        ])->onlyInput('employee_number');
+    }
     /**
      * Destroy an authenticated session.
      */
