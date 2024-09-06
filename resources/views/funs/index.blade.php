@@ -87,12 +87,14 @@
                     @if($goal->status == '2')
                         <p>{{ __('Completed On') }}: {{ $goal->completed_on }}</p>
                     @endif
+                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                     <a href="{{ route('goals.edit', $goal->id) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                     <form style="display:inline-block" method="POST" action="{{ route('goals.destroy', $goal->id) }}">
                         @method('DELETE')
                         @csrf
                         <button type="submit" class="form-control btn btn-danger">{{ __('Delete') }}</button>
                     </form>
+                    @endif
                 </div>
             </div>
         @endif
@@ -105,7 +107,9 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{ __('Functions') }}</h1>
+                @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="btn btn-info w-100" href="{{ route('funs.create') }}">{{ __('Create Function') }}</a>
+                @endif
                 <table class="table" id="table_funs">
                     <thead>
                         <tr>
@@ -158,12 +162,14 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('funs.show', $funct->id) }}" class="btn btn-default">{{ __('View') }}</a>
+                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                                     <a href="{{ route('funs.edit', $funct->id) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                                     <form style="display:inline-block" method="POST" action="{{ route('funs.destroy', $funct->id) }}">
                                         @method('DELETE')
                                         @csrf
                                         <button type="submit" class="form-control btn btn-danger">{{ __('Delete') }}</button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -281,7 +287,9 @@
                     <ul>
                     ${funct.positions.map(pos => `<li>${pos.name}</li>`).join('')}
                 </ul>
+                  @if(Auth::user()->hasRole('quality-engineer','admin'))
                     <button onclick="GenereteModal(${funct.id})">{{ __('Add Positions') }}</button>
+                    @endif
                    
                 </td>
                 <td>
@@ -304,12 +312,14 @@
                 </td>
                 <td>
                     <a href="/funs/${funct.id}" class="btn btn-default">{{ __('View') }}</a>
+                      @if(Auth::user()->hasRole('quality-engineer','admin'))
                     <a href="/funs/${funct.id}/edit" class="btn btn-warning">{{ __('Edit') }}</a>
                     <form style="display:inline-block" method="POST" action="/funs/${funct.id}/destroy">
                         @method('DELETE')
                         @csrf
                         <button type="submit" class="form-control btn btn-danger">{{ __('Delete') }}</button>
                     </form>
+                    @endif
                 </td>
             </tr>
             `;

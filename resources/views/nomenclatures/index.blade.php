@@ -4,8 +4,10 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Nomenclatures')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            
                 <a class="text-right" href="{{ route('nomenclaturs.create') }}">{{__('Create')}}</a>
-            </div>
+           @endif </div>
         </div> 
         <div class="row">
             <div class="col-md-6">

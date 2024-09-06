@@ -32,9 +32,11 @@
                         <p>{{ $project->priority }}</p>
                         <p>{{ $project->start_date }}</p>
                         <p>{{ $project->end_date }}</p>
+                        @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                         <p>
                             <a href="{{route('projects.add_stage_form')}}?project_id={{$project->id}}" class="btn btn-primary"> {{__('Stages')}}</a>
                         </p>
+                        @endif
                         <p>
                             <a href="{{route('projects.projectstgantt',$project->id)}}" class="btn btn-primary"> {{__('Gantt')}}</a>
                         </p>
@@ -65,7 +67,7 @@
                                     @endforeach
                                 </ul> 
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6"> @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                                 <label for ="deadline"> {{__('Deadline')}}</label>
                                 <input type="date" id="deadline" class="form-control">
                                 <label for ="responsible_position_id"> {{__('Responsible Position')}}</label>
@@ -83,6 +85,7 @@
                         <hr>
                        
                         <a href="{{ route('stages.create') }}?project={{$project->id}}" class="btn btn-primary"> {{__('Add new stage')}}</a>
+                        @endif
                     </div>
                </div>
             </div>

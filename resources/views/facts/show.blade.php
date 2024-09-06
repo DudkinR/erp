@@ -11,12 +11,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h1> {{$fact->name}} </h1>
+                                @if(Auth::user()->hasRole('quality-engineer','admin'))
                                 <a href="{{ route('facts.edit',  $fact) }}" class="btn btn-warning">{{__('Edit')}}</a>
                                 <form method="POST" action="{{ route('facts.destroy', $fact) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
                                 </form>
+                                @endif
                             </div>
                             <div class="col-md-6">
                                 <img src="{{ asset('images/'.$fact->image) }}" alt="{{ $fact->name }}" 

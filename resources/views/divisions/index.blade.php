@@ -16,7 +16,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Divisions')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('divisions.create') }}">{{__('Create')}}</a>
+                @endif
             </div>
         </div>   
         <div class="row">
@@ -41,14 +43,16 @@
                                     {{ $division->name }}
                                 </td>
                                 <td>{{ $division->description }}</td>
-                                <td>
+                                <td><a href="{{ route('divisions.show', $division->id) }}">{{__('Show')}}</a>
+                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                                     <a href="{{ route('divisions.edit', $division->id) }}">{{__('Edit')}}</a>
-                                    <a href="{{ route('divisions.show', $division->id) }}">{{__('Show')}}</a>
+                                    
                                     <form action="{{ route('divisions.destroy', $division->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit">{{__('Delete')}}</button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

@@ -9,9 +9,10 @@
             @if(isset($_SESSION['search']))
                 value="{{ $_SESSION['search'] }}"
             @endif
-            >
+            >     @if(Auth::user()->hasRole('quality-engineer','admin'))
+          
                         <a href="{{ route('docs.create') }}" class="btn btn-primary mb-3 float-right">{{ __('Create Doc') }}</a>
-        </div>
+          @endif</div>
     </div>
     <div class="container" id="categories_show"></div>
     <div class="container" id="categories_show_without_category">
@@ -35,12 +36,14 @@
                                     <p>{{ $doc->description }}</p>
                                 @endif
                                 <a href="{{ route('docs.show', $doc) }}" class="btn btn-primary">{{ __('View') }}</a>
+                                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                               
                                 <form action="{{ route('docs.destroy', $doc) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
                                 </form>
-                            </div>
+                             @endif</div>
                         </div>
                     </div>
                 @endforeach

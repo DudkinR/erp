@@ -6,10 +6,12 @@
                 <h1>
                     {{__('Structures')}}
                 </h1>
+                @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('structure.create') }}">
                     {{__('Create Structure')}}
                     
                 </a>
+                @endif
             </div>
         </div>
         <div class="row">
@@ -57,12 +59,16 @@ a {
                                 @if($structure->positions()->get()->count() == 0)
                                     <div class="col-md-12 bg-primary">
                                     <strong>{{ $structure->name }}</strong>
+                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                                     <a href="{{ route('structure.edit', $structure->id) }}">{{__('+')}}</a>
+                                    @endif
                                 @endif
                                 @foreach($structure->positions()->get() as $position)
                                 <div class="col-md-2 border  bg-info">
                                         <strong>{{ $position->name }}</strong>
+                                        @if(Auth::user()->hasRole('quality-engineer','admin'))
                                         <a href="{{ route('positions.edit', $position->id) }}" >{{__('+')}}</a>
+                                        @endif
                                         <?php 
                                         $position_id = $position->id;
                                         $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
@@ -96,7 +102,9 @@ a {
                                                 @if($subStructure->positions()->get()->count() == 0)
                                                     <div class="col-md-12 bg-primary">
                                                         <strong>{{ $subStructure->name }}</strong>
+                                                        @if(Auth::user()->hasRole('quality-engineer','admin'))
                                                 <a href="{{ route('structure.edit', $subStructure->id) }}">{{__('+')}}</a>
+                                                @endif
                                                     </div>
                                                     @endif
                                             @foreach($subStructure->positions()->get() as $position)
@@ -132,20 +140,26 @@ a {
                                                     @if($subStructure1->parent_id == $subStructure->id)
                                                         <div class="col-md-12">
                                                             <strong>{{ $subStructure1->name }}</strong>
+                                                            @if(Auth::user()->hasRole('quality-engineer','admin'))
                                                            <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a>
+                                                           @endif
                                                             <div class="row">
                                                                 @if($subStructure1->positions()->get()->count() == 0)
 
                                                                     <div class="col-md-12 bg-primary">
                                                                         <strong>{{ $subStructure1->name }}</strong>
-                                                                        <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a> 
+                                                                        @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                                                        <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a>
+                                                                        @endif 
                                                                        
                                                                     </div>
                                                                 @endif
                                                             @foreach($subStructure1->positions()->get() as $position)
                                                                 <div class="col-md-2 border  bg-info">
                                                                     <strong>{{ $position->name }}</strong>
+                                                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                                                                   <a href="{{ route('positions.edit', $position->id) }}">{{__('+')}}</a>
+                                                                  @endif
                                                                   <?php
                                                                     $position_id = $position->id;
                                                                     $personals = App\Models\Personal::where('status', '!=', 'Звільнення')

@@ -16,19 +16,24 @@
                 </div>
                 <div class="card-body">
                     <p>{!! nl2br(e($stage->description)) !!}</p>
+                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                     <div class="form-group mb-2">
                         <label for="new_step">{{ __('New Step') }}</label>
                         <div id="successful_step"></div>
                         <input type="text" class="form-control" id="new_step" name="new_step" value="">
                         <button type="button" class="btn btn-primary mt-2" onclick="add_new_step({{ $stage->id }})">{{ __('Add') }}</button>
                     </div>
+                    @endif
                 </div>
+                @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <div class="card-footer">
                     <a href="{{ route('stages.edit', $stage) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                 </div>
+                @endif
             </div>
         </div>
     </div>
+    @if(Auth::user()->hasRole('quality-engineer','admin'))
     <div class="row">
         <div class="col-md-3">
             <h2>{{ __('Generate blank') }}</h2>
@@ -97,6 +102,7 @@
             </div>
         </div>
     </form>
+    @endif
 </div>
 
 <script>

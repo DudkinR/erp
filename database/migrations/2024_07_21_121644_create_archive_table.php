@@ -15,7 +15,7 @@ return new class extends Migration
             Schema::create('archive', function (Blueprint $table) {
                 $table->id();
                 $table->string('name'); // Name of the document
-                $table->string('description'); // Description of the document
+                $table->text('description'); // Description of the document
                 $table->string('retention_period')->nullable();
                 $table->unsignedBigInteger('added_by');
                 $table->timestamps();

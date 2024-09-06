@@ -10,8 +10,7 @@ class CriteriaController extends Controller
     //index
     public function index()
     {
-        $criteries = Criteria::with('criteria')
-        ->orderBy('id', 'DESC')
+        $criteries = Criteria::orderBy('id', 'DESC')
         ->get();
             return view('criteria.index', compact('criteries'));
     }

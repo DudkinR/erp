@@ -6,7 +6,7 @@
             <h1 class="text-primary">{{ __('Master Tasks') }}</h1>
         </div>
     </div>
-
+    @if(Auth::user()->hasRole('quality-engineer','admin'))
     <div class="row mb-4">
         <div class="col-md-12">
             <a class="btn btn-success w-100 btn-lg mb-3" href="{{ route('master.create') }}">
@@ -14,6 +14,7 @@
             </a>
         </div>
     </div>
+    @endif
 
     <!-- Table Headers -->
     <div class="row fw-bold border-bottom pb-2 mb-3">
@@ -33,7 +34,8 @@
             $color_class = 'bg-light';
             $buttons = [];
             $urgency_icon = '';
-
+           if(Auth::user()->hasRole('quality-engineer','admin'))////////////////////////////////////////////////////////////////////////////////////////
+            {
             if ($item->personals->count() == 0 && $item->docs->count() == 0) {
                 $color_class = 'bg-warning';
                 $buttons = ['Analyze' => ['btn-success', route('master.step1', $item->id)]];
@@ -64,6 +66,8 @@
                 $buttons = ['Analyze Completion' => ['btn-danger', route('master.step4', $item->id)]];
                 $current_step = __('Completion Analysis');
             }
+        }
+        
         @endphp
 <div class="row {{ $color_class }} p-2 rounded mb-2 shadow-sm align-items-center">
     <div class="col-md-1">{{ $item->id }}</div>
@@ -101,7 +105,7 @@
 </div>
 
     @endforeach
-
+    @if(Auth::user()->hasRole('quality-engineer','admin'))
     <!-- Bottom New Task Button -->
     <div class="row mt-4">
         <div class="col-md-12">
@@ -110,5 +114,6 @@
             </a>
         </div>
     </div>
+    @endif
 </div>
 @endsection

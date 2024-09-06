@@ -9,8 +9,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Problem')}}</h1>
-                <a class="text-right
-                " href="{{ route('problems.index') }}">Back</a>
+                <a  href="{{ route('problems.index') }}" class="btn btn-primary">
+                    {{__('Back')}}
+            </a>
             </div>  
         </div>
         <div class="row">
@@ -41,7 +42,7 @@
                 </p>
 
                 @endforeach
-
+                @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
 
                 <hr>
                 <a href="{{ route('problems.edit', $problem->id) }}">{{__('Edit')}}</a>
@@ -106,6 +107,8 @@
 
                     <button type="submit">{{__('Save')}}</button>
                 </form>
+                <hr>
+                @endif
             </div>
         </div>
    </div>

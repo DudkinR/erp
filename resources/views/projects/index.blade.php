@@ -9,6 +9,7 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
                 {{ session('success') }}
             </div>
         @endif
+        @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Projects')}}</h1>
@@ -16,6 +17,7 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
                 <button class="btn btn-warning" onclick="refresh()" > {{__('refresh')}} </button>
             </div>
         </div>
+        @endif
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group mb-2">
@@ -225,7 +227,9 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
                     <p class="card-text">${project.execution_period}</p>
                     <p class="card-text">{{__('Count of problems')}}: ${project.problems_count}</p>
                     <hr>
+                    @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                     <a href="/projects/${project.id}/edit" class="btn btn-warning">{{__('Edit')}}</a>
+                    @endif
                     <a href="/projects/${project.id}" class="btn btn-success">{{__('Show')}}</a>
                     <a href="/projectstgantt/${project.id}" class="btn btn-primary">{{__('Gantt')}}</a>
                 </div>
@@ -240,7 +244,9 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
                     <ul>
                         ${project.docs.map(doc => `<li><a href="/docs/${doc.id}">${doc.name}</a></li>`).join('')}
                     </ul>
+                    @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                     <a href="/addDocs?project_id=${project.id}" class="btn btn-primary">{{__('Add docs')}}</a>
+                    @endif
                 </div>
             `;
         }
@@ -263,8 +269,10 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
                         <li>{{__('Problem')}}: ${countTasks(project, 'problem')}</li>
                     </ul>
                     <hr>
+                    @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                     <a href="/tasks/create?project_id=${project.id}" class="btn btn-warning">{{__('Add task')}}</a>
                     <a href="/problems/create?project_id=${project.id}" class="${problemButtonClass}">{{__('Add problem')}}</a>
+                    @endif
                     <a href="/problems?project_id=${project.id}" class="btn btn-warning">{{__('Show problems')}}</a>
                 </div>
             `;

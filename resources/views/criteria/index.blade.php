@@ -4,7 +4,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Criteria')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('criteria.create') }}">{{__('Create')}}</a>
+                @endif
             </div>
         </div>
         <div class="row">
@@ -27,13 +29,16 @@
                                 <td>{{$criterion->description}}</td>
                                 <td>{{$criterion->weight}}</td>
                                 <td>
-                                    <a href="{{ route('criteria.edit', $criterion->id) }}">{{__('Edit')}}</a>
                                     <a href="{{ route('criteria.show', $criterion->id) }}">{{__('Show')}}</a>
+                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                    <a href="{{ route('criteria.edit', $criterion->id) }}">{{__('Edit')}}</a>
+                                    
                                     <form method="POST" action="{{ route('criteria.destroy', $criterion->id) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit">{{__('Delete')}}</button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

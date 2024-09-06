@@ -4,8 +4,10 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Types')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
+           
                 <a class="text-right" href="{{ route('types.create') }}">{{__('Create')}}</a>
-            </div>
+            @endif </div>
         </div>  
         @foreach ($types as $type)
             <div class="row" style="background-color: {{ $type->color }}">
@@ -26,14 +28,17 @@
                     @endif
                 </div>
                 <div class="col-md-2"> 
+                   <a href="{{ route('types.show', $type->id) }}">{{__('Show')}}</a>  
+                   @if(Auth::user()->hasRole('quality-engineer','admin'))
+               
                     <a href="{{ route('types.edit', $type->id) }}">{{__('Edit')}}</a>
-                    <a href="{{ route('types.show', $type->id) }}">{{__('Show')}}</a>
+                   
                     <form method="POST" action="{{ route('types.destroy', $type->id) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit">{{__('Delete')}}</button>
                     </form>
-
+    @endif
                 </div>
             </div>
         @endforeach  

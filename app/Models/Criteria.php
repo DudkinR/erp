@@ -13,7 +13,9 @@ class Criteria extends Model
     // fillable fields
     protected $fillable = [
         'name',
-        'description'
+        'description',
+        'native',
+        'foreign'
     ];
     // relations
     public function facts()

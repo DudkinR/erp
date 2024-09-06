@@ -4,7 +4,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Stages')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('stages.create') }}">{{__('Stage')}}</a>
+                @endif
             </div>
         </div>    
         <div class="row">
@@ -26,13 +28,16 @@
                             <td>{!! nl2br(e($stage->description)) !!}</td>
 
                             <td>
+                                 <a href="{{ route('stages.show',$stage) }}" class="btn btn-success">{{__('Show')}}</a>
+                                 @if(Auth::user()->hasRole('quality-engineer','admin'))
                                 <a href="{{ route('stages.edit',$stage) }}" class="btn btn-primary">{{__('Edit')}}</a>
-                                <a href="{{ route('stages.show',$stage) }}" class="btn btn-success">{{__('Show')}}</a>
+                               
                                 <form method="POST" action="{{ route('stages.destroy',$stage) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                         @endforeach

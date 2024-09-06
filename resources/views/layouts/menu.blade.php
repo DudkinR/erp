@@ -21,7 +21,7 @@
                   
                 </div>
             </li>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+           
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Quality')}}
@@ -36,9 +36,10 @@
                     <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
                     <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
                     <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
-                    <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a>
-                    <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
-
+                    <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a> 
+                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                      <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
+                    @endif
                 </div>
             </li>
           
@@ -57,7 +58,7 @@
               </div>
             </li>  
 
-            @endif                
+                            
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Magasines')}}
@@ -99,6 +100,7 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{ route('profiles.index') }}">{{__('Profile')}}</a>
+                    <a class="dropdown-item" href="{{ route('personal.index') }}">  {{__('Personal')}}</a>
                     <!-- logout -->
                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{__('Logout')}}</a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -111,6 +113,9 @@
             @guest
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('login') }}">{{__('Login')}}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('personal.index') }}"> {{__('Personal')}}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('register') }}">{{__('Register')}}</a>

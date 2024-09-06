@@ -8,10 +8,12 @@
                 class="btn btn-primary text-right"
                 >{{__('Back')}}
             </a>
+            @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))
                 <a  href="{{ route('tasks.create') }}"
                     class="btn btn-warning text-right"
                  >{{__('Create New')}}
                 </a>
+            @endif
                 <a  href="{{ route('tasks.show_today') }}"
                     class="btn btn-success left"
                  >{{__('today tasks')}}

@@ -31,7 +31,6 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>{{__('id')}}</th>
                             <th>{{__('tn')}}</th>
                             <th>{{__('FIO')}}</th>
                             <th>{{__('Position')}}</th>
@@ -48,7 +47,6 @@
             show_ps.forEach(personal => {
                 tableHTML += `
                     <tr>
-                        <td>${personal.id}</td>
                         <td>${personal.tn}</td>
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>

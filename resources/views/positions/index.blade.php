@@ -4,7 +4,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Positions')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('positions.create') }}">{{__('Create')}}</a>
+                @endif
             </div>
         </div> 
         <div class="row">
@@ -31,12 +33,15 @@
                                 <td>{{ $position->closed }}</td>
                                 <td>{{ $position->data_closed }}</td>
                                 <td>
+                                         <a href="{{ route('positions.show', $position->id) }}">{{__('Show')}}</a>
+                                         @if(Auth::user()->hasRole('quality-engineer','admin'))
                                     <a href="{{ route('positions.edit', $position->id) }}">{{__('Edit')}}</a>
-                                    <a href="{{ route('positions.show', $position->id) }}">{{__('Show')}}</a>
+                               
                                     <form method="POST" action="{{ route('positions.destroy', $position->id) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit">{{__('Delete')}}</button>
+                                        @endif
                                     </form>
                                 </td>
                             </tr>

@@ -40,41 +40,66 @@
 @endguest
 @auth
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1>{{__('Welcome to PPAPP')}}</h1>
-                <p>{{__('You are logged in')}}</p>
-                <p>
-                    {{__('Your id is')}}:
-                    {{Auth::user()->id}}  
-                  </p>
-                  <p>
-                    {{__('Your id is (personal)')}}:
-                  </p>
-                @if (isset(Auth::user()->profile->fio))
-                <p>{{__('Your name is')}}: {{ Auth::user()->profile->fio}}</p>
-
-
-                @endif
-                @if (isset(Auth::user()->profile->positions))
-                <p>{{__('Your positions are')}}: 
-                    <ul>
-                        @foreach(Auth::user()->profile->positions as $position)
-                            <li>{{ $position->id }} {{ $position->name }}</li>
-                        @endforeach
-                    </ul>
+        <div class="row justify-content-center my-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h4 mb-0">{{ __('Welcome to PPAPP') }}</h1>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">{{ __('You are logged in') }}</p>
+        
+                        @if (isset(Auth::user()->profile->fio))
+                            <p><strong>{{ __('Your name is') }}:</strong> {{ Auth::user()->profile->fio }}</p>
+                        @endif
+        
+                        @if (isset(Auth::user()->profile->positions))
+                            <p><strong>{{ __('Your positions are') }}:</strong></p>
+                            <ul class="list-group list-group-flush">
+                                @foreach(Auth::user()->profile->positions as $position)
+                                    <li class="list-group-item"> {{ $position->name }}</li>
+                                @endforeach
+                            </ul>
                         @endif  
-                <p>{{__('Your email is')}}: {{ Auth::user()->email }}</p>
-
-                <!-- edit profile -->
-                <a href="{{ route('profiles.edit', Auth::user()->id) }}" class="btn btn-primary">{{__('Edit profile')}}</a>
-                
+                        @if (isset(Auth::user()->profile->phones))
+                            <p><strong>{{ __('Your phones are') }}:</strong></p>
+                            <ul class="list-group   list-group-flush">
+                                @foreach(Auth::user()->profile->phones as $phone)
+                                    <li class="list-group-item"> {{ $phone->phone }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+        
+                        <p><strong>{{ __('Your email is') }}:</strong> {{ Auth::user()->email }}</p>
+        
+                        <!-- Edit profile button -->
+                        <div class="text-center mt-3">
+                            <a href="{{ route('profiles.edit', Auth::user()->id) }}" class="btn btn-outline-primary">{{ __('Edit profile') }}</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    @if(Auth::user()->hasRole('user'))
     <div class="container">
-        @php
+        <div class="row justify-content-center my-4">
+            <div class="col-md-3">
+                <h1>{{__('Personal')}}</h1>
+                <p>
+                    <a href="{{route('personal.index')}}" class = "btn btn-primary">
+                        {{__('Find personals')}}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if(Auth::user()->hasRole('moderator'))
+
         
+    <div class="container">
+        @php        
         $projects =\App\Models\Project::orderby('priority')
         ->where('current_state','!=','Закритий')
    //  ->where('execution_period', '>=', now())
@@ -117,6 +142,7 @@
             @endforeach
         </div>
     </div>
+    @endif
 @endauth
 @endsection
 

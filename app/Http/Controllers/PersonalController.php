@@ -30,7 +30,7 @@ class PersonalController extends Controller
       // return  Personal::find(1)->positions()->get();
         $personals = Personal::with('positions')
         ->orderBy('id', 'desc')
-        ->limit(10)
+        ->limit(0)
         ->with('positions', 'divisions','rooms','phones')
         ->get();
         //$personals = Personal::orderBy('id', 'desc')->get();

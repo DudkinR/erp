@@ -21,12 +21,14 @@
                                 <td>{{ $fact->name }}</td>
                                 <td>{!! $fact->description !!}
                                     <a href="{{ route('facts.show', $fact) }}">{{__('View')}}</a>
+                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
                                     <a href="{{ route('facts.edit', $fact) }}">{{__('Edit')}}</a>
                                     <form method="POST" action="{{ route('facts.destroy', $fact) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit">{{__('Delete')}}</button>
                                     </form>
+                                    @endif
 
                                 </td>
                                 <td>
