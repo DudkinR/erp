@@ -27,16 +27,19 @@
                                                     <li>{{ $fun->name }}</li>
                                                 @endforeach
                                             </ul>
+                                            @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                           
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFunctionModal">
                                                 {{__('Add Function')}}
-                                            </button>
+                                            </button> @endif
                                 </div>
                             </div>
                         @endforeach
-                    </div>
+                    </div>     @if(Auth::user()->hasRole('quality-engineer','admin'))
+                   
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObjectiveModal">
                         {{__('Add Objective')}}
-                    </button>
+                    </button> @endif
                 </div>
             </div>
         </div>
@@ -44,6 +47,8 @@
     <div class="modal fade" id="addObjectiveModal" tabindex="-1" role="dialog" aria-labelledby="addObjectiveModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                
                 <form method="POST" action="{{ route('objectives.store') }}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addObjectiveModalLabel">{{__('Add Objective')}}</h5>
@@ -72,12 +77,15 @@
                         <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
     </div>
     <div class="modal fade" id="addFunctionModal" tabindex="-1" role="dialog" aria-labelledby="addFunctionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <div class="modal-content">
+            <div class="modal-content">    
+                 @if(Auth::user()->hasRole('quality-engineer','admin'))
+                
                 <form method="POST" action="{{ route('funs.store') }}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addFunctionModalLabel">{{__('Add Function')}}</h5>
@@ -105,6 +113,7 @@
                         <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
     </div>

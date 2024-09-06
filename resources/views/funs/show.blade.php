@@ -20,9 +20,11 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> @if(Auth::user()->hasRole('quality-engineer','admin'))
         <div class="row">
             <div class="col-md-6">
+               
+                
                 <a class="btn btn-primary" href="{{ route('funs.edit', $fun) }}">{{__('Edit')}}</a>
             </div>
             <div class="col-md-6">
@@ -32,6 +34,6 @@
                     <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
                 </form>
             </div>
-        </div>
+        </div>@endif
     </div>
 @endsection
