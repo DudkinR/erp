@@ -189,6 +189,7 @@ class PersonalController extends Controller
         if(!$user){
             $user = new User([
                 'tn' => $personal->tn,
+                'name' =>$personal->fio,
                 'email' => $personal->email,
                 'password' => bcrypt($personal->tn)
             ]);
