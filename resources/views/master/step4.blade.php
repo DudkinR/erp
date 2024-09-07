@@ -1,6 +1,12 @@
 @extends('layouts.app')
 @section('content')
 <div class="container mt-4">
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
     <div class="row mb-3">
         <div class="col-md-12 text-end">
             <a class="btn btn-outline-secondary btn-sm" href="{{ route('master.index') }}">{{ __('Back') }}</a>

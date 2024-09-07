@@ -416,15 +416,37 @@
     "Your positions are" : "Ваші позиції",
     "Your phones are" : "Ваші телефони",
     "Back to Divisions" : "Повернутися до підрозділів",
-    "Number of Personnel" : "Number of Personnel",
-
+    "Number of Personnel" :  "Кількість персоналу",
+    "Buildings" : "Будівлі",
+    "Rooms" : "Приміщення",
+    "Room" : "Приміщення",
+    "Square Meters" : "Квадратні метри",
+    "Owner Division" : "Власник підрозділу",
+    "Personnels" : "Персонал",
+    "New Magazine" : "Новий журнал",
+    "All Magazines" : "Всі журнали",
+    "Magazines" : "Журнали",
+    "Division Writer" : "Підрозділ якый заповняє",
+    "Division Reader" : "Підрозділ який може читати",
+    "Column Name" : "Назва колонки",
+    "Column Type" : "Тип колонки",
+    "Text" : "Текст",
+    "Number" : "Число",
+    "Float" : "Дробове",
+    "String" : "Строка",
+    "Boolean" : "Булеве",
+    "Add Column" : "Додати колонку",
+    "Upper Limits" : "Верхні межі",
+    "Lower Limits" : "Нижні межі",
+    "High Fix Limit" : "Верхня фіксіруема межа",
+    "High Emergency Limit" : "Верхня аварійна межа",
+    "High Reglement Limit" : "Верхня регламентована межа",
+    "High Working Limit" : "Верхня робоча межа",
+    "Low Fix Limit" : "Нижня фіксіруема межа",
+    "Low Emergency Limit" : "Нижня аварійна межа",
+    "Low Reglement Limit" : "Нижня регламентована межа",
+    "Low Working Limit" : "Нижня робоча межа",
+    "Date time" : "Дата та час",
+    "Add Row" : "Додати рядок",
     "Archives" : "Архіви"
-
-
-
-
-
-
-
-
 }

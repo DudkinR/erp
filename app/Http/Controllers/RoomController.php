@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Room;
+use App\Models\Building;
 
 class RoomController extends Controller
 {
     // index room
     public function index()
     {
-        $rooms = Room::orderBy('id', 'desc')->get();
-        return view('rooms.index', compact('rooms'));
+        $buildings = Building::orderBy('name', 'asc')->get(); 
+        return view('rooms.index', compact('buildings'));
     }
     // create room
     public function create()
@@ -21,8 +22,11 @@ class RoomController extends Controller
     // show room
     public function show($id)
     {
-        $room = Room::find($id);
-        return view('rooms.show', compact('room'));
+       $building = Building::find($id)
+        ->with('rooms', 'rooms.personals', 'rooms.personals.divisions')
+        ->get();
+
+      return   view('rooms.show', compact('building'));
     }
     public function store(Request $request)
     {

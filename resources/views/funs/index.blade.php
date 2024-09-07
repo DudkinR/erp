@@ -69,6 +69,12 @@
     </style>
     
     <div class="container">
+        @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
         @if(isset($goal))
             <div class="row">
                 <div class="col-md-12">

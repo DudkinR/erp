@@ -400,6 +400,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/roles/{id}/edit', 'App\Http\Controllers\RoleController@edit')->name('roles.edit');
     Route::put('/roles/{id}', 'App\Http\Controllers\RoleController@update')->name('roles.update');
     Route::delete('/roles/{id}', 'App\Http\Controllers\RoleController@destroy')->name('roles.destroy');
+
+    // mag 
+    Route::get('/mag', 'App\Http\Controllers\MagController@index')->name('mag.index');
+    Route::get('/mag/create', 'App\Http\Controllers\MagController@create')->name('mag.create');
+    Route::post('/mag', 'App\Http\Controllers\MagController@store')->name('mag.store');
+    Route::get('/mag/{id}', 'App\Http\Controllers\MagController@show')->name('mag.show');
+    Route::get('/mag/{id}/edit', 'App\Http\Controllers\MagController@edit')->name('mag.edit');
+    Route::put('/mag/{id}', 'App\Http\Controllers\MagController@update')->name('mag.update');
+    Route::delete('/mag/{id}', 'App\Http\Controllers\MagController@destroy')->name('mag.destroy');
+    // mag.storeRow
+    Route::post('/mag/storeRow', 'App\Http\Controllers\MagController@storeRow')->name('mag.storeRow');
+    
     
 
 });
