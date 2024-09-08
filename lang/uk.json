@@ -448,5 +448,13 @@
     "Low Working Limit" : "Нижня робоча межа",
     "Date time" : "Дата та час",
     "Add Row" : "Додати рядок",
+    "Description of column" : "Опис колонки",
+    "Row added!" : "Рядок додано!",
+    "Memory" : "Пам'ятка",
+    "Memory Name" : "Назва пункта пам'ятки",
+    "Memory Description" : "Опис пункта пам'ятки",
+    "Add Memory" : "Додати пункт пам'ятки",
+    "Fill all fields!" : "Заповніть всі поля!",
+    "Chart" : "Графік",
     "Archives" : "Архіви"
 }

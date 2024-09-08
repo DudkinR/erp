@@ -411,6 +411,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mag/{id}', 'App\Http\Controllers\MagController@destroy')->name('mag.destroy');
     // mag.storeRow
     Route::post('/mag/storeRow', 'App\Http\Controllers\MagController@storeRow')->name('mag.storeRow');
+    // mag.chart
+    Route::get('/mag/{id}/chart', 'App\Http\Controllers\MagController@chart')->name('mag.chart');
     
     
 

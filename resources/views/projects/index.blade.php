@@ -6,7 +6,7 @@ $clients = App\Models\Client::orderBy('id', 'desc')->get();
     <div class="container">
         @if (session('success'))
             <div class="alert alert-success">
-                {{ session('success') }}
+                {{ __(session('success')) }}
             </div>
         @endif
         @if(Auth::user()->hasRole('moderator','admin','quality-engineer'))

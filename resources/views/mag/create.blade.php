@@ -1,88 +1,11 @@
 @extends('layouts.app')
 @section('content')
 <?php 
-$dimensions = [
-    ['value' => 'kg/cm2',   'label' => __('kg/cm2')],
-    ['value' => 'kg/m2',    'label' => __('kg/m2')],    
-    ['value' => 'mm', 'label' => __('mm')],
-    ['value' => 'cm', 'label' => __('cm')],
-    ['value' => 'm', 'label' => __('m')],
-    ['value' => 'km', 'label' => __('km')],
-    ['value' => 'g', 'label' => __('g')],
-    ['value' => 'kg', 'label' => __('kg')],
-    ['value' => 'l', 'label' => __('l')],
-    ['value' => 'm3', 'label' => __('m3')],
-    ['value' => 'm3/h', 'label' => __('m3/h')],
-    ['value' => 'm3/s', 'label' => __('m3/s')],
-    ['value' => 'cm2', 'label' => __('cm2')],
-    ['value' => 'm2', 'label' => __('m2')],
-    ['value' => 'm/s', 'label' => __('m/s')],
-    ['value' => 'km/h', 'label' => __('km/h')],
-    // химия
-    ['value' => 'mol', 'label' => __('mol')],
-    ['value' => 'mol/l', 'label' => __('mol/l')],
-    ['value' => 'mol/m3', 'label' => __('mol/m3')],
-    ['value' => 'mol/m2', 'label' => __('mol/m2')],
-    ['value' => 'mol/s', 'label' => __('mol/s')],
-    ['value' => 'mol/m2/s', 'label' => __('mol/m2/s')],
-    ['value' => 'mol/m3/s', 'label' => __('mol/m3/s')],
-    ['value' => 'mol/l/s', 'label' => __('mol/l/s')],
-    ['value' => 'mol/l/m2', 'label' => __('mol/l/m2')],
-    ['value' => 'mol/l/m3', 'label' => __('mol/l/m3')],
-    ['value' => 'mol/m2/s', 'label' => __('mol/m2/s')],
-    ['value' => 'mol/m3/s', 'label' => __('mol/m3/s')],
-    ['value' => 'mol/l/s', 'label' => __('mol/l/s')],
-    ['value' => 'mol/l/m2', 'label' => __('mol/l/m2')],
-    ['value' => 'mol/l/m3', 'label' => __('mol/l/m3')],
-    ['value' => 'mol/m2/s', 'label' => __('mol/m2/s')],
-    ['value' => 'mol/m3/s', 'label' => __('mol/m3/s')],
-    ['value' => 'mol/l/s', 'label' => __('mol/l/s')],
-    ['value' => 'mol/l/m2', 'label' => __('mol/l/m2')],
-    ['value' => 'mol/l/m3', 'label' => __('mol/l/m3')],
-    ['value' => 'mol/m2/s', 'label' => __('mol/m2/s')],
-    ['value' => 'mol/m3/s', 'label' => __('mol/m3/s')],
-    ['value' => 'mol/l/s', 'label' => __('mol/l/s')],
-    ['value' => 'mol/l/m2', 'label' => __('mol/l/m2')],
-    ['value' => 'mol/l/m3', 'label' => __('mol/l/m3')],
-    // phisics
-    ['value' => 'A', 'label' => __('A')],
-    ['value' => 'V', 'label' => __('V')],
-    ['value' => 'W', 'label' => __('W')],
-    ['value' => 'J', 'label' => __('J')],
-    ['value' => 'N', 'label' => __('N')],
-    ['value' => 'Pa', 'label' => __('Pa')],
-    ['value' => 'C', 'label' => __('C')],
-    ['value' => 'F', 'label' => __('F')],
-    ['value' => 'S', 'label' => __('S')],
-    ['value' => 'H', 'label' => __('H')],
-    ['value' => 'T', 'label' => __('T')],
-    ['value' => 'Wb', 'label' => __('Wb')],
-    ['value' => 'H', 'label' => __('H')],
-    ['value' => 'lm', 'label' => __('lm')],
-    ['value' => 'lx', 'label' => __('lx')],
-    ['value' => 'Bq', 'label' => __('Bq')],
-    ['value' => 'Gy', 'label' => __('Gy')],
-    ['value' => 'Sv', 'label' => __('Sv')],
-    ['value' => 'kat', 'label' => __('kat')],
-    ['value' => 'rad', 'label' => __('rad')],
-    ['value' => 'rem', 'label' => __('rem')],
-    ['value' => 'Ci', 'label' => __('Ci')],
-    ['value' => 'R', 'label' => __('R')],
-    ['value' => 'rd', 'label' => __('rd')],
-    ['value' => 'eV', 'label' => __('eV')],
-    ['value' => 'MeV', 'label' => __('MeV')],
-    ['value' => 'GeV', 'label' => __('GeV')],
-    ['value' => 'TeV', 'label' => __('TeV')],
-    ['value' => 'K', 'label' => __('K')],
-    ['value' => '°C', 'label' => __('°C')],
-    ['value' => '°F', 'label' => __('°F')],
-    ['value' => '°K', 'label' => __('°K')],
-];
+
  ?>
     <div class="container">
         <!-- Display Validation Errors -->
        @if ($errors->any())
-
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -92,14 +15,14 @@ $dimensions = [
             </div>
         @endif
         @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">{{ __(session('success')) }}</div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+        <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
         <div class="row">
             <div class="col-md-12">
-                <h1>{{__('Create')}}</h1>
+                <h2>{{__('Create')}}</h2>
                 <form method="POST" action="{{ route('mag.store') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="form-group">
@@ -113,7 +36,7 @@ $dimensions = [
                     </div>
                     <div class="form-group">
                         <label for="division_writer">{{__('Division Writer')}}</label>
-                        @php $divisions = App\Models\Division::all(); @endphp
+                        
                         <select class="form-control" id="division_writer" name="division_writer[]" multiple required>
                             <option value="all">{{__('All')}}</option>
                             @foreach($divisions as $division)
@@ -131,7 +54,7 @@ $dimensions = [
                         </select>
                     </div>
                     <div class="container" id ="columns">
-                        <div class="row">
+                        <div class="row bg-blue-200">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="column_name">{{__('Column Name')}}</label>
@@ -167,9 +90,17 @@ $dimensions = [
                                     </select>
                                 </div>
                             </div>
-                              
                             
-                        </div>    <!-- hidden row with hand over data  limits-->
+                        </div>   
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="description">{{__('Description of column')}}</label>
+                                    <textarea class="form-control" id="description_0" name="description_0" rows="3" required >{{ old('description') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- hidden row with hand over data  limits-->
                         <div class="container" id="limits_0" style="display:flex; flex-wrap:wrap; display:none;">
                             <!-- Container for Upper Limits -->
                             
@@ -236,12 +167,55 @@ $dimensions = [
                                 </div>
                             
                         </div>
+                        <hr style="border: 1px solid blue;">
                     </div>
                     <div class="row">
                         <div class="col-md-12">
                             <button type="button" class="btn btn-primary w-100" onclick="addColumn()">{{__('Add Column')}}</button>
                         </div>
                     </div>
+                    <hr>
+                    <div class="container" id ="memories">
+                        <!-- selected from exist -->
+                        @if($mems->count() > 0)
+                        <div class="row bg-blue-100">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="memory">{{__('Memory')}}</label>
+                                    <select class="form-control" id="memory" name="memory[]" multiple >                                        
+                                        @foreach($mems as $memory)
+                                            <option value="{{ $memory->id }}">{{ $memory->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        <input type="hidden" name="memory_id" id="memory_id" value="0">
+                        <!-- name	description -->
+                        <div class="row bg-blue-200">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="memory_name">{{__('Memory Name')}}</label>
+                                    <input type="text" class="form-control" id="memory_name_0" name="memory_name[]" value="" >
+                                </div>
+                            </div>  
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="memory_description">{{__('Memory Description')}}</label>
+                                    <textarea class="form-control" id="memory_description_0" name="memory_description[]" rows="3" >{{ old('memory_description') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <hr style="border: 1px solid blue;">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-primary w-100" onclick="addMemory()">{{__('Add Memory')}}</button>
+                        </div>
+                    </div>
+
+
                     <button type="submit" class="btn btn-success w-100">{{__('Create')}}</button>
                 </form>
             </div>
@@ -267,6 +241,10 @@ $dimensions = [
         data-time="{{ __('Time') }}"
         data-boolean="{{ __('Boolean') }}"
         data-dimension="{{ __('Dimension') }}"
+        data-description="{{ __('Description') }}"
+        data-memory-name="{{ __('Memory Name') }}"
+        data-memory-description="{{ __('Memory Description') }}"
+
 
      >
 
@@ -274,6 +252,7 @@ $dimensions = [
     <script>
         const limits = @json(\App\Models\maglimit::all()); 
         let column_id = 0;
+        let memory_id = 0;
 
 /// Select type of column float or number to show limits
 function showLimits(column_type, column_id) {
@@ -295,13 +274,13 @@ function showLimits(column_type, column_id) {
 }
 
         /// add new column
-        function addColumn() {
+function addColumn() {
     column_id++;
     // Get translations from the data attributes
     const translations = document.getElementById('translations').dataset;
 
     let column = `
-        <div class="row">
+        <div class="row bg-blue-200">
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="column_name">${translations.columnName}</label>
@@ -330,6 +309,14 @@ function showLimits(column_type, column_id) {
                         <option value="time">${translations.time}</option>
                         <option value="boolean">${translations.boolean}</option>
                     </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="description">${translations.description}</label>
+                    <textarea class="form-control" id="description_${column_id}" name="description_${column_id}" rows="3" required>{{ old('description') }}</textarea>
                 </div>
             </div>
         </div>
@@ -363,10 +350,6 @@ function showLimits(column_type, column_id) {
                         <input type="number" step="0.01" placeholder="NULL" class="form-control" id="high_working_limit_${column_id}" name="high_working_limit_${column_id}" value="{{ old('high_working_limit') }}">
                         </div>
                         </div>
-
-
-
-
             </div>
             <div class="row">
                 <div class="col-md-3">
@@ -395,16 +378,35 @@ function showLimits(column_type, column_id) {
                     </div>
                 </div>
                 <!-- More Lower Limit Fields -->
-                
-                      
-                        
-
-
-
             </div>
         </div>
+        <hr style="border: px solid blue;">
     `;
     document.getElementById('columns').insertAdjacentHTML('beforeend', column);
+}
+ function addMemory() {
+    memory_id++;
+    // Get translations from the data attributes
+    const translations = document.getElementById('translations').dataset;
+    let memory = `
+        <div class="row bg-blue-200">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="memory_name">${translations.memoryName}</label>
+                    <input type="text" class="form-control" id="memory_name_${memory_id}" name="memory_name[]" value="" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="memory_description">${translations.memoryDescription}</label>
+                    <textarea class="form-control" id="memory_description_${memory_id}" name="memory_description[]" rows="3" required>{{ old('memory_description') }}</textarea>
+                </div>
+            </div>
+        </div>
+        <hr style="border: 1px solid blue;">
+    `;
+    document.getElementById('memories').insertAdjacentHTML('beforeend', memory);
+    document.getElementById('memory_id').value = memory_id;
 
 }
     </script>
