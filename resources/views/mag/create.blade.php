@@ -1,8 +1,5 @@
 @extends('layouts.app')
 @section('content')
-<?php 
-
- ?>
     <div class="container">
         <!-- Display Validation Errors -->
        @if ($errors->any())
@@ -250,7 +247,7 @@
 
 </div>
     <script>
-        const limits = @json(\App\Models\maglimit::all()); 
+        const limits = @json(\App\Models\Maglimit::all()); 
         let column_id = 0;
         let memory_id = 0;
 
