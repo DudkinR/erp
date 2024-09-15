@@ -22,9 +22,9 @@ class Fun extends Model
     {
         return $this->belongsToMany(Objective::class, 'objective_funct', 'funct_id', 'objective_id');
     }
-    // positions
+    // positions_functs  `position_id`, `division_id`, `funct_id`
     public function positions()
     {
-        return $this->belongsToMany(Position::class, 'positions_functs', 'funct_id', 'position_id');
+        return $this->belongsToMany(Position::class, 'positions_functs', 'funct_id', 'position_id' )->withPivot('division_id');
     }
 }

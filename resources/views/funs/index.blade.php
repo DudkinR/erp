@@ -150,7 +150,9 @@
                                         <li>{{ $position->name }}</li>
                                     @endforeach
                                 </ul>
-                                    <button onclick="GenereteModal({{ $funct->id }})">Add Positions</button>
+                                    <button onclick="GenereteModal({{ $funct->id }})">
+                                        {{ __('Add Positions') }}
+                                    </button>
                                    
                                 </td>
                                 <td>
@@ -204,6 +206,7 @@
     const funs = @json($funs);
     var TF=funs;
     const positions = @json($positions);
+    const divisions = @json($divisions);
     
     document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('myModal');
@@ -223,8 +226,7 @@
     function savePositions(functId) {
         var url = '{{ route('funs.store_positions_api') }}';
         var csrf_token = document.querySelector('input[name="_token"]').value;
-        var selectedPositions = Array.from(document.querySelectorAll('#positions option:checked')).map(option => option.value);
-    
+       
         fetch(url, {
             method: 'POST',
             headers: {
@@ -233,7 +235,8 @@
             },
             body: JSON.stringify({
                 fun_id: functId,
-                positions: selectedPositions
+                position:  document.getElementById('position').selectedOptions[0].value,
+                division: document.getElementById('division').selectedOptions[0].value
             })
         })
             .then(response => {
@@ -257,19 +260,31 @@
     function GenereteModal(functId) {
         var modal = document.getElementById('myModal');
         const funct = funs.find(funct => funct.id == functId);
-        const My_positions = funct.positions;
-    
+        const My_positions = funct.positions;    
         var modalContent = `
             <h2>${funct.name}</h2>
             <p>${funct.description}</p>
-            <h3>Positions</h3>
-            <select id="positions" multiple size="5">`;
+            <h3>
+                {{__('Divisions')}}
+            </h3>
+            <select id="division"  size="3">`;
+            divisions.forEach(division => {
+                const isSelected = My_positions.some(pos => pos.division_id == division.id);
+                modalContent += `<option value="${division.id}" ${isSelected ? 'selected' : ''}>${division.name}</option>`;
+            });
+        modalContent += `</select>
+            <h3>
+                {{__('Positions')}}
+            </h3>
+            <select id="position"  size="3">`;
         positions.forEach(position => {
             const isSelected = My_positions.some(pos => pos.id == position.id);
             modalContent += `<option value="${position.id}" ${isSelected ? 'selected' : ''}>${position.name}</option>`;
         });
         modalContent += `</select>
-            <button onclick="savePositions(${functId})">Save</button>`;
+            <button onclick="savePositions(${functId})">
+                {{__('Save')}}
+                </button>`;
         
         document.getElementById('modal-body').innerHTML = modalContent;
         modal.style.display = "block";

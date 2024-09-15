@@ -7,6 +7,7 @@ use App\Models\Fun;
 use App\Models\Goal;
 use App\Models\Position;
 use App\Models\Objective;
+use App\Models\Division;
 
 
 class FunController extends Controller
@@ -31,16 +32,17 @@ class FunController extends Controller
             ->orderBy('id', 'desc')
             ->get();
         }
-        $positions = Position::orderBy('id', 'desc')->get();
-        return view('funs.index', compact('funs', 'positions'));
+        $positions = Position::orderBy('name', 'asc')->get();
+        $divisions = Division::orderBy('name', 'asc')->get();
+        return view('funs.index', compact('funs', 'positions', 'divisions'));
     }
     // create
     public function create(Request $request)
     {
-        $goals = Goal::orderBy('id', 'desc')->get();
+        $goals = Goal::orderBy('id', 'asc')->get();
         $gl = $request->gl;
-        $objs= Objective::orderBy('id', 'desc')->get();
-        $positions = Position::orderBy('id', 'desc')->get();
+        $objs= Objective::orderBy('id', 'asc')->get();
+        $positions = Position::orderBy('id', 'asc')->get();
         return view('funs.create', compact('goals', 'gl', 'objs', 'positions'));
     }
     // store
@@ -154,8 +156,11 @@ class FunController extends Controller
     {
         $fun= Fun::find($request->fun_id);
         // clear old positions
-        $fun->positions()->detach();
-        $fun->positions()->attach($request->positions , ['order' => 1]);
+        $division_id = $request->division;
+        $fun->positions()->attach($request->position , [
+            'order' => 1,
+            'division_id' => $division_id
+        ]);
         return response()->json([
             'status' => 'success',
             'message' => 'Position successfully added to fun.',
@@ -172,10 +177,16 @@ class FunController extends Controller
     public function edit($id)
     {
         $fun = Fun::find($id);
-        $goals = Goal::orderBy('id', 'desc')->get();
-        $positions = Position::orderBy('id', 'desc')->get();
-        $objectives = Objective::orderBy('id', 'desc')->get();
-        return view('funs.edit', compact('fun', 'goals', 'positions', 'objectives'));
+        $goals = Goal::orderBy('id', 'asc')->get();
+        $positions = Position::orderBy('name', 'asc')
+        ->with('divisions')
+        ->get();   
+        $objectives = Objective::orderBy('name', 'asc')
+                ->get();
+        $divisions = Division::orderBy('name', 'asc')
+        ->with('positions')
+        ->get();
+        return view('funs.edit', compact('fun', 'goals', 'positions', 'objectives', 'divisions'));
     }
     // update
     public function update(Request $request, $id)

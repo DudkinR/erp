@@ -13,7 +13,7 @@
             <div class="card">
                 <div class="card-header">{{ __('Objective') }}</div>
                 <div class="card-body">
-                    @if($objective->parent!==null)
+                    @if($objective->parent!==null && $objective->parent->count()>0)
                     <h1>
                         {{ __('Parent') }} :
                         {{ $parent->first()->name }}
@@ -31,7 +31,7 @@
                         <div class="row">
                         <div class="col-md-8">
                             
-                            <select class="form-control" id="exist" name="exist">
+                            <select class="form-control" id="exist" name="exist" size = "5">
                             <option value="0">{{__('None')}}</option>
                             @foreach($fun_all as $fun)
                                 <option value="{{ $fun->id }}">{{ $fun->name }}</option>

@@ -99,8 +99,7 @@ class DivisionController extends Controller
         foreach ($under_divisions as $under_division) {
             // Використовуємо array_merge тільки з масивами
             $rooms = array_merge($rooms, $this->roomsInDivision($under_division->id) ?? []);
-        }
-    
+        }    
         return $rooms;
     }
     
@@ -123,8 +122,8 @@ class DivisionController extends Controller
     public function edit(string $id)
     {
         //
-        $parents = Division::all();
-        $positions = Position::all();
+        $parents = Division::orderBy('name', 'asc')->get();
+        $positions = Position::orderBy('name', 'asc')->get();
         $division = Division::find($id);
         return view('divisions.edit', compact('division', 'parents', 'positions'));
     }

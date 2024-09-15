@@ -63,7 +63,6 @@
                                         <u>{{ $comment->created_at }}</u>
                                     </p>
                                 @endforeach
-
                     @endif
                     </div>    
                     <div class="form-group">
@@ -85,12 +84,11 @@
                                     >{{ $division->name }}</option>
                             @endforeach
                         </select>
-                    </div>
-
-                    
-                    <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
+                    </div>                    
+                    <button type="submit" class="btn btn-primary w-100">{{__('Save')}}</button>
                 </form>
             </div>
         </div>
     </div>
+  
 @endsection

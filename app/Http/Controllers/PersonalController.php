@@ -68,7 +68,6 @@ class PersonalController extends Controller
              $this->cleaning_double($personal->id);
             }
         return $personals;
-
     }
 
     /**
@@ -215,9 +214,6 @@ class PersonalController extends Controller
         $personal->date_start = $request->date_start;
         $personal->status = $request->status;
         $personal->save();
-        // division
-        
-        // find user by tn
         $user = User::where('tn', $request->tn)->first();
         if(!$user){
             $user = new User([
@@ -227,10 +223,25 @@ class PersonalController extends Controller
             ]);
             $user->save();            
         }
+        // email 
+        if($request->email){
+            $user->email = $request->email;
+            $user->save();
+        }
         if($request->position){
-            // delete old positions
-            $personal->positions()->detach();
-            $personal->positions()->attach($request->position);
+                $personal->positions()->detach();
+                $personal->positions() ->attach($request->position);
+        }
+        //division
+        if($request->division_id){
+            $personal->divisions()->detach();
+            $personal->divisions()->attach($request->division_id);
+        }
+        // if not link position_division add new
+        $position = Position::find($request->position);
+        $division = Division::find($request->division_id);
+        if($position->divisions()->where('division_id', $division->id)->count() == 0){
+            $position->divisions()->attach($division->id);
         }
         // comment add
         if($request->comment){
@@ -239,13 +250,9 @@ class PersonalController extends Controller
             $comment->save();
             $personal->comments()->attach($comment->id);
         }
-        // delete old roles
         $user->roles()->detach();
-        // add user roles
         $user->roles()->attach($request->roles);
-
-
-        return redirect('/personal')->with('success', 'Personal updated!');
+        return redirect('/profile')->with('success', 'Personal updated!');
     }
 
     /**
