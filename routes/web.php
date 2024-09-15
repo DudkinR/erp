@@ -413,6 +413,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/mag/storeRow', 'App\Http\Controllers\MagController@storeRow')->name('mag.storeRow');
     // mag.chart
     Route::get('/mag/{id}/chart', 'App\Http\Controllers\MagController@chart')->name('mag.chart');
+
+    // forms
+    Route::get('/forms', 'App\Http\Controllers\FormController@index')->name('forms.index');
+    Route::get('/forms/create', 'App\Http\Controllers\FormController@create')->name('forms.create');
+    Route::post('/forms', 'App\Http\Controllers\FormController@store')->name('forms.store');
+    Route::get('/forms/{id}', 'App\Http\Controllers\FormController@show')->name('forms.show');
+    Route::get('/forms/{id}/edit', 'App\Http\Controllers\FormController@edit')->name('forms.edit');
+    Route::put('/forms/{id}', 'App\Http\Controllers\FormController@update')->name('forms.update');
+    Route::delete('/forms/{id}', 'App\Http\Controllers\FormController@destroy')->name('forms.destroy');
+    // items
+    Route::get('/items', 'App\Http\Controllers\ItemController@index')->name('items.index');
+    Route::get('/items/create', 'App\Http\Controllers\ItemController@create')->name('items.create');
+    Route::post('/items', 'App\Http\Controllers\ItemController@store')->name('items.store');
+    Route::get('/items/{id}', 'App\Http\Controllers\ItemController@show')->name('items.show');
+    Route::get('/items/{id}/edit', 'App\Http\Controllers\ItemController@edit')->name('items.edit');
+    Route::put('/items/{id}', 'App\Http\Controllers\ItemController@update')->name('items.update');
+    Route::delete('/items/{id}', 'App\Http\Controllers\ItemController@destroy')->name('items.destroy');
     
     
 

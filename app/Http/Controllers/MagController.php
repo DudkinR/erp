@@ -56,7 +56,13 @@ class MagController extends Controller
                 'column_name' => 'required'
                        
             ]);
-            //return request()->all();
+            // if have any magazine with same name retern back with error
+            $magtable = Magtable::where('name', $request->name)->first();
+            if($magtable){
+                return redirect('/mag/create')->with('error', 'Magazine with same name exists!');
+            }
+            
+            
             $magtable = new Magtable();
             $magtable->name = $request->name;
             $magtable->description = $request->description;
@@ -116,7 +122,8 @@ class MagController extends Controller
             }
             // Check if 'memory' exists and is an array, then attach if it has any elements
             if (isset($request->memory) && is_array($request->memory) && count($request->memory) > 0) {
-                $magtable->magmems()->attach($request->memory);
+                //with ['number' =1
+                $magtable->magmems()->attach($request->memory , attributes: ['number'=>1]);
             }
 
             // Предполагается, что $request->memory_name и $request->memory_description - это массивы
