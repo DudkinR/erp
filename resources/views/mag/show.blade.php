@@ -50,7 +50,7 @@
     <!-- Кнопка для вызова модального окна -->
     <div class="row my-3">
         <div class="col-md-12">
-            <button type="button" class="btn bg-blue-300 w-100" data-bs-toggle="modal" data-bs-target="#addRowModal">
+            <button type="button" class="bg-blue-300   w-100" data-bs-toggle="modal" data-bs-target="#addRowModal">
                 {{ __('Add Row') }}
             </button>
         </div>
