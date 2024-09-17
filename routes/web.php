@@ -24,7 +24,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', 'App\Http\Controllers\Auth\NewPasswordController@store')->name('password.store');
 });
 
+// dictionary routes
+Route::get('/dictionary', 'App\Http\Controllers\DictionaryController@index')->name('dictionary.index');
+Route::get('/dictionary/create', 'App\Http\Controllers\DictionaryController@create')->name('dictionary.create');
+Route::post('/dictionary', 'App\Http\Controllers\DictionaryController@store')->name('dictionary.store');
+Route::get('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@show')->name('dictionary.show');
+Route::get('/dictionaryedit', 'App\Http\Controllers\DictionaryController@edit')->name('dictionary.edit');
+Route::put('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@update')->name('dictionary.update');
+Route::delete('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@destroy')->name('dictionary.destroy');
+
+
 Route::middleware('auth')->group(function () {
+// dictionary import routes
+    Route::get('/dictionaryimport', 'App\Http\Controllers\DictionaryController@import')->name('dictionary.import');
+
     // goals routes
     Route::get('/goals', 'App\Http\Controllers\GoalController@index')->name('goals.index');
     Route::get('/goals/create', 'App\Http\Controllers\GoalController@create')->name('goals.create');

@@ -464,5 +464,13 @@
     "Forms" : "Форми",
     "Procedures" : "Процедури",
     "Procedure" : "Процедура",
+    "may not need to be filled in" : "може не потрібно заповнювати",
+    "ru": "Російська",
+    "en": "Англійська",
+    "uk": "Українська",
+    "Dictionary" : "Словник",
+    "New word" : "Нове слово",
+    "description" : "опис",
+    "example" : "приклад",
     "Archives" : "Архіви"
 }
