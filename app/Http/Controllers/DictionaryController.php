@@ -51,13 +51,7 @@ class DictionaryController extends Controller
         $word->uk = $uk;
         $word->en = $en;
         $word->ru = $ru;
-        /*     'en',
-        'uk',
-        'ru',
-        'description',
-        'example',
-        'author',
-        'editor'*/
+
         $word->description = $request->description;
         $word->example = $request->example;
         $word->author = Auth::user()->tn; 
@@ -123,7 +117,7 @@ class DictionaryController extends Controller
         $word->example = $request->example;
         $word->editor = Auth::user()->tn;   
         $word->save();
-        return redirect('/dictionary')->with('success', 'Word updated successfully');
+        return redirect('/dictionaryedit')->with('success', 'Word updated successfully');
     }
 
     /**
