@@ -14,8 +14,8 @@ class DictionaryController extends Controller
     public function index()
     {
         //
-        $dictionary = Dictionary::where('editor', null)
-        ->orWhere('editor', '')
+        $dictionary = Dictionary::where('editor','!=', null)
+        ->orWhere('editor','!=', '')
         ->orderBy('uk', 'asc')
         ->get();
         return view('dictionary.index', compact('dictionary'));
