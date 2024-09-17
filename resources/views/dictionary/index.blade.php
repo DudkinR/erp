@@ -16,7 +16,7 @@
     @if(session('error'))
         <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
-    @if(Auth::user()->hasRole('quality-engineer','admin','user'))
+    @if(Auth::check() && Auth::user()->hasRole('quality-engineer','admin','user'))
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Dictionary')}}</h1>
