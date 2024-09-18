@@ -27,8 +27,10 @@
                 {{__('Roles')}} :
                 <ul>
                     @foreach($user->roles as $role)
+                   
+                
                         <li>{{$role->name}} -
-                          {{$role->slug}}
+                          {{$role->slug}} <br>  @if(Auth::user()->hasRole($role->slug)) {{__('You have this role')}} @endif
                         </li>
                     @endforeach
                 </ul>
