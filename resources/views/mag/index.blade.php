@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Magazines')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('quality-engineer','admin','department-chief))
                 <a class="btn btn-light text-right" href="{{ route('mag.create') }}">{{__('Create')}}</a>
             @endif
             </div>

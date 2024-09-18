@@ -27,7 +27,9 @@
                 {{__('Roles')}} :
                 <ul>
                     @foreach($user->roles as $role)
-                        <li>{{$role->name}}</li>
+                        <li>{{$role->name}} 
+s                            {{$role->slug}}
+                        </li>
                     @endforeach
                 </ul>
                 @endif

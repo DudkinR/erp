@@ -271,7 +271,7 @@ class PersonalController extends Controller
     }
     // import personal data from csv file to database
     public function importData(Request $request)
-{
+    {
     set_time_limit(0);
 
     $type_of_file = $request->type_of_file ?? 0;
@@ -279,53 +279,16 @@ class PersonalController extends Controller
 
     foreach ($csvData as $line) {
         $data = str_getcsv($line, ";"); 
-
-        if ($data[1] === 'TAB_NO') {
+        if ($data[2] === 'TAB_NO') {
             continue;
         }
-
-        $personal = Personal::where('tn', $data[1])->first();
-        if (!$personal) {
-            $personal = new Personal();
-            $personal->tn = $data[1];
-            $personal->nickname = $this->nickname($data[2]);
-            $personal->fio = $data[2];
-            $fi = explode(' ', $data[2]);
-            if (count($fi) > 1) {
-                $email = strtolower(StringHelpers::generateSlug($fi[0] . '.' . $fi[1])) . '@khnpp.atom.gov.ua';
-                $personal->email = $email;
-            }
-            $personal->phone = $data[11];
-            $personal->date_start = CommonHelper::formattedDate(now());
-            $personal->status = 'На роботі';
+        $personal = Personal::where('tn', $data[2])->first();
+        if ($personal && $personal->fio === $data[1]) {
+            $personal->email =  $data[3];
             $personal->save();
         }
 
-        $phone = Phone::firstOrCreate(['phone' => $data[11]]);
 
-        // Обновление телефонов
-        $personal->phones()->syncWithoutDetaching($phone->id);
-
-
-        // Обновление комнаты (Room)
-        $IDroom = $data[10];
-        $room = Room::where('IDname', $IDroom)->first();
-        if ($room) {
-            $personal->rooms()->syncWithoutDetaching([$room->id]);
-        }
-
-        // Обновление позиции (Position)
-        $position = Position::where('name', $data[5])->first();
-        if (!$position) {
-            $position = new Position([
-                'name' => $data[5],
-                'description' => $data[5],
-                'start' => 'active'
-            ]);
-            $position->save();
-        }
-        $personal->positions()->sync($position->id);
-        $this->cleaning_double($personal->id);
     }
     
     return redirect('/personal')->with('success', 'Personal data imported!');
