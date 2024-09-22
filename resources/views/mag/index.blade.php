@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <div class="container">
-
-               @if ($errors->any())
+        @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -17,8 +16,6 @@
         @if(session('error'))
             <div class="alert alert-danger">{{ __(session('error')) }}</div>
         @endif
-
-
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Magazines')}}</h1>
@@ -50,5 +47,6 @@
                     </div>
                 </div>
             @endforeach
+        </div>
     </div>
 @endsection

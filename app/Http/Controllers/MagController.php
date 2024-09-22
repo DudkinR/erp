@@ -181,8 +181,7 @@ class MagController extends Controller
     {
         $magtable = Magtable::find($id);
         $cols = $magtable->magcolumns;
-        $rows = [];
-    
+        $rows = [];    
         foreach ($cols as $col) {
             $type = $col->type;
             $modelClass = "App\\Models\\" . $this->types_models[$type];
@@ -202,8 +201,7 @@ class MagController extends Controller
                     'worker_tn' => $data->worker_tn,
                 ];
             }
-        }
-    
+        }    
         // Sort rows by date (keys)
         ksort($rows); // Sort keys (dates) in ascending order
         $rows = array_reverse($rows, true);
@@ -241,8 +239,7 @@ class MagController extends Controller
         }
         ksort($rows); // Sort keys (dates) in ascending order
         $rows = array_reverse($rows, true);
-    $final=[];
-        
+        $final=[];        
         foreach ($rows as $key => $value) {
             // Преобразуем массив значений $value в один плоский массив
             $flattenedRow = array_merge([strtotime($key)], $value); // Добавляем ключ (дата) первым элементом
@@ -271,7 +268,115 @@ class MagController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // if have any magazine with same name retern back with error
+        $magtable = Magtable::find($id);
+        if($request->name)
+        {
+            $magtable->name = $request->name;
+        }
+        if($request->description)
+        {
+            $magtable->description = $request->description;
+        }
+        // save
+        $magtable->save();
+        // division_writer !== all add param type = 0
+        $all_divisions = Division::all();
+        if (is_array($request->division_writer)) {
+            if (!in_array('all', $request->division_writer)) {
+                $magtable->divisions()->detach();
+                $magtable->divisions()->attach($request->division_writer, ['type' => 0]); }
+            else{
+            $magtable->divisions()->detach();
+            $magtable->divisions()->attach( $all_divisions, ['type' => 0]);
+        }
+        }
+        else{
+            $magtable->divisions()->detach();
+            $magtable->divisions()->attach($request->division_writer, ['type' => 0]);
+        }
+        // division_reader !== all add param type = 1
+        if (is_array($request->division_reader)) {
+            if (!in_array('all', $request->division_reader)) {
+                $magtable->divisions()->detach();
+                $magtable->divisions()->attach($request->division_reader, ['type' => 1]); }
+            else{
+            $magtable->divisions()->detach();
+            $magtable->divisions()->attach( $all_divisions, ['type' => 1]);
+        }
+        }
+        else{
+            $magtable->divisions()->detach();
+            $magtable->divisions()->attach( $all_divisions, ['type' => 1]);
+        }
+        // columns create new magcolumns [name	description	type]
+        $types= ['text'=>0, 'string'=>1, 'number'=>2, 'float'=>3, 'time'=>4, 'boolean'=>5];
+        $columns = $magtable->magcolumns;
+        foreach($columns as $column){
+            $column->maglimits()->detach();
+            $column->magdatabools()->detach();
+            $column->magdatafloats()->detach();
+            $column->magdataints()->detach();
+            $column->magdatatexts()->detach();
+            $column->magdatastrs()->detach();
+            $column->magdatatimes()->detach();
+            // update column
+            $column->name = $request->{"column_name_".$column->id};
+            $column->description = $request->{"description_".$column->id};
+            $column->type = $types[$request->{"column_type_".$column->id}];
+            if($request->{"dimension_".$column->id})
+            $column->dimensions = $request->{"dimension_".$column->id};
+            $column->save();
+            if($types[$request->{"column_type_".$column->id}]== '2' || $types[$request->{"column_type_".$column->id}]== '3'){
+                // add maglimits to magcolumn
+                $maglimit = $column->maglimits->first();
+                if($maglimit){
+                    $maglimit->hfb = $request->{"high_fix_limit_".$column->id};
+                    $maglimit->heb = $request->{"high_emergency_limit_".$column->id};
+                    $maglimit->hrb = $request->{"high_reglement_limit_".$column->id};
+                    $maglimit->hwb = $request->{"high_working_limit_".$column->id};
+                    $maglimit->lwb = $request->{"low_working_limit_".$column->id};
+                    $maglimit->lrb = $request->{"low_reglement_limit_".$column->id};
+                    $maglimit->leb = $request->{"low_emergency_limit_".$column->id};
+                    $maglimit->lfb = $request->{"low_fix_limit_".$column->id};
+                    $maglimit->save(); 
+                }
+            }         
+        }
+        $column_names = $request->new_column_name;
+        foreach($column_names as $key => $column_name){
+            if($request->{"new_description_".$key}=='' || $request->{"new_description_".$key}==NULL)
+            {
+                continue;
+            }
+            $magcolumn = new Magcolumn();
+            $magcolumn->name = $column_name;
+            $magcolumn->description = $request->{"new_description_".$key};
+            $magcolumn->type = $types[$request->{"new_column_type_".$key}]; 
+            //dimension_
+            if($request->{"new_dimension_".$key}){
+                $magcolumn->dimensions = $request->{"new_dimension_".$key};
+            }
+            $magcolumn->save();
+            $magtable->magcolumns()->attach($magcolumn, ['number' => $key]);
+
+            if($types[$request->{"new_column_type_".$key}]== '2' || $types[$request->{"new_column_type_".$key}]== '3'){
+            // add maglimits to magcolumn
+            $maglimit = new Maglimit();
+            $maglimit->hfb = $request->{"new_high_fix_limit_".$key};
+            $maglimit->heb = $request->{"new_high_emergency_limit_".$key};
+            $maglimit->hrb = $request->{"new_high_reglement_limit_".$key};
+            $maglimit->hwb = $request->{"new_high_working_limit_".$key};
+            $maglimit->lwb = $request->{"new_low_working_limit_".$key};
+            $maglimit->lrb = $request->{"new_low_reglement_limit_".$key};
+            $maglimit->leb = $request->{"new_low_emergency_limit_".$key};
+            $maglimit->lfb = $request->{"new_low_fix_limit_".$key};
+        }
+    }
+        
+    // to route show
+        return  redirect('/mag');
+
     }
 // storeRow
 public function storeRow(Request $request)

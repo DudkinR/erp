@@ -20,9 +20,10 @@
     <script>
         const personals = @json($personals);
         var show_ps = personals;
-     //   console.log( show_ps );
+        //console.log( show_ps );
         const show_personals = document.getElementById('show_personals');
         function show() {
+            console.log( show_ps );
             const show_personals = document.getElementById('show_personals');
             show_personals.innerHTML = '';
 
@@ -42,7 +43,6 @@
                     </thead>
                     <tbody>
             `;
-
             // Заполнение таблицы данными
             show_ps.forEach(personal => {
                 tableHTML += `
@@ -56,7 +56,8 @@
                             <hr>
                             {{__('Email')}}:<br>
                             ${personal.email}
-
+                            <br>{{__('Division')}}:
+                            ${personal.divisions.map(division => division.name)}
                         </td>
                         @if(Auth::user()->hasRole('quality-engineer','admin'))
                         <td>

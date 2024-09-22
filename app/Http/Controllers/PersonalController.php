@@ -28,11 +28,16 @@ class PersonalController extends Controller
     public function index()
     {
       // return  Personal::find(1)->positions()->get();
+      $divisions = Division::where('name', 'КРВ')->get();
         $personals = Personal::with('positions')
+        -> whereHas('divisions', function($query) use ($divisions){
+            $query->whereIn('division_id', $divisions->pluck('id'));
+        })
         ->orderBy('id', 'desc')
-        ->limit(0)
+        ->limit(10)
         ->with('positions', 'divisions','rooms','phones')
         ->get();
+        //return $personals;
         //$personals = Personal::orderBy('id', 'desc')->get();
         return view('personals.index', compact('personals'));
     }
@@ -206,13 +211,21 @@ class PersonalController extends Controller
     public function update(Request $request, string $id)
     {
         $personal = Personal::find($id);
-        $personal->tn = $request->tn;
-        $personal->nickname = $request->nickname;
-        $personal->fio = $request->fio;
-        $personal->email = $request->email;
-        $personal->phone = $request->phone;
-        $personal->date_start = $request->date_start;
-        $personal->status = $request->status;
+        if(!$request->tn){
+            $personal->tn=$request->tn;
+        }
+        if(!$request->email){
+         $personal->email = $request->email;
+        }
+        if(!$request->phone){
+            $personal->phone = $request->phone;
+        }
+        if(!$request->date_start){
+            $personal->date_start = $request->date_start;
+        }
+        if(!$request->status){
+            $personal->status = $request->status;
+        }
         $personal->save();
         $user = User::where('tn', $request->tn)->first();
         if(!$user){
@@ -252,7 +265,7 @@ class PersonalController extends Controller
         }
         $user->roles()->detach();
         $user->roles()->attach($request->roles);
-        return redirect('/profile')->with('success', 'Personal updated!');
+        return redirect('/personal')->with('success', 'Personal updated!');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,17 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Ensure existing null or invalid values are set to a default value
+        DB::table('magcolumns')
+            ->whereNull('dimensions')
+            ->orWhere('dimensions', 'NOT REGEXP', '^[0-9]+$')
+            ->update(['dimensions' => 0]);
+
         if (!Schema::hasColumn('magcolumns', 'dimensions')) {
             Schema::table('magcolumns', function (Blueprint $table) {
-                $table->integer('dimensions')->nullable()->after('description');
+                $table->integer('dimensions')
+                    ->default(0)
+                    ->after('description');
             });
-        }
-        else {
+        } else {
             Schema::table('magcolumns', function (Blueprint $table) {
-                $table->integer('dimensions')->nullable()->change();
+                $table->integer('dimensions')
+                    ->default(0)
+                    ->change();
             });
         }
-
     }
 
     /**
