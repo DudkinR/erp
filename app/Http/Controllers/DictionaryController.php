@@ -72,53 +72,61 @@ class DictionaryController extends Controller
     }
 
     public function importData(Request $request)
-    {    if (Auth::check()) {
+{   
+    // Проверка аутентификации пользователя
+    if (Auth::check()) {
         $author = Auth::user()->tn;
     } else {
         return redirect()->back()->with('error', 'User is not authenticated');
     }
-        if (!$request->hasFile('file')) {
-            return redirect()->back()->with('error', 'No file uploaded');
-        }
-        if($request->type_of_file)
-       { $type_of_file =$request->type_of_file;}
-        else
-        {$type_of_file = 0;}
-        $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
-        foreach ($csvData as $row) {
-            // find uk [4]
-            $word = Dictionary::whereRaw('LOWER(uk) = ?', [strtolower($row[4])])->first();
 
-            if($word){
-                $word->en = strtolower($row[6]);
-                $word->ru = strtolower($row[5]);
-                if (isset($row[7])) {
-                    if($row[7] != null)
-                    {$word->description = $row[7];}
-                }
-               
-                $word->editor = $author;
-                $word->save();
-            }
-            else{
-                $nword = new Dictionary();
-                $nword->uk = strtolower($row[4]);
-                $nword->en = strtolower($row[6]);
-                $nword->ru = strtolower($row[5]);
-                if (isset($row[7])) {
-                    if($row[7] != null)
-                    {$word->description = $row[7];}
-                }
-                $nword->example = '';            
-                
-                $nword->author = $author;
-                $nword->editor = $author;
-                $nword->save();
-            }
-        }
-
-        return redirect('/dictionary')->with('success', 'Words added successfully');
+    // Проверка наличия загруженного файла
+    if (!$request->hasFile('file')) {
+        return redirect()->back()->with('error', 'No file uploaded');
     }
+
+    // Определение типа файла
+    $type_of_file = $request->type_of_file ?? 0;
+
+    // Преобразование CSV в массив
+    $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
+
+    foreach ($csvData as $row) {
+        // Поиск слова по uk
+        $word = Dictionary::whereRaw('LOWER(uk) = ?', [strtolower($row[4])])->first();
+
+        if ($word) {
+            // Обновляем существующую запись
+            $word->en = strtolower($row[6]);
+            $word->ru = strtolower($row[5]);
+            
+            if (isset($row[7]) && $row[7] != null) {
+                $word->description = $row[7];
+            }
+
+            $word->editor = $author;
+            $word->save();
+        } else {
+            // Создаём новую запись
+            $nword = new Dictionary();
+            $nword->uk = strtolower($row[4]);
+            $nword->en = strtolower($row[6]);
+            $nword->ru = strtolower($row[5]);
+
+            if (isset($row[7]) && $row[7] != null) {
+                $nword->description = $row[7];  // Исправлено с $word на $nword
+            }
+
+            $nword->example = '';            
+            $nword->author = $author;
+            $nword->editor = $author;
+            $nword->save();
+        }
+    }
+
+    return redirect('/dictionary')->with('success', 'Words added successfully');
+}
+
 
     /**
      * Show the form for editing the specified resource.
