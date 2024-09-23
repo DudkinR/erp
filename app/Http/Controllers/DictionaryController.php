@@ -73,9 +73,9 @@ class DictionaryController extends Controller
     public function importData(Request $request)
     {   
         if($request->type_of_file)
-        $type_of_file =$request->type_of_file;
+       { $type_of_file =$request->type_of_file;}
         else
-        $type_of_file = 0;
+        {$type_of_file = 0;}
         $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         foreach ($csvData as $row) {
             // find uk [4]
