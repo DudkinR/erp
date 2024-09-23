@@ -37,6 +37,7 @@ Route::delete('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@des
 Route::middleware('auth')->group(function () {
 // dictionary import routes
     Route::get('/dictionaryimport', 'App\Http\Controllers\DictionaryController@import')->name('dictionary.import');
+    Route::post('/dictionaryimport', 'App\Http\Controllers\DictionaryController@importData')->name('dictionary.importData');
 
     // goals routes
     Route::get('/goals', 'App\Http\Controllers\GoalController@index')->name('goals.index');

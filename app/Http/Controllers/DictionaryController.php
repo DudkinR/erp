@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dictionary;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\FileHelpers;
 
 class DictionaryController extends Controller
 {
@@ -66,25 +67,40 @@ class DictionaryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function import()
-    {
-        $word_cards = $this->cards;
-        foreach ($word_cards as $card) {
-            if($card['uk'] == '' ){
-                continue;
+    public function import(){
+        return view('dictionary.import');
+    }
+    public function importData(Request $request)
+    {   
+        if($request->type_of_file)
+        $type_of_file =$request->type_of_file;
+        else
+        $type_of_file = 0;
+        $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
+        foreach ($csvData as $row) {
+            // find uk [4]
+            $word= Dictionary::where('uk', strtolower($row[4]))->first();
+            if($word){
+                $word->en = strtolower($row[6]);
+                $word->ru = strtolower($row[5]);
+                if($row[7] != null)
+                {$word->description = $row[7];}
+                $word->editor = Auth::user()->tn;
+                $word->save();
             }
-            if(count(explode(' ', $card['uk'])) > 2){
-                continue;
+            else{
+                $word = new Dictionary();
+                $word->uk = strtolower($row[4]);
+                $word->en = strtolower($row[6]);
+                $word->ru = strtolower($row[5]);
+                $word->description = $row[7];
+                $word->example = '';
+                $word->author = Auth::user()->tn;
+                $word->editor = Auth::user()->tn;
+                $word->save();
             }
-            $word = new Dictionary();
-            $word->uk =strtolower ($card['uk']);
-            $word->en =strtolower ($card['en']);
-            $word->ru = strtolower($card['ru']);
-            $word->description = '';
-            $word->example = '';
-            $word->author = Auth::user()->tn;
-            $word->save();
         }
+
         return redirect('/dictionary')->with('success', 'Words added successfully');
     }
 
