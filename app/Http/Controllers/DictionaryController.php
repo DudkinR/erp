@@ -70,8 +70,16 @@ class DictionaryController extends Controller
     public function import(){
         return view('dictionary.import');
     }
+
     public function importData(Request $request)
-    {   
+    {    if (Auth::check()) {
+        $author = Auth::user()->tn;
+    } else {
+        return redirect()->back()->with('error', 'User is not authenticated');
+    }
+        if (!$request->hasFile('file')) {
+            return redirect()->back()->with('error', 'No file uploaded');
+        }
         if($request->type_of_file)
        { $type_of_file =$request->type_of_file;}
         else
@@ -79,25 +87,33 @@ class DictionaryController extends Controller
         $csvData = FileHelpers::csvToArray($request->file('file'),$type_of_file);
         foreach ($csvData as $row) {
             // find uk [4]
-            $word= Dictionary::where('uk', strtolower($row[4]))->first();
+            $word = Dictionary::whereRaw('LOWER(uk) = ?', [strtolower($row[4])])->first();
+
             if($word){
                 $word->en = strtolower($row[6]);
                 $word->ru = strtolower($row[5]);
-                if($row[7] != null)
-                {$word->description = $row[7];}
-                $word->editor = Auth::user()->tn;
+                if (isset($row[7])) {
+                    if($row[7] != null)
+                    {$word->description = $row[7];}
+                }
+               
+                $word->editor = $author;
                 $word->save();
             }
             else{
-                $word = new Dictionary();
-                $word->uk = strtolower($row[4]);
-                $word->en = strtolower($row[6]);
-                $word->ru = strtolower($row[5]);
-                $word->description = $row[7];
-                $word->example = '';
-                $word->author = Auth::user()->tn;
-                $word->editor = Auth::user()->tn;
-                $word->save();
+                $nword = new Dictionary();
+                $nword->uk = strtolower($row[4]);
+                $nword->en = strtolower($row[6]);
+                $nword->ru = strtolower($row[5]);
+                if (isset($row[7])) {
+                    if($row[7] != null)
+                    {$word->description = $row[7];}
+                }
+                $nword->example = '';            
+                
+                $nword->author = $author;
+                $nword->editor = $author;
+                $nword->save();
             }
         }
 
