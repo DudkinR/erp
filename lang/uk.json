@@ -474,5 +474,13 @@
     "example" : "приклад",
     "Phones" : "Телефони",
     "New Column Name" : "Нова назва колонки",
+    "New Client":"Новий кліент",
+    "Execution Period":"Період виконання",
+    "Payment Percentage":"Відсоток оплати",
+    "Shipping Percentage":"Відсоток відвантаження",
+    "Debt Percentage":"Відсоток боргу",
+    "Currency":"Валюта",
+    "Operation":"Операція",
+    "Amount":"Сума",
     "Archives" : "Архіви"
 }

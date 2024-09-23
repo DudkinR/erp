@@ -36,11 +36,11 @@ class ProjectController extends Controller
     // create
     public function create()
     {
-        $stages = Stage::orderBy('name', 'desc')->get();
-        $steps = Step::orderBy('name', 'desc')->get();
-        $controls = Control::orderBy('name', 'desc')->get();
-        $personals = Personal::orderBy('name', 'desc')->get();
-        $dimensions = Dimension::orderBy('name', 'desc')->get();
+        $stages = Stage::orderBy('name', 'asc')->get();
+        $steps = Step::orderBy('name', 'asc')->get();
+        $controls = Control::orderBy('name', 'asc')->get();
+        $personals = Personal::orderBy('nickname', 'asc')->get();
+        $dimensions = Dimension::orderBy('name', 'asc')->get();
         return view('projects.create', compact('stages', 'steps', 'controls', 'personals', 'dimensions'));
     }
     // store

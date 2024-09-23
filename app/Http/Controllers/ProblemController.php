@@ -202,6 +202,7 @@ class ProblemController extends Controller
     {
         //
         $problem = Problem::find($id);
+        if($problem)
         $problem->delete();
         return redirect()->route('problems.index')->with('success', 'Problem deleted successfully.');
         

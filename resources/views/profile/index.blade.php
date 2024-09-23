@@ -31,6 +31,7 @@
                 
                         <li>{{$role->name}} -
                           {{$role->slug}} <br>  @if(Auth::user()->hasRole($role->slug)) {{__('You have this role')}} @endif
+                          <br>
                         </li>
                     @endforeach
                 </ul>
