@@ -32,7 +32,6 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>{{__('tn')}}</th>
                             <th>{{__('FIO')}}</th>
                             <th>{{__('Position')}}</th>
                             <th>{{__('Data')}}</th>
@@ -47,7 +46,6 @@
             show_ps.forEach(personal => {
                 tableHTML += `
                     <tr>
-                        <td>${personal.tn}</td>
                         <td>${personal.fio}</td>
                         <td>${personal.positions.map (position => position.name).join(', ')}</td>
                         <td>
@@ -61,11 +59,11 @@
                         </td>
                         @if(Auth::user()->hasRole('quality-engineer','admin'))
                         <td>
-                            <a href="/personal/${personal.id}/edit">Edit</a>
+                            <a href="/personal/${personal.id}/edit" class="btn btn-info w-100" >Edit</a>
                             <form action="/personal/${personal.id}" method="POST" style="display:inline;">
                                 <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
                                 <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-danger w-100">Delete</button>
                             </form>
                         </td>
                         @endif

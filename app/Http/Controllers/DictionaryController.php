@@ -91,9 +91,16 @@ class DictionaryController extends Controller
     // Преобразование CSV в массив
     $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
 
-    foreach ($csvData as $row) {
+    foreach ($csvData as $rows) {
+        // delete " from string
+        $rows = str_replace('"', '', $rows);
+        $row = explode(';', $rows);
+        if (count($row) < 7) {
+            continue;
+        }
+        
         // Поиск слова по uk
-        $word = Dictionary::whereRaw('LOWER(uk) = ?', [strtolower($row[4])])->first();
+        $word = Dictionary::where('uk',' =' , strtolower($row[4]))->first();
 
         if ($word) {
             // Обновляем существующую запись
@@ -107,14 +114,19 @@ class DictionaryController extends Controller
             $word->editor = $author;
             $word->save();
         } else {
+           
             // Создаём новую запись
             $nword = new Dictionary();
+             
             $nword->uk = strtolower($row[4]);
             $nword->en = strtolower($row[6]);
             $nword->ru = strtolower($row[5]);
 
             if (isset($row[7]) && $row[7] != null) {
                 $nword->description = $row[7];  // Исправлено с $word на $nword
+            }
+            else{
+                $nword->description = '';
             }
 
             $nword->example = '';            

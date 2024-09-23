@@ -28,7 +28,7 @@ class PersonalController extends Controller
     public function index()
     {
       // return  Personal::find(1)->positions()->get();
-      $divisions = Division::where('name', 'КРВ')->get();
+      $divisions = Division::where('name', 'ЗП КЕР-ВО')->get();
         $personals = Personal::with('positions')
         -> whereHas('divisions', function($query) use ($divisions){
             $query->whereIn('division_id', $divisions->pluck('id'));
@@ -292,13 +292,37 @@ class PersonalController extends Controller
 
     foreach ($csvData as $line) {
         $data = str_getcsv($line, ";"); 
+
         if ($data[2] === 'TAB_NO') {
             continue;
         }
+        $division = Division::where('name', $data[4])->first();
+        if (!$division) {
+            $division = new Division([
+                'name' => $data[4],
+                'description' => $data[4],
+                'abv' => $data[4],
+                'slug' => StringHelpers::generateSlug($data[4]),
+                'parent_id' => 0
+            ]);
+            $division->save();
+        }
+        $underdivision = Division::where('name', $data[5])->first();
+        if (!$underdivision) {
+            $underdivision = new Division([
+                'name' => $data[5],
+                'description' => $data[5],
+                'abv' => $data[5],
+                'slug' => StringHelpers::generateSlug($data[5]),
+                'parent_id' => $division->id
+            ]);
+            $underdivision->save();
+        }
         $personal = Personal::where('tn', $data[2])->first();
         if ($personal && $personal->fio === $data[1]) {
-            $personal->email =  $data[3];
+            $personal->email =  $data[3];                        
             $personal->save();
+            $personal->divisions()->attach($underdivision->id); 
         }
 
 
