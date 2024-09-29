@@ -45,7 +45,9 @@
             <div class="col-md-2">
                 {{$room['personal_count']}}
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2
+            @if($room['effectiveness']<10&&$room['effectiveness']!==0) bg-danger    @endif
+            ">
                 {{$room['effectiveness']}}
             </div>
         </div>
