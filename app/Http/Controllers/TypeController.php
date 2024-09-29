@@ -24,9 +24,13 @@ class TypeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        if($request->has('parent_id')) {
+            $parent_id = $request->parent_id;
+             return view('types.create', compact('parent_id'));
+        }
         return view('types.create');
     }
 

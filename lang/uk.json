@@ -482,5 +482,13 @@
     "Currency":"Валюта",
     "Operation":"Операція",
     "Amount":"Сума",
+    "New Form Calling":"Новий бланк виклику",
+    "Work description":"Опис роботи",
+    "Arrival Time":"Час прибуття",
+    "Start Time":"Час початку роботи",
+    "End Time":"Час убиття з роботи",
+    "Work Time" : "Час закінчення роботи",
+    "Chief":"Старший Групи",
+    "Select Chief":"Виберіть старшого групи",
     "Archives" : "Архіви"
 }

@@ -18,22 +18,16 @@
                       
                     </div>
                     <div class="form-group">
-                        <label for="description" >{{__('Description')}}</label>
-                        
-                            <textarea id="description" rows=7 class="form-control" name="description"  autofocus>{{ old('description') }}</textarea>
-                                
+                        <label for="description" >{{__('Description')}}</label>                        
+                            <textarea id="description" rows=7 class="form-control" name="description"  autofocus>{{ old('description') }}</textarea>                                
                     </div>
                     <div class="form-group">
-                        <label for="icon" >{{__('Icon')}}</label>
-                        
-                            <input id="icon" type="file" class="form-control" name="icon" value="{{ old('icon') }}"  autofocus>
-                      
+                        <label for="icon" >{{__('Icon')}}</label>                        
+                            <input id="icon" type="file" class="form-control" name="icon" value="{{ old('icon') }}"  autofocus>                      
                     </div>
                     <div class="form-group">
-                        <label for="color" >{{__('Color')}}</label>
-                        
-                            <input id="color" type="color" class="form-control" name="color" value="#FFFFFF"  autofocus>
-                      
+                        <label for="color" >{{__('Color')}}</label>                        
+                            <input id="color" type="color" class="form-control" name="color" value="#FFFFFF"  autofocus>                      
                     </div>
                     <div class="form-group">
                         <label for="slug" >{{__('Slug')}}</label>
@@ -48,7 +42,12 @@
                                 <option value="0">{{__('First parent')}}</option>
                                 <?php $types = \App\Models\Type::orderBy('id', 'desc')->get(); ?>
                                 @foreach($types as $type)
-                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                    <option value="{{ $type->id }}"
+                                        @if(isset($parent_id) && $type->id == $parent_id)
+                                            selected
+                                        @endif
+                                            
+                                        >{{ $type->name }}</option>
                                 @endforeach
                             </select>
                             <a href="{{ route('types.create') }}">{{__('Create new parent')}}</a>

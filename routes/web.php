@@ -444,6 +444,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/items/{id}/edit', 'App\Http\Controllers\ItemController@edit')->name('items.edit');
     Route::put('/items/{id}', 'App\Http\Controllers\ItemController@update')->name('items.update');
     Route::delete('/items/{id}', 'App\Http\Controllers\ItemController@destroy')->name('items.destroy');
+
+    // callings
+    Route::get('/callings', 'App\Http\Controllers\CallingController@index')->name('callings.index');
+    Route::get('/callings/create', 'App\Http\Controllers\CallingController@create')->name('callings.create');
+    Route::post('/callings', 'App\Http\Controllers\CallingController@store')->name('callings.store');
+    Route::get('/callings/{id}', 'App\Http\Controllers\CallingController@show')->name('callings.show');
+    Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
+    Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
+    Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
+    
     
     
 
