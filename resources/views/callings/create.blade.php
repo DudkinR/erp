@@ -90,9 +90,11 @@
                         <input type="checkbox" id="personal_end_id" name="personal_end_id" value="1" {{ old('personal_end_id') ? 'checked' : '' }}>
                     </div>
 
-                    @php 
-                    // where pivot division == division_id of authorized user
-                    $workers = \App\Models\Personal:: all();
+                    @php                     
+                    if($personnelInSameDivisions)
+                    $workers = $personnelInSameDivisions;
+                    else
+                    $workers =[];
                     @endphp
                     <!-- Workers (multi-select) -->
                     <div class="form-group">
