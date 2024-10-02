@@ -64,6 +64,7 @@
                     {{__('Magasines')}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Callings')}}</a>
                     <a class="dropdown-item" href="{{ route('magasines.index') }}">{{__('Magasines')}}</a>
                     <a class="dropdown-item" href="{{ route('products.index') }}">{{__('Products')}}</a>
                     <a class="dropdown-item" href="{{ route('equipments.index') }}">{{__('Equipments')}}</a>

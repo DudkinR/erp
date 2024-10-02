@@ -112,6 +112,23 @@ class CallingController extends Controller
         $calling = Calling::find($id);
         return view('callings.show', ['calling' => $calling]);
     }
+    // confirmSS
+    public function confirmSS(string $id)
+    {
+        //
+        $calling = Calling::find($id);     
+        return view ('callings.confirmSS', ['calling' => $calling]);
+        //redirect()->route('callings.confirmSS', ['calling' => $calling]);
+    }
+    // confirmSSS
+    public function confirmStore(Request $request, string $id)
+    {
+        //
+        $calling = Calling::find($id);
+        $calling->save();
+        return redirect()->route('callings.index');
+    }
+    // confirmS
 
     /**
      * Show the form for editing the specified resource.

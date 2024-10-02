@@ -9,9 +9,15 @@
         </div> 
         <div class="row">
             <div class="col-md-12">
-                <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}">
+                <div class="input-group">
+                    <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}">
+                    <span class="input-group-text" onclick="findResults()">
+                        <i class="search_input_button">{{__('Search')}}</i>
+                    </span>
+                </div>
             </div>
         </div>
+        
         <div class="row">
             <div class="col-md-12" id="show_personals">
             </div>   
@@ -20,13 +26,13 @@
     <script>
         const personals = @json($personals);
         var show_ps = personals;
-        //console.log( show_ps );
+        
         const show_personals = document.getElementById('show_personals');
+    
         function show() {
-            console.log( show_ps );
-            const show_personals = document.getElementById('show_personals');
+            console.log(show_ps);
             show_personals.innerHTML = '';
-
+    
             // Инициализация переменной tableHTML
             let tableHTML = `
                 <table class="table">
@@ -42,12 +48,13 @@
                     </thead>
                     <tbody>
             `;
+    
             // Заполнение таблицы данными
             show_ps.forEach(personal => {
                 tableHTML += `
                     <tr>
                         <td>${personal.fio}</td>
-                        <td>${personal.positions.map (position => position.name).join(', ')}</td>
+                        <td>${personal.positions.map(position => position.name).join(', ')}</td>
                         <td>
                             {{__('Phones')}}:<br>
                             ${personal.phones.map(phone => phone.phone).join(', ')}
@@ -70,50 +77,54 @@
                     </tr>
                 `;
             });
-
+    
             // Закрытие таблицы
             tableHTML += `
                     </tbody>
                 </table>
             `;
-
+    
             // Вставка таблицы в DOM
             show_personals.innerHTML = tableHTML;
         }
-        show();
+    
+        show(); // Вызов функции отображения таблицы
+    
         const search = document.getElementById('search');
         search.addEventListener('keyup', (e) => {
-            // пошук по fio та positions 
+            findResults(e); // Передаем событие в функцию
+        });
+    
+        function clearResults() {
+            show_ps = personals;
+            show(); // Обновляем таблицу после очистки
+        }
+    
+        function findResults(e) {
             const searchString = e.target.value.toLowerCase();
             if (searchString.length > 0) {
-                // Виконати запит до сервера
+                // Выполняем запрос на сервер
                 fetch('/search-personal', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Додати CSRF токен
-
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Добавляем CSRF токен
                     },
                     body: JSON.stringify({ search: searchString })
                 })
-                .then(response => response.json()) // Обробка відповіді у форматі JSON
+                .then(response => response.json()) // Обрабатываем ответ в формате JSON
                 .then(data => {
-                   show_ps =data; // Виклик функції для відображення результатів
-                   //console.log(show_ps);
+                    show_ps = data; // Обновляем данные для отображения
+                    show(); // Обновляем таблицу после получения данных
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
             } else {
-                clearResults(); // Очищення результатів, якщо поле порожнє
+                clearResults(); // Очищаем результаты, если поле пустое
             }
-            show();
-        });
-
-        function clearResults() {
-            show_ps = personals;
         }
-
     </script>
+    
 
 @endsection

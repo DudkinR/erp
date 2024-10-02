@@ -448,6 +448,12 @@ Route::middleware('auth')->group(function () {
     // callings
     Route::get('/callings', 'App\Http\Controllers\CallingController@index')->name('callings.index');
     Route::get('/callings/create', 'App\Http\Controllers\CallingController@create')->name('callings.create');
+    Route::get('/confirmSS/{id}', 'App\Http\Controllers\CallingController@confirmSS')->name('callings.confirmSS');
+    // post confirmSS
+    Route::post('/confirmStore', 'App\Http\Controllers\CallingController@confirmStore')->name('callings.confirmStore');
+    Route::get('/confirm/{id}', 'App\Http\Controllers\CallingController@confirm')->name('callings.confirm');
+    // post confirm
+    Route::post('/confirmStoreCh', 'App\Http\Controllers\CallingController@confirmStoreCh')->name('callings.confirmStoreCh');
     Route::post('/callings', 'App\Http\Controllers\CallingController@store')->name('callings.store');
     Route::get('/callings/{id}', 'App\Http\Controllers\CallingController@show')->name('callings.show');
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');

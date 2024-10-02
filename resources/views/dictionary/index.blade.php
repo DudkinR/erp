@@ -22,16 +22,16 @@
             <h1>{{__('Dictionary')}}</h1>
                 <a class="btn btn-light w-100" href="{{ route('dictionary.create') }}">{{__('Create')}}</a>
             </div>
-        </div>    
-  
+        </div>      
     @endif
     <div class="row">
         <div class="col-md-12">
-            <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}"
-            @if(isset($search))
-                value="{{ $search }}"
-            @endif
-            >
+            <div class="input-group">
+                <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}">
+                <span class="input-group-text" onclick="findResults()">
+                    <i class="search_input_button">{{__('Search')}}</i>
+                </span>
+            </div>
         </div>
     </div>
     <div class="row" id="dict">       
@@ -43,7 +43,6 @@
     const dict = document.getElementById('dict');
     function show() {
         dict.innerHTML = '';
-
         // Инициализация переменной tableHTML
         let tableHTML = `
             <table class="table">
@@ -70,8 +69,7 @@
                     <td>${dict.example}</td>
                 </tr>
             `;
-        });   
-
+        });  
         // Закрытие таблицы
         tableHTML += `
             </tbody>

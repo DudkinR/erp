@@ -36,18 +36,20 @@
         const search = document.getElementById('search');
         const callings = @json($callings);
         var Vcallings = callings;
-        function show_collings()
-        {
+        function show_collings() {
             var html = '';
             Vcallings.forEach(calling => {
-                html += '<div class="row">';
-                html += '<div class="col-md-12">';
-                html += '<a class="btn btn-light w-100" href="{{ route('callings.index') }}/'+calling.id+'/edit">'+calling.description+'</a>';
-                html += '</div>';
-                html += '</div>';
+                html += `
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a class="btn btn-light w-100" href="/confirmSS/${calling.id}">${calling.description}</a>
+                        </div>
+                    </div>
+                `;
             });
             document.getElementById('callings').innerHTML = html;
         }
+
         show_collings();
         search.addEventListener('keyup', (e) => {
             Vcallings = callings.filter(calling => calling.description.toLowerCase().includes(e.target.value.toLowerCase()));
