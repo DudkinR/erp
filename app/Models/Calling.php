@@ -15,6 +15,7 @@ class Calling extends Model
     // Fillable columns
     protected $fillable = [
         'description',
+        'type_id',
         'start_time',
         'personal_start_id',
         'arrival_time',

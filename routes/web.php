@@ -459,6 +459,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
     Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
     Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
+
+    // risk
+    Route::get('/risks', 'App\Http\Controllers\RiskController@index')->name('risks.index');
+    Route::get('/risks/create', 'App\Http\Controllers\RiskController@create')->name('risks.create');
+    Route::post('/risks', 'App\Http\Controllers\RiskController@store')->name('risks.store');
+    Route::get('/risks/{id}', 'App\Http\Controllers\RiskController@show')->name('risks.show');
+    Route::get('/risks/{id}/edit', 'App\Http\Controllers\RiskController@edit')->name('risks.edit');
+    Route::put('/risks/{id}', 'App\Http\Controllers\RiskController@update')->name('risks.update');
+    Route::delete('/risks/{id}', 'App\Http\Controllers\RiskController@destroy')->name('risks.destroy');
+    
     
     
     
