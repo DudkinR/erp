@@ -38,15 +38,40 @@ Route::middleware('auth')->group(function () {
 // dictionary import routes
     Route::get('/dictionaryimport', 'App\Http\Controllers\DictionaryController@import')->name('dictionary.import');
     Route::post('/dictionaryimport', 'App\Http\Controllers\DictionaryController@importData')->name('dictionary.importData');
+  // goals routes
+  Route::get('/goals', 'App\Http\Controllers\GoalController@index')->name('goals.index');
+  Route::get('/goals/create', 'App\Http\Controllers\GoalController@create')->name('goals.create');
+  Route::post('/goals', 'App\Http\Controllers\GoalController@store')->name('goals.store');
+  Route::get('/goals/{id}', 'App\Http\Controllers\GoalController@show')->name('goals.show');
+  Route::get('/goals/{id}/edit', 'App\Http\Controllers\GoalController@edit')->name('goals.edit');
+  Route::put('/goals/{id}', 'App\Http\Controllers\GoalController@update')->name('goals.update');
+  Route::delete('/goals/{id}', 'App\Http\Controllers\GoalController@destroy')->name('goals.destroy');
 
-    // goals routes
-    Route::get('/goals', 'App\Http\Controllers\GoalController@index')->name('goals.index');
-    Route::get('/goals/create', 'App\Http\Controllers\GoalController@create')->name('goals.create');
-    Route::post('/goals', 'App\Http\Controllers\GoalController@store')->name('goals.store');
-    Route::get('/goals/{id}', 'App\Http\Controllers\GoalController@show')->name('goals.show');
-    Route::get('/goals/{id}/edit', 'App\Http\Controllers\GoalController@edit')->name('goals.edit');
-    Route::put('/goals/{id}', 'App\Http\Controllers\GoalController@update')->name('goals.update');
-    Route::delete('/goals/{id}', 'App\Http\Controllers\GoalController@destroy')->name('goals.destroy');
+    // briefs routes
+    Route::get('/briefs', 'App\Http\Controllers\BriefController@index')->name('briefs.index');
+    Route::get('/briefs/create', 'App\Http\Controllers\BriefController@create')->name('briefs.create');
+    Route::post('/briefs', 'App\Http\Controllers\BriefController@store')->name('briefs.store');
+    Route::get('/briefs/{id}', 'App\Http\Controllers\BriefController@show')->name('briefs.show');
+    Route::get('/briefs/{id}/edit', 'App\Http\Controllers\BriefController@edit')->name('briefs.edit');
+    Route::put('/briefs/{id}', 'App\Http\Controllers\BriefController@update')->name('briefs.update');
+    Route::delete('/briefs/{id}', 'App\Http\Controllers\BriefController@destroy')->name('briefs.destroy');
+  // systems routes
+  Route::get('/systems', 'App\Http\Controllers\SystemController@index')->name('systems.index');
+  Route::get('/systems/create', 'App\Http\Controllers\SystemController@create')->name('systems.create');
+  Route::post('/systems', 'App\Http\Controllers\SystemController@store')->name('systems.store');
+  Route::get('/systems/{id}', 'App\Http\Controllers\SystemController@show')->name('systems.show');
+  Route::get('/systems/{id}/edit', 'App\Http\Controllers\SystemController@edit')->name('systems.edit');
+  Route::put('/systems/{id}', 'App\Http\Controllers\SystemController@update')->name('systems.update');
+  Route::delete('/systems/{id}', 'App\Http\Controllers\SystemController@destroy')->name('systems.destroy');
+
+    // jits routes
+Route::get('/jits', 'App\Http\Controllers\JitController@index')->name('jits.index');
+Route::get('/jits/create', 'App\Http\Controllers\JitController@create')->name('jits.create');
+Route::post('/jits', 'App\Http\Controllers\JitController@store')->name('jits.store');
+Route::get('/jits/{id}', 'App\Http\Controllers\JitController@show')->name('jits.show');
+Route::get('/jits/{id}/edit', 'App\Http\Controllers\JitController@edit')->name('jits.edit');
+Route::put('/jits/{id}', 'App\Http\Controllers\JitController@update')->name('jits.update');
+Route::delete('/jits/{id}', 'App\Http\Controllers\JitController@destroy')->name('jits.destroy');
 
     // objectives routes
     Route::get('/objectives', 'App\Http\Controllers\ObjectiveController@index')->name('objectives.index');
