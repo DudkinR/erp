@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Jitqw extends Model
 {
     use HasFactory;
+    // table name
+    protected $table = 'jitqws';
+    // columns
+    protected $fillable = [
+        'description_uk',
+        'description_ru',
+        'description_en',
+    ];
+    // jits_jitqws
+    public function jits()
+    {
+        return $this->belongsToMany(Jit::class, 'jits_jitqws');
+    }
+
 }
