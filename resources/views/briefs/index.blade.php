@@ -18,9 +18,60 @@
     @endif
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('_______')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('_______.create') }}">{{__('Create')}}</a>
+            <h1>{{__('Briefs')}}</h1>
+                <a class="btn btn-light w-100" href="{{ route('briefs.create') }}">{{__('Create')}}</a>
             </div>
-        </div>    
+        </div> 
+        <div class="row">
+            <div class="col-md-1">                
+                {{__('Order')}}
+            </div>
+            <div class="col-md-6">                
+                {{__('Name')}}            
+            </div>
+            <div class="col-md-1">
+                {{__('Type')}}
+            </div>
+            <div class="col-md-1">
+                {{__('Risk')}}
+            </div>
+            <div class="col-md-1">
+                {{__('Functionality')}}
+            </div>  
+            <div class="col-md-2">
+                {{__('Drive')}}
+            </div>
+        </div>   
+        @foreach($briefs as $brief)
+        <div class="row">
+            <div class="col-md-1">
+                {{$brief->order}}
+            </div>
+            <div class="col-md-6">                
+                @if($brief->name_uk!=''){{$brief->name_uk}}
+                @elseif($brief->name_en!=''){{$brief->name_en}}
+                @else{{ str_replace('&nbsp;', ' ', strip_tags($brief->name_ru))}}
+                @endif
+            </div>
+            <div class="col-md-1">
+                {{$brief->type}}
+            </div>
+            <div class="col-md-1">
+                {{$brief->risk}}
+            </div>
+            <div class="col-md-1">
+                {{$brief->functional}}
+            </div>
+            <div class="col-md-2">
+
+                <a class="btn btn-light w-100" href="{{ route('briefs.edit', $brief->id) }}">{{__('Edit')}}</a>
+                <form method="POST" action="{{ route('briefs.destroy', $brief->id) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-light w-100">{{__('Delete')}}</button>
+                </form>
+            </div>
+        </div>
+        @endforeach
     </div>
 @endsection

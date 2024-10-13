@@ -72,6 +72,15 @@ Route::get('/jits/{id}', 'App\Http\Controllers\JitController@show')->name('jits.
 Route::get('/jits/{id}/edit', 'App\Http\Controllers\JitController@edit')->name('jits.edit');
 Route::put('/jits/{id}', 'App\Http\Controllers\JitController@update')->name('jits.update');
 Route::delete('/jits/{id}', 'App\Http\Controllers\JitController@destroy')->name('jits.destroy');
+// jitqws routes
+Route::get('/jitqws', 'App\Http\Controllers\JitqwController@index')->name('jitqws.index');
+Route::get('/jitqws/create', 'App\Http\Controllers\JitqwController@create')->name('jitqws.create');
+Route::post('/jitqws', 'App\Http\Controllers\JitqwController@store')->name('jitqws.store');
+Route::get('/jitqws/{id}', 'App\Http\Controllers\JitqwController@show')->name('jitqws.show');
+Route::get('/jitqws/{id}/edit', 'App\Http\Controllers\JitqwController@edit')->name('jitqws.edit');
+Route::put('/jitqws/{id}', 'App\Http\Controllers\JitqwController@update')->name('jitqws.update');
+Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->name('jitqws.destroy');
+
 
     // objectives routes
     Route::get('/objectives', 'App\Http\Controllers\ObjectiveController@index')->name('objectives.index');

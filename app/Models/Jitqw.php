@@ -21,5 +21,9 @@ class Jitqw extends Model
     {
         return $this->belongsToMany(Jit::class, 'jits_jitqws');
     }
-
+// briefs_jitqws
+    public function briefs()
+    {
+        return $this->belongsToMany(Brief::class, 'briefs_jitqws', 'jitqw_id', 'brief_id');
+    }
 }

@@ -63,6 +63,8 @@
             </div>
             
             <div class="col-md-2">
+                {{$jit->jitqws->count()}}
+                <hr>
                 <a class="btn btn-light" href="{{ route('jits.edit', $jit->id) }}">{{__('Edit')}}</a>
           
                 <form method="POST" action="{{ route('jits.destroy', $jit->id) }}">
@@ -72,6 +74,7 @@
                 </form>
             </div>
         </div>
+        <hr style="border-top: 1px solid #000;">
         @endforeach
     </div>
 @endsection

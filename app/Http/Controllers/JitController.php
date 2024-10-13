@@ -15,7 +15,28 @@ class JitController extends Controller
      */
     public function index()
     {
-        $jits = Jit::all();
+     /*   $acts= DB::connection('mysql2')->table('actions')
+        ->select('name','f','risk','made','aditional','porydok') 
+        ->orderBy('porydok')      
+        ->get();
+         //`id`, `name_uk`, `name_ru`, `name_en`, `order`, `type`, `risk`, `functional`, `created_at`, `updated_at`
+         foreach($acts as $act){
+            $brief = Brief::where('name_ru', $act->name)->first();
+            if(!$brief){
+                $brief = new Brief();
+                $brief->name_ru = $act->name;
+                $brief->name_uk = '';
+                $brief->name_en = '';
+                $brief->order = $act->porydok;
+                $brief->type = $act->f;
+                $brief->risk = $act->risk;
+                $brief->functional = $act->made;
+                $brief->save();
+            }
+        }
+        return Brief::all();
+        */
+         $jits = Jit::all();
         return view('jits.index', compact('jits'));
 
     }
@@ -51,6 +72,9 @@ class JitController extends Controller
     public function edit(string $id)
     {
         //
+        $jitqws = Jitqw::all();
+        $jit = Jit::find($id);
+        return view('jits.edit', compact('jit', 'jitqws'));
     }
 
     /**
@@ -59,6 +83,32 @@ class JitController extends Controller
     public function update(Request $request, string $id)
     {
         //
+       $jit = Jit::find($id);
+            $jit->name_ru = $request->name_ru;
+            $jit->name_uk = $request->name_uk;
+            $jit->name_en = $request->name_en;
+            $jit->description_ru = $request->description_jit_ru;
+            $jit->description_uk = $request->description_jit_uk;
+            $jit->description_en = $request->description_jit_en;
+            $jit->keywords = $request->keywords;
+            $jit->num = $request->number;
+            $jit->save();
+            $jit->jitqws()->detach();
+            if($request->jitqws){
+            //    return $request->description_ru;
+            $jit->jitqws()->sync($request->jitqws);
+                foreach($request->jitqws as $jitqw){
+                    $jitqw = Jitqw::find($jitqw);
+                    if($request->description_ru[$jitqw->id])
+                    $jitqw->description_ru = $request->description_ru[$jitqw->id];
+                    if($request->description_uk[$jitqw->id]) 
+                    $jitqw->description_uk = $request->description_uk[$jitqw->id];
+                    if($request->description_en[$jitqw->id])
+                    $jitqw->description_en = $request->description_en[$jitqw->id];
+                    $jitqw->save();
+                }
+            }
+            return redirect()->route('jits.index');
     }
 
     /**

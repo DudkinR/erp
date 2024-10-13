@@ -21,5 +21,11 @@ class Brief extends Model
         'risk',
         'functional'
     ];
+    // relationships jitqws
+    public function jitqws()
+    {
+        return $this->belongsToMany(Jitqw::class, 'briefs_jitqws' , 'brief_id', 'jitqw_id');
+        
+    }
 
 }
