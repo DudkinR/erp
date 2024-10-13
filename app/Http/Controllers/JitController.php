@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brief;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Jit;
@@ -14,9 +15,9 @@ class JitController extends Controller
      */
     public function index()
     {
-        return Jit::orderBy('num', 'asc')
-        ->with('jitqws')
-        ->get();
+        $jits = Jit::all();
+        return view('jits.index', compact('jits'));
+
     }
 
     /**
@@ -24,7 +25,8 @@ class JitController extends Controller
      */
     public function create()
     {
-        //
+        $jitqws = Jitqw::all();
+        return view('jits.create', compact('jitqws'));
     }
 
     /**
@@ -67,7 +69,29 @@ class JitController extends Controller
         //
     }
 //     $types 
-    /*     $opyts= DB::connection('mysql2')->table('oput_bp')
+    /*  
+          $acts= DB::connection('mysql2')->table('actions')
+        ->select('name','f','risk','made','aditional','porydok') 
+        ->orderBy('porydok')      
+        ->get();
+         //`id`, `name_uk`, `name_ru`, `name_en`, `order`, `type`, `risk`, `functional`, `created_at`, `updated_at`
+         foreach($acts as $act){
+            $brief = Brief::where('name_ru', $act->name)->first();
+            if(!$brief){
+                $brief = new Brief();
+                $brief->name_ru = $act->name;
+                $brief->name_uk = '';
+                $brief->name_en = '';
+                $brief->order = $act->porydok;
+                $brief->type = $act->f;
+                $brief->risk = $act->risk;
+                $brief->functional = $act->made;
+                $brief->save();
+            }
+        }
+        return Brief::all();
+    
+    $opyts= DB::connection('mysql2')->table('oput_bp')
        ->select('text','npp','system','action','equipment','year','post','cause','take') 
        ->orderBy('npp')      
        ->get();
