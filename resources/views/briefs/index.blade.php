@@ -24,7 +24,7 @@
         </div> 
         <div class="row">
             <div class="col-md-1">                
-                {{__('Order')}}
+                {{__('Number')}}
             </div>
             <div class="col-md-6">                
                 {{__('Name')}}            
@@ -47,9 +47,9 @@
             <div class="col-md-1">
                 {{$brief->order}}
             </div>
-            <div class="col-md-6">                
+            <div class="col-md-6" @if($brief->name_uk=='') style="background-color: yellow;" @endif>                
                 @if($brief->name_uk!=''){{$brief->name_uk}}
-                @elseif($brief->name_en!=''){{$brief->name_en}}
+                @elseif($brief->name_en!='' && $brief->name_uk==''){{$brief->name_en}}
                 @else{{ str_replace('&nbsp;', ' ', strip_tags($brief->name_ru))}}
                 @endif
             </div>
@@ -65,11 +65,7 @@
             <div class="col-md-2">
 
                 <a class="btn btn-light w-100" href="{{ route('briefs.edit', $brief->id) }}">{{__('Edit')}}</a>
-                <form method="POST" action="{{ route('briefs.destroy', $brief->id) }}">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-light w-100">{{__('Delete')}}</button>
-                </form>
+           
             </div>
         </div>
         @endforeach

@@ -22,7 +22,7 @@ class Experience extends Model
     public function actions()
     {
         return $this->belongsToMany(Type::class, 'experiences_actions', 'experience_id', 'action_id');
-    }
+    }  
     // types relation experiences_equipments 
     public function equipments()
     {

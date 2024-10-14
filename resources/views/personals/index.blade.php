@@ -4,7 +4,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Personals')}}</h1>
+            @if(Auth::user()->hasRole('quality-engineer','admin'))
                 <a class="text-right" href="{{ route('personal.create') }}">{{__('Create')}}</a>
+            @endif
             </div>
         </div> 
         <div class="row">

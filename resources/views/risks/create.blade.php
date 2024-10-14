@@ -100,7 +100,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                        </div>
+                        </div> 
                         <div class="col-md-6 border">
                             <div class="form-group">
                                 <label>{{ __('Equipments') }}</label>

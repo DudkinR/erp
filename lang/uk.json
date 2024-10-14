@@ -520,5 +520,16 @@
     "Description UK":"Опис UK",
     "Keywords":"Ключові слова",
     "New Question":"Нове питання",
+    "where we can used": "де можна використовувати",
+    "what we want to delete": "що ми хочемо видалити",
+    "Brief":"Інструктаж",
+    "Only for information":"Тільки для інформації",
+    "After the briefing":"Після інструктажу",
+    "Into the briefing's time":"В час інструктажу",
+    "Before the briefing":"До інструктажу",
+    "Risk influence":"Вплив ризику",
+   "Time of action":"Час дії",
+   "Not Nesessary":"Не обов'язково",
+   "Nesessary":"Обов'язково",
     "Archives" : "Архіви"
 }
