@@ -103,9 +103,12 @@
                         </div> 
                         <div class="col-md-6 border">
                             <div class="form-group">
-                                <label>{{ __('Equipments') }}</label>
+                                <label>{{ __('Equipments') }}
+                                    <button class="btn" onclick="selectAll('equipments')" >{{__('All')}}</button>
+                                </label>
                                 @foreach($equipments as $equipment)
                                     <div class="form-check">
+
                                         <input class="form-check-input" type="checkbox" name="equipments[]" value="{{ $equipment->id }}">
                                         <label class="form-check-label">{{ $equipment->name }}</label>
                                     </div>
@@ -117,18 +120,22 @@
                     <div class="row mb-3 p-3" style="background-color: #f5f5dc; border-radius: 8px;">
                         <div class="col-md-6 border">
                             <div class="form-group">
-                                <label>{{ __('Causes') }}</label>
+                                <label>{{ __('Causes') }}
+                                    <button class="btn" onclick="selectAll('causes')" >{{__('All')}}</button>
+                                </label>
                                 @foreach($causes as $cause)
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="causes[]" value="{{ $cause->id }}">
-                                        <label class="form-check-label">{{ $cause->name }}</label>
+                                        <label class="form-check-label">{{ $cause->id }}{{ $cause->name }}</label>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                         <div class="col-md-6 border">
                             <div class="form-group">
-                                <label for="systems">{{ __('Systems') }}</label>
+                                <label for="systems">{{ __('Systems') }}
+                                    <button class="btn" onclick="selectsAll('systems')" >{{__('All')}}</button>
+                                </label>
                                 <select class="form-control" id="systems" name="systems[]" size="8" multiple>
                                    
                                     @foreach($systems as $subsystem)
@@ -144,4 +151,18 @@
             </div>
         </div>
     </div>
+    <script>
+        function selectAll(name) {
+            var checkboxes = document.getElementsByName(name + '[]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = true;
+            }
+        }
+        function selectsAll(name) {
+            var checkboxes = document.getElementById(name);
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].selected = true;
+            }
+        }
+    </script>
 @endsection

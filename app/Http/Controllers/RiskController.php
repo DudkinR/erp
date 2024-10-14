@@ -15,6 +15,35 @@ class RiskController extends Controller
     // index
     public function index(Request $request)
     {
+    /*   $types_eq = Type::where('parent_id', 30)->get();
+       $causes =[];
+       $equipments=[];
+      foreach($types_eq as $type){
+         // find types_couse where slug = $type->slug
+         $cause_id =    Type::where('parent_id', 46)->where('slug', $type->slug)->first();
+         if($cause_id){
+            $causes[] = $cause_id->id;
+            $equipments[] = $type->id;
+            }
+      }
+      $experiences = Experience::all();
+      foreach($experiences as $experience){
+          $reasons = $experience->reasons->pluck('id')->toArray();
+          // заменить в reasons $equipments на $сauses
+            $new_reasons =[];
+            foreach($reasons as $reason){
+                if(in_array($reason, $equipments)){
+                    $new_reasons = array_merge($new_reasons, $causes);
+                }else{
+                    $new_reasons[] = $reason;
+                }
+            }
+            $experience->reasons()->detach();
+            $experience->reasons()->sync($new_reasons);
+      }
+        return $experiences = Experience::all();
+*/
+
       //  $reasons=$request->jits;  
       if($request->systems){
         $systemIds = $request->systems;
@@ -57,16 +86,12 @@ class RiskController extends Controller
         $n=0;
         $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->pluck('id')->toArray();
-    $reasons =[];
+         $RS =[];
         foreach ($causes as $cause){
-            $reasons[$cause] = 0;
+            $RS[$cause] = 0;
+        
         }
-   $actions_parent = Type::where('slug', 'action')->first();
-       $acts = Type::where('parent_id', $actions_parent->id)->get();
-       $actions =[];
-        foreach ($acts as $act){
-            $actions[$act->id] = 0;
-        }
+   //return $reasons;
         
         foreach ($events as $event) {
             $yearsAgo = $currentYear - $event['year'];
@@ -107,19 +132,22 @@ class RiskController extends Controller
             // Сохранение результата
             $result+=$R;
             $n++;
-            // reasons
-            foreach (Experience::find($event['id'])->reasons as $reason) {
-                if (isset($actions[$reason->id])) {
-                    $actions[$reason->id]++;
-                }
+           // couses 
+              $reasons = $event->reasons->pluck('id')->toArray();
+            foreach ($reasons as $reason){
+                
+                if(!isset($RS[$reason])) $RS[$reason] = 1;
+                else
+                $RS[$reason] += 1;
             }
 
         }
-        $actions = array_map(function($action) use ($n){
-            return round($action/$n);
-        }, $actions);
+        $RS = array_map(function($value) use ($n){
+            return $value/$n;
+        }, $RS);
+        
     
-         return ['result'=>$result/$n, 'n'=>$n, 'actions'=>$actions];
+         return ['result'=>$result/$n, 'n'=>$n, 'reasons'=>$RS];
     }
 
     public function experiences()
@@ -160,6 +188,7 @@ class RiskController extends Controller
             $text_en = $request->text;            
             $accepted=0;
         }
+       // return $request->causes;
         $experience->text_ru = $text_ru;
         $experience->text_uk = $text_uk;
         $experience->text_en = $text_en;
@@ -172,7 +201,7 @@ class RiskController extends Controller
         $experience->systems()->sync($request->systems);
         $experience->equipments()->sync($request->equipments);
         $experience->actions()->sync($request->actions);
-        $experience->reasons()->sync($request->reasons);
+        $experience->reasons()->sync($request->causes);
         return redirect()->route('risks.index');
     }
     // edit
