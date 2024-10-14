@@ -48,6 +48,8 @@ class BriefController extends Controller
     public function edit(string $id)
     {
         //
+        $brief = Brief::find($id);
+        return view('briefs.edit', compact('brief'));
     }
 
     /**
