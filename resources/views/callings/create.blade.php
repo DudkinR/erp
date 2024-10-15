@@ -106,7 +106,13 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>                    
+                    </div>  
+                    <div class="form-group">
+                        <label for="add_personel_tn">{{ __('Add personel by TN') }}</label>
+                        <input type="text" id="add_personel_tn" class="form-control" name="add_personel_tn" value="{{ old('add_personel_tn') }}">
+                        <button type="button" class="btn btn-primary" onclick="addPersonelByTN()">Add</button>
+                    </div>
+
                     <!-- Chief (dropdown select from selected workers) -->
                     <div class="form-group">
                         <label for="chief">{{ __('Chief') }} {{__('and')}}  {{__('Payment')}} </label>
@@ -119,73 +125,96 @@
         </div>
     </div>
     <script>
-        const workers = @json($workers);
-    const types_payment = @json($Oplata_pratsi_ids);
+        var workers = @json($workers);
+        const types_payment = @json($Oplata_pratsi_ids);
     
-    document.getElementById('workers').addEventListener('change', function() {
-        const workersSelect = document.getElementById('workers');
-        const showWorkers = document.getElementById('show_workers');
-        
-        // Clear existing rows
-        showWorkers.innerHTML = '';
-
-        // Loop through selected workers
-        Array.from(workersSelect.selectedOptions).forEach(option => {
-            let workerId = option.value;
-            let workerName = option.text;
-
-            // Create a new row for each selected worker
-            let row = `
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        ${workerName}
+        function addPersonelByTN() {
+            const tn = document.getElementById('add_personel_tn').value;
+    
+            fetch("{{ route('callings.getPersonalForTN') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ tn })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    workers.push(data[0]);
+    
+                    const workersSelect = document.getElementById('workers');
+                    const option = document.createElement('option');
+                    option.selected = true;
+                    option.value = data[0].id;
+                    option.text = data[0].fio;
+                    workersSelect.appendChild(option);
+    
+                    document.getElementById('add_personel_tn').value = '';
+                    WListener();
+                }
+            });
+        }
+    
+        function WListener() {
+            const workersSelect = document.getElementById('workers');
+            const showWorkers = document.getElementById('show_workers');
+    
+            showWorkers.innerHTML = ''; // Clear existing rows
+    
+            Array.from(workersSelect.selectedOptions).forEach(option => {
+                const workerId = option.value;
+                const workerName = option.text;
+    
+                const row = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            ${workerName}
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="payments[${workerId}]">
+                                ${types_payment.map(type => `<option value="${type.id}" ${type.id == 1 ? 'selected' : ''}>${type.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            {{__('Chief')}}
+                            <input type="radio" name="chief" value="${workerId}">
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <select class="form-control" name="payments[${workerId}]">
-                            // first option selected
-                            ${types_payment.map(type => `<option value="${type.id}" ${type.id == 1 ? 'selected' : ''}>${type.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="col-md-3"> 
-                         {{__('Chief')}}
-                        <input type="radio" name="chief" value="${workerId}">
-                    </div>
-                </div>
-            `;
-            showWorkers.innerHTML += row;
-        });
-    });
-        // Если установлено время начала, отметить чекбокс персонального начала
+                `;
+                showWorkers.innerHTML += row;
+            });
+        }
+    
+        document.getElementById('workers').addEventListener('change', WListener);
+    
         document.getElementById('start_time').addEventListener('change', (e) => {
             if (e.target.value) {
                 document.getElementById('personal_start_id').checked = true;
             }
         });
     
-        // Если установлено время прибытия, отметить чекбокс персонального прибытия
         document.getElementById('arrival_time').addEventListener('change', (e) => {
             if (e.target.value) {
                 document.getElementById('personal_arrival_id').checked = true;
             }
         });
     
-        // Если установлено время начала работы, отметить чекбокс персональной работы
         document.getElementById('work_time').addEventListener('change', (e) => {
             if (e.target.value) {
                 document.getElementById('personal_work_id').checked = true;
             }
         });
     
-        // Преобразование строки времени в объект Date
         function parseDateTime(input) {
             return input ? new Date(input) : null;
         }
     
-        // Если время прибытия > времени начала, показывать ошибку цветом
         document.getElementById('start_time').addEventListener('blur', (e) => {
-            const arrivalTime = parseDateTime(e.target.value);
             const startTime = parseDateTime(document.getElementById('start_time').value);
-            
+            const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
+    
             if (arrivalTime && startTime && arrivalTime > startTime) {
                 document.getElementById('arrival_time').style.backgroundColor = 'red';
                 document.getElementById('start_time').style.backgroundColor = 'red';
@@ -195,11 +224,10 @@
             }
         });
     
-        // Если время начала > времени начала работы, показывать ошибку цветом
         document.getElementById('work_time').addEventListener('blur', (e) => {
-            const startTime = parseDateTime(e.target.value);
+            const startTime = parseDateTime(document.getElementById('start_time').value);
             const workTime = parseDateTime(document.getElementById('work_time').value);
-            
+    
             if (startTime && workTime && startTime > workTime) {
                 document.getElementById('start_time').style.backgroundColor = 'red';
                 document.getElementById('work_time').style.backgroundColor = 'red';
@@ -208,7 +236,7 @@
                 document.getElementById('work_time').style.backgroundColor = '#FFF';
             }
         });
-    
     </script>
+    
     
 @endsection
