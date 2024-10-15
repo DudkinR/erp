@@ -109,6 +109,7 @@
                     <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>
                     <a class="dropdown-item" href="{{ route('jits.index') }}">{{__('JITs')}}</a>
                     <a class="dropdown-item" href="{{ route('jitqws.index') }}">{{__('JITQws')}}</a>
+                    <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Calling')}}</a>
                 </div>
                 
 
