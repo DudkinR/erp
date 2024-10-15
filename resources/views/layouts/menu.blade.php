@@ -97,6 +97,23 @@
 
             </li>
             @endif
+            @if(Auth::user()->hasRole('admin'))
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{__('Risks')}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    
+                <a class="dropdown-item" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
+                    <a class="dropdown-item" href="{{ route('risks.index') }}">{{__('Risks')}}</a>
+                    <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>
+                    <a class="dropdown-item" href="{{ route('jits.index') }}">{{__('JITs')}}</a>
+                    <a class="dropdown-item" href="{{ route('jitqws.index') }}">{{__('JITQws')}}</a>
+                </div>
+                
+
+            </li>
+            @endif
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Profile')}}

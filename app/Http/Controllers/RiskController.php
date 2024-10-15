@@ -152,7 +152,7 @@ class RiskController extends Controller
 
     public function experiences()
     {
-        $experiences = Experience::orderBy('npp', 'asc')->get();
+        $experiences = Experience::orderBy('text_uk', 'asc')->get();
         return view('risks.index', compact('experiences'));
 
     }
@@ -222,22 +222,12 @@ class RiskController extends Controller
     // update
     public function update(Request $request, $id)
     {
+       // return $request;
         $experience = Experience::find($id);
-        $text_ru= $experience->text_ru;
-        $text_uk= $experience->text_uk;
-        $text_en= $experience->text_en;
-        if($request->lang && $request->lang=='ru'){
-            $text_ru = $request->text;            
-            $accepted=0;
-        }
-        if($request->lang && $request->lang=='uk'){
-            $text_uk = $request->text;            
-            $accepted=1;
-        }
-        if($request->lang && $request->lang=='en'){
-            $text_en = $request->text;            
-            $accepted=0;
-        }
+        $text_ru= $request->text_ru;
+        $text_uk= $request->text_uk;
+        $text_en= $request->text_en;
+        
         $experience->text_ru = $text_ru;
         $experience->text_uk = $text_uk;
         $experience->text_en = $text_en;
@@ -255,8 +245,8 @@ class RiskController extends Controller
         $experience->actions()->detach();
         $experience->actions()->sync($request->actions);
         $experience->reasons()->detach();
-        $experience->reasons()->sync($request->reasons);
-        return redirect()->route('risks.index');
+        $experience->reasons()->sync($request->causes);
+        return redirect()->route('experiences');
     }
     // destroy
     public function destroy($id)

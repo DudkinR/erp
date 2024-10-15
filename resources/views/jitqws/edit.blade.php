@@ -47,9 +47,9 @@
                         <input class="form-check" type="checkbox" name="briefs[]" value="{{$brief->id}}" @if($jitqw->briefs->contains($brief->id)) checked @endif>
                         @if($brief->name_uk!='')<label class="form-check" for="briefs">{{$brief->name_uk}}</label>
                         @elseif($brief->name_en!='')<label class="form-check" for="briefs">{{$brief->name_en}}</label>
-                        <a href="{{ route('briefs.edit', $brief->id) }}">{{__('Edit')}}</a>
+                        <a href="{{ route('briefs.edit', $brief->id) }}" class="btn btn-warning w-100">{{__('Edit')}}</a>
                         @else<label class="form-check" for="briefs">{{ str_replace('&nbsp;', ' ', strip_tags($brief->name_ru))}}</label>
-                        <a href="{{ route('briefs.edit', $brief->id) }}">{{__('Edit')}}</a>
+                        <a href="{{ route('briefs.edit', $brief->id) }}"  class="btn btn-warning w-100">{{__('Edit')}}</a>
                         @endif  
                     </div>
                     @endforeach

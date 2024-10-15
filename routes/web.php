@@ -501,6 +501,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/risks/{id}', 'App\Http\Controllers\RiskController@show')->name('risks.show');
     Route::get('/risks/{id}/edit', 'App\Http\Controllers\RiskController@edit')->name('risks.edit');
     Route::put('/risks/{id}', 'App\Http\Controllers\RiskController@update')->name('risks.update');
+    Route::delete('/risks/{id}', 'App\Http\Controllers\RiskController@destroy')->name('risks.destroy');
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');
     

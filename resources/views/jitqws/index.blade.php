@@ -38,9 +38,9 @@
         </div>
         @foreach($jitqws as $jitqw)
         <div class="row" 
-        @if($jitqw->description_uk=='') style="background-color: #ff0000;" @endif
+        
         >
-            <div class="col-md-3">                
+            <div class="col-md-3"@if($jitqw->description_uk=='') style="background-color: #ff0000;" @endif>                
                 {{$jitqw->description_uk}}
             </div>
             <div class="col-md-3">
@@ -54,11 +54,11 @@
                 <hr>
                 {{$jitqw->briefs->count()}} {{__('Used briefs')}}
                 <hr>
-                <a class="btn btn-light w-100" href="{{ route('jitqws.edit', $jitqw->id) }}">{{__('Edit')}}</a>
+                <a class="btn btn-warning w-100" href="{{ route('jitqws.edit', $jitqw->id) }}">{{__('Edit')}}</a>
                 <form method="POST" action="{{ route('jitqws.destroy', $jitqw->id) }}">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-light w-100">{{__('Delete')}}</button>
+                    <button type="submit" class="btn btn-danger w-100">{{__('Delete')}}</button>
                 </form>
             </div>
         </div>
