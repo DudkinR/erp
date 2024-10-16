@@ -110,11 +110,11 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{__('Confirm the number of people')}}</h5>
+                <h5 class="modal-title">{{__('Shift supervisor will Confirm this work')}}</h5>
                 <button onclick="hideModalWin()" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="" method="POST">
+                <form action="{{route('callings.confirmStore')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id">
                     <div class="form-group">
@@ -195,7 +195,7 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('start').checked = false;
         document.getElementById('start_show_time').textContent = '';
-        document.getElementById('start').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+       // document.getElementById('start').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Проверяем и отображаем arrival_time
@@ -206,7 +206,7 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('in_work').checked = false;
         document.getElementById('in_work_show_time').textContent = '';
-        document.getElementById('in_work').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+       // document.getElementById('in_work').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Проверяем и отображаем end_time
@@ -217,13 +217,13 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('completed').checked = false;
         document.getElementById('completed_show_time').textContent = '';
-        document.getElementById('completed').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+      //  document.getElementById('completed').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Блокировка чекбоксов
-    document.getElementById('start').disabled = calling.start_time !== null;
-    document.getElementById('in_work').disabled = calling.arrival_time !== null;
-    document.getElementById('completed').disabled = calling.end_time !== null;
+ //   document.getElementById('start').disabled = calling.start_time !== null;
+   // document.getElementById('in_work').disabled = calling.arrival_time !== null;
+  //  document.getElementById('completed').disabled = calling.end_time !== null;
 
     // Обработчики изменения состояний чекбоксов
     document.getElementById('start').addEventListener('change', (e) => {

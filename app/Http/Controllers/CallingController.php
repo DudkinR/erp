@@ -161,10 +161,16 @@ class CallingController extends Controller
         //redirect()->route('callings.confirmSS', ['calling' => $calling]);
     }
     // confirmSSS
-    public function confirmStore(Request $request, string $id)
+    public function confirmStore(Request $request)
     {
-        //
-        $calling = Calling::find($id);
+        
+        $calling = Calling::find($request->calling_id);
+        if($request->start == 1)
+        $calling->personal_start_id = Auth::user()->tn;
+        if($request->in_work == 1)
+        $calling->personal_arrival_id = Auth::user()->tn;
+        if($request->completed == 1)
+        $calling->personal_end_id = Auth::user()->tn;
         $calling->save();
         return redirect()->route('callings.index');
     }
