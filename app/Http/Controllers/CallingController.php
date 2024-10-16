@@ -18,7 +18,7 @@ class CallingController extends Controller
         //
        // Get the collection of started callings
        $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-       return $callings;
+      //return $callings;
        
        
       $unfinishedWork = Calling::where('end_time', null)->get();
@@ -83,10 +83,11 @@ class CallingController extends Controller
         'end_time',
         'personal_end_id',
 */
+//return $request;
         $calling = new Calling();
         if($request->description){
             $calling->description = $request->description;
-            $calling->type_id = $request->Type_of_work;
+
             $calling->save();
         }
        
@@ -111,8 +112,8 @@ class CallingController extends Controller
             $calling->end_time =$Time;
             $calling->save();
         }
-        if($request->vyklyk_na_robotu){
-            $calling->type_id = $request->type;
+        if($request->Type_of_work){
+            $calling->type_id = $request->Type_of_work;
             $calling->save();
         }
         if($request->workers){
