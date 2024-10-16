@@ -493,6 +493,8 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
     Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
     Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
+    //callings.finalize
+    Route::get('/callings/{id}/finalize', 'App\Http\Controllers\CallingController@finalize')->name('callings.finalize');
     // callings.get personal for tn
     Route::any('/getPersonalForTN', 'App\Http\Controllers\CallingController@getPersonalForTN')->name('callings.getPersonalForTN');
 

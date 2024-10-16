@@ -24,17 +24,44 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Form of callings')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('callings.create') }}">{{__('Create')}}</a>
+                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
             </div>
         </div>    
-        <div class="container" id="callings">
-
-
+        <div class="container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{__('Department')}}</th>
+                        <th>{{__('Name')}}</th>
+                        <th>{{__('Start')}}</th>
+                        <th>{{__('In work')}}</th>
+                        <th>{{__('Completed')}}</th>
+                        <th>{{__('Number of people')}}</th>
+                        <th>{{__('Action')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($callings as $calling)
+                    <tr>
+                        <td>rr</td>
+                        <td>{{$calling->description}}</td>
+                        <td>{{$calling->start}}</td>
+                        <td>{{$calling->in_work}}</td>
+                        <td>{{$calling->completed}}</td>
+                        <td>{{$calling->number_of_people}}</td>
+                        <td>
+                            <a class="btn btn-warning" href="{{ route('callings.edit',$calling) }}">{{__('Edit')}}</a>
+                            <a class="btn btn-success" href="{{ route('callings.show',$calling) }}">{{__('Show')}}</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        
         </div>
     </div>
     <script>
         const search = document.getElementById('search');
-        const callings = @json($callings);
         var Vcallings = callings;
         function show_collings() {
             var html = '';

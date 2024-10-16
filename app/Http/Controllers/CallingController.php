@@ -17,9 +17,16 @@ class CallingController extends Controller
     {
         //
        // Get the collection of started callings
-       $collection = Calling::noCheckins()->get();
-
-        return view('callings.index', ['callings' => $collection]);
+       $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+       return $callings;
+       
+       
+      $unfinishedWork = Calling::where('end_time', null)->get();
+      $notFinalizedWork = Calling::where('end_time', '!=', null)->get();
+      $finishedWork = Calling::where('end_time', true)->get();
+  
+      return view('callings.index', compact('unfinishedWork', 'notFinalizedWork', 'finishedWork', 'callings'));
+  
     }
 
     /**
@@ -28,11 +35,21 @@ class CallingController extends Controller
     public function create()
     {
         // find types where slug is Oplata-pratsi
-      
+        $all_types = Type::all();
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
         $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
-        $Vyklyk_na_robotu = Type::where('slug', 'Vyklyk-na-robotu')->first();
+        $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
         $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get();
+        $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
+        $works_types = Type::where('parent_id', $works_type->id)->get();
+        $works_names = [];
+        foreach($works_types as $work_type){
+            $finish_types = Type::where('parent_id', $work_type->id)->get();
+            foreach($finish_types as $finish_type){
+                $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
+                $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
+            }
+        }
          $user = Personal::where('tn',Auth::user()->tn)->first();
         if ($user) {
             // Получить список division_id для текущего пользователя
@@ -41,9 +58,9 @@ class CallingController extends Controller
             $personnelInSameDivisions = Personal::whereHas('divisions', function ($query) use ($userDivisionIds) {
                 $query->whereIn('division_id', $userDivisionIds);
             })->get();
-            return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
+            return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'personnelInSameDivisions'=>$personnelInSameDivisions, 'works_names'=>$works_names, 'all_types'=>$all_types]);
         } 
-        return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids]);
+        return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types]);
     }
 
     /**
@@ -55,10 +72,21 @@ class CallingController extends Controller
         
     /*    $Oplata_pratsi = Type::where('slug', 'Oplata-pratsi')->first();
         $Oplata_pratsi_id = $Oplata_pratsi->id;
+        'description',
+        'type_id',
+        'start_time',
+        'personal_start_id',
+        'arrival_time',
+        'personal_arrival_id',
+        'work_time',
+        'personal_work_id',
+        'end_time',
+        'personal_end_id',
 */
         $calling = new Calling();
         if($request->description){
             $calling->description = $request->description;
+            $calling->type_id = $request->Type_of_work;
             $calling->save();
         }
        
@@ -94,9 +122,9 @@ class CallingController extends Controller
             
             foreach($request->workers as $worker){
                 if($request->chief==$worker){
-                    $calling->workers()->attach($worker, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $Oplata_pratsi[$worker]]);
+                    $calling->workers()->attach($worker, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $Oplata_pratsi[$worker], 'comment' => $request->comments[$worker]]);
                 }else{
-                    $calling->workers()->attach($worker, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $Oplata_pratsi[$worker]]);
+                    $calling->workers()->attach($worker, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $Oplata_pratsi[$worker], 'comment' => $request->comments[$worker]]);
                 }
             }
         }

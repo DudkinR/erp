@@ -30,7 +30,7 @@ class Calling extends Model
     public function workers()
     {
         return $this->belongsToMany(Personal::class, 'callings_workers')
-                    ->withPivot('worker_type_id', 'payment_type_id');
+                    ->withPivot('worker_type_id', 'payment_type_id', 'comment');
     }
 
     // Relationship to checkins
