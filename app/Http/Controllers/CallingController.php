@@ -103,6 +103,17 @@ class CallingController extends Controller
         return redirect()->route('callings.index');
     }
 
+    // getPersonalForTN
+    public function getPersonalForTN(Request $request)
+    {
+        $tn = $request->tn;
+        $personal = Personal::where('tn', $tn)->first();
+        if ($personal) {
+            return response()->json([$personal]);
+        }
+        return response()->json([null]);
+    }
+
     /**
      * Display the specified resource.
      */
