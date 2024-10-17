@@ -20,8 +20,6 @@ class Calling extends Model
         'personal_start_id',
         'arrival_time',
         'personal_arrival_id',
-        'work_time',
-        'personal_work_id',
         'end_time',
         'personal_end_id',
     ];
@@ -37,9 +35,16 @@ class Calling extends Model
     public function checkins()
     {
         return $this->belongsToMany(Personal::class, 'callings_checkins', 'calling_id', 'personal_id')
-                    ->withPivot('checkin_type_id')
+                    ->withPivot('checkin_type_id','type')
                     ->withTimestamps(); // Если хотите учитывать поля created_at и updated_at
     }
+
+     public function checkBoss($name='Nachal`nik'){
+        $checkin_type_id = Type::where('slug', $name)->first()->id;
+        return $this->checkins()
+        ->wherePivot('checkin_type_id', $checkin_type_id);
+     }
+
     
     //  Сформированные карточки с одним рабочим, но без заполненных полей прибытия, старта, работы, окончания
         public function scopeFormedWithWorkerNoTimes($query)

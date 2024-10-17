@@ -482,7 +482,9 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // callings
     Route::any('/callings', 'App\Http\Controllers\CallingController@index')->name('callings.index');
     Route::get('/callings/create', 'App\Http\Controllers\CallingController@create')->name('callings.create');
-    Route::get('/confirmSS/{id}', 'App\Http\Controllers\CallingController@confirmSS')->name('callings.confirmSS');
+    Route::any('/confirmSS', 'App\Http\Controllers\CallingController@confirmSS')->name('callings.confirmSS');
+    //callings.rejectSS
+    Route::any('/rejectSS', 'App\Http\Controllers\CallingController@rejectSS')->name('callings.rejectSS');
     // post confirmSS
     Route::post('/confirmStore', 'App\Http\Controllers\CallingController@confirmStore')->name('callings.confirmStore');
     Route::get('/confirm/{id}', 'App\Http\Controllers\CallingController@confirm')->name('callings.confirm');

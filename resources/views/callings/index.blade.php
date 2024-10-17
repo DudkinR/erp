@@ -31,6 +31,7 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th>{{__('№')}}</th>
                         <th>{{__('Department')}}</th>
                         <th>{{__('Name')}}</th>
                         <th>{{__('Start')}}</th>
@@ -42,12 +43,18 @@
                 <tbody>
                     @foreach($callings as $calling)
                     <tr>
+                        <td>{{$calling->id}}</td>
                         <td>
+                           @php  $mass_divisions=[]; @endphp
                             @foreach($calling->workers as $worker)
-                                @if($worker->pivot->worker_type_id == 7)
-                                    {{ $worker->divisions[0]->name }}
-                                    @break
+                                @if($worker->pivot->worker_type_id == 6)
+                                    {{ $worker->divisions[0]->name }} <br>
+                                    @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
+                                   <b> {{$fn}}</b>
+                                    <br>
+                                   <u> {{$worker->phone}} </u>
                                 @endif
+                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
                             @endforeach
                         </td>
                         <td>{{$calling->description}}</td>
@@ -58,10 +65,12 @@
                                 style="background-color: #ffff80"                                
                             @endif
                             >  
-                            @if($calling->start_time!==null)                          
+                            @if($calling->start_time!==null&& $calling->personal_start_id!==null)                          
                             {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}
+                            @elseif($calling->start_time!==null&& $calling->personal_start_id==null)
+                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}</a>
                             @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
+                            -----
                             @endif
                         </td>
                         <td title="{{ $calling->arrival_time }}"
@@ -71,10 +80,16 @@
                                 style="background-color: ##ffff80"
                             @endif
                             >
-                            @if($calling->arrival_time!==null)
+                            @if($calling->arrival_time!==null && $calling->personal_arrival_id!==null)
+
                             {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}
+
+                            @elseif($calling->arrival_time!==null && $calling->personal_arrival_id==null)
+
+                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}</a>
+
                             @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
+                            ------
                             @endif
                         </td>
                         <td title="{{ $calling->end_time }}"
@@ -84,18 +99,24 @@
                                 style="background-color: #ffff80"
                             @endif
                             >
-                            @if($calling->end_time!==null)
+                            @if($calling->end_time!==null && $calling->personal_end_id!==null)
+
                             {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}
+                            @elseif($calling->end_time!==null && $calling->personal_end_id==null)
+                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}</a>
                             @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
+                            ------
                             @endif
                         </td>
                         
                         <td>
-                            <a href="" title="@foreach($calling->workers as $worker){{$worker->fio}} &#13;@endforeach">
-                            {{$calling->workers->count()}}
-                            </a>
-                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning">{{__('Confirm')}}</a>
+                            @foreach($mass_divisions as $key=>$value)
+                                <a href="" title="@foreach($value as $v){{$v}} &#13;@endforeach">
+                                    {{$key}} -  {{count($value)}}
+
+                                </a>
+                            @endforeach
+
                         </td>
                     </tr>
                     @endforeach
@@ -195,7 +216,7 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('start').checked = false;
         document.getElementById('start_show_time').textContent = '';
-       // document.getElementById('start').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+        document.getElementById('start').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Проверяем и отображаем arrival_time
@@ -206,7 +227,7 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('in_work').checked = false;
         document.getElementById('in_work_show_time').textContent = '';
-       // document.getElementById('in_work').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+        document.getElementById('in_work').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Проверяем и отображаем end_time
@@ -217,7 +238,7 @@ function ShowModalWin(calling_id) {
     } else {
         document.getElementById('completed').checked = false;
         document.getElementById('completed_show_time').textContent = '';
-      //  document.getElementById('completed').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
+       document.getElementById('completed').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
     }
 
     // Блокировка чекбоксов

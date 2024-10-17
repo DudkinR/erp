@@ -131,7 +131,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                 <div class="form-section">
                     <div class="form-group">
                         <h2 for="Type_of_work">{{ __('Type of work') }}:</h2>
-                        <select id="Type_of_work" class="form-control" name="Type_of_work" onchange="DisplayWorkInfo(this.value)">
+                        <select id="Type_of_work" class="form-control" name="Type_of_work" onchange="DisplayWorkInfo(this.value)" required>
                             <option value="">{{ __('Select work type') }}</option>
                         </select>
                     </div>

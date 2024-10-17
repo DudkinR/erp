@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Calling;
 use App\Models\Personal;
 use App\Models\Type;
+use Illuminate\Console\View\Components\Warn;
 use Illuminate\Support\Facades\Auth;
 
 class CallingController extends Controller
@@ -19,32 +20,41 @@ class CallingController extends Controller
        if($request->type){$type=$request->type;}
        if($request->start){$start=$request->start;}
        if($request->finish){$finish=$request->finish;}
-       if($request->show && $request->show=='all'){
+       if( Auth::user()->hasRole('user')){
               $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
                  return view('callings.index', compact('callings'));
         }
-        elseif($request->show && $request->show=='supervision'){
+        elseif(Auth::user()->hasRole('supervision')){
 
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            $callings = Calling::with(['workers.divisions'])
+           // ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 day')))
+             ->orderBy('id', 'asc')->get();
             return view('callings.supervision', compact('callings'));
         }
-        elseif($request->show && $request->show=='workshop-chief'){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+        elseif(Auth::user()->hasRole('workshop-chief')){
+            $callings = Calling::with(['workers.divisions'])
+            ->where('start_time', '!=', null)
+            ->where('personal_arrival_id', '!=', null)
+            ->where('arrival_time', '!=', null)
+            ->where('personal_start_id', '!=', null)
+            ->where('end_time', '!=', null)
+            ->where('personal_end_id', '!=', null)
+            ->orderBy('id', 'asc')->get();
             return view('callings.workshop_chief', compact('callings'));
         }
-        elseif($request->show && $request->show=='user'){
+        elseif(Auth::user()->hasRole('user')){
             $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.user', compact('callings'));
         }        
-        elseif($request->show && $request->show=='SVNtaPB'){
+        elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.SVNtaPB', compact('callings'));
         }        
-        elseif($request->show && $request->show=='Profkom'){
+        elseif(Auth::user()->hasRole('Profkom')){
             $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.Profkom', compact('callings'));
         }
-        elseif($request->show && $request->show=='VONtaOP'){
+        elseif(Auth::user()->hasRole('VONtaOP')){
             $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.VONtaOP', compact('callings'));
         }
@@ -177,13 +187,34 @@ class CallingController extends Controller
         return view('callings.show', ['calling' => $calling]);
     }
     // confirmSS
-    public function confirmSS(string $id)
+    public function confirmSS(Request $request)
     {
         //
-        $calling = Calling::find($id);     
-        return view ('callings.confirmSS', ['calling' => $calling]);
-        //redirect()->route('callings.confirmSS', ['calling' => $calling]);
+        $calling = Calling::find($request->calling_id);     
+        if($calling){
+            $calling->checkins()->attach(Auth::user()->id, [
+                'checkin_type_id' => $request->checkin_type_id, 
+                'type' => 1,
+                'comment' => $request->comment,
+                'created_at' => now(), 
+                'updated_at' => now()]);
+        }
+
+        return redirect()->route('callings.index');
     }
+//rejectSS
+    public function rejectSS(Request $request)
+    {
+        //return $request;
+        //
+        $calling = Calling::find($request->calling_id);     
+        if($calling){
+            $calling->checkins()->attach(Auth::user()->id, ['checkin_type_id' => $request->checkin_type_id, 'type' => 0, 'comment' => $request->comment,
+            'created_at' => now(), 'updated_at' => now()]);
+        }
+        return redirect()->route('callings.index');
+    }
+
     // confirmSSS
     public function confirmStore(Request $request)
     {

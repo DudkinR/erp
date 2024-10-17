@@ -9,7 +9,7 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif 
         @if(session('success'))
         <div class="alert alert-success">{{ __(session('success')) }}</div>
     @endif
@@ -23,79 +23,63 @@
     </div>
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('Form of callings')}}</h1>
-                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
+            <h3>{{__('Form of callings')}}</h3>
+            <h1>{{__('Boss')}}</h1>
             </div>
         </div>    
         <div class="container">
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th>{{__('№')}}</th>
                         <th>{{__('Department')}}</th>
                         <th>{{__('Name')}}</th>
-                        <th>{{__('Start')}}</th>
-                        <th>{{__('In work')}}</th>
-                        <th>{{__('Completed')}}</th>
-                        <th>{{__('Number of people')}}</th>
+                        <th>{{__('Start data')}}</th>
+                        <th>{{__('Hours')}}</th>
+                        <th>{{__('Action')}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($callings as $calling)
                     <tr>
+                        <td>{{$calling->id}}</td>
                         <td>
+                           @php  $mass_divisions=[]; @endphp
                             @foreach($calling->workers as $worker)
-                                @if($worker->pivot->worker_type_id == 7)
-                                    {{ $worker->divisions[0]->name }}
-                                    @break
+                                @if($worker->pivot->worker_type_id == 6)
+                                    {{ $worker->divisions[0]->name }} <br>
+                                    @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
+                                   <b> {{$fn}}</b>
+                                    <br>
+                                   <u> {{$worker->phone}} </u>
                                 @endif
+                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
                             @endforeach
                         </td>
-                        <td>{{$calling->description}}</td>
-                        <td title="{{ $calling->start_time }}"
-                            @if($calling->start_time==null && $calling->personal_start_id==null)
-                                style="background-color: #ff8040"
-                                @elseif($calling->start_time!==null && $calling->personal_start_id==null)
-                                style="background-color: #ffff80"                                
-                            @endif
-                            >  
-                            @if($calling->start_time!==null)                          
-                            {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}
-                            @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
-                            @endif
-                        </td>
-                        <td title="{{ $calling->arrival_time }}"
-                            @if($calling->arrival_time==null && $calling->personal_arrival_id==null)
-                                style="background-color: #ff8040 "
-                                @elseif($calling->arrival_time!==null && $calling->personal_arrival_id==null)
-                                style="background-color: ##ffff80"
-                            @endif
-                            >
-                            @if($calling->arrival_time!==null)
-                            {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}
-                            @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
-                            @endif
-                        </td>
-                        <td title="{{ $calling->end_time }}"
-                            @if($calling->end_time==null && $calling->personal_end_id==null)
-                                style="background-color: #ff8040 "
-                                @elseif($calling->end_time!==null && $calling->personal_end_id==null)
-                                style="background-color: #ffff80"
-                            @endif
-                            >
-                            @if($calling->end_time!==null)
-                            {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}
-                            @else
-                            <a href="{{ route('callings.edit', $calling->id) }}" > - </a>
-                            @endif
-                        </td>
-                        
                         <td>
-                            <a href="" title="@foreach($calling->workers as $worker){{$worker->fio}} &#13;@endforeach">
-                            {{$calling->workers->count()}}
-                            </a>
-                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning">{{__('Confirm')}}</a>
+                            <p style = "font-size: 20px;">
+                            {{$calling->description}}
+                            </p>
+                            <br>
+                            <ul>
+                            @foreach($calling->workers as $worker)                               
+                                  <li> {{ $worker->fio}}</li> 
+                                    
+                               
+                            @endforeach</ul>
+                        </td>
+                        <td>
+                                                                             
+                            {{ \Carbon\Carbon::parse($calling->start_time)->format('d.m.Y ') }} 
+                        </td>
+                        <td>
+                            {{ \Carbon\Carbon::parse($calling->end_time)->diffInHours($calling->start_time) }} {{__('hours')}}
+                        </td>
+                            
+
+                          
+                        <td >
+                            <button onclick="ShowModalWin({{$calling->id}})" class="btn btn-success">{{__('Confirm')}}</button>
                         </td>
                     </tr>
                     @endforeach
@@ -110,13 +94,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{__('Shift supervisor will Confirm this work')}}</h5>
+                <h5 class="modal-title">{{__('Boss will Confirm this work')}}</h5>
                 <button onclick="hideModalWin()" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="{{route('callings.confirmStore')}}" method="POST">
+                <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
-                    <input type="hidden" name="calling_id" id="calling_id">
+                    <input type="hidden" name="calling_id" id="calling_id" >
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number"></span>
@@ -137,25 +122,48 @@
                             {{__('Start')}}
                         </label>
                         <span id="start_show_time"></span>
-                        <input type="checkbox" name="start" id="start" value="1">
                     </div>
                     <div class="form-group">
                         <label for="in_work">
                             {{__('In work')}}
                         </label>
                         <span id="in_work_show_time"></span>
-                        <input type="checkbox" name="in_work" id="in_work" value="1">
+                     
                     </div>
                     <div class="form-group">
                         <label for="completed">
                             {{__('Completed')}}
                         </label>
-                        <span id="completed_show_time"></span>
-                        <input type="checkbox" name="completed" id="completed" value="1">
-                    </div>                    
+                        <span id="completed_show_time"></span>                        
+                    </div> 
+         
+                    <div class="form-group">
+                        <label for="comment">{{__('Comment')}}</label>
+                        <textarea name="comment" id="comment" class="form-control"
+                        onchange="document.getElementById('comment_reject').value = this.value"
+                        ></textarea>
+                    </div> 
+                    <div class="row">
+                        <div class="col-md-6">
+                          <button class="btn btn-success w-100">{{__('Confirm')}}</button>
+                  
+                        </form>  
+                        </div>
+                        <div class="col-md-6">
+                           <form action="{{route('callings.rejectSS')}}" method="POST" >  
+                                @csrf
+                                <input type="hidden" name="comment" id="comment_reject">
+                                <input type="hidden" name="calling_id" id="calling_idrj" >
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
+                                <button type="submit"  class="btn btn-danger w-100">{{__('Reject')}}</button>
+                            </form> 
+                        </div>
+                        
+                    </div>      
 
-                    <button class="btn btn-success">{{__('Confirm')}}</button>
-                </form>
+                    
+            
+
             </div>
         </div>
     </div>
@@ -167,11 +175,14 @@
     $('#modalWin').modal('hide');
 }
 
+
+
 function ShowModalWin(calling_id) {
     const calling = Vcallings.find(calling => calling.id === calling_id);
     
     // Устанавливаем ID вызова
     document.getElementById('calling_id').value = calling_id;
+    document.getElementById('calling_idrj').value = calling_id;
     
     // Устанавливаем количество работников
     document.getElementById('number').textContent = calling.workers.length;
@@ -186,54 +197,9 @@ function ShowModalWin(calling_id) {
         li.textContent = worker.fio;
         document.getElementById('workers').appendChild(li);
     });
-
-    // Проверяем и отображаем start_time
-    if (calling.start_time !== null) {
-        document.getElementById('start').checked = true;
-        document.getElementById('start_show_time').textContent = new Date(calling.start_time).toLocaleString();
-        document.getElementById('start').parentElement.style.display = ''; // Показываем блок с чекбоксом
-    } else {
-        document.getElementById('start').checked = false;
-        document.getElementById('start_show_time').textContent = '';
-       // document.getElementById('start').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
-    }
-
-    // Проверяем и отображаем arrival_time
-    if (calling.arrival_time !== null) {
-        document.getElementById('in_work').checked = true;
-        document.getElementById('in_work_show_time').textContent = new Date(calling.arrival_time).toLocaleString();
-        document.getElementById('in_work').parentElement.style.display = ''; // Показываем блок с чекбоксом
-    } else {
-        document.getElementById('in_work').checked = false;
-        document.getElementById('in_work_show_time').textContent = '';
-       // document.getElementById('in_work').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
-    }
-
-    // Проверяем и отображаем end_time
-    if (calling.end_time !== null) {
-        document.getElementById('completed').checked = true;
-        document.getElementById('completed_show_time').textContent = new Date(calling.end_time).toLocaleString();
-        document.getElementById('completed').parentElement.style.display = ''; // Показываем блок с чекбоксом
-    } else {
-        document.getElementById('completed').checked = false;
-        document.getElementById('completed_show_time').textContent = '';
-      //  document.getElementById('completed').parentElement.style.display = 'none'; // Скрываем блок с чекбоксом
-    }
-
-    // Блокировка чекбоксов
- //   document.getElementById('start').disabled = calling.start_time !== null;
-   // document.getElementById('in_work').disabled = calling.arrival_time !== null;
-  //  document.getElementById('completed').disabled = calling.end_time !== null;
-
-    // Обработчики изменения состояний чекбоксов
-    document.getElementById('start').addEventListener('change', (e) => {
-        document.getElementById('in_work').disabled = !e.target.checked;
-        document.getElementById('completed').disabled = !e.target.checked;
-    });
-    
-    document.getElementById('in_work').addEventListener('change', (e) => {
-        document.getElementById('completed').disabled = !e.target.checked;
-    });
+    document.getElementById('start_show_time').textContent = new Date(calling.start_time).toLocaleString();
+    document.getElementById('in_work_show_time').textContent = new Date(calling.arrival_time).toLocaleString();
+    document.getElementById('completed_show_time').textContent = new Date(calling.end_time).toLocaleString();
 
     // Открываем модальное окно
     $('#modalWin').modal('show');
