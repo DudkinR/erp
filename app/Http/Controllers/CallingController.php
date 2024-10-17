@@ -13,19 +13,42 @@ class CallingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
        // Get the collection of started callings
-       $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-      //return $callings;
-       
-       
-      $unfinishedWork = Calling::where('end_time', null)->get();
-      $notFinalizedWork = Calling::where('end_time', '!=', null)->get();
-      $finishedWork = Calling::where('end_time', true)->get();
-  
-      return view('callings.index', compact('unfinishedWork', 'notFinalizedWork', 'finishedWork', 'callings'));
+       if($request->type){$type=$request->type;}
+       if($request->start){$start=$request->start;}
+       if($request->finish){$finish=$request->finish;}
+       if($request->show && $request->show=='all'){
+              $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+                 return view('callings.index', compact('callings'));
+        }
+        elseif($request->show && $request->show=='supervision'){
+
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.supervision', compact('callings'));
+        }
+        elseif($request->show && $request->show=='workshop-chief'){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.workshop_chief', compact('callings'));
+        }
+        elseif($request->show && $request->show=='user'){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.user', compact('callings'));
+        }        
+        elseif($request->show && $request->show=='SVNtaPB'){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.SVNtaPB', compact('callings'));
+        }        
+        elseif($request->show && $request->show=='Profkom'){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.Profkom', compact('callings'));
+        }
+        elseif($request->show && $request->show=='VONtaOP'){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.VONtaOP', compact('callings'));
+        }
+      return view('callings.index', compact('callings'));
   
     }
 

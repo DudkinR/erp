@@ -9,7 +9,7 @@
                     @endforeach
                 </ul>
             </div>
-        @endif 
+        @endif
         @if(session('success'))
         <div class="alert alert-success">{{ __(session('success')) }}</div>
     @endif
