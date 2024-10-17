@@ -48,6 +48,7 @@ class CallingController extends Controller
             $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.VONtaOP', compact('callings'));
         }
+        $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
       return view('callings.index', compact('callings'));
   
     }
