@@ -27,14 +27,15 @@
                             <td>{{ $step->name }}</td>
                             <td>{!! nl2br(e($step->description)) !!}</td>
                             <td>
-                                  <a href="{{ route('steps.show',$step) }}" class="btn btn-success">{{__('Show')}}</a>
+                                  <a href="{{ route('steps.show',$step) }}" class="btn btn-success w-100">{{__('Show')}}</a>
                                   @if(Auth::user()->hasRole('quality-engineer','admin'))
-                                <a href="{{ route('steps.edit',$step) }}" class="btn btn-primary">{{__('Edit')}}</a>
+                                <a href="{{ route('steps.edit',$step) }}" class="btn btn-primary w-100">{{__('Edit')}}</a>
+                               <a href="{{ route('steps.copy_step',$step) }}" class="btn btn-warning w-100">{{__('Copy')}}</a>
                               
                                 <form method="POST" action="{{ route('steps.destroy',$step) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
+                                    <button type="submit" class="btn btn-danger w-100">{{__('Delete')}}</button>
                                 </form>
                                 @endif
                             </td>

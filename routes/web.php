@@ -104,6 +104,9 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::any('/fun/store_api', 'App\Http\Controllers\FunController@store_api')->name('funs.store_api');
 //funs.store_positions_api
     Route::any('/funs.store_positions_api', 'App\Http\Controllers\FunController@store_positions_api')->name('funs.store_positions_api');
+    // get_position_from_divisions_api
+    Route::any('/get_position_from_divisions_api', 'App\Http\Controllers\PositionController@get_position_from_divisions_api')->name('get_position_from_divisions_api');
+
     // personal routes
     
     Route::get('/personal', 'App\Http\Controllers\PersonalController@index')->name('personal.index');
@@ -284,8 +287,19 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/steps/{id}/edit', 'App\Http\Controllers\StepController@edit')->name('steps.edit');
     Route::put('/steps/{id}', 'App\Http\Controllers\StepController@update')->name('steps.update');
     Route::delete('/steps/{id}', 'App\Http\Controllers\StepController@destroy')->name('steps.destroy');
+    // copy_step
+    Route::get('/copy_step/{id}', 'App\Http\Controllers\StepController@copy_step')->name('steps.copy_step');
     // api_add_step
     Route::any('/api_add_step', 'App\Http\Controllers\StepController@api_add_step')->name('steps.api_add_step');
+// events routes
+    Route::get('/events', 'App\Http\Controllers\EventController@index')->name('events.index');
+    Route::get('/events/create', 'App\Http\Controllers\EventController@create')->name('events.create');
+    Route::post('/events', 'App\Http\Controllers\EventController@store')->name('events.store');
+    Route::get('/events/{id}', 'App\Http\Controllers\EventController@show')->name('events.show');
+    Route::get('/events/{id}/edit', 'App\Http\Controllers\EventController@edit')->name('events.edit');
+    Route::put('/events/{id}', 'App\Http\Controllers\EventController@update')->name('events.update');
+    Route::delete('/events/{id}', 'App\Http\Controllers\EventController@destroy')->name('events.destroy');
+
 
     // stage routes
     Route::get('/stages', 'App\Http\Controllers\StageController@index')->name('stages.index');
@@ -492,6 +506,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::post('/confirmStoreCh', 'App\Http\Controllers\CallingController@confirmStoreCh')->name('callings.confirmStoreCh');
     Route::post('/callings', 'App\Http\Controllers\CallingController@store')->name('callings.store');
     Route::get('/callings/{id}', 'App\Http\Controllers\CallingController@show')->name('callings.show');
+    Route::get('/callingprint/{id}', 'App\Http\Controllers\CallingController@print')->name('callings.print');
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
     Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
     Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
@@ -510,6 +525,8 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::delete('/risks/{id}', 'App\Http\Controllers\RiskController@destroy')->name('risks.destroy');
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');
+    
+
     
     
     

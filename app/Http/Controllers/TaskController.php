@@ -43,8 +43,9 @@ public function index()
             ->with('project', 'stage', 'step')
             ->orderBy('project_id', 'desc')
             ->get();
-        
-        return view('tasks.index', compact('tasks', 'problems'));
+            $global_tasks = Task::with('project', 'stage', 'step')->orderBy('project_id', 'desc')->get();   
+            $global_problems = Problem::with('project', 'stage', 'step')->orderBy('project_id', 'desc')->get();
+        return view('tasks.index', compact('tasks', 'problems', 'global_tasks', 'global_problems'));
     } else {
         // Handle the case where the user does not have a profile
         return redirect()->route('home')->with('error', 'User profile not found.');

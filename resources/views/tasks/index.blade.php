@@ -106,10 +106,83 @@
                 </div>
                 @endforeach
             @endif
-
-
         @endforeach
-      
+
+@if($global_tasks->count() > 0)
+    <div class="row bg-warning">
+        <div class="col-md-12">
+            <h2>{{__('Global Tasks')}}</h2>
+        </div>
+    </div>
+        @foreach($global_tasks as $task)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>{{ $task->step->name }}</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <p>{!! nl2br(e($task->step->description)) !!}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    @if($task->images)
+                                        @foreach($task->images as $image)
+                                            <img src="{{ $image->path }}" class="img-fluid" alt="{{ $image->name }}">
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ route('tasks.show', $task) }}" class="btn btn-warning">{{ __('Execute') }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      @endforeach
+@endif
+@if($global_problems->count() > 0)
+    <div class="row bg-warning">
+        <div class="col-md-12">
+            <h2>{{__('Global Problems')}}</h2>
+        </div>
+    </div>
+        @foreach($global_problems as $problem)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>{{ $problem->step->name }}</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <p>{!! nl2br(e($problem->step->description)) !!}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    @if($problem->images)
+                                        @foreach($problem->images as $image)
+                                            <img src="{{ $image->path }}" class="img-fluid" alt="{{ $image->name }}">
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ route('problems.show', $problem) }}" class="btn btn-danger">{{ __('Problem') }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      @endforeach
+@endif
+
 
     </div>
 @endsection

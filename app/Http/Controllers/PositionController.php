@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Position;
 use App\Models\Division;
+use App\Models\Personal;
 
 class PositionController extends Controller
 {
@@ -85,6 +86,41 @@ class PositionController extends Controller
         $position->delete();
         return redirect()->route('positions.index');
     }
-    // import
-
+   
+    //get_position_from_divisions_api
+    public function get_position_from_divisions_api(Request $request)
+    {
+      /*  $personal = Personal::all(); // Получаем всех сотрудников
+        foreach ($personal as $person) {
+            $divisions = $person->divisions; // Получаем коллекцию связанных подразделений
+            $positions = $person->positions; // Получаем связанные позиции для каждого сотрудника
+      
+            foreach ($divisions as $division) { // Проходим по каждому подразделению сотрудника
+                if ($positions) {
+                    // Синхронизируем позиции для каждого подразделения, если связи ещё нет
+                    $division->positions()->syncWithoutDetaching($positions->pluck('id')->toArray());
+                }
+            }
+        }
+         */ 
+        if(!$request->divisions_id){
+            return [];
+        }
+        $divisions_id = $request->divisions_id;
+         $div=Division::whereIn('id', $divisions_id)->get();
+      //  return $div;
+        $positions = [];
+        
+        foreach ($div as $division) {
+            // Проверяем, есть ли связанные позиции у подразделения
+            if ($division->positions && count($division->positions) > 0) {
+                foreach ($division->positions as $position) {
+                    $positions[] = $position;
+                }
+            }
+        }
+        
+        return $positions;
+        
+    }
 }

@@ -61,14 +61,11 @@ class MagController extends Controller
             if($magtable){
                 return redirect('/mag/create')->with('error', 'Magazine with same name exists!');
             }
-            
-            
             $magtable = new Magtable();
             $magtable->name = $request->name;
             $magtable->description = $request->description;
             // save
             $magtable->save();
-            // division_writer !== all add param type = 0
             $all_divisions = Division::all();
             if (is_array($request->division_writer)) {
                 if (!in_array('all', $request->division_writer)) {
@@ -100,7 +97,6 @@ class MagController extends Controller
                 $magcolumn->name = $column_name;
                 $magcolumn->description = $request->{"description_".$key};
                 $magcolumn->type = $types[$request->{"column_type_".$key}]; 
-                //dimension_
                 $magcolumn->dimensions = $request->{"dimension_".$key};
                 $magcolumn->save();
                 $magtable->magcolumns()->attach($magcolumn, ['number' => $key]);

@@ -237,24 +237,69 @@ class CallingController extends Controller
     public function edit(string $id)
     {
         //
-        $Vyklyk_na_robotu_parent = Type::where('slug', 'Vyklyk-na-robotu')->first();
-        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu_parent->id)->get();
         $calling = Calling::find($id);
-        $Oplata_pratsi = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi->id)->get();
-        return view('callings.edit', ['calling' => $calling , 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
-       }
+        $all_types = Type::all();
+        $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
+        $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
+        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get();
+        $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
+        $works_types = Type::where('parent_id', $works_type->id)->get();
+        $works_names = [];
+        foreach($works_types as $work_type){
+            $finish_types = Type::where('parent_id', $work_type->id)->get();
+            foreach($finish_types as $finish_type){
+                $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
+                $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
+            }
+        }
+         $user = Personal::where('tn',Auth::user()->tn)->first();
+         $personnelInSameDivisions = [];
+        return view('callings.edit', ['calling' => $calling, 'Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
+     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
-        $description = $request->input('description');
+   
         $calling = Calling::find($id);
-        $calling->description = $description;
-        $calling->save();
+        if($request->description){
+            $calling->description = $request->description;
+            $calling->save();
+        }
+        if($request->arrival_time){
+            $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->arrival_time);
+            $calling->arrival_time = $Time;
+            $calling->save();
+        }
+        if($request->start_time){
+            $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_time);
+            $calling->start_time = $Time;
+            $calling->save();
+        }
+        if($request->end_time){
+            $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_time);
+            $calling->end_time = $Time;
+            $calling->save();
+        }
+        if($request->Type_of_work){
+            $calling->type_id = $request->Type_of_work;
+            $calling->save();
+        }
+        if($request->payments){
+            $calling->workers()->detach();
+            $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
+            $Robitnyky = Type::where('slug', 'Robitnyky')->first();
+            foreach($request->payments as $worker_id => $payment_id){
+                if($request->chief==$worker_id){
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $payment_id, 'comment' => $payment_id]);
+                }else{
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $payment_id, 'comment' => $payment_id]);
+                }
+            }   
+        }
         return redirect()->route('callings.index');
     }
 
@@ -270,5 +315,14 @@ class CallingController extends Controller
         }
         return redirect()->route('callings.index');
         
+    }
+
+    // print
+    public function print(string $id)
+    {
+        $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
+        $calling = Calling::find($id);
+        return view('callings.print', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }
 }

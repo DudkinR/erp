@@ -16,7 +16,7 @@ class StepController extends Controller
     {
         // order  by id desc steps not         has controls
         $steps = Step::orderBy('id', 'desc')
-            ->whereDoesntHave('controls')
+          //  ->whereDoesntHave('controls')
             ->get();
         // Step::orderBy('id', 'desc')->get();
         return view('steps.index', compact('steps'));
@@ -30,7 +30,12 @@ class StepController extends Controller
         //
         return view('steps.create');
     }
-
+    public function copy_step($id)
+    {
+        $step = Step::find($id);
+        return view('steps.create', compact('step'));
+    }
+  
     /**
      * Store a newly created resource in storage.
      */
