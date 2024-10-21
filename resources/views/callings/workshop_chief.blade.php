@@ -79,8 +79,9 @@
 
                           
                         <td >
-                            <button onclick="ShowModalWin({{$calling->id}})" class="btn btn-success">{{__('Confirm')}}</button>
-                        </td>
+                            <button onclick="ShowModalWin({{$calling->id}})" class="btn btn-success w-100">{{__('Confirm')}}</button>
+                            <a href="{{route('callings.show',$calling)}}"" class="btn btn-warning w-100"> {{__('Show')}} </a>
+                         </td>
                     </tr>
                     @endforeach
                 </tbody>

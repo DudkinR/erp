@@ -561,5 +561,10 @@
       "Divisions of event":"Підрозділи відповідальні за захід",
       "Positions of event":"Посади відповідальні за захід",
       "Events":"Заходи",
+      "Calling Details":"Деталі виклику",
+      "Calling Information" : "Інформація про виклик",
+      "Assigned Workers" : "Призначені працівники",
+      "Checkins Information":"Інформація про відмітки",
+      "Working Time":"Час роботи",
     "Archives" : "Архіви"
 }

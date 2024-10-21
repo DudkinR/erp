@@ -89,9 +89,9 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 }
                                 @endphp
                             
-                                @foreach($Vyklyk_na_robotu_ids as $Vyklyk_na_robotu_id)
+                                @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu" 
+                                    <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu"                                    
                                         value="{{ $Vyklyk_na_robotu_id->id }}" 
                                         onclick="Select_type_of_work({{ $Vyklyk_na_robotu_id->id }})"
                                         @if($ParentType && $ParentType->id == $Vyklyk_na_robotu_id->id) checked @endif>
@@ -162,7 +162,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                     <h2>{{ __('Type of work') }}:</h2>
                     <select id="Type_of_work" class="form-control" name="Type_of_work" size=3 onchange="DisplayWorkInfo(this.value)" required>
                         @if($ParentType)
-                            @foreach($all_types->where('parent_id', $ParentType->id) as $type)
+                            @foreach($DI['all_types']->where('parent_id', $ParentType->id) as $type)
                                 <option value="{{ $type->id }}" {{ $type->id == $calling->type_id ? 'selected' : '' }}>
                                     {{ $type->name }}
                                 </option>
@@ -218,7 +218,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                     </div>
                                     <div class="col-md-4">
                                         <select class="form-select" id="payments_{{ $worker->id }}" name="payments[{{ $worker->id }}]" required>
-                                            @foreach($Oplata_pratsi_ids as $type)
+                                            @foreach($DI['Oplata_pratsi_ids'] as $type)
                                                 <option value="{{ $type->id }}" {{ $type->id == $worker->pivot->payment_type_id ? 'selected' : '' }}>{{ $type->name }}</option>
                                             @endforeach
                                         </select>
@@ -245,21 +245,20 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
     </div>
 </div>
 
-    <script>
-// Работы и их описание
-const works_names = @json($works_names);
-const all_types = @json($all_types);
-var Type_of_work;
-
-function Select_type_of_work(work_type_id) {
+<script>
+        // Работы и их описание
+        const works_names = @json($DI['works_names']);
+        const all_types = @json($DI['all_types']);
+        var Type_of_work;
+        function Select_type_of_work(work_type_id) {
     // Очистка предыдущих опций
     var select = document.getElementById('Type_of_work');
     select.innerHTML = ''; // Очистка старых значений
     const type_id_before = document.querySelector('input[name="type_id_before"]').value;
-    var info_select=0;   
+    var info_select = 0;   
 
     // Получение конечных типов работ по выбранному типу работы
-    Type_of_work = works_names[work_type_id];
+    var Type_of_work = works_names[work_type_id];
 
     // Заполнение выпадающего списка
     for (var finish_type_id in Type_of_work) {
@@ -269,33 +268,22 @@ function Select_type_of_work(work_type_id) {
         option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
         if (finish_type_id == type_id_before) {
             option.selected = true;
-             DisplayWorkInfo(type_id_before);
-             info_select=1;
+            DisplayWorkInfo(type_id_before); // Показ информации для выбранного типа работы
+            info_select = 1;
         }
         select.appendChild(option);
     }
 
     // Автоматически показать информацию для первого конечного типа работы, если он есть
-    if (select.options.length > 0 && info_select==0) {
-        DisplayWorkInfo(select.options[0].value);
+    if (select.options.length > 0 && info_select == 0) {
+        DisplayWorkInfo(select.options[0].value); // Показ информации для первого типа работы
     }
 }
 
 function ExtractText(id) {
     let result = [];
-    
-    // Ищем текущий элемент по id
     let current_type = all_types.find(x => x.id == id);
-
-    // Если у элемента есть родитель (parent_id не равен 0), продолжаем рекурсию
-   /* if (current_type.parent_id !== 0) {
-        result = ExtractText(current_type.parent_id); // Рекурсивно добавляем родителя
-    }*/
-
-    // Добавляем информацию о текущем элементе в конец массива
-    result.push("<b>"+current_type.name + "</b><br> " + current_type.description);
-
-    // Возвращаем массив, а не строку на этом этапе
+    result.push("<b>" + current_type.name + "</b><br> " + current_type.description);
     return result;
 }
 
@@ -312,139 +300,151 @@ function DisplayWorkInfo(finish_type_id) {
     work_info_div.innerHTML = ''; // Очистка старых значений
     const text = GenerateTextWithHr(finish_type_id);
     work_info_div.innerHTML = text;
-
 }
 
-
-
-        var workers = @json($calling->workers);
-        console.log(workers);
-        const types_payment = @json($Oplata_pratsi_ids);
-    
-        function addPersonelByTN() {
-    const tn = document.getElementById('add_personel_tn').value;
-
-    fetch("{{ route('callings.getPersonalForTN') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ tn })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-
-        // Проверка, что данные существуют и содержат хотя бы одного работника
-        if (data && data.length > 0 && data[0] !== null && typeof data[0] === 'object') {
-            let worker = data[0];
-
-            // Добавляем поле "pivot" с нужными значениями
-            worker.pivot = {
-                calling_id: 9, // можно динамически передавать значение
-                personal_id: worker.id,
-                worker_type_id: null, // или заменить на значение по умолчанию
-                payment_type_id: null, // или заменить на значение по умолчанию
-                comment: null
-            };
-
-            // Добавляем работника в массив workers
-            workers.push(worker);
-
-            // Очищаем поле ввода
-            document.getElementById('add_personel_tn').value = '';
-
-            // Обновляем отображение списка работников
-            WListener();
-        } else {
-            console.error("Неверный формат данных или пустой результат:", data);
-        }
-    })
-    .catch(error => {
-        console.error("Ошибка при получении или обработке данных:", error);
-    });
-}
-
-
-        var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
-
-function WListener() {   
-    const showWorkers = document.getElementById('show_workers');               
-    showWorkers.innerHTML = ''; // Clear existing rows
-
-    workers.forEach(worker => {
-        const workerId = worker.id;
-        const workerName = worker.fio; 
-        // payment_type_id
-        const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked').value;
-        const payment_type_id = worker.pivot.payment_type_id;
-        // worker_type_id
-        const worker_type_id = worker.pivot.worker_type_id;        
-        const comments = worker.pivot.comments ? worker.pivot.comments : ''; // Default to empty string if undefined or null
-
-        // Conditional display of payment options
-        const paymentOptions = vyklyk_na_robotu != 56
-            ? types_payment.map(type => 
-                `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
-              ).join('') // .join('') to combine the options into a single string
-            : ''; // Empty string in case of `vyklyk_na_robotu == 56`
-
-        const row = `
-            <div class="row align-items-center mb-4 p-3 border rounded shadow-sm">
-                <div class="col-md-3">
-                    <h5 class="mb-0">${workerName}</h5>
-                </div>
-                <div class="col-md-4">
-                    <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="{{__('Add your comment')}}">${comments}</textarea>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]" required>    
-                        ${paymentOptions}
-                    </select>
-                </div>
-                <div class="col-md-1 d-flex align-items-center">
-                    <input type="radio" class="form-check-input" name="chief" value="${workerId}"
-                        ${worker_type_id == kerevnik_bryhady ? 'checked' : ''}
-                     required>
-                </div>
-            </div>
-        `;
-
-        showWorkers.innerHTML += row;
-    });
-}
+// Убираем повторный вызов Select_type_of_work из DisplayWorkInfo
 
 
 
 
-      
-        document.getElementById('start_time').addEventListener('change', (e) => {
-            if (e.target.value) {
-                document.getElementById('personal_start_id').checked = true;
+            var workers = @json($calling->workers);
+            console.log(workers);
+            const types_payment = @json($DI['Oplata_pratsi_ids']);
+
+            function addPersonelByTN() {
+        const tn = document.getElementById('add_personel_tn').value;
+
+        fetch("{{ route('callings.getPersonalForTN') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ tn })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            // Проверка, что данные существуют и содержат хотя бы одного работника
+            if (data && data.length > 0 && data[0] !== null && typeof data[0] === 'object') {
+                let worker = data[0];
+
+                // Добавляем поле "pivot" с нужными значениями
+                worker.pivot = {
+                    calling_id: 9, // можно динамически передавать значение
+                    personal_id: worker.id,
+                    worker_type_id: null, // или заменить на значение по умолчанию
+                    payment_type_id: null, // или заменить на значение по умолчанию
+                    comment: null
+                };
+
+                // Добавляем работника в массив workers
+                workers.push(worker);
+
+                // Очищаем поле ввода
+                document.getElementById('add_personel_tn').value = '';
+
+                // Обновляем отображение списка работников
+                WListener();
+            } else {
+                console.error("Неверный формат данных или пустой результат:", data);
             }
+        })
+        .catch(error => {
+            console.error("Ошибка при получении или обработке данных:", error);
         });
-
-        document.getElementById('arrival_time').addEventListener('change', (e) => {
-            if (e.target.value) {
-                document.getElementById('personal_arrival_id').checked = true;
-            }
-        });
-
-        function parseDateTime(input) {
-            return input ? new Date(input) : null;
         }
 
-        document.getElementById('start_time').addEventListener('blur', (e) => {
-            const startTime = parseDateTime(document.getElementById('start_time').value);
-            const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
 
-            if (arrivalTime && startTime && arrivalTime > startTime) {
-                document.getElementById('arrival_time').value = document.getElementById('start_time').value;
+            var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
+
+            function WListener() {
+                const showWorkers = document.getElementById('show_workers');
+                showWorkers.innerHTML = ''; // Очищаем существующие строки
+
+                // Проверяем, есть ли рабочие в массиве
+                if (!workers || workers.length === 0) {
+                    showWorkers.innerHTML = '<p>No workers available</p>'; // Сообщение, если список пуст
+                    return;
+                }
+
+                workers.forEach(worker => {
+                    const workerId = worker.id;
+                    const workerName = worker.fio;
+
+                    const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked');
+                    const vyklykValue = vyklyk_na_robotu ? vyklyk_na_robotu.value : null; // Проверка наличия выбранного элемента
+
+                    const payment_type_id = worker.pivot.payment_type_id;
+                    const worker_type_id = worker.pivot.worker_type_id;
+                    const comments = worker.pivot.comments ? worker.pivot.comments : ''; // По умолчанию пустая строка, если не указано
+
+                    // Генерация вариантов оплаты в зависимости от условия
+                    const paymentOptions = vyklykValue != 56
+                        ? types_payment.map(type =>
+                            `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
+                        ).join('') // Собираем все в строку
+                        : `<option value="" disabled selected>Not available</option>`; // Значение по умолчанию, если `vyklykValue == 56`
+
+                    // Формируем HTML строки
+                    const row = `
+                        <div class="row align-items-center mb-4 p-3 border rounded shadow-sm">
+                            <div class="col-md-3">
+                                <h5 class="mb-0">${workerName}</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${comments}</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]" >
+                                    ${paymentOptions}
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <input type="radio" class="form-check-input" name="chief" value="${workerId}"
+                                    ${worker_type_id == kerevnik_bryhady ? 'checked' : ''}
+                                    required>
+                            </div>
+                        </div>
+                    `;
+
+                    // Добавляем строку к HTML
+                    showWorkers.innerHTML += row;
+                });
             }
-        });
+
+
+
+
+
+            
+            document.getElementById('start_time').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    document.getElementById('personal_start_id').checked = true;
+                }
+            });
+
+            document.getElementById('arrival_time').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    document.getElementById('personal_arrival_id').checked = true;
+                }
+            });
+
+            function parseDateTime(input) {
+                return input ? new Date(input) : null;
+            }
+
+            document.getElementById('start_time').addEventListener('blur', (e) => {
+                const startTime = parseDateTime(document.getElementById('start_time').value);
+                const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
+
+                if (arrivalTime && startTime && arrivalTime > startTime) {
+                    document.getElementById('arrival_time').value = document.getElementById('start_time').value;
+                }
+            });
 
         WListener();
-    </script>
+</script>
 
 @endsection

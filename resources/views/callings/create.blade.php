@@ -76,7 +76,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 <div class="form-group mb-3">
                                     <h2>{{ __('Call to Work Type') }}</h2>
                                     @php $Vyklyk = 0; @endphp
-                                    @foreach($Vyklyk_na_robotu_ids as $Vyklyk_na_robotu_id)
+                                    @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu" 
                                             value="{{ $Vyklyk_na_robotu_id->id }}" 
@@ -192,79 +192,67 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
     </div>
 </div>
 
-    <script>
-// Работы и их описание
-const works_names = @json($works_names);
-const all_types = @json($all_types);
-var Type_of_work;
+<script>
+    // Работы и их описание
+    const works_names = @json($DI['works_names']);
+    const all_types = @json($DI['all_types']);
+    var Type_of_work;
 
-function Select_type_of_work(work_type_id) {
-    // Очистка предыдущих опций
-    var select = document.getElementById('Type_of_work');
-    select.innerHTML = ''; // Очистка старых значений
+    function Select_type_of_work(work_type_id) {
+        // Очистка предыдущих опций
+        var select = document.getElementById('Type_of_work');
+        select.innerHTML = ''; // Очистка старых значений
 
-    // Получение конечных типов работ по выбранному типу работы
-    Type_of_work = works_names[work_type_id];
+        // Получение конечных типов работ по выбранному типу работы
+        Type_of_work = works_names[work_type_id];
 
-    // Заполнение выпадающего списка
-    for (var finish_type_id in Type_of_work) {
-        var finish_type = Type_of_work[finish_type_id];
-        var option = document.createElement('option');
-        option.value = finish_type_id;  // Устанавливаем ID как значение
-        option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
-        select.appendChild(option);
+        // Заполнение выпадающего списка
+        for (var finish_type_id in Type_of_work) {
+            var finish_type = Type_of_work[finish_type_id];
+            var option = document.createElement('option');
+            option.value = finish_type_id;  // Устанавливаем ID как значение
+            option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
+            select.appendChild(option);
+        }
+
+        // Автоматически показать информацию для первого конечного типа работы, если он есть
+        if (select.options.length > 0) {
+            DisplayWorkInfo(select.options[0].value);
+        }
     }
 
-    // Автоматически показать информацию для первого конечного типа работы, если он есть
-    if (select.options.length > 0) {
-        DisplayWorkInfo(select.options[0].value);
+    function ExtractText(id) {
+        let result = [];
+        let current_type = all_types.find(x => x.id == id);
+        result.push("<b>"+current_type.name + "</b><br> " + current_type.description);
+        return result;
     }
-}
 
-function ExtractText(id) {
-    let result = [];
-    
-    // Ищем текущий элемент по id
-    let current_type = all_types.find(x => x.id == id);
-
-    // Если у элемента есть родитель (parent_id не равен 0), продолжаем рекурсию
-   /* if (current_type.parent_id !== 0) {
-        result = ExtractText(current_type.parent_id); // Рекурсивно добавляем родителя
-    }*/
-
-    // Добавляем информацию о текущем элементе в конец массива
-    result.push("<b>"+current_type.name + "</b><br> " + current_type.description);
-
-    // Возвращаем массив, а не строку на этом этапе
-    return result;
-}
-
-// Функция для генерации HTML с <hr> разделителем
-function GenerateTextWithHr(id) {
-    let textArray = ExtractText(id);
-    
-    // Объединяем элементы массива с помощью <hr>
-    return textArray.join('<hr>');
-}
-
-// Функция для отображения информации о выбранной работе
-function DisplayWorkInfo(finish_type_id) {
-    var work_info_div = document.getElementById('work_info');
-    work_info_div.innerHTML = ''; // Очистка старых значений
-    const text = GenerateTextWithHr(finish_type_id);
-    work_info_div.innerHTML = text;
-
-}
-document.addEventListener('DOMContentLoaded', function() {
-    // Если есть хотя бы один тип работы
-    var first_work_type_id = Object.keys(works_names)[0];
-    if (first_work_type_id) {
-        Select_type_of_work(first_work_type_id); // Выбираем первый тип работы
+    function GenerateTextWithHr(id) {
+        let textArray = ExtractText(id);
+        
+        // Объединяем элементы массива с помощью <hr>
+        return textArray.join('<hr>');
     }
-});
+
+    // Функция для отображения информации о выбранной работе
+    function DisplayWorkInfo(finish_type_id) {
+        var work_info_div = document.getElementById('work_info');
+        work_info_div.innerHTML = ''; // Очистка старых значений
+        const text = GenerateTextWithHr(finish_type_id);
+        work_info_div.innerHTML = text;
+
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Если есть хотя бы один тип работы
+        var first_work_type_id = Object.keys(works_names)[0];
+        if (first_work_type_id) {
+            Select_type_of_work(first_work_type_id); // Выбираем первый тип работы
+        }
+    });
 
         var workers = @json($workers);
-        const types_payment = @json($Oplata_pratsi_ids);
+        const types_payment = @json($DI['Oplata_pratsi_ids']);
     
         function addPersonelByTN() {
             const tn = document.getElementById('add_personel_tn').value;
@@ -328,12 +316,12 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="radio" class="form-check-input" name="chief" value="${workerId}" required>
         </div>
     </div>
-`;
+    `;
 
-        
-        showWorkers.innerHTML += row;
-    });
-}
+            
+            showWorkers.innerHTML += row;
+        });
+    }
 
 
         document.getElementById('workers').addEventListener('change', WListener);
@@ -362,8 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('arrival_time').value = document.getElementById('start_time').value;
             }
         });
-
-        WListener();
-    </script>
+   WListener();
+</script>
 
 @endsection

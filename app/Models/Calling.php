@@ -35,7 +35,7 @@ class Calling extends Model
     public function checkins()
     {
         return $this->belongsToMany(Personal::class, 'callings_checkins', 'calling_id', 'personal_id')
-                    ->withPivot('checkin_type_id','type')
+                    ->withPivot('checkin_type_id','type','comment')
                     ->withTimestamps(); // Если хотите учитывать поля created_at и updated_at
     }
 

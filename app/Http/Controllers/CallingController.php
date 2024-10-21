@@ -20,16 +20,17 @@ class CallingController extends Controller
        if($request->type){$type=$request->type;}
        if($request->start){$start=$request->start;}
        if($request->finish){$finish=$request->finish;}
-       if( Auth::user()->hasRole('user')){
-              $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-                 return view('callings.index', compact('callings'));
-        }
-        elseif(Auth::user()->hasRole('supervision')){
-
-            $callings = Calling::with(['workers.divisions'])
-           // ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 day')))
-             ->orderBy('id', 'asc')->get();
-            return view('callings.supervision', compact('callings'));
+       if(Auth::user()->hasRole('VONtaOP')){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.VONtaOP', compact('callings'));
+        }        
+        elseif(Auth::user()->hasRole('Profkom')){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.Profkom', compact('callings'));
+        }        
+        elseif(Auth::user()->hasRole('SVNtaPB')){
+            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            return view('callings.SVNtaPB', compact('callings'));
         }
         elseif(Auth::user()->hasRole('workshop-chief')){
             $callings = Calling::with(['workers.divisions'])
@@ -41,83 +42,29 @@ class CallingController extends Controller
             ->where('personal_end_id', '!=', null)
             ->orderBy('id', 'asc')->get();
             return view('callings.workshop_chief', compact('callings'));
-        }
-        elseif(Auth::user()->hasRole('user')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-            return view('callings.user', compact('callings'));
         }        
-        elseif(Auth::user()->hasRole('SVNtaPB')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-            return view('callings.SVNtaPB', compact('callings'));
-        }        
-        elseif(Auth::user()->hasRole('Profkom')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-            return view('callings.Profkom', compact('callings'));
+        elseif(Auth::user()->hasRole('supervision')){
+
+            $callings = Calling::with(['workers.divisions'])
+           // ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 day')))
+             ->orderBy('id', 'asc')->get();
+            return view('callings.supervision', compact('callings'));
         }
-        elseif(Auth::user()->hasRole('VONtaOP')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-            return view('callings.VONtaOP', compact('callings'));
+        elseif( Auth::user()->hasRole('user')){
+              $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+                 return view('callings.index', compact('callings'));
         }
         $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
       return view('callings.index', compact('callings'));
   
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // find types where slug is Oplata-pratsi
-        $all_types = Type::all();
-        $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
-        $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
-        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get();
-        $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
-        $works_types = Type::where('parent_id', $works_type->id)->get();
-        $works_names = [];
-        foreach($works_types as $work_type){
-            $finish_types = Type::where('parent_id', $work_type->id)->get();
-            foreach($finish_types as $finish_type){
-                $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
-                $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
-            }
-        }
-         $user = Personal::where('tn',Auth::user()->tn)->first();
-        if ($user) {
-            // Получить список division_id для текущего пользователя
-            $userDivisionIds = $user->divisions()->pluck('division_id');            
-            // Найти всех сотрудников, которые принадлежат к этим же divisions
-            $personnelInSameDivisions = Personal::whereHas('divisions', function ($query) use ($userDivisionIds) {
-                $query->whereIn('division_id', $userDivisionIds);
-            })->get();
-            return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'personnelInSameDivisions'=>$personnelInSameDivisions, 'works_names'=>$works_names, 'all_types'=>$all_types]);
-        } 
-        return view('callings.create', ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+   
     public function store(Request $request)
     {
         $Oplata_pratsi = $request->payments;
         
-    /*    $Oplata_pratsi = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_id = $Oplata_pratsi->id;
-        'description',
-        'type_id',
-        'start_time',
-        'personal_start_id',
-        'arrival_time',
-        'personal_arrival_id',
-        'work_time',
-        'personal_work_id',
-        'end_time',
-        'personal_end_id',
-*/
-//return $request;
+  
         $calling = new Calling();
         if($request->description){
             $calling->description = $request->description;
@@ -184,7 +131,13 @@ class CallingController extends Controller
     {
         //
         $calling = Calling::find($id);
-        return view('callings.show', ['calling' => $calling]);
+        $workers = $calling->workers;
+        $checkins= $calling->checkins;
+        $DI = $this->publicInformation();
+        return view('callings.show', ['calling' => $calling, 'workers' => $workers, 'checkins' => $checkins,'DI' => $DI]);
+    }
+    public function comments(Calling $calling){
+        
     }
     // confirmSS
     public function confirmSS(Request $request)
@@ -230,14 +183,24 @@ class CallingController extends Controller
         return redirect()->route('callings.index');
     }
     // confirmS
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function create()
     {
-        //
-        $calling = Calling::find($id);
+        // find types where slug is Oplata-pratsi
+      $publicInformation = $this->publicInformation();
+         $user = Personal::where('tn',Auth::user()->tn)->first();
+        if ($user) {
+            // Получить список division_id для текущего пользователя
+            $userDivisionIds = $user->divisions()->pluck('division_id');            
+            // Найти всех сотрудников, которые принадлежат к этим же divisions
+            $personnelInSameDivisions = Personal::whereHas('divisions', function ($query) use ($userDivisionIds) {
+                $query->whereIn('division_id', $userDivisionIds);
+            })->get();
+            return view('callings.create', ['DI' => $publicInformation, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
+        } 
+        return view('callings.create', ['DI' => $publicInformation]);
+    }
+
+    public function publicInformation(){
         $all_types = Type::all();
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
         $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
@@ -253,9 +216,19 @@ class CallingController extends Controller
                 $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
             }
         }
+        return ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types];
+    }
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+        $calling = Calling::find($id);
+        $publicInformation = $this->publicInformation();
          $user = Personal::where('tn',Auth::user()->tn)->first();
          $personnelInSameDivisions = [];
-        return view('callings.edit', ['calling' => $calling, 'Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
+        return view('callings.edit', ['calling' => $calling,  'DI' => $publicInformation, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
      }
 
     /**
@@ -263,6 +236,7 @@ class CallingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+       // return $request;
    
         $calling = Calling::find($id);
         if($request->description){
@@ -294,13 +268,27 @@ class CallingController extends Controller
             $Robitnyky = Type::where('slug', 'Robitnyky')->first();
             foreach($request->payments as $worker_id => $payment_id){
                 if($request->chief==$worker_id){
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $payment_id, 'comment' => $payment_id]);
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id]]);
                 }else{
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $payment_id, 'comment' => $payment_id]);
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id]]);
                 }
             }   
         }
+        else{
+            $calling->workers()->detach();
+            $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
+            $Robitnyky = Type::where('slug', 'Robitnyky')->first();
+            foreach($request->comments as $worker_id => $comment){
+                if($request->chief==$worker_id){
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => 9, 'comment' => $comment]);
+                }else{
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => 9, 'comment' =>  $comment] );
+                }
+            }
+
+        }
         return redirect()->route('callings.index');
+
     }
 
     /**
