@@ -29,9 +29,21 @@ class CallingController extends Controller
             return view('callings.Profkom', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            $callings = Calling::with(['workers.divisions'])
+            ->where('start_time', '!=', null)
+            ->where('personal_arrival_id', '!=', null)
+            ->where('arrival_time', '!=', null)
+            ->where('personal_start_id', '!=', null)
+            ->where('end_time', '!=', null)
+            ->where('personal_end_id', '!=', null)
+            ->orderBy('id', 'asc')
+            // no any callings_checkins pivot checkin_type_id == 77
+            ->whereDoesntHave('checkins', function ($query) {
+                $query->where('checkin_type_id',77);
+            })
+            ->get();
             return view('callings.SVNtaPB', compact('callings'));
-        }
+        } 
         elseif(Auth::user()->hasRole('workshop-chief')){
             $callings = Calling::with(['workers.divisions'])
             ->where('start_time', '!=', null)
@@ -40,7 +52,12 @@ class CallingController extends Controller
             ->where('personal_start_id', '!=', null)
             ->where('end_time', '!=', null)
             ->where('personal_end_id', '!=', null)
-            ->orderBy('id', 'asc')->get();
+            ->orderBy('id', 'asc')
+            // no any callings_checkins pivot checkin_type_id == 77
+            ->whereDoesntHave('checkins', function ($query) {
+                $query->where('checkin_type_id', 77);
+            })
+            ->get();
             return view('callings.workshop_chief', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('supervision')){
@@ -131,8 +148,8 @@ class CallingController extends Controller
     {
         //
         $calling = Calling::find($id);
-        $workers = $calling->workers;
-        $checkins= $calling->checkins;
+         $workers = $calling->workers;
+         $checkins= $calling->checkins;
         $DI = $this->publicInformation();
         return view('callings.show', ['calling' => $calling, 'workers' => $workers, 'checkins' => $checkins,'DI' => $DI]);
     }
@@ -142,7 +159,6 @@ class CallingController extends Controller
     // confirmSS
     public function confirmSS(Request $request)
     {
-        //
         $calling = Calling::find($request->calling_id);     
         if($calling){
             $calling->checkins()->attach(Auth::user()->id, [
@@ -158,14 +174,18 @@ class CallingController extends Controller
 //rejectSS
     public function rejectSS(Request $request)
     {
-        //return $request;
-        //
+
         $calling = Calling::find($request->calling_id);     
         if($calling){
-            $calling->checkins()->attach(Auth::user()->id, ['checkin_type_id' => $request->checkin_type_id, 'type' => 0, 'comment' => $request->comment,
-            'created_at' => now(), 'updated_at' => now()]);
+            $calling->checkins()->attach(Auth::user()->id, [
+                'checkin_type_id' => $request->checkin_type_id, 
+                'type' => 0, 
+                'comment' => $request->comment,
+            'created_at' => now(),
+             'updated_at' => now()]);
         }
-        return redirect()->route('callings.index');
+        return $calling->checkins;
+        //return redirect()->route('callings.index');
     }
 
     // confirmSSS

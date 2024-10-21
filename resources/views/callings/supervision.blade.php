@@ -23,7 +23,7 @@
     </div>
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('Form of callings')}}</h1>
+            <h1>{{__('Form of callings Supervision')}}</h1>
                 <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
             </div>
         </div>    
@@ -48,7 +48,8 @@
                            @php  $mass_divisions=[]; @endphp
                             @foreach($calling->workers as $worker)
                                 @if($worker->pivot->worker_type_id == 6)
-                                    {{ $worker->divisions[0]->name }} <br>
+                                    {{ $worker->divisions[0]->name }} 
+                                    <br>
                                     @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
                                    <b> {{$fn}}</b>
                                     <br>
@@ -57,7 +58,13 @@
                                 @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
                             @endforeach
                         </td>
-                        <td>{{$calling->description}}</td>
+                        <td>
+                            <a href="{{ route('callings.edit', $calling->id) }}">
+                                
+                            {{$calling->description}}
+                            </a>
+                            
+                        </td>
                         <td title="{{ $calling->start_time }}"
                             @if($calling->start_time==null && $calling->personal_start_id==null)
                                 style="background-color: #ff8040"

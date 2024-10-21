@@ -155,7 +155,7 @@
                                 @csrf
                                 <input type="hidden" name="comment" id="comment_reject">
                                 <input type="hidden" name="calling_id" id="calling_idrj" >
-                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="78">
                                 <button type="submit"  class="btn btn-danger w-100">{{__('Reject')}}</button>
                             </form> 
                         </div>

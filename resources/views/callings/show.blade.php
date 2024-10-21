@@ -283,9 +283,9 @@ if ($calling->type_id != null) {
                         <div class="col-md-6">
                            <form action="{{route('callings.rejectSS')}}" method="POST" >  
                                 @csrf
-                                <input type="hidden" name="comment" id="comment_reject">
-                                <input type="hidden" name="calling_id" id="calling_idrj" >
-                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
+                                <input type="hidden" name="comment" id="comment_reject" value="">
+                                <input type="hidden" name="calling_id" id="calling_idrj"  value="{{$calling->id}}">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="78" >
                                 <button type="submit"  class="btn btn-danger w-100">{{__('Reject')}}</button>
                             </form> 
                         </div>
@@ -308,6 +308,12 @@ if ($calling->type_id != null) {
     function ShowModalWin() {
         $('#modalWin').modal('show');
     }
+
+    // change textareas value to hidden input value
+    document.getElementById('comment').onchange = function() {
+        document.getElementById('comment_reject').value = this.value;
+    }
+
 
 </script>
 @endsection
