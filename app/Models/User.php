@@ -59,7 +59,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Personal::class, 'tn', 'tn');
     }
-
+    public function personal()
+    {
+        return $this->belongsTo(Personal::class, 'tn', 'tn');
+    }
     public function positions()
     {
         // return $user->profile->positions;

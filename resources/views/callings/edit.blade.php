@@ -209,9 +209,10 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                         <div class="container" id="show_workers">
                             @php   $Kerivnyk_bryhady = App\Models\Type::where('slug', 'Kerivnyk-bryhady')->first(); @endphp
                             @foreach($calling->workers as $worker)
-                                <div class="row align-items-center mb-4 p-3 border rounded shadow-sm">
+                                <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id = "worker_{{ $worker->id }}">
                                     <div class="col-md-3">
                                         <h5 class="mb-0">{{ $worker->fio }}</h5>
+                                        <button type="button" class="btn btn-danger" onclick="removeWorker({{ $worker->id }})">X</button>
                                     </div>
                                     <div class="col-md-4">
                                         <textarea class="form-control" id="comments_{{ $worker->id }}" name="comments[{{ $worker->id }}]" rows="2" placeholder="{{__('Add your comment')}}">{{ $worker->pivot->comments }}</textarea>
@@ -389,9 +390,10 @@ function DisplayWorkInfo(finish_type_id) {
 
                     // Формируем HTML строки
                     const row = `
-                        <div class="row align-items-center mb-4 p-3 border rounded shadow-sm">
+                        <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
                             <div class="col-md-3">
                                 <h5 class="mb-0">${workerName}</h5>
+                                <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
                             </div>
                             <div class="col-md-4">
                                 <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${comments}</textarea>
@@ -445,6 +447,10 @@ function DisplayWorkInfo(finish_type_id) {
             });
 
         WListener();
+        function removeWorker(workerId) {
+            workers = workers.filter(worker => worker.id !== workerId);
+            WListener();
+        }
 </script>
 
 @endsection

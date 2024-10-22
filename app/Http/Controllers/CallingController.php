@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Calling;
 use App\Models\Personal;
 use App\Models\Type;
+//Carbon
+use Carbon\Carbon;
 use Illuminate\Console\View\Components\Warn;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +16,14 @@ class CallingController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public $status_arr = [
+        "user"=>"created", 
+        "supervision"=>"supervision",
+        "workshop-chief"=>"workshop-chief",
+        "SVNtaPB"=>"SVNtaPB",
+        "Profkom"=>"Profkom",
+        "VONtaOP"=>"VONtaOP"];
+
     public function index(Request $request)
     {
        // Get the collection of started callings
@@ -21,103 +31,91 @@ class CallingController extends Controller
        if($request->start){$start=$request->start;}
        if($request->finish){$finish=$request->finish;}
        if(Auth::user()->hasRole('VONtaOP')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            $callings = Calling::where('status', 'VONtaOP')->
+            with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.VONtaOP', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
-            $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            $callings = Calling::where('status', 'Profkom')->
+            with(['workers.divisions'])->orderBy('id', 'asc')->get();
             return view('callings.Profkom', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
-            $callings = Calling::with(['workers.divisions'])
-            ->where('start_time', '!=', null)
-            ->where('personal_arrival_id', '!=', null)
-            ->where('arrival_time', '!=', null)
-            ->where('personal_start_id', '!=', null)
-            ->where('end_time', '!=', null)
-            ->where('personal_end_id', '!=', null)
+            $callings = Calling::where('status', 'SVNtaPB')->
+            with(['workers.divisions'])
             ->orderBy('id', 'asc')
-            // no any callings_checkins pivot checkin_type_id == 77
-            ->whereDoesntHave('checkins', function ($query) {
-                $query->where('checkin_type_id',77);
-            })
-            ->get();
+            ->get();            
             return view('callings.SVNtaPB', compact('callings'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
-            $callings = Calling::with(['workers.divisions'])
-            ->where('start_time', '!=', null)
-            ->where('personal_arrival_id', '!=', null)
-            ->where('arrival_time', '!=', null)
-            ->where('personal_start_id', '!=', null)
-            ->where('end_time', '!=', null)
-            ->where('personal_end_id', '!=', null)
-            ->orderBy('id', 'asc')
-            // no any callings_checkins pivot checkin_type_id == 77
-            ->whereDoesntHave('checkins', function ($query) {
-                $query->where('checkin_type_id', 77);
-            })
+            $callings = Calling::where('status', 'workshop-chief')->
+            with(['workers.divisions'])           
+             ->orderBy('id', 'asc')
             ->get();
             return view('callings.workshop_chief', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('supervision')){
 
-            $callings = Calling::with(['workers.divisions'])
-           // ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 day')))
+            $callings = Calling::where('status', 'supervision')->
+            with(['workers.divisions'])           
              ->orderBy('id', 'asc')->get();
             return view('callings.supervision', compact('callings'));
         }
         elseif( Auth::user()->hasRole('user')){
-              $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-                 return view('callings.index', compact('callings'));
+              $callings = Calling::where('status', 'created')->with(['workers.divisions'])->orderBy('id', 'asc')->get();
+              return view('callings.index', compact('callings'));
         }
-        $callings = Calling::with(['workers.divisions'])->orderBy('id', 'asc')->get();
-      return view('callings.index', compact('callings'));
+
   
     }
 
    
     public function store(Request $request)
     {
+      //  return $request;
         $Oplata_pratsi = $request->payments;
         
   
         $calling = new Calling();
+        $calling->status = 'created';
+        $filling=0;
         if($request->description){
             $calling->description = $request->description;
 
             $calling->save();
+            $filling++;
         }
        
         if($request->arrival_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->arrival_time);
-               $calling->arrival_time = $Time;
+            $calling->arrival_time = $Time;
 
             $calling->save();
+            $filling++;
         }
          if($request->start_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_time);
          $calling->start_time = $Time;
             $calling->save();
+            $filling++;
         }
-        if($request->work_time){
-            $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->work_time);
-            $calling->work_time = $Time;
-            $calling->save();
-        }   
+
         if($request->end_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_time);
             $calling->end_time =$Time;
             $calling->save();
+            $filling++;
         }
         if($request->Type_of_work){
             $calling->type_id = $request->Type_of_work;
             $calling->save();
+            $filling++;
         }
         if($request->workers){
             // find type where slug is Kerivnyk-bryhady
             $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
             $Robitnyky = Type::where('slug', 'Robitnyky')->first();
+            $filling++;
             
             foreach($request->workers as $worker){
                 if($request->chief==$worker){
@@ -127,9 +125,40 @@ class CallingController extends Controller
                 }
             }
         }
+        // если все поля заполнены и со временем все ок то ставим статус supervision
+        if ($this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time) && $filling==6) {
+           return $calling->status = 'supervision';
+            $calling->save();
+        }
+          $filling;
         return redirect()->route('callings.index');
     }
-
+    public function validateTimes($arrival_time, $start_time, $end_time)
+    {
+        // Проверяем, что все три времени заданы
+        if (!$arrival_time || !$start_time || !$end_time) {
+            return false; // Если одно из времен не задано — ошибка
+        }
+    
+        // Преобразуем входные значения в объекты Carbon
+        try {
+            $startTime = \Carbon\Carbon::parse($arrival_time);
+            $workTime = \Carbon\Carbon::parse($start_time);
+            $endTime = \Carbon\Carbon::parse($end_time);
+        } catch (\Exception $e) {
+            // Если формат неверный — ошибка
+            return $e->getMessage(); // Вернем сообщение об ошибке
+        }
+    
+        // Проверяем логическую последовательность времени
+        if ($startTime->gt($workTime) || $workTime->gt($endTime)) {
+            return false; // Ошибка логики времени
+        }
+    
+        return true; // Время корректно
+    }
+    
+    
     // getPersonalForTN
     public function getPersonalForTN(Request $request)
     {
@@ -159,7 +188,23 @@ class CallingController extends Controller
     // confirmSS
     public function confirmSS(Request $request)
     {
-        $calling = Calling::find($request->calling_id);     
+        Auth::user()->personal;
+        $calling = Calling::find($request->calling_id);   
+        if(Auth::user()->hasRole('VONtaOP')){
+            $calling ->status = 'VONtaOP';
+            $calling->save();
+        }        
+        elseif(Auth::user()->hasRole('Profkom')){
+            $calling ->status = 'Profkom';
+            $calling->save();
+        }        
+        elseif(Auth::user()->hasRole('SVNtaPB')){
+            $calling->status = 'SVNtaPB';
+        } 
+        elseif(Auth::user()->hasRole('workshop-chief')){
+            $calling->status = 'workshop-chief';
+            $calling->save();
+        }        
         if($calling){
             $calling->checkins()->attach(Auth::user()->id, [
                 'checkin_type_id' => $request->checkin_type_id, 
@@ -168,7 +213,6 @@ class CallingController extends Controller
                 'created_at' => now(), 
                 'updated_at' => now()]);
         }
-
         return redirect()->route('callings.index');
     }
 //rejectSS
@@ -259,33 +303,40 @@ class CallingController extends Controller
        // return $request;
    
         $calling = Calling::find($id);
+        $filling=0;
         if($request->description){
             $calling->description = $request->description;
             $calling->save();
+            $filling++;
         }
         if($request->arrival_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->arrival_time);
             $calling->arrival_time = $Time;
             $calling->save();
+            $filling++;
         }
         if($request->start_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_time);
             $calling->start_time = $Time;
             $calling->save();
+            $filling++;
         }
         if($request->end_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_time);
             $calling->end_time = $Time;
             $calling->save();
+            $filling++;
         }
         if($request->Type_of_work){
             $calling->type_id = $request->Type_of_work;
             $calling->save();
+            $filling++;
         }
         if($request->payments){
             $calling->workers()->detach();
             $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
             $Robitnyky = Type::where('slug', 'Robitnyky')->first();
+            $filling++;
             foreach($request->payments as $worker_id => $payment_id){
                 if($request->chief==$worker_id){
                     $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id]]);
@@ -305,8 +356,12 @@ class CallingController extends Controller
                     $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => 9, 'comment' =>  $comment] );
                 }
             }
-
         }
+        if($this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time) && $filling==6) {
+            $calling->status = 'supervision';
+            $calling->save();
+        }
+       // return $this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time);
         return redirect()->route('callings.index');
 
     }

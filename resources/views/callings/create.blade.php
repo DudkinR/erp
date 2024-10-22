@@ -300,9 +300,11 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
             : `<option value="${types_payment[0].id}" selected>${types_payment[0].name}</option>`;
 
             const row = `
-    <div class="row align-items-center mb-4 p-3 border rounded shadow-sm">
+    <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
         <div class="col-md-3">
             <h5 class="mb-0">${workerName}</h5>
+               <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
+                        
         </div>
         <div class="col-md-4">
             <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="{{__('Add your comment')}}"></textarea>
@@ -351,6 +353,13 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
             }
         });
    WListener();
+   function removeWorker(workerId) {
+    const workerElement = document.getElementById(`worker_${workerId}`);
+    workerElement.remove();
+    const workersSelect = document.getElementById('workers');
+    Array.from(workersSelect.options).find(option => option.value == workerId).selected = false;
+}
+
 </script>
 
 @endsection
