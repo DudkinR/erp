@@ -175,21 +175,29 @@ if ($calling->type_id != null) {
                             <ul class="list-group list-group-flush">
                                 @foreach ($checkins as $checkin)
                                     <li class="list-group-item">
-                                        <div class="row">
+                                        <div class="row  @if($checkin->pivot->type==0) bg-warning @endif">
                                             <div class="col-md-6">
-                                                <strong>{{ __('Name:') }}</strong> {{ $checkin->fio }}
+                                                <strong>{{ __('PIB') }}:</strong> {{ $checkin->fio }}
                                             </div>
                                             <div class="col-md-3">
-                                                <strong>{{ __('Checkin Type:') }}</strong> {{ $checkin->pivot->checkin_type_id }}
+                                                <strong> {{$DI['all_types'][$checkin->pivot->checkin_type_id]->name}} </strong>
                                             </div>
-                                            <div class="col-md-3">
-                                                <strong>{{ __('Type:') }}</strong> {{ $checkin->pivot->type }}
+                                            <div class="col-md-1">
+
+                                                <strong>
+                                                    @if($checkin->pivot->type==1)
+                                                    {{ __('Yes') }}
+                                                    @else
+                                                    {{ __('No') }}
+                                                    @endif
+                                                </strong>
                                             </div>
-                                        </div>
-                                        <div class="mt-2">
+                                            <div class="mt-2">
                                             <strong>{{ __('Comment:') }}</strong>
                                             <p>{{ $checkin->pivot->comment ?? __('No comment provided') }}</p>
+                                            </div>
                                         </div>
+                                        
                                     </li>
                                 @endforeach
                             </ul>
@@ -217,7 +225,20 @@ if ($calling->type_id != null) {
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id"  value="{{$calling->id}}">
+                    @if(Auth::user()->hasRole('VONtaOP'))
+                    <input type="hidden" name="tp_check" value="workshop_chief">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "77">
+                    @elseif(Auth::user()->hasRole('Profkom'))
+                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "76">
+                    @elseif(Auth::user()->hasRole('SVNtaPB'))
+                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "75">
+                    @elseif(Auth::user()->hasRole('workshop-chief')) 
+                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "74">
+                    @endif
+                    
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number">

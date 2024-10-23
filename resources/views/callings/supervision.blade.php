@@ -59,10 +59,9 @@
                             @endforeach
                         </td>
                         <td>
-                            <a href="{{ route('callings.edit', $calling->id) }}">
-                                
                             {{$calling->description}}
-                            </a>
+                            <br>
+                            <a onclick="ShowModalWin({{$calling->id}})" class="btn btn-warning" title="{{__('Confirm')}}"> {{__('Confirm')}}</a>
                             
                         </td>
                         <td title="{{ $calling->start_time }}"

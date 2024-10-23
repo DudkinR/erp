@@ -24,7 +24,7 @@
         <div class="row">
             <div class="col-md-12">
             <h3>{{__('Form of callings')}}</h3>
-            <h1>{{__('Boss')}}</h1>
+            <h1>{{__('Profkom')}}</h1>
             </div>
         </div>    
         <div class="container">
@@ -101,9 +101,9 @@
             <div class="modal-body">
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
-                    <input type="hidden" name="tp_check" value="workshop_chief">
                     <input type="hidden" name="calling_id" id="calling_id" >
-                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="74">
+                    <input type="hidden" name="tp_check" value="Profkom">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="76">
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number"></span>

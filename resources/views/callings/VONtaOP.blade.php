@@ -24,9 +24,15 @@
         <div class="row">
             <div class="col-md-12">
             <h3>{{__('Form of callings')}}</h3>
-            <h1>{{__('Boss')}}</h1>
+            <h1>{{__('VONtaOP')}}</h1>
             </div>
-        </div>    
+        </div>  
+        <div class="row">
+            <div class="col-md-12">
+                <a href="{{route('callings.printOrder')}}" class="btn btn-light w-100">{{__('Print')}}</a>
+
+            </div>
+        </div>  
         <div class="container">
             <table class="table table-striped">
                 <thead>
@@ -101,9 +107,9 @@
             <div class="modal-body">
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
-                    <input type="hidden" name="tp_check" value="workshop_chief">
                     <input type="hidden" name="calling_id" id="calling_id" >
-                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="74">
+                    <input type="hidden" name="tp_check" value="VONtaOP">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number"></span>

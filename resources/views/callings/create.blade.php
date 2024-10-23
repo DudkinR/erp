@@ -64,8 +64,9 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">{{ __('New Form Calling') }}</h1>
-            <form method="POST" action="{{ route('callings.store') }}">
+            <form method="POST" action="{{ route('callings.store') }}" >
                 @csrf
+                
                 <!-- Form section -->
                 <div class="container">
                     <div class="row">

@@ -504,9 +504,11 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/confirm/{id}', 'App\Http\Controllers\CallingController@confirm')->name('callings.confirm');
     // post confirm
     Route::post('/confirmStoreCh', 'App\Http\Controllers\CallingController@confirmStoreCh')->name('callings.confirmStoreCh');
+    Route::post('/callingsOrder', 'App\Http\Controllers\CallingController@callingsOrder')->name('callings.order');
     Route::post('/callings', 'App\Http\Controllers\CallingController@store')->name('callings.store');
     Route::get('/callings/{id}', 'App\Http\Controllers\CallingController@show')->name('callings.show');
     Route::get('/callingprint/{id}', 'App\Http\Controllers\CallingController@print')->name('callings.print');
+    Route::any('/callingsPrintOrder', 'App\Http\Controllers\CallingController@printOrder')->name('callings.printOrder');
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
     Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
     Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
@@ -524,13 +526,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::put('/risks/{id}', 'App\Http\Controllers\RiskController@update')->name('risks.update');
     Route::delete('/risks/{id}', 'App\Http\Controllers\RiskController@destroy')->name('risks.destroy');
     //experiences
-    Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');
-    
-
-    
-    
-    
-    
+    Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
 
 });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Calling;
 use App\Models\Personal;
+use App\Models\Division;
 use App\Models\Type;
 //Carbon
 use Carbon\Carbon;
@@ -56,26 +57,71 @@ class CallingController extends Controller
         }        
         elseif(Auth::user()->hasRole('supervision')){
 
-            $callings = Calling::where('status', 'supervision')->
-            with(['workers.divisions'])           
+            $callings = Calling::where('status', 'supervision')
+            ->orwhere('personal_start_id',null)
+            ->orwhere('personal_arrival_id',null)
+            ->orwhere('personal_end_id',null)
+            ->with(['workers.divisions'])           
              ->orderBy('id', 'asc')->get();
             return view('callings.supervision', compact('callings'));
         }
         elseif( Auth::user()->hasRole('user')){
-              $callings = Calling::where('status', 'created')->with(['workers.divisions'])->orderBy('id', 'asc')->get();
+              $callings = Calling::where('status', 'created')
+              ->orwhere('personal_start_id',null)
+              ->orwhere('personal_arrival_id',null)
+              ->orwhere('personal_end_id',null)
+              ->with(['workers.divisions'])->orderBy('id', 'asc')->get();
               return view('callings.index', compact('callings'));
         }
 
   
     }
 
+    
+    public function printOrder(Request $request){
+        if(!Auth::user()->hasRole('VONtaOP')){
+            return redirect()->route('callings.index');
+        } 
+        $callings = Calling::where('status', 'for_print')->
+        with(['workers.divisions'])->orderBy('id', 'asc')->get();
+        return view('callings.FormOrder', compact('callings'));       
+    }
+     public function callingsOrder(Request $request){
+        $callings=Calling::whereIn('id',$request->call_)->get();
+        $Workings=[];
+        $divisions =[];
+        foreach ($callings as $call) {
+            foreach ($call->workers as $worker) {
+                // Check if the worker and type_id combination exists in the array
+                if (!isset($Workings[$worker->id][$call->type_id])) {
+                    // Initialize the worker's data for this call type
+                    $Workings[$worker->id][$call->type_id] = [
+                        "tn" => $worker->tn,
+                        "type" => $call->type_id,
+                        "pib" => $worker->fio,
+                        "position" => $worker->positions[0]->name,
+                        "division" => $worker->divisions[0]->name ,
+                        "time" => 1,            // Initialize time to 1
+                        "night_time" => 1,      // Initialize night time to 1
+                    ];
+                } else {
+                    // If already set, increment time and night_time
+                    $Workings[$worker->id][$call->type_id]["time"] += 1;
+                    $Workings[$worker->id][$call->type_id]["night_time"] += 1;
+                }
+            }
+        }
+        
+      ///  return $Workings;
+        return view('callings.ORDER', compact('callings')); 
+     }
    
     public function store(Request $request)
     {
+
       //  return $request;
         $Oplata_pratsi = $request->payments;
-        
-  
+
         $calling = new Calling();
         $calling->status = 'created';
         $filling=0;
@@ -127,7 +173,7 @@ class CallingController extends Controller
         }
         // если все поля заполнены и со временем все ок то ставим статус supervision
         if ($this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time) && $filling==6) {
-           return $calling->status = 'supervision';
+            $calling->status = 'supervision';
             $calling->save();
         }
           $filling;
@@ -188,25 +234,30 @@ class CallingController extends Controller
     // confirmSS
     public function confirmSS(Request $request)
     {
-        Auth::user()->personal;
+         Auth::user()->personal->id;
         $calling = Calling::find($request->calling_id);   
         if(Auth::user()->hasRole('VONtaOP')){
-            $calling ->status = 'VONtaOP';
+            if($request->tp_check=='VONtaOP'){ 
+            $calling ->status = 'for_print';
             $calling->save();
+            }
         }        
         elseif(Auth::user()->hasRole('Profkom')){
-            $calling ->status = 'Profkom';
+           if($request->tp_check=='Profkom'){ 
+            $calling ->status = 'VONtaOP';
             $calling->save();
+           }
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
-            $calling->status = 'SVNtaPB';
+            if($request->tp_check=='SVNtaPB'){$calling->status = 'Profkom';$calling->save();}
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
-            $calling->status = 'workshop-chief';
-            $calling->save();
+            if($request->tp_check=='workshop_chief'){
+            $calling->status = 'SVNtaPB';
+           $calling->save();}
         }        
         if($calling){
-            $calling->checkins()->attach(Auth::user()->id, [
+            $calling->checkins()->attach(Auth::user()->personal->id, [
                 'checkin_type_id' => $request->checkin_type_id, 
                 'type' => 1,
                 'comment' => $request->comment,
@@ -221,15 +272,15 @@ class CallingController extends Controller
 
         $calling = Calling::find($request->calling_id);     
         if($calling){
-            $calling->checkins()->attach(Auth::user()->id, [
+            $calling->checkins()->attach(Auth::user()->personal->id, [
                 'checkin_type_id' => $request->checkin_type_id, 
                 'type' => 0, 
                 'comment' => $request->comment,
             'created_at' => now(),
              'updated_at' => now()]);
         }
-        return $calling->checkins;
-        //return redirect()->route('callings.index');
+        // $calling->checkins;
+        return redirect()->route('callings.index');
     }
 
     // confirmSSS
@@ -244,6 +295,10 @@ class CallingController extends Controller
         if($request->completed == 1)
         $calling->personal_end_id = Auth::user()->tn;
         $calling->save();
+        if ($this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time)) {
+             $calling->status = 'workshop-chief';
+             $calling->save();
+         }
         return redirect()->route('callings.index');
     }
     // confirmS
@@ -265,7 +320,10 @@ class CallingController extends Controller
     }
 
     public function publicInformation(){
-        $all_types = Type::all();
+        foreach (Type::all() as $type)
+        {
+            $all_types[$type->id] = $type;
+        }
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
         $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
         $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();

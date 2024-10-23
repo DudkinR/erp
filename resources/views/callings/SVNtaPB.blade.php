@@ -102,7 +102,8 @@
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id" >
-                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
+                    <input type="hidden" name="tp_check" value="SVNtaPB">
+                    <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="75">
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number"></span>

@@ -180,9 +180,9 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                 <!-- Поле для отображения описания -->
                 <div class="form-section">
                     <div class="container" id="work_info" >
-                        <b>{{$CallingType->name}}</b>
+                        <b>{{optional($CallingType)->name}}</b>
                         <br>
-                        {{$CallingType->description}}
+                        {{optional($CallingType)->description}}
                     </div>
                 </div>
                 
