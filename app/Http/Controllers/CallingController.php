@@ -91,6 +91,7 @@ class CallingController extends Controller
         $Workings=[];
         $divisions =[];
         foreach ($callings as $call) {
+            $times=$this->count_time($call->start_time, $call->end_time);
             foreach ($call->workers as $worker) {
                 // Check if the worker and type_id combination exists in the array
                 if (!isset($Workings[$worker->id][$call->type_id])) {
@@ -101,19 +102,33 @@ class CallingController extends Controller
                         "pib" => $worker->fio,
                         "position" => $worker->positions[0]->name,
                         "division" => $worker->divisions[0]->name ,
-                        "time" => 1,            // Initialize time to 1
-                        "night_time" => 1,      // Initialize night time to 1
-                    ];
+                        "time" => $times[0],
+                        "night_time" => $times[1],                   ];
                 } else {
                     // If already set, increment time and night_time
-                    $Workings[$worker->id][$call->type_id]["time"] += 1;
-                    $Workings[$worker->id][$call->type_id]["night_time"] += 1;
+                    $Workings[$worker->id][$call->type_id]["time"] +=  $times[0];
+                    $Workings[$worker->id][$call->type_id]["night_time"] += $times[1];
                 }
             }
         }
         
       ///  return $Workings;
         return view('callings.ORDER', compact('callings')); 
+     }
+     public function count_time($start, $finish){
+        /*
+        Считаем сколько часов если более 8 часов вычитаем 1 час обеда 
+        также высчитываем с этого времени ночное время с 22 до 6  
+        */
+        $total_time = $finish->diffInHours($start);
+        $total_night_time = 0;
+        $start_night = $start->copy()->startOfDay()->addHours(22);
+        $finish_night = $finish->copy()->startOfDay()->addHours(6);
+        $total_night_time = $finish_night->diffInHours($start_night);
+        return [
+            $total_time,
+            $total_night_time
+        ];
      }
    
     public function store(Request $request)
