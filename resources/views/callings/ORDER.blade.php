@@ -81,6 +81,9 @@
         <div class="col-md-12">
         </div>
     </div>
-
 </div>
+<script>
+    const Workings=@json($Workings);
+    console.log(Workings);
+</script>
 @endsection

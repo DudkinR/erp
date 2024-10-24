@@ -89,8 +89,6 @@ class CallingController extends Controller
      public function callingsOrder(Request $request){
         $callings=Calling::whereIn('id',$request->call_)->get();
         $Workings=[];
-        $ndch=[];
-        $vih=[];
         $divisions =[];
         foreach ($callings as $call) {
             $times=$this->count_time($call->start_time, $call->end_time);
@@ -104,33 +102,50 @@ class CallingController extends Controller
                         "pib" => $worker->fio,
                         "position" => $worker->positions[0]->name,
                         "division" => $worker->divisions[0]->name ,
-                        "time" => $times[0],
-                        "night_time" => $times[1],                   ];
+                        "time" => $times['total_time'],
+                        "night_time" => $times['total_night_time'],                   ];
                 } else {
                     // If already set, increment time and night_time
-                    $Workings[$worker->id][$call->type_id]["time"] +=  $times[0];
-                    $Workings[$worker->id][$call->type_id]["night_time"] += $times[1];
+                    $Workings[$worker->id][$call->type_id]["time"] +=  $times['total_time'];
+                    $Workings[$worker->id][$call->type_id]["night_time"] += $times['total_night_time'];
                 }
             }
         }
-        
+        $DI = $this->publicInformation();
       ///  return $Workings;
-        return view('callings.ORDER', compact('callings')); 
+        return view('callings.ORDER', compact('callings','Workings','DI'));
      }
-     public function count_time($start, $finish){
-        /*
-        Считаем сколько часов если более 8 часов вычитаем 1 час обеда 
-        также высчитываем с этого времени ночное время с 22 до 6  
-        */
-        $total_time = $finish->diffInHours($start);
-        $total_night_time = 0;
-        $start_night = $start->copy()->startOfDay()->addHours(22);
-        $finish_night = $finish->copy()->startOfDay()->addHours(6);
-        $total_night_time = $finish_night->diffInHours($start_night);
-        return [
-            $total_time,
-            $total_night_time
-        ];
+     public function count_time($start, $finish)
+     {
+         /*
+         Считаем сколько часов если более 8 часов вычитаем 1 час обеда 
+         также высчитываем с этого времени ночное время с 22 до 6  
+         */
+         // Перетворюємо строки у об'єкти Carbon
+         $start = Carbon::parse($start);
+         $finish = Carbon::parse($finish);
+     
+         // Загальний час між початком і кінцем
+         $total_time = $finish->diffInHours($start);
+     
+         // Визначаємо нічний час
+         $total_night_time = 0;
+         
+         // Період з 22:00 до 6:00 наступного дня
+         $start_night = $start->copy()->setTime(22, 0);  // Початок ночного часу (22:00)
+         $finish_night = $start->copy()->setTime(6, 0)->addDay();  // Кінець нічного часу (6:00 наступного дня)
+     
+         // Рахуємо нічний час
+         if ($start < $finish_night && $finish > $start_night) {
+             $night_start = $start->max($start_night);
+             $night_end = $finish->min($finish_night);
+             $total_night_time = $night_end->diffInHours($night_start);
+         }
+     
+         return [
+             'total_time' => $total_time,
+             'total_night_time' => $total_night_time
+         ];
      }
    
     public function store(Request $request)
