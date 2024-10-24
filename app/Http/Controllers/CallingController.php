@@ -89,6 +89,8 @@ class CallingController extends Controller
      public function callingsOrder(Request $request){
         $callings=Calling::whereIn('id',$request->call_)->get();
         $Workings=[];
+        $ndch=[];
+        $vih=[];
         $divisions =[];
         foreach ($callings as $call) {
             $times=$this->count_time($call->start_time, $call->end_time);
