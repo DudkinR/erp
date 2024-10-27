@@ -528,6 +528,27 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
 
+    // cars
+    Route::get('/cars', 'App\Http\Controllers\CarController@index')->name('cars.index');
+    Route::get('/cars/create', 'App\Http\Controllers\CarController@create')->name('cars.create');
+    Route::post('/cars', 'App\Http\Controllers\CarController@store')->name('cars.store');
+    Route::get('/cars/{id}', 'App\Http\Controllers\CarController@show')->name('cars.show');
+    Route::get('/cars/{id}/edit', 'App\Http\Controllers\CarController@edit')->name('cars.edit');
+    Route::put('/cars/{id}', 'App\Http\Controllers\CarController@update')->name('cars.update');
+    Route::delete('/cars/{id}', 'App\Http\Controllers\CarController@destroy')->name('cars.destroy');
+    // carorders in CarController too
+    Route::get('/carorders', 'App\Http\Controllers\CarController@carorders')->name('carorders');
+    Route::get('/carorders/create', 'App\Http\Controllers\CarController@createCarOrder')->name('carorders.create');
+    Route::post('/carorders', 'App\Http\Controllers\CarController@storeCarOrder')->name('carorders.store');
+    Route::get('/carorders/{id}', 'App\Http\Controllers\CarController@showCarOrder')->name('carorders.show');
+    Route::get('/carorders/{id}/edit', 'App\Http\Controllers\CarController@editCarOrder')->name('carorders.edit');
+    Route::put('/carorders/{id}', 'App\Http\Controllers\CarController@updateCarOrder')->name('carorders.update');
+    Route::delete('/carorders/{id}', 'App\Http\Controllers\CarController@destroyCarOrder')->name('carorders.destroy');
+    // plan cars routes
+    Route::get('/plancars', 'App\Http\Controllers\CarController@plancars')->name('plancars');
+    Route::post('/assign-driver', 'App\Http\Controllers\CarController@assignDriver')->name('assign-driver');
+
+
 });
 
 
