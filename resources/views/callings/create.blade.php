@@ -180,9 +180,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                         </div>
                     </div>
                     <!-- Chief dropdown -->
-                  
-                    
-                        <div class="container" id="show_workers"></div>
+                    <div class="container" id="show_workers"></div>
                     
                 </div>
 
@@ -195,8 +193,11 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
 
 <script>
     // Работы и их описание
-    const works_names = @json($DI['works_names']);
-    const all_types = @json($DI['all_types']);
+    const works_names =Object.values(@json($DI['works_names']) || {});
+    const all_types = Object.values(@json($DI['all_types']) || {});
+    var workers = Object.values(@json($workers) || {});
+    console.log(works_names); 
+    const types_payment = Object.values(@json($DI['Oplata_pratsi_ids']) || {});
     var Type_of_work;
 
     function Select_type_of_work(work_type_id) {
@@ -252,8 +253,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
         }
     });
 
-        var workers = @json($workers);
-        const types_payment = @json($DI['Oplata_pratsi_ids']);
+        
     
         function addPersonelByTN() {
             const tn = document.getElementById('add_personel_tn').value;
@@ -283,48 +283,73 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                 }
             });
         }
+        function ReadValWorkers() {
+    var workersSelect = document.getElementById('workers');
+    var old_values = [];
+    Array.from(workersSelect.selectedOptions).forEach(option => {
+        old_values.push(option.value);
+    });
+    return old_values;
+}
 
-        function WListener() {
+function WListener() {
     const workersSelect = document.getElementById('workers');
     const showWorkers = document.getElementById('show_workers');
+    const old_values = ReadValWorkers();    
+    
+    // Зберегти попередні значення полів
+    const oldData = {};
+    Array.from(showWorkers.querySelectorAll('.row')).forEach(row => {
+        const workerId = row.id.split('_')[1];
+        oldData[workerId] = {
+            comment: row.querySelector(`#comments_${workerId}`).value,
+            start_time: row.querySelector(`#start_time_${workerId}`).value,
+            end_time: row.querySelector(`#end_time_${workerId}`).value,
+            payment: row.querySelector(`#payments_${workerId}`).value,
+            chief: row.querySelector(`input[name="chief"]:checked`)?.value === workerId,
+        };
+    });
 
-    showWorkers.innerHTML = ''; // Clear existing rows
+    showWorkers.innerHTML = ''; // Очистити поточні рядки
 
     Array.from(workersSelect.selectedOptions).forEach(option => {
         const workerId = option.value;
         const workerName = option.text;
         const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked').value;
         
-        // Условное отображение вариантов оплаты
+        // Умовне відображення варіантів оплати
         const paymentOptions = vyklyk_na_robotu != 56
-            ? types_payment.map(type => `<option value="${type.id}" ${type.id == 1 ? 'selected' : ''}>${type.name}</option>`).join('')
+            ? types_payment.map(type => `<option value="${type.id}" ${type.id == (oldData[workerId]?.payment || 1) ? 'selected' : ''}>${type.name}</option>`).join('')
             : `<option value="${types_payment[0].id}" selected>${types_payment[0].name}</option>`;
 
-            const row = `
-    <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
-        <div class="col-md-3">
-            <h5 class="mb-0">${workerName}</h5>
-               <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
-                        
+        const row = `
+        <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
+            <div class="col-md-3">
+                <h5 class="mb-0">${workerName}</h5>
+                <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>        
+            </div>
+            <div class="col-md-4">
+                <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2">${oldData[workerId]?.comment || ''}</textarea>
+                <label for="start_time_${workerId}">{{__('start time')}}</label>
+                <input type="datetime-local" id="start_time_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${oldData[workerId]?.start_timew || ''}">
+                <label for="end_time_${workerId}">{{__('end time')}}</label>
+                <input type="datetime-local" id="end_time_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${oldData[workerId]?.end_timew || ''}">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]">
+                    ${paymentOptions}
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-center">
+                <input type="radio" class="form-check-input" name="chief" value="${workerId}" ${oldData[workerId]?.chief ? 'checked' : ''} required>
+            </div>
         </div>
-        <div class="col-md-4">
-            <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="{{__('Add your comment')}}"></textarea>
-        </div>
-        <div class="col-md-4">
-            <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]">
-                ${paymentOptions}
-            </select>
-        </div>
-        <div class="col-md-1 d-flex align-items-center">
-            <input type="radio" class="form-check-input" name="chief" value="${workerId}" required>
-        </div>
-    </div>
-    `;
+        `;
 
-            
-            showWorkers.innerHTML += row;
-        });
-    }
+        showWorkers.innerHTML += row;
+    });
+}
+
 
 
         document.getElementById('workers').addEventListener('change', WListener);

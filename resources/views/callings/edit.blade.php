@@ -217,6 +217,10 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                     </div>
                                     <div class="col-md-4">
                                         <textarea class="form-control" id="comments_{{ $worker->id }}" name="comments[{{ $worker->id }}]" rows="2" placeholder="{{__('Add your comment')}}">{{ $worker->pivot->comments }}</textarea>
+                                        <label for="start_time_{{ $worker->id }}">{{__('start time')}}</label>
+                                        {{__('start_time')}}<input type="datetime-local" id="start_time_{{ $worker->id }}" class="form-control" name="start_time[{{ $worker->id }}]" value=" {{ $worker->pivot->start_time }}">
+                                        <label for="end_time_{{ $worker->id }}">{{__('end time')}}</label>
+                                        {{__('end_time')}}<input type="datetime-local" id="end_time_{{ $worker->id }}" class="form-control" name="end_time[{{ $worker->id }}]" value="{{ $worker->pivot->end_time }}">                             
                                     </div>
                                     <div class="col-md-4">
                                         <select class="form-select" id="payments_{{ $worker->id }}" name="payments[{{ $worker->id }}]" required>
@@ -251,29 +255,37 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
         // Работы и их описание
         const works_names = @json($DI['works_names']);
         const all_types = @json($DI['all_types']);
+        var workers = @json($calling->workers);
+        const  types_payment = Object.values(@json($DI['Oplata_pratsi_ids']));
+        console.log(types_payment);
+       // console.log(all_types[1].name);
         var Type_of_work;
         function Select_type_of_work(work_type_id) {
-    // Очистка предыдущих опций
-    var select = document.getElementById('Type_of_work');
-    select.innerHTML = ''; // Очистка старых значений
-    const type_id_before = document.querySelector('input[name="type_id_before"]').value;
-    var info_select = 0;   
+            if (!works_names[work_type_id]) {
+            console.error("Невірний ID типу роботи:", work_type_id);
+            return;
+            }
+            // Очистка предыдущих опций
+            var select = document.getElementById('Type_of_work');
+            select.innerHTML = ''; // Очистка старых значений
+            const type_id_before = document.querySelector('input[name="type_id_before"]').value;
+            var info_select = 0;   
 
-    // Получение конечных типов работ по выбранному типу работы
-    var Type_of_work = works_names[work_type_id];
+            // Получение конечных типов работ по выбранному типу работы
+            var Type_of_work = works_names[work_type_id];
 
-    // Заполнение выпадающего списка
-    for (var finish_type_id in Type_of_work) {
-        var finish_type = Type_of_work[finish_type_id];
-        var option = document.createElement('option');
-        option.value = finish_type_id;  // Устанавливаем ID как значение
-        option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
-        if (finish_type_id == type_id_before) {
-            option.selected = true;
-            DisplayWorkInfo(type_id_before); // Показ информации для выбранного типа работы
-            info_select = 1;
-        }
-        select.appendChild(option);
+            // Заполнение выпадающего списка
+            for (var finish_type_id in Type_of_work) {
+                var finish_type = Type_of_work[finish_type_id];
+                var option = document.createElement('option');
+                option.value = finish_type_id;  // Устанавливаем ID как значение
+                option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
+                if (finish_type_id == type_id_before) {
+                    option.selected = true;
+                    DisplayWorkInfo(type_id_before); // Показ информации для выбранного типа работы
+                    info_select = 1;
+                }
+                select.appendChild(option);
     }
 
     // Автоматически показать информацию для первого конечного типа работы, если он есть
@@ -307,9 +319,6 @@ function DisplayWorkInfo(finish_type_id) {
 // Убираем повторный вызов Select_type_of_work из DisplayWorkInfo
 
 
-            var workers = @json($calling->workers);
-            console.log(workers);
-            const types_payment = @json($DI['Oplata_pratsi_ids']);
 
             function addPersonelByTN() {
         const tn = document.getElementById('add_personel_tn').value;
@@ -322,12 +331,13 @@ function DisplayWorkInfo(finish_type_id) {
             },
             body: JSON.stringify({ tn })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
         .then(data => {
-            console.log(data);
-
-            // Проверка, что данные существуют и содержат хотя бы одного работника
-            if (data && data.length > 0 && data[0] !== null && typeof data[0] === 'object') {
+            if (data && Array.isArray(data) && data.length > 0 && data[0] && typeof data[0] === 'object') {
+ 
                 let worker = data[0];
 
                 // Добавляем поле "pivot" с нужными значениями
@@ -348,25 +358,33 @@ function DisplayWorkInfo(finish_type_id) {
                 // Обновляем отображение списка работников
                 WListener();
             } else {
-                console.error("Неверный формат данных или пустой результат:", data);
-            }
-        })
-        .catch(error => {
-            console.error("Ошибка при получении или обработке данных:", error);
-        });
+        console.error("Невірний формат даних або пустий результат:", data);
+                }
+            })
+            .catch(error => {
+                console.error("Помилка при отриманні даних:", error);
+            });
         }
 
 
             var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
+            function ReadValWorkers() {
+                var workersSelect = document.getElementById('workers');
+                var old_values = [];
+                Array.from(workersSelect.selectedOptions).forEach(option => {
+                    old_values.push(option.value);
+                });
+                return old_values;
+            }
 
             function WListener() {
                 if (!Array.isArray(types_payment)) {
-        console.error("types_payment не є масивом або не визначений");
-        return;
-    }
+                    console.error("types_payment не є масивом або не визначений");
+                    return;
+                }
                 const showWorkers = document.getElementById('show_workers');
                 showWorkers.innerHTML = ''; // Очищаем существующие строки
-
+               // val OldValWorkers = ReadValWorkers();
                 // Проверяем, есть ли рабочие в массиве
                 if (!workers || workers.length === 0) {
                     showWorkers.innerHTML = '<p>No workers available</p>'; // Сообщение, если список пуст
@@ -400,6 +418,10 @@ function DisplayWorkInfo(finish_type_id) {
                             </div>
                             <div class="col-md-4">
                                 <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${comments}</textarea>
+                                <label for="start_time_${workerId}">{{__('start time')}}</label>
+                                <input type="datetime-local" id="start_timew_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${worker.pivot.start_time}">
+                                <label for="end_time_${workerId}">{{__('end time')}}</label>
+                                <input type="datetime-local" id="end_timew_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${worker.pivot.end_time}">
                             </div>
                             <div class="col-md-4">
                                 <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]" >
@@ -440,17 +462,18 @@ function DisplayWorkInfo(finish_type_id) {
                 return input ? new Date(input) : null;
             }
 
-            document.getElementById('start_time').addEventListener('blur', (e) => {
+            document.getElementById('start_time').addEventListener('blur', () => {
                 const startTime = parseDateTime(document.getElementById('start_time').value);
                 const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
 
-                if (arrivalTime && startTime && arrivalTime > startTime) {
+                if (startTime && (!arrivalTime || arrivalTime < startTime)) {
                     document.getElementById('arrival_time').value = document.getElementById('start_time').value;
                 }
             });
 
         WListener();
         function removeWorker(workerId) {
+            document.getElementById(`worker_${workerId}`).remove(); // Приховуємо рядок перед оновленням списку
             workers = workers.filter(worker => worker.id !== workerId);
             WListener();
         }

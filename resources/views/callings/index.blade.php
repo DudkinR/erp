@@ -34,7 +34,7 @@
                         <th>{{__('№')}}</th>
                         <th>{{__('Department')}}</th>
                         <th>{{__('Name')}}</th>
-                        <th>{{__('Start')}}</th>
+                        <th>{{__('Call')}}</th>
                         <th>{{__('In work')}}</th>
                         <th>{{__('Completed')}}</th>
                         <th>{{__('Number of people')}}</th>
@@ -75,7 +75,7 @@
                             @if($calling->start_time!==null&& $calling->personal_start_id!==null)                          
                             {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}
                             @elseif($calling->start_time!==null&& $calling->personal_start_id==null)
-                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}</a>
+                            <a  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->start_time)->format('H:i') }}</a>
                             @else
                             -----
                             @endif
@@ -93,7 +93,7 @@
 
                             @elseif($calling->arrival_time!==null && $calling->personal_arrival_id==null)
 
-                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}</a>
+                            <a class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}</a>
 
                             @else
                             ------
@@ -110,12 +110,11 @@
 
                             {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}
                             @elseif($calling->end_time!==null && $calling->personal_end_id==null)
-                            <a onclick="ShowModalWin({{$calling->id}})"  class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}</a>
+                            <a   class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->end_time)->format('H:i') }}</a>
                             @else
                             ------
                             @endif
                         </td>
-                        
                         <td>
                             @foreach($mass_divisions as $key=>$value)
                                 <a href="" title="@foreach($value as $v){{$v}} &#13;@endforeach">
@@ -123,7 +122,6 @@
 
                                 </a>
                             @endforeach
-
                         </td>
                     </tr>
                     @endforeach

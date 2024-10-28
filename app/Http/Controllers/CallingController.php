@@ -197,9 +197,18 @@ class CallingController extends Controller
             
             foreach($request->workers as $worker){
                 if($request->chief==$worker){
-                    $calling->workers()->attach($worker, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $Oplata_pratsi[$worker], 'comment' => $request->comments[$worker]]);
+                    $calling->workers()->attach($worker,
+                     ['worker_type_id' => $Kerivnyk_bryhady->id,
+                     'payment_type_id' => $Oplata_pratsi[$worker], 
+                     'comment' => $request->comments[$worker],
+                     'start_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker]),
+                     'end_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker])]);
                 }else{
-                    $calling->workers()->attach($worker, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $Oplata_pratsi[$worker], 'comment' => $request->comments[$worker]]);
+                    $calling->workers()->attach($worker, ['worker_type_id' => $Robitnyky->id,
+                     'payment_type_id' => $Oplata_pratsi[$worker], 
+                     'comment' => $request->comments[$worker],
+                        'start_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker]),
+                        'end_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker])]);
                 }
             }
         }
@@ -364,7 +373,7 @@ class CallingController extends Controller
         $works_types = Type::where('parent_id', $works_type->id)->get()->keyBy('id');
         $works_names = [];
         foreach($works_types as $work_type){
-            $finish_types = Type::where('parent_id', $work_type->id)->get()->keyBy('id');
+            $finish_types = Type::where('parent_id', $work_type->id)->get();
             foreach($finish_types as $finish_type){
                 $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
                 $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
@@ -429,9 +438,15 @@ class CallingController extends Controller
             $filling++;
             foreach($request->payments as $worker_id => $payment_id){
                 if($request->chief==$worker_id){
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id]]);
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id,
+                     'payment_type_id' => $payment_id, 
+                     'comment' => $request->comments[$worker_id],
+                     'start_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]),
+                        'end_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id])]);
                 }else{
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id]]);
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => $payment_id, 'comment' => $request->comments[$worker_id],
+                        'start_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]),
+                        'end_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id])]);
                 }
             }   
         }
@@ -441,9 +456,9 @@ class CallingController extends Controller
             $Robitnyky = Type::where('slug', 'Robitnyky')->first();
             foreach($request->comments as $worker_id => $comment){
                 if($request->chief==$worker_id){
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => 9, 'comment' => $comment]);
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' => 9, 'comment' => $comment, 'start_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]), 'end_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id])]);
                 }else{
-                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => 9, 'comment' =>  $comment] );
+                    $calling->workers()->attach($worker_id, ['worker_type_id' => $Robitnyky->id, 'payment_type_id' => 9, 'comment' =>  $comment, 'start_time' => \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]), 'end_time' =>  \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id])]);
                 }
             }
         }
