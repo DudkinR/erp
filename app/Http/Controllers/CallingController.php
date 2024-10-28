@@ -33,26 +33,26 @@ class CallingController extends Controller
        if($request->finish){$finish=$request->finish;}
        if(Auth::user()->hasRole('VONtaOP')){
             $callings = Calling::where('status', 'VONtaOP')->
-            with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
             return view('callings.VONtaOP', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
             $callings = Calling::where('status', 'Profkom')->
-            with(['workers.divisions'])->orderBy('id', 'asc')->get();
+            with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
             return view('callings.Profkom', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = Calling::where('status', 'SVNtaPB')->
             with(['workers.divisions'])
             ->orderBy('id', 'asc')
-            ->get();            
+            ->get()->keyBy('id');            
             return view('callings.SVNtaPB', compact('callings'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
             $callings = Calling::where('status', 'workshop-chief')->
             with(['workers.divisions'])           
              ->orderBy('id', 'asc')
-            ->get();
+            ->get()->keyBy('id');
             return view('callings.workshop_chief', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('supervision')){
@@ -62,7 +62,7 @@ class CallingController extends Controller
             ->orwhere('personal_arrival_id',null)
             ->orwhere('personal_end_id',null)
             ->with(['workers.divisions'])           
-             ->orderBy('id', 'asc')->get();
+             ->orderBy('id', 'asc')->get()->keyBy('id');
             return view('callings.supervision', compact('callings'));
         }
         elseif( Auth::user()->hasRole('user')){
@@ -70,7 +70,7 @@ class CallingController extends Controller
               ->orwhere('personal_start_id',null)
               ->orwhere('personal_arrival_id',null)
               ->orwhere('personal_end_id',null)
-              ->with(['workers.divisions'])->orderBy('id', 'asc')->get();
+              ->with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
               return view('callings.index', compact('callings'));
         }
 
@@ -83,11 +83,11 @@ class CallingController extends Controller
             return redirect()->route('callings.index');
         } 
         $callings = Calling::where('status', 'for_print')->
-        with(['workers.divisions'])->orderBy('id', 'asc')->get();
+        with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
         return view('callings.FormOrder', compact('callings'));       
     }
      public function callingsOrder(Request $request){
-        $callings=Calling::whereIn('id',$request->call_)->get();
+        $callings=Calling::whereIn('id',$request->call_)->get()->keyBy('id');
         $Workings=[];
         $divisions =[];
         foreach ($callings as $call) {
@@ -345,7 +345,7 @@ class CallingController extends Controller
             // Найти всех сотрудников, которые принадлежат к этим же divisions
             $personnelInSameDivisions = Personal::whereHas('divisions', function ($query) use ($userDivisionIds) {
                 $query->whereIn('division_id', $userDivisionIds);
-            })->get();
+            })->get()->keyBy('id');
             return view('callings.create', ['DI' => $publicInformation, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
         } 
         return view('callings.create', ['DI' => $publicInformation]);
@@ -354,17 +354,17 @@ class CallingController extends Controller
     public function publicInformation(){
         foreach (Type::all() as $type)
         {
-            $all_types[$type->id] = $type;
+            $all_types[$type->id] = $type;  
         }
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
         $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
-        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get();
+        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get()->keyBy('id');
         $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
-        $works_types = Type::where('parent_id', $works_type->id)->get();
+        $works_types = Type::where('parent_id', $works_type->id)->get()->keyBy('id');
         $works_names = [];
         foreach($works_types as $work_type){
-            $finish_types = Type::where('parent_id', $work_type->id)->get();
+            $finish_types = Type::where('parent_id', $work_type->id)->get()->keyBy('id');
             foreach($finish_types as $finish_type){
                 $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
                 $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
@@ -474,7 +474,7 @@ class CallingController extends Controller
     public function print(string $id)
     {
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get();
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
         $calling = Calling::find($id);
         return view('callings.print', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }

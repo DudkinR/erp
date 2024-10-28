@@ -285,49 +285,98 @@ class PersonalController extends Controller
     // import personal data from csv file to database
     public function importData(Request $request)
     {
-    set_time_limit(0);
+        set_time_limit(0);
 
-    $type_of_file = $request->type_of_file ?? 0;
-    $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
+        $type_of_file = $request->type_of_file ?? 0;
+        $csvData = FileHelpers::csvToArray($request->file('file'), $type_of_file);
+        //dd(count($csvData)); 
+        $pers=[]; $nonDiv=[];
+        foreach ($csvData as $line) {
+            $data = str_getcsv($line, ";"); 
 
-    foreach ($csvData as $line) {
-        $data = str_getcsv($line, ";"); 
+            if ($data[1] === 'TAB_NO') {
+                continue;
+            }
+            $exname=explode(" ",$data[3]);
+            $name=""; $i=0;
+            foreach($exname as $w){
+                if($i==0){
+                    $i++;
+                    $num_div=intval($w); // Використовуємо intval() для перетворення в ціле число
+        
+                }
+                elseif($i==1){
+                    $name.=$w;
+                    $i++;
+                }
+                else{
+                    $name.=" ".$w;
+                }
+            }
+            $name_u=""; $i=0;
+            $exname=explode(" ",$data[4]);
+            foreach($exname as $w){
+                if($i==0){
+                    $i++;                      
+                }
+                elseif($i==1){
+                    $name_u.=$w;
+                    $i++;
+                }
+                else{
+                    $name_u.=" ".$w;
+                }
+            }
+            if($name_u=="") $name_u=$data[4];
+        $division = Division::where('name', $name)->first();
+        if (!$division) { 
 
-        if ($data[2] === 'TAB_NO') {
-            continue;
+                $division = new Division([
+                    'in_id' =>$num_div,
+                    'name' => $name,
+                    'description' => $data[3],
+                    'abv' => $name,
+                    'slug' => StringHelpers::generateSlug($name),
+                    'parent_id' => 0
+                ]);
+                $division->save();
+            }
+            else{
+                $division->in_id=$num_div;
+                $division->save();
+
+            }
+            $underdivision = Division::where('name', $name_u)->first();
+            if (!$underdivision) {
+                $underdivision = new Division([
+                    'in_id' =>$num_div,
+                    'name' => $name_u,
+                    'description' => $data[4],
+                    'abv' => $name_u,
+                    'slug' => StringHelpers::generateSlug($name_u),
+                    'parent_id' => $division->id
+                ]);
+                $underdivision->save();
+                $nonDiv[]=$name." ".$name_u." ". $data[1] ;
+            } 
+            else{
+                $underdivision->in_id=$num_div;
+                $underdivision->save();  
+            }
+            $personal = Personal::where('tn', $data[1])->first();
+            if ($personal) {
+                if($underdivision){
+                $personal->divisions()->detach();
+                $personal->divisions()->attach($underdivision->id); 
+                $personal->save(); 
+                $pers[]=$personal->divisions;
+                }
+            }
+            else{
+            $nonDiv[]=$name." ".$name_u." ". $data[1] ;
+            }
         }
-        $division = Division::where('name', $data[4])->first();
-        if (!$division) {
-            $division = new Division([
-                'name' => $data[4],
-                'description' => $data[4],
-                'abv' => $data[4],
-                'slug' => StringHelpers::generateSlug($data[4]),
-                'parent_id' => 0
-            ]);
-            $division->save();
-        }
-        $underdivision = Division::where('name', $data[5])->first();
-        if (!$underdivision) {
-            $underdivision = new Division([
-                'name' => $data[5],
-                'description' => $data[5],
-                'abv' => $data[5],
-                'slug' => StringHelpers::generateSlug($data[5]),
-                'parent_id' => $division->id
-            ]);
-            $underdivision->save();
-        }
-        $personal = Personal::where('tn', $data[2])->first();
-        if ($personal && $personal->fio === $data[1]) {
-            $personal->email =  $data[3];                        
-            $personal->save();
-            $personal->divisions()->attach($underdivision->id); 
-        }
-
-
-    }
-    
+    return [$nonDiv,$pers];
     return redirect('/personal')->with('success', 'Personal data imported!');
     }
     public function insert_text($text, $start, $end, $separator = ' ')

@@ -162,11 +162,12 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                     <h2>{{ __('Type of work') }}:</h2>
                     <select id="Type_of_work" class="form-control" name="Type_of_work" size=3 onchange="DisplayWorkInfo(this.value)" required>
                         @if($ParentType)
-                            @foreach($DI['all_types']->where('parent_id', $ParentType->id) as $type)
-                                <option value="{{ $type->id }}" {{ $type->id == $calling->type_id ? 'selected' : '' }}>
-                                    {{ $type->name }}
-                                </option>
-                            @endforeach
+                        @foreach(array_filter($DI['all_types'], fn($type) => $type['parent_id'] == $ParentType->id) as $type)
+                            <option value="{{ $type['id'] }}" {{ $type['id'] == $calling->type_id ? 'selected' : '' }}>
+                                {{ $type['name'] }}
+                            </option>
+                        @endforeach
+
                         @else
                             <option value="" disabled>{{ __('No work types available') }}</option>
                         @endif
@@ -306,8 +307,6 @@ function DisplayWorkInfo(finish_type_id) {
 // Убираем повторный вызов Select_type_of_work из DisplayWorkInfo
 
 
-
-
             var workers = @json($calling->workers);
             console.log(workers);
             const types_payment = @json($DI['Oplata_pratsi_ids']);
@@ -361,6 +360,10 @@ function DisplayWorkInfo(finish_type_id) {
             var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
 
             function WListener() {
+                if (!Array.isArray(types_payment)) {
+        console.error("types_payment не є масивом або не визначений");
+        return;
+    }
                 const showWorkers = document.getElementById('show_workers');
                 showWorkers.innerHTML = ''; // Очищаем существующие строки
 

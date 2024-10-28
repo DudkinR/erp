@@ -11,7 +11,7 @@ class Division extends Model
     // table name
     protected $table = 'division';
     // fillable
-    protected $fillable = ['name', 'description', 'abv', 'slug', 'parent_id'];
+    protected $fillable = ['in_id','name', 'description', 'abv', 'slug', 'parent_id'];
     // relationships
     public function children()
     {
