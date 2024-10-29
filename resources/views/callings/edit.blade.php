@@ -79,7 +79,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 @php
                                 $CallingType = null;
                                 $ParentType = null;
-                            
+                                $Vyklyk =0; 
                                 if ($calling->type_id != null) {
                                     $CallingType = \App\Models\Type::find($calling->type_id);
                                     $ParentType = $CallingType ? \App\Models\Type::find($CallingType->parent_id) : null;
@@ -93,13 +93,14 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu"                                    
                                         value="{{ $Vyklyk_na_robotu_id->id }}" 
-                                        onclick="Select_type_of_work({{ $Vyklyk_na_robotu_id->id }})"
+                                        onclick="Select_type_of_work({{ $Vyklyk}})"
                                         @if($ParentType && $ParentType->id == $Vyklyk_na_robotu_id->id) checked @endif>
                             
                                     <label class="form-check-label" for="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}">
                                         {{ __($Vyklyk_na_robotu_id->name) }}
                                     </label>
                                 </div>
+                                @php $Vyklyk ++; @endphp
                                 @endforeach
                             </div>
                             
@@ -114,33 +115,34 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 <div class="form-group mb-3">
                                     <h2 for="arrival_time">{{ __('Arrival Time') }}</h2>
                                     <input type="datetime-local" id="arrival_time" class="form-control" name="arrival_time"
-                                    @if($calling->arrival_time==null) value= "{{ date('Y-m-d\TH:i') }}" required
+                                    @if($calling->arrival_time==null) value= "" style="background-color: yellow"
                                     @else
-                                     value= "{{ date('Y-m-d\TH:i', strtotime($calling->arrival_time)) }}" required
+                                     value= "{{ date('Y-m-d\TH:i', strtotime($calling->arrival_time)) }}" 
                                     @endif
-                                     >
+                                    required>
                                 </div>
                                 <!-- Start time (date-time input) -->
                                 <div class="form-group mb-3">
-                                    <h2 for="start_time">{{ __('Start Time') }}</h2>
+                                    <h2 for="start_time" title="{{ __('Go to KPP') }}">{{ __('Start Time') }}</h2>
                                     <input type="datetime-local" id="start_time" class="form-control" name="start_time"
-                                    @if($calling->start_time==null) value= "{{ date('Y-m-d\TH:i') }}" required
+                                    @if($calling->start_time==null) value= "" style="background-color: yellow"
+
                                     @else
-                                        value= "{{ date('Y-m-d\TH:i', strtotime($calling->start_time)) }}" required
+                                        value= "{{ date('Y-m-d\TH:i', strtotime($calling->start_time)) }}" 
                                     @endif
 
-                                >
+                                required>
                                 </div>
                 
                                 <!-- End time (date-time input) -->
                                 <div class="form-group mb-3">
                                     <h2 for="end_time">{{ __('End Time') }}</h2>
                                     <input type="datetime-local" id="end_time" class="form-control" name="end_time"
-                                    @if($calling->end_time==null) value= "{{ date('Y-m-d\TH:i') }}" required
+                                    @if($calling->end_time==null) value= "" style="background-color: yellow"
                                     @else
-                                        value= "{{ date('Y-m-d\TH:i', strtotime($calling->end_time)) }}" required
+                                        value= "{{ date('Y-m-d\TH:i', strtotime($calling->end_time)) }}" 
                                     @endif
-                                    >
+                                    required>
                                 </div>
                             </div>
                         </div>
@@ -213,6 +215,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id = "worker_{{ $worker->id }}">
                                     <div class="col-md-3">
                                         <h5 class="mb-0">{{ $worker->fio }}</h5>
+                                        <h6 class="mb-0">{{$worker->positions[0]['name'] }}</h6>
                                         <button type="button" class="btn btn-danger" onclick="removeWorker({{ $worker->id }})">X</button>
                                     </div>
                                     <div class="col-md-4">
@@ -394,6 +397,7 @@ function DisplayWorkInfo(finish_type_id) {
                 workers.forEach(worker => {
                     const workerId = worker.id;
                     const workerName = worker.fio;
+                    const positionName = worker.positions && worker.positions.length > 0 ? worker.positions[0].name : 'No Position';
 
                     const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked');
                     const vyklykValue = vyklyk_na_robotu ? vyklyk_na_robotu.value : null; // Проверка наличия выбранного элемента
@@ -414,13 +418,15 @@ function DisplayWorkInfo(finish_type_id) {
                         <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
                             <div class="col-md-3">
                                 <h5 class="mb-0">${workerName}</h5>
+                                 <p class="text-muted mb-1">${positionName}</p> <!-- Должность работника -->
+              
                                 <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
                             </div>
                             <div class="col-md-4">
                                 <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${comments}</textarea>
-                                <label for="start_time_${workerId}">{{__('start time')}}</label>
+                                <label for="start_time_${workerId}" title="{{ __('Go to KPP') }}">{{__('Start Time')}}</label>
                                 <input type="datetime-local" id="start_timew_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${worker.pivot.start_time}">
-                                <label for="end_time_${workerId}">{{__('end time')}}</label>
+                                <label for="end_time_${workerId}">{{__('End Time')}}</label>
                                 <input type="datetime-local" id="end_timew_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${worker.pivot.end_time}">
                             </div>
                             <div class="col-md-4">

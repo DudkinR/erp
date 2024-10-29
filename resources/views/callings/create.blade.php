@@ -81,14 +81,14 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu" 
                                             value="{{ $Vyklyk_na_robotu_id->id }}" 
-                                            onclick="Select_type_of_work({{ $Vyklyk_na_robotu_id->id }})"
+                                            onclick="Select_type_of_work({{ $Vyklyk}})"
                                             {{ old('vyklyk_na_robotu') == $Vyklyk_na_robotu_id->id ? 'checked' : '' }} 
                                             @if($Vyklyk == 0) checked @endif>
                                         <label class="form-check-label" for="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}">
                                             {{ __($Vyklyk_na_robotu_id->name) }}
                                         </label>
                                     </div>
-                                    @php $Vyklyk = 1; @endphp
+                                    @php $Vyklyk ++; @endphp
                                     @endforeach
                                 </div>
                 
@@ -105,7 +105,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                 </div>
                                 <!-- Start time (date-time input) -->
                                 <div class="form-group mb-3">
-                                    <h2 for="start_time">{{ __('Start Time') }}</h2>
+                                    <h2 for="start_time" title="{{ __('Go to KPP') }}">{{ __('Start Time') }}</h2>
                                     <input type="datetime-local" id="start_time" class="form-control" name="start_time" value="{{ old('start_time') }}">
                                 </div>
                 
@@ -330,9 +330,9 @@ function WListener() {
             </div>
             <div class="col-md-4">
                 <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2">${oldData[workerId]?.comment || ''}</textarea>
-                <label for="start_time_${workerId}">{{__('start time')}}</label>
+                <label for="start_time_${workerId}" title="{{ __('Go to KPP') }}">{{__('Start Time')}}</label>
                 <input type="datetime-local" id="start_time_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${oldData[workerId]?.start_timew || ''}">
-                <label for="end_time_${workerId}">{{__('end time')}}</label>
+                <label for="end_time_${workerId}">{{__('End Time')}}</label>
                 <input type="datetime-local" id="end_time_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${oldData[workerId]?.end_timew || ''}">
             </div>
             <div class="col-md-4">
