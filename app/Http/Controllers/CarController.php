@@ -30,8 +30,8 @@ class CarController extends Controller
     public function create()
     {
         //
-        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id');
-        return view('cars.create', compact('all_types'));
+        $all_types = Type::orderBy('id', 'asc')->get();
+      return   view('cars.create', compact('all_types'));
     }
 
     /**

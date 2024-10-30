@@ -27,18 +27,21 @@
                     </div>
                     <div class="form-group">
                         <label for="type_id">{{__('Type')}}</label>
-                        <select class="form-control" id="type_id" name="type_id" required>
-                            @php  
-                              $parent_car_type = $all_types->firstWhere('slug', 'Typ-transportnoho');
+                         @php  
+                             
+                            $parent_car_type = $all_types->firstWhere('slug', 'Typ-transportnoho');
 
                                 $car_types = collect(); // Створення порожньої колекції за замовчуванням
 
                                 if ($parent_car_type) {
                                     $car_types = $all_types->filter(function($type) use ($parent_car_type) {
-                                        return $type->parent_id === $parent_car_type->id;
+                                        return $type->parent_id == $parent_car_type->id;
                                     });
                                 }
+
                             @endphp
+                        <select class="form-control" id="type_id" name="type_id" required>
+                           
                             @foreach($car_types as $car_type)
                                 <option value="{{ $car_type->id }}"
                                     @if(isset($_GET['type_id']) && $_GET['type_id'] == $car_type->id) selected @endif>{{ $car_type->name }}</option>
