@@ -207,8 +207,13 @@ if ($calling->type_id != null) {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-              <button class="btn btn-success w-100" onclick="ShowModalWin()">{{__('Confirm')}} / {{__('Reject')}} </button>
+            <div class="col-md-12">  @if(Auth::user()->hasRole('VONtaOP') || Auth::user()->hasRole('Profkom') || Auth::user()->hasRole('SVNtaPB') || Auth::user()->hasRole('workshop-chief')) 
+            <button class="btn btn-success w-100" onclick="ShowModalWin()">{{__('Confirm')}} / {{__('Reject')}} </button>
+                         @else
+                            <a href="{{ route('callings.edit', $calling->id) }}" class="btn w-100 btn-info">
+                                {{ __("Edit") }}                                
+                            </a>
+                        @endif
                         </div>
         </div>
     </div>
@@ -226,13 +231,13 @@ if ($calling->type_id != null) {
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id"  value="{{$calling->id}}">
                     @if(Auth::user()->hasRole('VONtaOP'))
-                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="tp_check" value="VONtaOP">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "77">
                     @elseif(Auth::user()->hasRole('Profkom'))
-                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="tp_check" value="Profkom">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "76">
                     @elseif(Auth::user()->hasRole('SVNtaPB'))
-                    <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="tp_check" value="SVNtaPB">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "75">
                     @elseif(Auth::user()->hasRole('workshop-chief')) 
                     <input type="hidden" name="tp_check" value="workshop_chief">
@@ -297,16 +302,36 @@ if ($calling->type_id != null) {
                     </div> 
                     <div class="row">
                         <div class="col-md-6">
-                          <button class="btn btn-success w-100">{{__('Confirm')}}</button>
+                        @if(Auth::user()->hasRole('VONtaOP') || Auth::user()->hasRole('Profkom') || Auth::user()->hasRole('SVNtaPB') || Auth::user()->hasRole('workshop-chief')) 
+                            <button class="btn btn-success w-100">{{ __('Confirm') }}</button>
+                        @else
+                            <a href="{{ route('callings.edit', $calling->id) }}" class="btn w-100 btn-warning">
+                                {{ __("Edit") }}                                
+                            </a>
+                        @endif
+
+                        
                   
                         </form>  
                         </div>
                         <div class="col-md-6">
                            <form action="{{route('callings.rejectSS')}}" method="POST" >  
                                 @csrf
+                                @if(Auth::user()->hasRole('VONtaOP'))
+                                <input type="hidden" name="tp_check" value="VONtaOP">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "77">
+                                @elseif(Auth::user()->hasRole('Profkom'))
+                                <input type="hidden" name="tp_check" value="Profkom">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "76">
+                                @elseif(Auth::user()->hasRole('SVNtaPB'))
+                                <input type="hidden" name="tp_check" value="SVNtaPB">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "75">
+                                @elseif(Auth::user()->hasRole('workshop-chief')) 
+                                <input type="hidden" name="tp_check" value="workshop_chief">
+                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value= "74">
+                                @endif
                                 <input type="hidden" name="comment" id="comment_reject" value="">
                                 <input type="hidden" name="calling_id" id="calling_idrj"  value="{{$calling->id}}">
-                                <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="78" >
                                 <button type="submit"  class="btn btn-danger w-100">{{__('Reject')}}</button>
                             </form> 
                         </div>

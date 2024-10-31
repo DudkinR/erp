@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+@php $alarm_position=['керевник','начальник','руководитель','директор']; @endphp
     <div class="container">
                @if ($errors->any())
             <div class="alert alert-danger">
@@ -62,9 +63,26 @@
                             </p>
                             <br>
                             <ul>
-                            @foreach($calling->workers as $worker)                               
-                                  <li> {{ $worker->fio}}</li> 
-                                    
+                            @foreach($calling->workers as $worker) 
+                                    @php 
+                                    $isAlarm = false;                                         
+                                        foreach ($alarm_position as $word) {                                    
+                                            if (stripos($worker->positions[0]['name'], $word) !== false) {
+                                                $isAlarm = true;                                    
+                                                break;
+                                            }
+                                        }  
+                                $start = \Carbon\Carbon::parse($worker->pivot->start_time);
+                                $end = \Carbon\Carbon::parse($worker->pivot->end_time);
+                                $diffInMinutes = $start->diffInMinutes($end); // Total difference in minutes
+                                $hours = floor($diffInMinutes / 60); // Get the number of hours
+                                $minutes = $diffInMinutes % 60;      // Get the remaining minutes             
+                                    @endphp                               
+                                    <li class="{{ $isAlarm ? 'bg-warning' : 'bg-light' }}">
+                                        <b>{{ $worker->fio }}</b>
+                                        ({{ $worker->positions[0]->name }})    
+                                        <b>  {{ sprintf('%02d', $hours) }}:{{ sprintf('%02d', $minutes) }}  </b>   
+                                    </li> 
                                
                             @endforeach</ul>
                         </td>
@@ -73,7 +91,16 @@
                             {{ \Carbon\Carbon::parse($calling->start_time)->format('d.m.Y ') }} 
                         </td>
                         <td>
-                            {{ \Carbon\Carbon::parse($calling->end_time)->diffInHours($calling->start_time) }} {{__('hours')}}
+                            @php
+                                $start = \Carbon\Carbon::parse($calling->start_time);
+                                $end = \Carbon\Carbon::parse($calling->end_time);
+                                $diffInMinutes = $start->diffInMinutes($end); // Total difference in minutes
+                                $hours = floor($diffInMinutes / 60); // Get the number of hours
+                                $minutes = $diffInMinutes % 60;      // Get the remaining minutes
+                            @endphp
+
+                            {{ sprintf('%02d', $hours) }}:{{ sprintf('%02d', $minutes) }}
+
                         </td>
                             
 
@@ -173,6 +200,7 @@
     <script>
         const search = document.getElementById('search');
         var Vcallings = @json($callings);
+       // console.log(Vcallings);
         function hideModalWin() {
     $('#modalWin').modal('hide');
 }
@@ -180,23 +208,21 @@
 
 
 function ShowModalWin(calling_id) {
-    const calling = Vcallings.find(calling => calling.id === calling_id);
+    const calling = Object.values(Vcallings).find(calling => calling.id === calling_id);
     
     // Устанавливаем ID вызова
     document.getElementById('calling_id').value = calling_id;
     document.getElementById('calling_idrj').value = calling_id;
-    
     // Устанавливаем количество работников
     document.getElementById('number').textContent = calling.workers.length;
-    
     // Устанавливаем описание
     document.getElementById('description').textContent = calling.description;
-    
     // Список работников
     document.getElementById('workers').innerHTML = '';
     calling.workers.forEach(worker => {
+        console.log(worker);
         const li = document.createElement('li');
-        li.textContent = worker.fio;
+        li.textContent = worker.fio+' ('+worker.positions[0].name+')';
         document.getElementById('workers').appendChild(li);
     });
     document.getElementById('start_show_time').textContent = new Date(calling.start_time).toLocaleString();

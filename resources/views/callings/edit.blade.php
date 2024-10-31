@@ -2,6 +2,7 @@
 @section('content')
 @php                     
 $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
+$alarm_position=['керевник','начальник','руководитель','директор'];
 @endphp
 <style>
     /* Custom styles */
@@ -212,10 +213,23 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                         <div class="container" id="show_workers">
                             @php   $Kerivnyk_bryhady = App\Models\Type::where('slug', 'Kerivnyk-bryhady')->first(); @endphp
                             @foreach($calling->workers as $worker)
+                            @php 
+                                $isAlarm = false; 
+                                
+                                foreach ($alarm_position as $word) {
+                               
+                                    if (stripos($worker->positions[0]['name'], $word) !== false) {
+                                        $isAlarm = true;
+                               
+                                        break;
+                                    }
+                                }  
+                                                  
+                            @endphp 
                                 <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id = "worker_{{ $worker->id }}">
                                     <div class="col-md-3">
                                         <h5 class="mb-0">{{ $worker->fio }}</h5>
-                                        <h6 class="mb-0">{{$worker->positions[0]['name'] }}</h6>
+                                        <h6 class="mb-0  @if($isAlarm) ? 'bg-warning' : 'bg-light' @endif">{{$worker->positions[0]['name'] }}</h6>
                                         <button type="button" class="btn btn-danger" onclick="removeWorker({{ $worker->id }})">X</button>
                                     </div>
                                     <div class="col-md-4">
@@ -258,6 +272,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
         // Работы и их описание
         const works_names = @json($DI['works_names']);
         const all_types = @json($DI['all_types']);
+        const alarm_position =@json($alarm_position);
         var workers = @json($calling->workers);
         const  types_payment = Object.values(@json($DI['Oplata_pratsi_ids']));
         console.log(types_payment);
@@ -412,18 +427,19 @@ function DisplayWorkInfo(finish_type_id) {
                             `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
                         ).join('') // Собираем все в строку
                         : `<option value="" disabled selected>Not available</option>`; // Значение по умолчанию, если `vyklykValue == 56`
-
+                        const isAlarm = alarm_position.some(word => positionName.toLowerCase().includes(word.toLowerCase()));
+                    console.log(isAlarm);
                     // Формируем HTML строки
                     const row = `
                         <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
                             <div class="col-md-3">
                                 <h5 class="mb-0">${workerName}</h5>
-                                 <p class="text-muted mb-1">${positionName}</p> <!-- Должность работника -->
+                                 <p class="text-muted mb-1 ${isAlarm ? 'bg-warning' : 'bg-light'}">${positionName}</p> <!-- Должность работника -->
               
                                 <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
                             </div>
                             <div class="col-md-4">
-                                <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${comments}</textarea>
+                                <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${worker.pivot.comment ? worker.pivot.comment : ''}</textarea>
                                 <label for="start_time_${workerId}" title="{{ __('Go to KPP') }}">{{__('Start Time')}}</label>
                                 <input type="datetime-local" id="start_timew_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${worker.pivot.start_time}">
                                 <label for="end_time_${workerId}">{{__('End Time')}}</label>

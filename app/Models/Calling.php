@@ -22,6 +22,7 @@ class Calling extends Model
         'personal_arrival_id',
         'end_time',
         'personal_end_id',
+        'author_id'
     ];
 
     // Relationship to workers via a pivot table 'callings_workers'

@@ -59,9 +59,12 @@
                             @endforeach
                         </td>
                         <td>
-                            <a href="{{ route('callings.edit', $calling->id) }}">
-                                
                             {{$calling->description}}
+                            <a href="{{ route('callings.edit', $calling->id) }}" class ="btn w-100 btn-warning">
+                            {{__("Edit")}}                                
+                            </a>
+                            <a href="{{ route('callings.show', $calling->id) }}" class ="btn w-100 btn-info">
+                            {{__("Show")}}                                
                             </a>
                             
                         </td>

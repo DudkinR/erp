@@ -196,7 +196,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
     const works_names =Object.values(@json($DI['works_names']) || {});
     const all_types = Object.values(@json($DI['all_types']) || {});
     var workers = Object.values(@json($workers) || {});
-    console.log(works_names); 
+   // console.log(workers); 
     const types_payment = Object.values(@json($DI['Oplata_pratsi_ids']) || {});
     var Type_of_work;
 
@@ -269,15 +269,15 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
             .then(response => response.json())
             .then(data => {
                 if (data && data.length > 0) {
+                  
                     workers.push(data[0]);
-
+                    console.log(workers); 
                     const workersSelect = document.getElementById('workers');
                     const option = document.createElement('option');
                     option.selected = true;
                     option.value = data[0].id;
                     option.text = data[0].fio;
                     workersSelect.appendChild(option);
-
                     document.getElementById('add_personel_tn').value = '';
                     WListener();
                 }

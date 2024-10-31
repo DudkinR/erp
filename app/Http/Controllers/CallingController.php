@@ -33,27 +33,43 @@ class CallingController extends Controller
        if($request->finish){$finish=$request->finish;}
        if(Auth::user()->hasRole('VONtaOP')){
             $callings = Calling::where('status', 'VONtaOP')->
-            with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
+            with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
             return view('callings.VONtaOP', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
             $callings = Calling::where('status', 'Profkom')->
-            with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
+            with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
             return view('callings.Profkom', compact('callings'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = Calling::where('status', 'SVNtaPB')->
-            with(['workers.divisions'])
+            with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
             ->get()->keyBy('id');            
             return view('callings.SVNtaPB', compact('callings'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
-            $callings = Calling::where('status', 'workshop-chief')->
-            with(['workers.divisions'])           
-             ->orderBy('id', 'asc')
-            ->get()->keyBy('id');
+            // Отримати всі підрозділи, до яких належить начальник
+            $userDivisionIds = Auth::user()->personal->divisions()->pluck('division_id');
+
+            // Вибрати виклики, де статус 'workshop-chief' і є працівники з тими ж підрозділами, що й начальник
+            $callings = Calling::where('status', 'workshop-chief')
+                ->where(function ($query) {
+                    $query->where('author_id', Auth::user()->personal->id)
+                        ->orWhereHas('workers', function ($query) {
+                            $query->where('personal_id', Auth::user()->personal->id);
+                        });
+                })
+                ->whereHas('workers.divisions', function ($query) use ($userDivisionIds) {
+                    $query->whereIn('division_id', $userDivisionIds);
+                })
+                ->with(['workers.divisions', 'workers.positions'])
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('id');
+
             return view('callings.workshop_chief', compact('callings'));
+
         }        
         elseif(Auth::user()->hasRole('supervision')){
 
@@ -66,11 +82,19 @@ class CallingController extends Controller
             return view('callings.supervision', compact('callings'));
         }
         elseif( Auth::user()->hasRole('user')){
-              $callings = Calling::where('status', 'created')
-              ->orwhere('personal_start_id',null)
-              ->orwhere('personal_arrival_id',null)
-              ->orwhere('personal_end_id',null)
-              ->with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
+         $userPersonalId = Auth::user()->personal->id;
+         $callings = Calling::where(function ($query) {
+            $query->where('author_id', Auth::user()->personal->id)
+                  ->orWhereHas('workers', function ($query) {
+                      $query->where('personal_id', Auth::user()->personal->id);
+                  });
+        })
+        ->whereIn('status', ['created', 'supervision'])
+        ->with(['workers.divisions'])
+        ->orderBy('id', 'asc')
+        ->get()
+        ->keyBy('id');
+
               return view('callings.index', compact('callings'));
         }
 
@@ -87,7 +111,10 @@ class CallingController extends Controller
         return view('callings.FormOrder', compact('callings'));       
     }
      public function callingsOrder(Request $request){
-        $callings=Calling::whereIn('id',$request->call_)->get()->keyBy('id');
+       $callings=Calling::whereIn('id',$request->call_)
+        ->orderBy('type_id','asc')
+        ->get()->keyBy('id');
+
         $Workings=[];
         $divisions =[];
         foreach ($callings as $call) {
@@ -112,7 +139,7 @@ class CallingController extends Controller
             }
         }
         $DI = $this->publicInformation();
-      ///  return $Workings;
+      // return $Workings;
         return view('callings.ORDER', compact('callings','Workings','DI'));
      }
      public function count_time($start, $finish)
@@ -157,6 +184,7 @@ class CallingController extends Controller
         $calling = new Calling();
         $calling->status = 'created';
         $filling=0;
+       $calling->author_id=Auth::user()->personal->id;
         if($request->description){
             $calling->description = $request->description;
 
@@ -167,7 +195,6 @@ class CallingController extends Controller
         if($request->arrival_time){
             $Time = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->arrival_time);
             $calling->arrival_time = $Time;
-
             $calling->save();
             $filling++;
         }
@@ -200,13 +227,26 @@ class CallingController extends Controller
             foreach($request->workers as $worker){
                 if(!$request->start_timew[$worker])
                      $start_timew=$start_time;
-                else
+                else{
                     $start_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker]);
+                    if($start_timew<$calling->start_time){
+                        $calling->start_time=$start_timew;
+                        $calling->save();
+                    }
+                    if($start_timew<$calling->arrival_time){
+                        $calling->arrival_time=$start_timew;
+                        $calling->save();
+                    }
+                }    
                 if(!$request->end_timew[$worker])
-                    $end_timew=$start_time;
-               else
+                    $end_timew=$end_time;
+               else{
                    $end_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker]);
-               
+                   if($end_timew>$calling->end_time){
+                    $calling->end_time=$end_timew;
+                    $calling->save();
+                    }
+               }
 
                 if($request->chief==$worker){
                     $calling->workers()->attach($worker,
@@ -262,7 +302,7 @@ class CallingController extends Controller
     public function getPersonalForTN(Request $request)
     {
         $tn = $request->tn;
-        $personal = Personal::where('tn', $tn)->first();
+        $personal = Personal::with(['positions'])->where('tn', $tn)->first();
         if ($personal) {
             return response()->json([$personal]);
         }
@@ -325,6 +365,8 @@ class CallingController extends Controller
 
         $calling = Calling::find($request->calling_id);     
         if($calling){
+            $calling->status = 'created'; 
+            $calling->save();
             $calling->checkins()->attach(Auth::user()->personal->id, [
                 'checkin_type_id' => $request->checkin_type_id, 
                 'type' => 0, 
@@ -366,7 +408,9 @@ class CallingController extends Controller
             // Найти всех сотрудников, которые принадлежат к этим же divisions
             $personnelInSameDivisions = Personal::whereHas('divisions', function ($query) use ($userDivisionIds) {
                 $query->whereIn('division_id', $userDivisionIds);
-            })->get()->keyBy('id');
+            })
+            ->with(['positions'])
+            ->get()->keyBy('id');
             return view('callings.create', ['DI' => $publicInformation, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
         } 
         return view('callings.create', ['DI' => $publicInformation]);
@@ -453,14 +497,27 @@ class CallingController extends Controller
             $filling++;
             foreach($request->payments as $worker_id => $payment_id){
                 if(!$request->start_timew[$worker_id])
-                 $start_timew=$start_time;
-                 else
-                 $start_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]);
-                 if(!$request->end_timew[$worker_id])
-                 $end_timew=$start_time;
-                else
-                $end_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id]);
-           
+                        $start_timew=$start_time;
+                else{
+                    $start_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->start_timew[$worker_id]);
+                    if($start_timew<$calling->start_time){
+                        $calling->start_time=$start_timew;
+                        $calling->save();
+                    }
+                    if($start_timew<$calling->arrival_time){
+                        $calling->arrival_time=$start_timew;
+                        $calling->save();
+                    }
+                }    
+                if(!$request->end_timew[$worker_id])
+                    $end_timew=$end_time;
+                else{
+                    $end_timew= \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $request->end_timew[$worker_id]);
+                    if($end_timew>$calling->end_time){
+                    $calling->end_time=$end_timew;
+                    $calling->save();
+                    }
+                }
                 if($request->chief==$worker_id){
                     $calling->workers()->attach($worker_id, ['worker_type_id' => $Kerivnyk_bryhady->id,
                      'payment_type_id' => $payment_id, 

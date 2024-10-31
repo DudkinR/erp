@@ -79,20 +79,18 @@ if ($calling->type_id != null) {
     </div>
     <div class="row" id="button_area">
         <div class="col-md-12">
-            <button class="btn btn-light w-100" onclick="print()">{{__('Print')}}</button>
+            <button class="btn btn-light w-100" onclick="printPage()">{{__('Print')}}</button>
         </div>
     </div>
 </div>
 <script>
-    function print() {
+    function printPage() {
         document.getElementById('button_area').style.display = 'none';
         window.print();
         // close window after print
-        setTimeout(function() {
-            window.close();
-        }, 100);
-
+      
     }
+
 </script>
 
 @endsection

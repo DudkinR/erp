@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+@php $alarm_position=['керевник','начальник','руководитель','директор','головного інженера','головной інженер']; @endphp
     <div class="container">
                @if ($errors->any())
             <div class="alert alert-danger">
@@ -23,8 +24,6 @@
     </div>
     <form action="{{route('callings.order')}}" method="POST">
                     @csrf
-
-
         <div class="row">
             <div class="col-md-12">
             <h3>{{__('For order')}}</h3>
@@ -73,7 +72,25 @@
                             <br>
                             <ul>
                             @foreach($calling->workers as $worker)                               
-                                  <li> {{ $worker->fio}}</li> 
+                            @php 
+                                        $isAlarm = false;                                         
+                                        foreach ($alarm_position as $word) {                                    
+                                            if (stripos($worker->positions[0]['name'], $word) !== false) {
+                                                $isAlarm = true;                                    
+                                                break;
+                                            }
+                                        }  
+                                $start = \Carbon\Carbon::parse($worker->pivot->start_time);
+                                $end = \Carbon\Carbon::parse($worker->pivot->end_time);
+                                $diffInMinutes = $start->diffInMinutes($end); // Total difference in minutes
+                                $hours = floor($diffInMinutes / 60); // Get the number of hours
+                                $minutes = $diffInMinutes % 60;      // Get the remaining minutes             
+                                    @endphp                               
+                                    <li class="{{ $isAlarm ? 'bg-warning' : 'bg-light' }}">
+                                        <b>{{ $worker->fio }}</b>
+                                        ({{ $worker->positions[0]->name }})    
+                                        <b>  {{ sprintf('%02d', $hours) }}:{{ sprintf('%02d', $minutes) }}  </b>   
+                                    </li> 
                                     
                                
                             @endforeach</ul>
@@ -83,14 +100,22 @@
                             {{ \Carbon\Carbon::parse($calling->start_time)->format('d.m.Y ') }} 
                         </td>
                         <td>
-                            {{ \Carbon\Carbon::parse($calling->end_time)->diffInHours($calling->start_time) }} {{__('hours')}}
-                        </td>
-                            
+                        @php
+                                $start = \Carbon\Carbon::parse($calling->start_time);
+                                $end = \Carbon\Carbon::parse($calling->end_time);
+                                $diffInMinutes = $start->diffInMinutes($end); // Total difference in minutes
+                                $hours = floor($diffInMinutes / 60); // Get the number of hours
+                                $minutes = $diffInMinutes % 60;      // Get the remaining minutes
+                            @endphp
 
-                          
+                            {{ sprintf('%02d', $hours) }}:{{ sprintf('%02d', $minutes) }}   </td>
+                            
+                        </td>
                         <td >
                             <input type="checkbox" name="call_[{{$calling->id}}]" value="{{$calling->id}}" class="form-group" >
-                            
+                            <a href="{{ route('callings.show', $calling->id) }}" class ="btn w-100 btn-info">
+                            {{__("Show")}}                                
+                            </a>
                          </td>
                     </tr>
                     @endforeach

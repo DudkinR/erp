@@ -190,12 +190,13 @@
     <script>
         const search = document.getElementById('search');
         var Vcallings = @json($callings);
+        console.log(Vcallings);
         function hideModalWin() {
     $('#modalWin').modal('hide');
 }
 
 function ShowModalWin(calling_id) {
-    const calling = Vcallings.find(calling => calling.id === calling_id);
+    const calling = Object.values(Vcallings).find(calling => calling.id === calling_id);
     
     // Устанавливаем ID вызова
     document.getElementById('calling_id').value = calling_id;
