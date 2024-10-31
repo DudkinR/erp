@@ -117,6 +117,7 @@ class CallingController extends Controller
 
         $Workings=[];
         $divisions =[];
+        
         foreach ($callings as $call) {
             $times=$this->count_time($call->start_time, $call->end_time);
             foreach ($call->workers as $worker) {
