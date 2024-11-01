@@ -5,7 +5,7 @@ use Carbon\Carbon;
     // Функція для підрахунку годин
     function count_time($start, $finish)
 {
-    /*
+ /*      
     Считаем сколько часов если более 8 часов вычитаем 1 час обеда 
     также высчитываем с этого времени ночное время с 22 до 6  
     */
@@ -15,7 +15,10 @@ use Carbon\Carbon;
 
     // Загальний час між початком і кінцем
     $total_time = abs($finish->diffInHours($start));
-    
+    // якщо $total_time > 8  вичитаемо 30 мин
+    if ($total_time > 8) {
+        $total_time -= 0.5; // Deduct 0.5 hours (30 minutes) for lunch
+    }
     // Визначаємо нічний час
     $total_night_time = 0;
     
@@ -28,6 +31,10 @@ use Carbon\Carbon;
         $night_start = $start->max($start_night);
         $night_end = $finish->min($finish_night);
         $total_night_time = abs($night_end->diffInHours($night_start));
+        // якщо $start - $finish_night > 4  або $finish - $start_night > 4 вичитаемо 30 мин
+        if ($total_night_time > 4) {
+            $total_night_time -= 0.5;
+        }
     }
 
     // Format values to two decimal places
@@ -96,6 +103,8 @@ function formatCallings($callings)
     <div class="col-md-12">
         <p>
         @php
+   
+        /////////////////////////////////////////////////////////////////////////////////////////////
             // Перетворення $callings у колекцію
             $callings = collect($callings);
             $workerOvertimeCallings = collect(); // Initialize as an empty collection
@@ -173,19 +182,62 @@ function formatCallings($callings)
              <p>1. Головному бухгалтеру Мельничук А. А.:</p>
              <p>
              {{-- Виведення тексту з обчисленим місяцем --}}
-        @if(!empty($formattedOvertimeCallings))
+            @if(!empty($formattedOvertimeCallings))
             1.{{$n}}. Забезпечити нарахування заробітної плати в {{ $overtimenextMonth }} за роботу у надурочний час {{ implode(', ', $formattedOvertimeCallings) }} в подвійному розмірі та 40% від посадового окладу (місячної тарифної ставки) за роботу в нічні години такому персоналу, а саме:
             @php
                 $n++;
             @endphp
-        </p>
+            </p>
 
                 </div>
             </div>
+            @foreach($workerOvertimeCallings as $call)
+                @foreach($call->workers as $worker)
+                    @php
+                    $pers=App\Models\Personal::find($worker->id);
+                    if($worker->pivot->start_time)
+                        $start_time=$worker->pivot->start_time;
+                    else
+                        $start_time=$worker->start_time;
+                    if($worker->pivot->end_time)
+                        $end_time=$worker->pivot->end_time;
+                    else
+                        $end_time=$worker->end_time;
+                    $time = count_time($start_time, $end_time);
+                    if(!isset($freePayWorkings[$pers->divisions[0]->name][$pers->tn])){
+                              $freePayWorkings[$pers->divisions[0]->name][] = [
+                              $pers->tn=>
+                                [ 
+                                 "fio"  => $pers->fio , 
+                                "position" => $pers->positions[0]->name,
+                                "total_time" => $time['total_time'],
+                                "total_night_time" => $time['total_night_time']
+                                ]
+                                ];
+                            }
+                                else{
+                                    $freePayWorkings[$pers->divisions[0]->name][$pers->tn]['total_time'] += $time['total_time'];
+                                    $freePayWorkings[$pers->divisions[0]->name][$pers->tn]['total_night_time'] += $time['total_night_time'];
+                                } 
+                    @endphp
 
+                @endforeach
+            @endforeach
+             
+            @php 
+            // Sort the final array by division name and then by worker's name (fio)
+             ksort($freePayWorkings); // Sorts divisions alphabetically
+
+            foreach ($freePayWorkings as $division => &$workers) {
+                // Sort workers by fio within each division
+                ksort($workers);
+            }
+            @endphp
+            @foreach($freePayWorkings as $division=>$workers)
             <div class="row">
                 <div class="col-md-12">
-                Назва підрозділа:
+                {{$division}}:
+              
                 <table border="1" width="100%">
                     <thead>
                         <tr>
@@ -212,26 +264,82 @@ function formatCallings($callings)
                             <td>4</td>
                             <td>5</td>
                         </tr>
-                        @foreach($workerOvertimeCallings as $worker)
-                            @php
-                                $time = count_time($worker->start_time, $worker->finish_time);
-                            @endphp
+                        @foreach($workers as $worker)
+                            @foreach($worker as $tn=>$details)
                             <tr>
-                                <td>{{ $worker->worker->fio }}</td>
-                                <td>{{ $worker->worker->positions[0]->name }}</td>
-                                <td>{{ $worker->worker->tn }}</td>
-                                <td>{{ $time['total_time'] }}</td>
-                                <td>{{ $time['total_night_time'] }}</td>
+                                <td> {{ $details['fio'] }}</td>
+                                <td>{{ $details['position'] }}</td>
+                                <td>{{ $tn }}</td>
+                                <td>{{ $details['total_time'] }}</td>
+                                <td> {{ $details['total_night_time'] }}</td>
                             </tr>
+                            @endforeach
                         @endforeach
                     </tbody>
                 </table>
 
                 </div>
             </div>
-     
-        @endif 
-        @if(!empty($formattedWeekendCallings))
+            @endforeach
+            @endif 
+            @if(!empty($formattedWeekendCallings))
+                 @php
+                    $freePayWorkings = [];
+                    $freeDayWorkings = [];
+                @endphp
+
+                @foreach($workerWeekendCallings as $call)
+                    @foreach($call->workers as $worker) 
+                        @php
+                            // Отримуємо інформацію про підрозділ та розрахунок часу
+                            $pers = App\Models\Personal::find($worker->id);
+                            $time = count_time($worker->start_time, $worker->end_time);
+
+                            // Перевіряємо тип оплати та розподіляємо по масивах
+                            if ($worker->payment_type_id == 90) {
+                                if (!isset($freeDayWorkings[$pers->divisions[0]->name][$pers->tn])) {
+                                    $freeDayWorkings[$pers->divisions[0]->name][$pers->tn] = [
+                                        "fio" => $pers->fio,
+                                        "position" => $pers->positions[0]->name,
+                                        "total_time" => $time['total_time'],
+                                        "total_night_time" => $time['total_night_time']
+                                    ];
+                                } else {
+                                    $freeDayWorkings[$pers->divisions[0]->name][$pers->tn]['total_time'] += $time['total_time'];
+                                    $freeDayWorkings[$pers->divisions[0]->name][$pers->tn]['total_night_time'] += $time['total_night_time'];
+                                }
+                                // Додаємо час виклику
+                                $freeCallings[] = $call->start_time;
+                            } else {
+                                if (!isset($freePayWorkings[$pers->divisions[0]->name][$pers->tn])) {
+                                    $freePayWorkings[$pers->divisions[0]->name][$pers->tn] = [
+                                        "fio" => $pers->fio,
+                                        "position" => $pers->positions[0]->name,
+                                        "total_time" => $time['total_time'],
+                                        "total_night_time" => $time['total_night_time']
+                                    ];
+                                } else {
+                                    $freePayWorkings[$pers->divisions[0]->name][$pers->tn]['total_time'] += $time['total_time'];
+                                    $freePayWorkings[$pers->divisions[0]->name][$pers->tn]['total_night_time'] += $time['total_night_time'];
+                                }
+                            }
+                        @endphp
+                    @endforeach
+                @endforeach
+
+                @php 
+                // Сортування по назві підрозділів та по ФІО всередині кожного підрозділу
+                ksort($freePayWorkings);
+                ksort($freeDayWorkings);
+
+                foreach ($freePayWorkings as $division => &$workers) {
+                    ksort($workers);
+                }
+
+                foreach ($freeDayWorkings as $division => &$workers) {
+                    ksort($workers);
+                }
+                @endphp
             <div class="row">
                 <div class="col-md-12">
                 <p>
@@ -271,47 +379,8 @@ function formatCallings($callings)
                     <td>4</td>
                     <td>5</td>
                 </tr>
-                @php
-                    $freePayWorkings = [];
-                    $freeDayWorkings= [];
-                @endphp
-                @foreach($workerWeekendCallings as $call)
-                    @foreach($call->workers as $worker) 
-                        @php
+                
 
-                        $time = count_time($worker->start_time, $worker->finish_time);
-                        if($worker->payment_type_id==90){
-                            if(!isset($freeDayWorkings[$worker->tn]))
-                            $freeDayWorkings[$worker->tn] = 
-                            [ "tn" => $worker->tn,
-                            "fio" => $worker->fio,
-                            "positions" => $worker->positions[0]->name,
-                            "total_time" => $time['total_time'],
-                            "total_night_time" => $time['total_night_time']
-                            ];
-                            else{
-                                $freeDayWorkings[$worker->tn]['total_time'] += $time['total_time'];
-                                $freeDayWorkings[$worker->tn]['total_night_time'] += $time['total_night_time'];
-                            }
-                            $freeCallings[] = $call->start_time;
-                        }
-                        else{
-                            if(!isset($freePayWorkings[$worker->tn]))
-                            $freePayWorkings[$worker->tn] = 
-                            [ "tn" => $worker->tn,
-                            "fio" => $worker->fio,
-                            "positions" => $worker->positions[0]->name,
-                            "total_time" => $time['total_time'],
-                            "total_night_time" => $time['total_night_time']
-                            ];
-                            else{
-                                $freePayWorkings[$worker->tn]['total_time'] += $time['total_time'];
-                                $freePayWorkings[$worker->tn]['total_night_time'] += $time['total_night_time'];
-                            }
-                        }
-                        @endphp
-                    @endforeach
-                @endforeach
                 @foreach($freePayWorkings as $worker)
                     <tr>
                         <td>{{ $worker['fio'] }}</td>
@@ -361,50 +430,7 @@ function formatCallings($callings)
                 {{ implode(', ', $formattedFreeDays) }} за фактично відпрацьований час в одинарному розмірі за роботу у вихідний день за надання іншого дня відпочинку такому персоналу, а саме:
              </p>
     </div> 
-    <div class="row">
-        <div class="col-md-12">
-        Назва підрозділа:
-        <table border="1" width="100%">
-            <thead>
-                <tr>
-                    <!-- First 3 columns span 2 rows -->
-                    <th rowspan="2">Прізвище ім’я по батькові</th>
-                    <th rowspan="2">Посада</th>
-                    <th rowspan="2">Таб. №</th>
-                    
-                    <!-- Last 2 columns span across 2 columns in the second row -->
-                    <th colspan="2">Кількість годин</th>
-                </tr>
-                <tr>
-                    <!-- Sub-columns for total hours and night hours -->
-                    <th>всього</th>
-                    <th>в. т. ч. нічні</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Example row for data -->
-                <tr>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>4</td>
-                    <td>5</td>
-                </tr>
-                @foreach($freeDayWorkings as $worker)
-              
-                    <tr>
-                        <td>{{ $worker['fio'] }}</td>
-                        <td>{{ $worker['positions']}}</td>
-                        <td>{{ $worker['tn'] }}</td>
-                        <td>{{ $worker['total_time'] }}</td>
-                        <td>{{ $worker['total_night_time'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        </div>
-    </div>
+    
     @endif
     <div class="row">
         <div class="col-md-12">
@@ -421,9 +447,7 @@ function formatCallings($callings)
                     <ol>
                         {{ formatCallings($callings) }}
                     </ol>
-                    <ol>
-                        Бланки виклику на роботу: від 12.09.2024 №426; від 13.09.2024 №444; від 14.09.2024 №450, 458; від 19.09.2024 №491; від 20.09.2024 №505; від 21.09.2024 №516; від 22.09.2024 №549, 556; від 23.09.2024 №557, 558, 561, 562, 573; від 24.09.2024 №574-577, 579, 580, 582, 583, 584, 586; від 25.09.2024 №588, 591-598, 600; від 26.09.2024 №602, 604, 605, 606, 607; від 27.09.2024 №609, 611-625, 673; від 28.09.2024 №626-632; від 29.09.2024 №633-638; від 30.09.2024 №639, 640, 645-649, 651-655, 657-660.
-                    </ol>
+                    
                     <ol>
                         Положення про порядок виклику персоналу на роботу в надурочний час, у вихідні, святкові і неробочі дні, компенсації й оплати за роботу за викликами 0.ТЗ.2812.ПЛ-21.
                     </ol>
