@@ -34,7 +34,9 @@
                     <li><a href="{{ route('buildings.import') }}"> {{__('Buildings import')}}</a>
                     {{ \App\Models\Building::count();}}
                 </li>
-
+                <li><a href="{{ route('risks.import') }}"> {{__('Experiences import')}}</a>
+                    {{ \App\Models\Experience::count();}}
+                </li>
 
                </ul>
                

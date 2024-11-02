@@ -519,12 +519,21 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
 
     // risk
     Route::any('/risks', 'App\Http\Controllers\RiskController@index')->name('risks.index');
+    // StartBriefRisk
+    Route::get('/StartBriefRisk', 'App\Http\Controllers\RiskController@StartBriefRisk')->name('risks.StartBriefRisk');
+    // risksPrintBrief post
+    Route::post('/risksPrintBrief', 'App\Http\Controllers\RiskController@risksPrintBrief')->name('risks.risksPrintBrief');
+    // currentRisk post
+    Route::post('/currentRisk', 'App\Http\Controllers\RiskController@currentRisk')->name('risks.currentRisk'); 
     Route::get('/risks/create', 'App\Http\Controllers\RiskController@create')->name('risks.create');
     Route::post('/risks', 'App\Http\Controllers\RiskController@store')->name('risks.store');
     Route::get('/risks/{id}', 'App\Http\Controllers\RiskController@show')->name('risks.show');
     Route::get('/risks/{id}/edit', 'App\Http\Controllers\RiskController@edit')->name('risks.edit');
     Route::put('/risks/{id}', 'App\Http\Controllers\RiskController@update')->name('risks.update');
     Route::delete('/risks/{id}', 'App\Http\Controllers\RiskController@destroy')->name('risks.destroy');
+    // import
+    Route::get('/risksimport', 'App\Http\Controllers\RiskController@import')->name('risks.import');
+    Route::post('/risksimport', 'App\Http\Controllers\RiskController@importData')->name('risks.importData');
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
 

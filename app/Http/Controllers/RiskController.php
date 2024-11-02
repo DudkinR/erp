@@ -7,6 +7,8 @@ use App\Models\Type;
 use App\Models\Experience;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Jit;
+use App\Models\Brief;
 use Illuminate\Support\Facades\Auth;    
 
 
@@ -15,36 +17,7 @@ class RiskController extends Controller
     // index
     public function index(Request $request)
     {
-    /*   $types_eq = Type::where('parent_id', 30)->get();
-       $causes =[];
-       $equipments=[];
-      foreach($types_eq as $type){
-         // find types_couse where slug = $type->slug
-         $cause_id =    Type::where('parent_id', 46)->where('slug', $type->slug)->first();
-         if($cause_id){
-            $causes[] = $cause_id->id;
-            $equipments[] = $type->id;
-            }
-      }
-      $experiences = Experience::all();
-      foreach($experiences as $experience){
-          $reasons = $experience->reasons->pluck('id')->toArray();
-          // заменить в reasons $equipments на $сauses
-            $new_reasons =[];
-            foreach($reasons as $reason){
-                if(in_array($reason, $equipments)){
-                    $new_reasons = array_merge($new_reasons, $causes);
-                }else{
-                    $new_reasons[] = $reason;
-                }
-            }
-            $experience->reasons()->detach();
-            $experience->reasons()->sync($new_reasons);
-      }
-        return $experiences = Experience::all();
-*/
 
-      //  $reasons=$request->jits;  
       if($request->systems){
         $systemIds = $request->systems;
         }else{
@@ -74,9 +47,55 @@ class RiskController extends Controller
         ->orderBy('consequence' , 'desc')
         ->get();
       
-        return $this->calculateRisk($experiences);
-         view('risks.index', compact('experiences'));
+        $risk = $this->calculateRisk($experiences);
+       return  view('risks.index', compact('experiences', 'risk'));
+    }
 
+    public function StartBriefRisk(){
+        $equipments_parent = Type::where('slug', 'equipment')->first();
+        $equipments = Type::where('parent_id', $equipments_parent->id)->get();
+        $systems = System::all();
+        $actions_parent = Type::where('slug', 'action')->first();
+        $actions = Type::where('parent_id', $actions_parent->id)->get();
+        $addition_actions = Jit::All();
+        $briefs = Brief::orderBy('order', 'asc')
+        ->with('actions', 'jitqws', 'reasons')
+        ->get();
+        return  view('risks.risks', compact('equipments', 'systems',  'actions','addition_actions','briefs'));
+    }
+    // currentRisk
+    public function currentRisk(Request $request)
+    {
+        if($request->systems){
+            $systemIds = $request->systems;
+            }else{
+                $systemIds = System::all()->pluck('id')->toArray();
+            }
+            if($request->equipments){
+                $equipmentIds =  $request->equipments;
+            }else{
+                $equipmentIds = Type::where('slug', 'equipment')->first()->children->pluck('id')->toArray();
+            }
+            if($request->actions){
+                $actionIds = $request->actions;
+            }else{
+                $actionIds = Type::where('slug', 'action')->first()->children->pluck('id')->toArray();
+            }
+            $experiences = Experience::   where('accepted',0)
+           ->whereHas('systems', function($query) use ($systemIds) {
+                $query->whereIn('systems.id', $systemIds);
+            })
+            ->whereHas('equipments', function($query) use ($equipmentIds) {
+                $query->whereIn('types.id', $equipmentIds);
+            })
+            ->whereHas('actions', function($query) use ($actionIds) {
+                $query->whereIn('types.id', $actionIds);
+            })
+            ->orderBy('consequence' , 'desc')
+            ->get();
+          
+            $risk = $this->calculateRisk($experiences);
+           return  ['experiences'=>$experiences, 'risk'=>$risk];
     }
 
     public function calculateRisk($events)
@@ -258,6 +277,133 @@ class RiskController extends Controller
         $experience->reasons()->detach();
         $experience->delete();
         return redirect()->route('risks.index');
+    }
+
+    //risksPrintBrief
+    public function risksPrintBrief(Request $request)
+    {
+      
+        if( $request->equipments){
+            $equipmentModels =  Type::whereIn('id', $request->equipments)->get();
+        }else{
+            $equipmentModels = [];
+        }
+        if($request->systems){
+            $systemModels = System::whereIn('id', $request->systems)->get();
+        }else{
+            $systemModels = [];
+        }
+        if($request->action){
+            $actionModel = Type::find($request->action);
+        }else{
+            $actionModel = null;
+        }
+        if($request->addition_actions){
+            $addition_actions = Jit::whereIn('id', $request->addition_actions)->get();
+        }else{
+            $addition_actions = [];
+        }
+        if($request->experience){
+            $experiences = Experience::whereIn('id', $request->experience)->get();
+        }else{
+            $experiences = [];
+        }
+        // full_name 
+        if($request->full_name){
+            $full_name = $request->full_name;
+        }else{
+            $full_name = '';
+        }
+        // tn
+        if($request->tn){
+            $tn = $request->tn;
+        }else{
+            $tn = Auth::user()->tn;
+        }
+        // fio
+        if($request->fio){
+            $fio = $request->fio;
+        }else{
+            $fio = Auth::user()->personal->fio;
+        }
+        // place
+        if($request->place){
+            $place = $request->place;
+        }else{
+            $place = '';
+        }
+        // date
+        if($request->date){
+            $date = $request->date;
+        }else{
+            $date = date('Y-m-d');
+        }
+        // br_action all breifModels
+        $briefs = Brief::orderBy('order', 'asc')
+        ->whereIn('id', array_keys($request->br_action))
+        ->with('actions', 'jitqws', 'reasons')
+        ->get();
+        $risk = $request->risk;
+        $reasons = $request->reasons;
+        return view('risks.print', compact('briefs', 'risk', 'reasons', 'equipmentModels', 'systemModels', 'actionModel', 'addition_actions', 'full_name', 'tn', 'fio', 'place', 'date', 'experiences'));
+
+    }
+
+    // import
+    public function import()
+    {
+        $equipments_parent = Type::where('slug', 'equipment')->first();
+        $equipments = Type::where('parent_id', $equipments_parent->id)->get();
+        $systems = System::all();
+        $causes_parent = Type::where('slug', 'cause')->first();
+        $causes = Type::where('parent_id', $causes_parent->id)->get();
+        $actions_parent = Type::where('slug', 'action')->first();
+        $actions = Type::where('parent_id', $actions_parent->id)->get();
+        $causes_parent = Type::where('slug', 'cause')->first();
+        $causes = Type::where('parent_id', $causes_parent->id)->get();
+        $addition_actions = Jit::All();
+        // without reasons
+        $experiences = Experience::whereDoesntHave('reasons')->get();
+
+        return view('risks.import' , compact('equipments', 'systems', 'causes', 'actions', 'addition_actions', 'experiences', 'causes'));
+    }
+    public function importData(Request $request)
+    {
+        
+
+        $causesID = $request->causes;
+        $causes = Type::whereIn('id', $causesID)->get();
+      
+        $Search_word = $request->Search_word;
+        foreach($causes as $cause){
+        // if not 'couse' == $cause->name, 'words' == $Search_word
+            if(!DB::table('prom_cousesid')->where('couse', $cause->name)->where('words', $Search_word)->exists()){
+            
+                DB::table('prom_cousesid')->insert(
+                    ['id' =>NULL, 'couse' => $cause->name, 'words' => $Search_word]
+                );
+            }
+
+        }
+
+        $Ar_causes = $causes->pluck('couse')->toArray();
+        
+        $words = explode(' ', $Search_word);
+        // find all experiences where text_ru or text_uk contains words
+        $experiences = Experience::where(
+            function($query) use ($Search_word){
+ 
+                    $query->orWhere('text_ru', 'like', '%'.$Search_word.'%');
+                    $query->orWhere('text_uk', 'like', '%'.$Search_word.'%');
+ 
+            }
+        )->get();
+        foreach($experiences as $experience){
+
+            $experience->reasons()->sync($causesID);
+        }
+         //return import
+        return redirect()->route('risks.import');
     }
 
 
