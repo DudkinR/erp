@@ -20,7 +20,32 @@
             <div class="col-md-12">
                 <h1>{{__('Experience import')}} {{$experiences->count()}}</h1>
                 <p>
-                    {{$experiences->first()->text_ru}}
+                    @php 
+                    $text_experiences = $experiences->first()->text_ru;
+                    $text_blind = [
+                        "Коренная причин", 
+                        "Коренные причин", 
+                        "Способствующий фактор", 
+                        "Непосредственная причина",
+                        "Непосредственной",
+                        "Коренной",
+                        "Непосредственные причины",
+                        "Сопутствующие",
+                        "Анализ и комментарии",
+                        "Причины события",
+                        "Причин",
+                        "причин",
+                        "было установлено",
+                        "Способствующие факторы"
+                    ];
+                
+                    foreach ($text_blind as $term) {
+                        $text_experiences = str_replace($term, "<b class=\"bg-warning\">$term</b>", $text_experiences);
+                    }
+                @endphp
+                
+                {!! $text_experiences !!}
+                
                 </p>
 
                 <form method="POST" action="{{ route('risks.importData') }}"  enctype="multipart/form-data">

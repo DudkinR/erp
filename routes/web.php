@@ -534,6 +534,8 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // import
     Route::get('/risksimport', 'App\Http\Controllers\RiskController@import')->name('risks.import');
     Route::post('/risksimport', 'App\Http\Controllers\RiskController@importData')->name('risks.importData');
+    // reimport
+    Route::get('/risksreimport', 'App\Http\Controllers\RiskController@reimport')->name('risks.reimport');
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
 

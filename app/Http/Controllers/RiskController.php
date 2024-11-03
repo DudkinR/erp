@@ -405,6 +405,38 @@ class RiskController extends Controller
          //return import
         return redirect()->route('risks.import');
     }
+    // reimport
+    public function reimport()
+    {
+        // Retrieve all records from prom_cousesid table
+        $causes = DB::table('prom_cousesid')->get();
+        $types = [];
+    
+        foreach ($causes as $cause) {
+            // Check if the type is already in the $types array
+            if (!isset($types[$cause->couse])) {
+                // Retrieve and cache the type ID for the cause if not already cached
+                $type = Type::where('name', $cause->couse)->first();
+                $types[$cause->couse] = $type ? $type->id : null;
+            }
+    
+            // Proceed only if a valid type ID was found
+            if ($types[$cause->couse]) {
+                $searchWord = $cause->words;
+                $experiences = Experience::where(function ($query) use ($searchWord) {
+                    $query->orWhere('text_ru', 'like', '%' . $searchWord . '%')
+                          ->orWhere('text_uk', 'like', '%' . $searchWord . '%');
+                })->get();
+    
+                foreach ($experiences as $experience) {
+                    // Sync the reason with the type ID, ensure it's in array format
+                    $experience->reasons()->sync([$types[$cause->couse]]);
+                }
+            }
+        }
+    
+        return redirect()->route('risks.import');
+    }
 
 
     
