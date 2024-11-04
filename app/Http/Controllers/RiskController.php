@@ -58,9 +58,10 @@ class RiskController extends Controller
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
         $addition_actions = Jit::All();
-        $briefs = Brief::orderBy('order', 'asc')
+         $briefs = Brief::orderBy('order', 'asc')
         ->with('actions', 'jitqws', 'reasons')
         ->get();
+       
         return  view('risks.risks', compact('equipments', 'systems',  'actions','addition_actions','briefs'));
     }
     // currentRisk

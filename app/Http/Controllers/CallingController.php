@@ -575,4 +575,23 @@ class CallingController extends Controller
         $calling = Calling::find($id);
         return view('callings.print', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }
+
+    // getPosibleDescriptions
+    public function getPosibleDescriptions(Request $request)
+    {
+    //    body: JSON.stringify({ description })
+    $words = explode(" ", $request->description);
+    // find callings where description contains all words or one of them  orderby count of words
+    $callings = Calling::where(function ($query) use ($words) {
+        foreach ($words as $word) {
+            $query->where('description', 'like', "%$word%");
+        }
+    })->orderBy('id', 'desc')
+    // only description column
+    ->select('description')
+    ->get()
+    // only 5 limit
+    ->take(5);
+    return response()->json($callings);
+    }
 }

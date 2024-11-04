@@ -1,74 +1,129 @@
 @extends('layouts.app')
 @section('content')
 <style>
+    /* General container for risk section */
     #risk {
-        -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
-        --blue: #007bff;
-        --indigo: #6610f2;
-        --purple: #6f42c1;
-        --pink: #e83e8c;
-        --red: #dc3545;
-        --orange: #fd7e14;
-        --yellow: #ffc107;
-        --green: #28a745;
-        --teal: #20c997;
-        --cyan: #17a2b8;
-        --white: #fff;
-        --gray: #6c757d;
-        --gray-dark: #343a40;
-        --primary: #007bff;
-        --secondary: #6c757d;
-        --success: #28a745;
-        --info: #17a2b8;
-        --warning: #ffc107;
-        --danger: #dc3545;
-        --light: #f8f9fa;
-        --dark: #343a40;
-        --breakpoint-xs: 0;
-        --breakpoint-sm: 576px;
-        --breakpoint-md: 768px;
-        --breakpoint-lg: 992px;
-        --breakpoint-xl: 1200px;
-        --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        text-align: left;
-        -webkit-user-drag: element;
-        user-select: none;
-        box-sizing: border-box;
+        --primary-color: #007bff;
+        --risk-before-color: #ffc107; /* Yellow for possible risk */
+        --risk-after-color: #28a745; /* Green for real risk */
+        
         display: flex;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
-        margin-bottom: .5rem !important;
-        padding: .25rem !important;
-        position: fixed;
-        z-index: 1;
-        top: 0px;
-        right: 0px;
-        overflow-x: hidden;
-    }    
-    #possible_risk, #real_risk {
+        justify-content: space-around;
         padding: 1rem;
-        text-align: center;
+        background-color: #f8f9fa;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
     }
-    </style>
+
+    .risk-container {
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 100%;
+    }
+
+    #possible_risk {
+        background-color: var(--risk-before-color);
+        color: #343a40;
+    }
+
+    #real_risk {
+        background-color: var(--risk-after-color);
+        color: #fff;
+    }
+
+    .risk-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    /* Container boxes with padding and soft shadows */
+    .container {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    /* Text alignment and spacing for titles */
+    h1, h2, h4 {
+        text-align: center;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    /* Button Styling */
+    .btn {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-light {
+        background-color: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-light:hover {
+        background-color: var(--primary);
+        color: var(--white);
+    }
+
+    /* Form inputs */
+    .form-control {
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    /* Checkbox styling */
+    input[type="checkbox"] {
+        accent-color: var(--primary);
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    /* Labels */
+    label {
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    /* Shadow and padding for sections within the form */
+
+
+    /* Alerts styling */
+    .alert {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-radius: 5px;
+    }
+</style>
+
     <form action="{{ route('risks.risksPrintBrief') }}" method="post" id = "form_current" target="_blank">
         @csrf
-    <div class="row" id="risk">
-        <div class="col-md-6" id="possible_risk">
-            <!-- Контейнер для ризику 'possible_risk' -->
+        <div class="container" id="risk">
+            <div class="risk-container" id="possible_risk">
+                <div class="risk-title">{{ __('Risk Before Actions') }}</div>
+                <!-- Контейнер для ризику 'possible_risk' -->
+            </div>
+            <div class="risk-container" id="real_risk">
+                <div class="risk-title">{{ __('Risk After Actions') }}</div>
+                <!-- Контейнер для ризику 'real_risk' -->
+            </div>
         </div>
-        <div class="col-md-6" id="real_risk">
-            <!-- Контейнер для ризику 'real_risk' -->
-        </div>
-    </div>
     
 
 
@@ -190,18 +245,16 @@
                     </h4>
 
                     <h2 class="text-center">{{__('Brief Actions')}}</h2>
+                    <hr>
+                    <h3 class="text-center">{{__('Addition Brief Actions')}}</h3>
                     <div class="container" id="optional_item">
                         <div class="row">
                         @foreach($briefs->where('type', '1') as $brief)
                             
                                 <div class="col-md-6">
                                     <input type="checkbox" name="br_action[{{$brief->id}}]" id="br_action_{{$brief->id}}" value="{{$brief->id}}">
-                                    @if($brief->name_uk !== '')
-                                        {!!$brief->name_uk!!}
-                                    @elseif($brief->name_en !== '')
-                                        {!!$brief->name_en!!}
-                                    @endif
-                                    {!!$brief->name_ru!!}
+                                    {!! $brief->name_uk ?: ($brief->name_en ?: $brief->name_ru) !!}
+
                                     
                                 </div>
                             
@@ -222,12 +275,8 @@
                                 <div class="col-md-12">
                                     <input type="checkbox" name="br_action[{{$brief->id}}]" id="br_action_{{$brief->id}}" value="{{$brief->id}}" checked  style="opacity: 1; pointer-events: none;">
 
-                                    @if($brief->name_uk !== '')
-                                        {!!$brief->name_uk!!}
-                                    @elseif($brief->name_en !== '')
-                                        {!!$brief->name_en!!}
-                                    @endif
-                                        {!!$brief->name_ru!!}                                    
+                                    {!! $brief->name_uk ?: ($brief->name_en ?: $brief->name_ru) !!}
+                                  
                                 </div>
                             </div>
                         @endforeach   
@@ -238,12 +287,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <input type="checkbox" name="br_action[{{$brief->id}}]" id="br_action_{{$brief->id}}" value="{{$brief->id}}" checked  style="opacity: 1; pointer-events: none;">
-                                    @if($brief->name_uk !== '')
-                                        {!!$brief->name_uk!!}
-                                    @elseif($brief->name_en !== '')
-                                        {!!$brief->name_en!!}
-                                    @endif
-                                        {!!$brief->name_ru!!}                                    
+                                    {!! $brief->name_uk ?: ($brief->name_en ?: $brief->name_ru) !!}
+                                  
                                 </div>
                             </div>
                         @endforeach
@@ -255,12 +300,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <input type="checkbox" name="br_action[{{$brief->id}}]" id="br_action_{{$brief->id}}" value="{{$brief->id}}" checked  style="opacity: 1; pointer-events: none;">
-                                    @if($brief->name_uk !== '')
-                                        {!!$brief->name_uk!!}
-                                    @elseif($brief->name_en !== '')
-                                        {!!$brief->name_en!!}
-                                    @endif
-                                        {!!$brief->name_ru!!}                                    
+                                    {!! $brief->name_uk ?: ($brief->name_en ?: $brief->name_ru) !!}
+                                 
                                 </div>
                             </div>
                         @endforeach
@@ -274,37 +315,154 @@
 
     </form>
     <script>
-        const briefs = @json($briefs);
-        let risk=0;
-        let reasons= {};
+     const briefs = @json($briefs);
+let risk = 0;
+let realRiskReasons = []; //  рельний вплив на ризик різних факторів
+let reasons = {}; // назначенний вплив на ризик від дій
 
-        // знаходим ці заходи в об'єкті briefs там знаходимо reasons та рахуэмо який вплив на ризик має сумарне виконання заходів якщо не маємо то нулівий вплив
-        // в перемеенной reasons бачимо якій reason впливає на ризик від 0 до 1 
-        function countRealRisk(risk) {
-            // Get all checked checkboxes with name starting with 'br_action'
-            let checkboxes = document.querySelectorAll('input[name^="br_action"]');
-            let checkedIds = [];
+// Function to calculate real risk based on selected actions
+function countRealRisk(initialRisk) {
+    reasons = {}; // Clear previous reasons
 
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    checkedIds.push(checkbox.value);
+    // Sum impacts from realRiskReasons
+    if (Array.isArray(realRiskReasons)) {
+        realRiskReasons.forEach(reason => {
+            if (reasons[reason.id]) {
+                reasons[reason.id] += reason.impact;
+            } else {
+                reasons[reason.id] = reason.impact;
+            }
+        });
+    }
+
+    // Get all selected checkboxes with names starting with 'br_action'
+    const checkboxes = document.querySelectorAll('input[name^="br_action"]');
+    const checkedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => parseInt(cb.value));
+
+    // Calculate the impact of each selected action on risk
+    checkedIds.forEach(id => {
+        const brief = briefs.find(item => item.id === id);
+        if (brief && brief.reasons) {
+            brief.reasons.forEach(reason => {
+                if (reasons[reason.id]) {
+                    reasons[reason.id] += brief.risk; // Adjust this if necessary
+                } else {
+                    reasons[reason.id] = brief.risk;
                 }
             });
-
-            // Calculate the risk impact based on selected actions in the `briefs` object
-            let totalImpact = 0;
-            checkedIds.forEach(id => {
-                let brief = briefs.find(item => item.id === parseInt(id));
-                if (brief && brief.reason) {
-                    totalImpact += brief.reason;  // Assuming `reason` contains the risk impact factor (from 0 to 1)
-                }
-            });
-
-            // Calculate the real risk as a function of total impact; adjust as needed
-            return risk * (1 - totalImpact);
         }
-       // send post form_current to {{route('risks.currentRisk')}}  and get response
-       async function getRisk() {
+    });
+
+    // Calculate total impacts
+    const totalImpact = Object.values(reasons).reduce((sum, impact) => sum + impact, 0);
+    const totalImpactReal = Object.values(realRiskReasons).reduce((sum, reason) => sum + reason.impact, 0) || 1; // Avoid division by zero
+
+    // Determine the percentage reduction in risk
+    const riskReductionPercentage = Math.min(totalImpact / totalImpactReal, 1); // Cap at 100%
+
+    // Calculate real risk, ensuring it doesn't go below 0.01
+    const realRisk = Math.max(initialRisk * (1 - riskReductionPercentage), 0.01);
+
+    return realRisk;
+}
+
+// Function to show risk on the UI
+function showRisk(currentRisk) {
+    currentRisk = parseFloat(currentRisk.toFixed(2));
+    const red = 7;
+    const yellow = 5;
+
+    let form = document.getElementById('possible_risk');
+    form.className = ''; // Clear previous classes
+
+    // Set class based on current risk level
+    if (currentRisk > red) {
+        form.classList.add('text-center', 'bg-danger');
+    } else if (currentRisk > yellow) {
+        form.classList.add('text-center', 'bg-warning');
+    } else {
+        form.classList.add('text-center', 'bg-success');
+    }
+
+    animateNumber(form, parseFloat(form.innerText) || 0, currentRisk, 1000); // Animate risk display
+
+    let realRisk = parseFloat(countRealRisk(currentRisk).toFixed(2));
+    let form2 = document.getElementById('real_risk');
+    form2.className = ''; // Clear previous classes
+
+    // Set class based on real risk level
+    if (realRisk > red) {
+        form2.classList.add('text-center', 'bg-danger');
+    } else if (realRisk > yellow) {
+        form2.classList.add('text-center', 'bg-warning');
+    } else {
+        form2.classList.add('text-center', 'bg-success');
+    }
+
+    animateNumber(form2, parseFloat(form2.innerText) || 0, realRisk, 1000); // Animate real risk display
+}
+
+// Function to animate the risk number display
+function animateNumber(element, start, end, duration) {
+    const range = end - start;
+    const startTime = Date.now();
+
+    function update() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = (start + range * progress).toFixed(2);
+        element.innerText = current;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    update();
+}
+// Функція для оновлення ризиків у відповідних контейнерах
+function updateRiskDisplay(currentRisk) {
+    // Форматування ризику до двох знаків після коми
+    currentRisk = parseFloat(currentRisk.toFixed(2));
+    
+    // Визначаємо межі кольорів
+    const redThreshold = 7;
+    const yellowThreshold = 5;
+
+    // Оновлення контейнера для можливого ризику
+    const possibleRiskContainer = document.getElementById('possible_risk');
+    possibleRiskContainer.className = ''; // Очищення класів
+    if (currentRisk > redThreshold) {
+        possibleRiskContainer.classList.add('text-center', 'bg-danger');
+    } else if (currentRisk > yellowThreshold) {
+        possibleRiskContainer.classList.add('text-center', 'bg-warning');
+    } else {
+        possibleRiskContainer.classList.add('text-center', 'bg-success');
+    }
+
+    possibleRiskContainer.innerText = `Risk Before Actions: ${currentRisk}`; // Оновлюємо текст
+
+    // Обчислюємо реальний ризик і оновлюємо контейнер для реального ризику
+    const realRisk = countRealRisk(currentRisk); // Обчислюємо реальний ризик
+    const realRiskContainer = document.getElementById('real_risk');
+    realRiskContainer.className = ''; // Очищення класів
+    const formattedRealRisk = parseFloat(realRisk.toFixed(2));
+    
+    if (formattedRealRisk > redThreshold) {
+        realRiskContainer.classList.add('text-center', 'bg-danger');
+    } else if (formattedRealRisk > yellowThreshold) {
+        realRiskContainer.classList.add('text-center', 'bg-warning');
+    } else {
+        realRiskContainer.classList.add('text-center', 'bg-success');
+    }
+
+    realRiskContainer.innerText = `Risk After Actions: ${formattedRealRisk}`; // Оновлюємо текст
+}
+
+// Функція, що викликається при зміні чекбоксів
+async function getRisk() {
         let form = document.getElementById('form_current');
         let formData = new FormData(form);
 
@@ -333,7 +491,15 @@
             console.error('Error fetching risk data:', error);
         }
     }
-      //  console.log(briefs);
+
+// Додаємо обробник подій до чекбоксів
+const checkboxes = document.querySelectorAll('input[name^="br_action"]');
+checkboxes.forEach(item => {
+    item.addEventListener('change', getRisk); // Додаємо обробник події для кожного чекбоксу
+});
+
+// Приклад ініціалізації
+updateRiskDisplay(10); // Викликаємо для початкового значення ризику
         var experiences;
      // show selected equipments in sistems_names_show 
         document.getElementById('equipments').addEventListener('change', function(){
@@ -443,6 +609,7 @@
             });
         }
     // show risk function
+    /*
     function showRisk(currentRisk) {
         currentRisk = parseFloat(currentRisk.toFixed(2));
         const red = 7;
@@ -494,7 +661,7 @@
         update();
     }
    
-
+*/
       
 
     </script>

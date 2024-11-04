@@ -101,18 +101,18 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                             <div class="form-section"> <!-- Arrival time (date-time input) -->
                                 <div class="form-group mb-3">
                                     <h2 for="arrival_time">{{ __('Arrival Time') }}</h2>
-                                    <input type="datetime-local" id="arrival_time" class="form-control" name="arrival_time" value="{{ old('arrival_time') }}">
+                                    <input type="datetime-local" id="arrival_time" class="form-control" name="arrival_time" value="{{ old('arrival_time') }}"  onchange="dataFilling()">
                                 </div>
                                 <!-- Start time (date-time input) -->
                                 <div class="form-group mb-3">
                                     <h2 for="start_time" title="{{ __('Go to KPP') }}">{{ __('Start Time') }}</h2>
-                                    <input type="datetime-local" id="start_time" class="form-control" name="start_time" value="{{ old('start_time') }}">
+                                    <input type="datetime-local" id="start_time" class="form-control" name="start_time" value="{{ old('start_time') }}" onchange="dataFilling()">
                                 </div>
                 
                                 <!-- End time (date-time input) -->
                                 <div class="form-group mb-3">
                                     <h2 for="end_time">{{ __('End Time') }}</h2>
-                                    <input type="datetime-local" id="end_time" class="form-control" name="end_time" value="{{ old('end_time') }}">
+                                    <input type="datetime-local" id="end_time" class="form-control" name="end_time" value="{{ old('end_time') }}" onchange="dataFilling()">
                                 </div>
                             </div>
                         </div>
@@ -124,10 +124,15 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                 <div class="form-section">
                     <div class="form-group">
                         <h2 for="description">{{ __('Work description') }}:</h2>
-                        <textarea id="description" rows="7" class="form-control" name="description" required
+                        <textarea id="description" rows="7" class="form-control" 
+
+                        name="description" required
                         >{{ old('description') }}</textarea>
                     </div>
                 </div>
+                <div class="row" id="Show_posible_description">
+                </div>
+
                <!-- Поле выбора типа работы -->
                 <div class="form-section">
                     <div class="form-group">
@@ -385,6 +390,91 @@ function WListener() {
     const workersSelect = document.getElementById('workers');
     Array.from(workersSelect.options).find(option => option.value == workerId).selected = false;
 }
+
+function dataFilling() {
+    // Отримуємо значення з полів
+    const arrival_time = document.getElementById('arrival_time').value;
+    const start_time = document.getElementById('start_time').value;
+    const end_time = document.getElementById('end_time').value;
+
+    // Визначаємо, яке значення встановити в інші поля (беремо перше непорожнє значення)
+    let dtt = arrival_time || start_time || end_time;
+
+    // Якщо знайдено непорожнє значення, заповнюємо ним лише порожні поля
+    if (dtt) {
+        if (!arrival_time) {
+            document.getElementById('arrival_time').value = dtt;
+        }
+        if (!start_time) {
+            document.getElementById('start_time').value = dtt;
+        }
+        if (!end_time) {
+            document.getElementById('end_time').value = dtt;
+        }
+    }
+}
+let hideTimeout;
+
+document.getElementById('description').addEventListener('input', (e) => {
+    posible_descriptions(e.target.value);
+});
+
+function posible_descriptions(description) {
+    var words = description.split(' ');
+    if (words.length > 2) {
+        fetch("{{ route('callings.getPosibleDescriptions') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ description })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const showPosibleDescription = document.getElementById('Show_posible_description');
+                showPosibleDescription.innerHTML = ''; // Очистка старых значений
+                const text = `<div class="col-md-12">
+                <h2>{{ __('Posible descriptions') }}</h2>
+                <ul>
+                ${data.map(item => `<li onclick="copyToDescription('${item.description}')" style="cursor: pointer;">${item.description}</li>`).join('')}
+                </ul>
+                </div>`;
+                showPosibleDescription.innerHTML = text;
+            }
+        });
+    }
+}
+
+function copyToDescription(description) {
+    document.getElementById('description').value = description;
+    posible_descriptions(description);
+}
+
+// Додаємо затримку перед очищенням підказок при втраті фокуса
+document.getElementById('description').addEventListener('blur', (e) => {
+    hideTimeout = setTimeout(() => {
+        const showPosibleDescription = document.getElementById('Show_posible_description');
+        showPosibleDescription.innerHTML = ''; // Очистка старых значений
+    }, 300); // Затримка в 300 мс
+});
+
+// Скасовуємо очищення, якщо користувач наводить курсор на підказки
+document.getElementById('Show_posible_description').addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+});
+
+// Очищення підказок після виходу з області
+document.getElementById('Show_posible_description').addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => {
+        const showPosibleDescription = document.getElementById('Show_posible_description');
+        showPosibleDescription.innerHTML = ''; // Очистка старых значений
+    }, 300); // Та ж затримка
+});
+
+
+
 
 </script>
 
