@@ -16,9 +16,10 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{ route('projects.index') }}">{{__('List')}}</a>
                     <a class="dropdown-item" href="{{ route('projects.grantt') }}">{{__('Grantt')}}</a>
+                   @if(Auth::user()->hasRole('quality-engineer','admin')) 
                    <a class="dropdown-item" href="{{ route('problems.index') }}">{{__('Problems')}}</a>
                    <a class="dropdown-item" href="{{ route('tasks.index') }}">{{__('Tasks')}}</a>
-                  
+                  @endif
                 </div>
             </li>
            
@@ -31,13 +32,14 @@
                     <a class="dropdown-item" href="{{ route('objectives.index') }}">{{__('Objectives')}}</a>
                     
                     <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Functions')}}</a>
+                     @if(Auth::user()->hasRole('quality-engineer','admin'))
                     <a class="dropdown-item" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
                     <a class="dropdown-item" href="{{ route('cats.index') }}">{{__('Category')}}</a>
                     <a class="dropdown-item" href="{{ route('stages.index') }}">{{__('Stages')}}</a>
                     <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
                     <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
                     <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a> 
-                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                   
                       <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
                     @endif
                 </div>
@@ -52,9 +54,12 @@
                     <a class="dropdown-item" href="{{ route('divisions.index') }}">{{__('Divisions')}}</a>
                     <a class="dropdown-item" href="{{ route('structure.index') }}"> {{__('Structure')}}</a>
                      <a class="dropdown-item" href="{{ route('personal.index') }}"> {{__('Personal')}}</a>
+                @if(Auth::user()->hasRole('quality-engineer','admin')) 
                     <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Funs')}}</a>
                     <a class="dropdown-item" href="{{ route('criteria.index') }}">{{__('Criteria')}}</a>
                  <a class="dropdown-item" href="{{ route('positions.index') }}">{{__('Positions')}}</a>
+                 @endif
+                 
               </div>
             </li>  
 
@@ -66,13 +71,16 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Callings')}}</a>
                     <a class="dropdown-item" href="{{ route('magasines.index') }}">{{__('Magasines')}}</a>
+                    @if(Auth::user()->hasRole('quality-engineer','admin')) 
                     <a class="dropdown-item" href="{{ route('products.index') }}">{{__('Products')}}</a>
                     <a class="dropdown-item" href="{{ route('equipments.index') }}">{{__('Equipments')}}</a>
                     <a class="dropdown-item" href="{{ route('stores.index') }}">{{__('Stores')}}</a>
                     <a class="dropdown-item" href="{{ route('rooms.index') }}">{{__('Rooms')}}</a>
                     <a class="dropdown-item" href="{{ route('organomic.index') }}">{{__('Organomics')}}</a>
+                    @endif
                 </div>
-            </li>
+            </li> 
+            @if(Auth::user()->hasRole('quality-engineer','admin')) 
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Documentation')}}
@@ -82,7 +90,7 @@
                     <a class="dropdown-item" href="{{ route('archives.index') }}">{{__('Archives')}}</a>
                 </div>
             </li>
-
+            @endif
 
             @if(Auth::user()->hasRole('admin'))
             <li class="nav-item dropdown">
@@ -97,24 +105,26 @@
 
             </li>
             @endif
-            @if(Auth::user()->hasRole('admin'))
+           
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Risks')}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    
-                <a class="dropdown-item" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
-                    <a class="dropdown-item" href="{{ route('risks.index') }}">{{__('Risks')}}</a>
-                    <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>
+                 
+                        <a class="dropdown-item" href="{{ route('risks.StartBriefRisk') }}">{{__('Risks')}}</a>
+            @if(Auth::user()->hasRole('admin'))       
+               <a class="dropdown-item" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
+             <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>
                     <a class="dropdown-item" href="{{ route('jits.index') }}">{{__('JITs')}}</a>
                     <a class="dropdown-item" href="{{ route('jitqws.index') }}">{{__('JITQws')}}</a>
-                    <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Callings')}}</a>
+                 @endif     
+                 <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Callings')}}</a>
                 </div>
                 
 
-            </li>
-            @endif
+            </li> 
+          
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{__('Profile')}}

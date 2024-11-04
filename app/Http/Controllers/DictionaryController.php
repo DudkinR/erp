@@ -143,15 +143,19 @@ class DictionaryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit()
+    public function show(Request $request, $id)
     {
         //
-        $words  = Dictionary::where('editor', null)
-        ->orWhere('editor', '')
-        ->orderBy('uk', 'asc')
-        ->limit(100)
-        ->get();
-        return view('dictionary.edit', compact('words'));
+        $word  = Dictionary::find($id);
+        return view('dictionary.show', compact('word'));
+
+    }
+
+    public function edit(Request $request, $id)
+    {
+        //
+        $word  = Dictionary::find($id);
+        return view('dictionary.edit', compact('word'));
 
     }
 
@@ -173,7 +177,7 @@ class DictionaryController extends Controller
         $word->editor = Auth::user()->tn;
         
         $word->save();
-        return redirect('/dictionaryedit')->with('success', 'Word updated successfully');
+        return redirect('/dictionary')->with('success', 'Word updated successfully');
     }
 
     /**
@@ -183,12 +187,11 @@ class DictionaryController extends Controller
     {
         //
         $word = Dictionary::find($id);
-        if($word){
-            
+        if($word){            
         $word->delete();
         }
         // edit 
-        return redirect('/dictionaryedit')->with('success', 'Word deleted successfully');
+        return redirect('/dictionary')->with('success', 'Word deleted successfully');
     }
 
     

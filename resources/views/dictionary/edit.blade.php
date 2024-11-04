@@ -18,13 +18,18 @@
     @endif
         <div class="row">
             <div class="col-md-12">
+           <a href="{{ route('dictionary.index',['word'=> $word->uk])}}" class="btn btn-light w-100">{{__('Back')}}</a>
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
             <h1>{{__('Edit')}}</h1>
                 
             </div>
         </div>
-        @foreach($words as $word)
         <div class="row" @if($word->editor == null || $word->editor == '')  style="background-color: #f4f440;" @endif>    
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <form method="POST" action="{{ route('dictionary.update', $word->id) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
@@ -41,7 +46,9 @@
                     <button type="submit" class="btn btn-primary w-100">{{__('Update')}}</button>
                 </form>
             </div>
-            <div class="col-md-4">
+            </div>
+            <div class="row" @if($word->editor == null || $word->editor == '')  style="background-color: #f4f440;" @endif>    
+            <div class="col-md-12">
                 <form method="POST" action="{{ route('dictionary.destroy', $word->id) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="DELETE">
@@ -49,6 +56,5 @@
                 </form>
             </div>
         </div>
-        @endforeach
     </div>
 @endsection

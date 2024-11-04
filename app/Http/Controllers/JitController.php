@@ -15,28 +15,10 @@ class JitController extends Controller
      */
     public function index()
     {
-     /*   $acts= DB::connection('mysql2')->table('actions')
-        ->select('name','f','risk','made','aditional','porydok') 
-        ->orderBy('porydok')      
+     
+        $jits = Jit::orderBy('name_uk', 'asc')
+        ->with('jitqws')
         ->get();
-         //`id`, `name_uk`, `name_ru`, `name_en`, `order`, `type`, `risk`, `functional`, `created_at`, `updated_at`
-         foreach($acts as $act){
-            $brief = Brief::where('name_ru', $act->name)->first();
-            if(!$brief){
-                $brief = new Brief();
-                $brief->name_ru = $act->name;
-                $brief->name_uk = '';
-                $brief->name_en = '';
-                $brief->order = $act->porydok;
-                $brief->type = $act->f;
-                $brief->risk = $act->risk;
-                $brief->functional = $act->made;
-                $brief->save();
-            }
-        }
-        return Brief::all();
-        */
-         $jits = Jit::all();
         return view('jits.index', compact('jits'));
 
     }

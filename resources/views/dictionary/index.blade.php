@@ -27,7 +27,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="input-group">
-                <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}">
+                <input type="text" id="search" class="form-control" placeholder="{{ __('Search') }}"
+                @if(isset($_GET['word']))
+                    value = "{{$_GET['word']}}"
+                @endif
+                >
                 <span class="input-group-text" onclick="findResults()">
                     <i class="search_input_button">{{__('Search')}}</i>
                 </span>
@@ -58,15 +62,29 @@
                 <tbody>
         `;
         // Заполнение таблицы данными
+        
         show_dict.forEach(dict => {
             tableHTML += `
                 <tr>
                     <td>${dict.ru}</td>
-                    <td>${dict.uk}</td>
+                    <td>
+                    ${dict.uk}
+                    </td>
                     <td>${dict.en}</td>
                     <td style="background-color: yellow
                     ">${dict.description}</td>
-                    <td>${dict.example}</td>
+                    <td>${dict.example}
+                    <hr>
+                     @if(Auth::user()->hasRole('quality-engineer','admin'))
+                        <a href="/dictionary/${dict.id}/show">Show</a> 
+                        <a href="/dictionary/${dict.id}/edit">Edit</a> 
+                        <form action="/dictionary/${dict.id}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Delete</button>
+                        </form>
+                     @endif
+                    </td>
                 </tr>
             `;
         });  

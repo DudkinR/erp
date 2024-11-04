@@ -28,8 +28,8 @@ Route::middleware('guest')->group(function () {
 Route::get('/dictionary', 'App\Http\Controllers\DictionaryController@index')->name('dictionary.index');
 Route::get('/dictionary/create', 'App\Http\Controllers\DictionaryController@create')->name('dictionary.create');
 Route::post('/dictionary', 'App\Http\Controllers\DictionaryController@store')->name('dictionary.store');
-Route::get('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@show')->name('dictionary.show');
-Route::get('/dictionaryedit', 'App\Http\Controllers\DictionaryController@edit')->name('dictionary.edit');
+Route::get('/dictionary/{id}/show', 'App\Http\Controllers\DictionaryController@show')->name('dictionary.show');
+Route::get('/dictionary/{id}/edit', 'App\Http\Controllers\DictionaryController@edit')->name('dictionary.edit');
 Route::put('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@update')->name('dictionary.update');
 Route::delete('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@destroy')->name('dictionary.destroy');
 
