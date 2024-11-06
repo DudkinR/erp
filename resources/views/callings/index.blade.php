@@ -23,10 +23,59 @@
     </div>
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('Form of callings')}}</h1>
-                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
+                <h1 class="d-inline-block mr-2">{{ __('Form of callings') }}</h1>
+                <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
+                    @csrf
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="all_my" value="all_my" @if(($filter ?? '') == 'all_my') checked @endif> {{ __('All my') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="today" value="today" @if(($filter ?? '') == 'today') checked @endif> {{ __('Today') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="week" value="week" @if(($filter ?? '') == 'week') checked @endif> {{ __('Week') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="month" value="month" @if(($filter ?? '') == 'month') checked @endif> {{ __('Month') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_sup" value="in_sup" @if(($filter ?? '') == 'in_sup') checked @endif> {{ __('In supervisor') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_work" value="in_work" @if(($filter ?? '') == 'in_work') checked @endif> {{ __('In work') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="not_started" value="not_started" @if(($filter ?? '') == 'not_started') checked @endif> {{ __('Not started') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="completed" value="completed" @if(($filter ?? '') == 'completed') checked @endif> {{ __('Completed') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_boss" value="in_boss" @if(($filter ?? '') == 'in_boss') checked @endif> {{ __('In boss') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_svn" value="in_svn" @if(($filter ?? '') == 'in_svn') checked @endif> {{ __('In SVN') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_profcom" value="in_profcom" @if(($filter ?? '') == 'in_profcom') checked @endif> {{ __('In profcom') }}
+                    </label>
+                    <label class="d-inline-block mr-2">
+                        <input type="radio" name="filter" id="in_vonop" value="in_vonop" @if(($filter ?? '') == 'in_vonop') checked @endif> {{ __('In vonop') }}
+                    </label>
+                    <button type="submit" class="btn btn-success">{{ __('Filter') }}</button>
+                </form>
+                
             </div>
-        </div>    
+            
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
+                </div>
+                <div class="col-md-6">
+                    <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
+                </div>
+            </div>  
         <div class="container">
             <table class="table table-striped">
                 <thead>
@@ -135,6 +184,38 @@
         </div>
     </div>
 </div>
+<div class="modal" id="modalReserve">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{__('Reserve form blank')}}</h5>
+                <button onclick="hideModalReserve()" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{route('callings.reserveStore')}}" method="POST">
+                    @csrf
+                    <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <div class="form-group">
+                        <label for="tab_number">{{__('Tab Number of people')}}</label>
+                        <input type="number" name="tab_number" id="tab_number" class="form-control"                         
+                        onblur="WhatPersonelByTN()">
+                        <div id=show_personel></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="description">{{__('Description of work')}}</label>
+                        <textarea name="description" id="description" class="form-control"></textarea>
+                    </div>
+                    <button class="btn btn-success">{{__('Reserve')}}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
+            function hideModalReserve() {
+            $('#modalReserve').modal('hide');
+        }
     </script>
 @endsection

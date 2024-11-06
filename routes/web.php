@@ -518,6 +518,9 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/callings/{id}/finalize', 'App\Http\Controllers\CallingController@finalize')->name('callings.finalize');
     // callings.get personal for tn
     Route::any('/getPersonalForTN', 'App\Http\Controllers\CallingController@getPersonalForTN')->name('callings.getPersonalForTN');
+    //callings.reserve post
+    Route::post('/callingsReserve', 'App\Http\Controllers\CallingController@reserveStore')->name('callings.reserveStore');
+
 
     // risk
     Route::any('/risks', 'App\Http\Controllers\RiskController@index')->name('risks.index');

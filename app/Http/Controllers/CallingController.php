@@ -273,6 +273,21 @@ class CallingController extends Controller
           $filling;
         return redirect()->route('callings.index');
     }
+    // reserveStore short store only tn  Kerivnyk_bryhady and description
+    public function reserveStore(Request $request)
+    {
+        $calling = new Calling();
+        $calling->status = 'created';
+        $calling->author_id=Auth::user()->personal->id;
+        $calling->arrival_time = now();
+        $calling->description = $request->description;
+        $calling->save();
+        $worker=Personal::where('tn',$request->tab_number)->first();
+        $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
+        $calling->workers()->attach($worker->id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' =>0, 'comment' => null, 'start_time' => NULL, 'end_time' => NULL]);
+        return redirect()->route('callings.index');
+    }
+    
     public function validateTimes($arrival_time, $start_time, $end_time)
     {
         // Проверяем, что все три времени заданы
