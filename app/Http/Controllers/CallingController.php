@@ -54,7 +54,7 @@ class CallingController extends Controller
 
             // Вибрати виклики, де статус 'workshop-chief' і є працівники з тими ж підрозділами, що й начальник
             $callings = Calling::where('status', 'workshop-chief')
-              ->where(function ($query) {
+             /* ->where(function ($query) {
                 $query->where('author_id', Auth::user()->personal->id)
                     ->orWhereHas('workers', function ($query) {
                         $query->where('personal_id', Auth::user()->personal->id);
@@ -62,7 +62,7 @@ class CallingController extends Controller
             })
          ->whereHas('workers.divisions', function ($query) use ($userDivisionIds) {
                 $query->whereIn('division_id', $userDivisionIds);
-            })
+            })*/
             ->with(['workers.divisions', 'workers.positions'])
             ->orderBy('id', 'asc')
             ->get()
