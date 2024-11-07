@@ -319,3 +319,28 @@ for (var i = 0; i < inputs.length; i++) {
         });
     });
 }
+
+function WhatPersonelByTN() {
+    const tn = document.getElementById('tab_number').value;
+
+    fetch("/getPersonalForTN", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ tn })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.length > 0) {
+            const show_personel = document.getElementById('show_personel');
+            show_personel.innerHTML = '';
+            data.forEach(personel => {
+                const div = document.createElement('div');
+                div.textContent = personel.fio;
+                show_personel.appendChild(div);
+            });
+        }
+    });
+}

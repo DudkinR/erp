@@ -18,15 +18,29 @@
     @endif
     <div class="row">
         <div class="col-md-12">
-            <input type="text" id="search" class="form-control" placeholder="{{__('Search')}}">
+            <div class="input-group">
+                <input type="text" id="search" class="form-control" placeholder="{{__('Search')}}">
+                <span class="input-group-text" onclick="findResults()">
+                    <i class="search_input_button">{{__('Search')}}</i>
+                </span>
+            </div>
         </div>
     </div>
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Form of callings Supervision')}}</h1>
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
                 <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
             </div>
-        </div>    
+            <div class="col-md-6">
+                <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
+            </div>
+        </div> 
+
         <div class="container">
             <table class="table table-striped">
                 <thead>
@@ -187,15 +201,49 @@
         </div>
     </div>
 </div>
-    <script>
-        const search = document.getElementById('search');
-        var Vcallings = @json($callings);
-        console.log(Vcallings);
-        function hideModalWin() {
-    $('#modalWin').modal('hide');
-}
 
-function ShowModalWin(calling_id) {
+<div class="modal" id="modalReserve">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{__('Reserve form blank')}}</h5>
+                <button onclick="hideModalReserve()" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{route('callings.reserveStore')}}" method="POST">
+                    @csrf
+                    <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <div class="form-group">
+                        <label for="tab_number">{{__('Tab Number of people')}}</label>
+                        <input type="number" name="tab_number" id="tab_number" class="form-control"                         
+                        onblur="WhatPersonelByTN()">
+                        <div id=show_personel></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="description">{{__('Description of work')}}</label>
+                        <textarea name="description" id="description" class="form-control"></textarea>
+                    </div>
+                    <button class="btn btn-success">{{__('Reserve')}}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+    const search = document.getElementById('search');
+    var Vcallings = @json($callings);
+        console.log(Vcallings);
+    function hideModalWin() {
+            $('#modalWin').modal('hide');
+        }
+    
+    function hideModalReserve() {
+            $('#modalReserve').modal('hide');
+        }
+
+    function ShowModalWin(calling_id) {
     const calling = Object.values(Vcallings).find(calling => calling.id === calling_id);
     
     // Устанавливаем ID вызова
@@ -266,9 +314,7 @@ function ShowModalWin(calling_id) {
     // Открываем модальное окно
     $('#modalWin').modal('show');
 }
-
-
-        search.addEventListener('keyup', (e) => {
+    search.addEventListener('keyup', (e) => {
             const value = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('tbody tr');
             rows.forEach(row => {
@@ -276,5 +322,7 @@ function ShowModalWin(calling_id) {
             });
         }); 
         
+       
+    
     </script>
 @endsection
