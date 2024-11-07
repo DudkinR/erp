@@ -22,47 +22,38 @@
         </div>
     </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <h1 class="d-inline-block mr-2">{{ __('Form of callings') }}</h1>
+            </div>
+            <div class="col-md-6">
+  
                 <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                     @csrf
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="all_my" value="all_my" @if(($filter ?? '') == 'all_my') checked @endif> {{ __('All my') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="today" value="today" @if(($filter ?? '') == 'today') checked @endif> {{ __('Today') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="week" value="week" @if(($filter ?? '') == 'week') checked @endif> {{ __('Week') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="month" value="month" @if(($filter ?? '') == 'month') checked @endif> {{ __('Month') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_sup" value="in_sup" @if(($filter ?? '') == 'in_sup') checked @endif> {{ __('In supervisor') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_work" value="in_work" @if(($filter ?? '') == 'in_work') checked @endif> {{ __('In work') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="not_started" value="not_started" @if(($filter ?? '') == 'not_started') checked @endif> {{ __('Not started') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="completed" value="completed" @if(($filter ?? '') == 'completed') checked @endif> {{ __('Completed') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_boss" value="in_boss" @if(($filter ?? '') == 'in_boss') checked @endif> {{ __('In boss') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_svn" value="in_svn" @if(($filter ?? '') == 'in_svn') checked @endif> {{ __('In SVN') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_profcom" value="in_profcom" @if(($filter ?? '') == 'in_profcom') checked @endif> {{ __('In profcom') }}
-                    </label>
-                    <label class="d-inline-block mr-2">
-                        <input type="radio" name="filter" id="in_vonop" value="in_vonop" @if(($filter ?? '') == 'in_vonop') checked @endif> {{ __('In vonop') }}
-                    </label>
-                    <button type="submit" class="btn btn-success">{{ __('Filter') }}</button>
+                    <select name="filter" class="form-control">
+                        <option value="">{{ __('All') }}</option>
+                        <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
+                        <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
+                        <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
+                        <option value="in_sup" @if(($filter ?? '') == 'in_sup') selected @endif>{{ __('In supervisor') }}</option>
+                        <option value="in_work" @if(($filter ?? '') == 'in_work') selected @endif>{{ __('In work') }}</option>
+                        <option value="not_started" @if(($filter ?? '') == 'not_started') selected @endif>{{ __('Not started') }}</option>
+                        <option value="completed" @if(($filter ?? '') == 'completed') selected @endif>{{ __('Completed') }}</option>
+                        <option value="in_boss" @if(($filter ?? '') == 'in_boss') selected @endif>{{ __('In boss') }}</option>
+                        <option value="in_svn" @if(($filter ?? '') == 'in_svn') selected @endif>{{ __('In SVN') }}</option>
+                        <option value="in_profcom" @if(($filter ?? '') == 'in_profcom') selected @endif>{{ __('In profcom') }}</option>
+                        <option value="in_vonop" @if(($filter ?? '') == 'in_vonop') selected @endif>{{ __('In vonop') }}</option>
+                    </select>
+                    <button type="submit" class="btn btn-success">{{ __('Filter') }}</button>  
+
+                    <script>
+                        function validateFilters() {
+                            if (document.querySelector('select[name="filter"]').value == '') {
+                                alert('{{ __("Choose filter") }}');
+                                return false;
+                            }
+                            return true;
+                        }
+                    </script>
                 </form>
                 
             </div>

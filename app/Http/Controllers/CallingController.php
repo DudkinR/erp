@@ -28,33 +28,39 @@ class CallingController extends Controller
     public function index(Request $request)
     {
        // Get the collection of started callings
-       if($request->type){$type=$request->type;}
-       if($request->start){$start=$request->start;}
-       if($request->finish){$finish=$request->finish;}
+       $type = $request->type ?? null;
+       $start = $request->start ?? null;
+       $finish = $request->finish ?? null;
+       $filter = $request->filter ?? null;  // Ensuring it's either the filter or null
+   
        if(Auth::user()->hasRole('VONtaOP')){
-            $callings = Calling::where('status', 'VONtaOP')->
+            $callings = $this->filters($filter)
+            ->where('status', 'VONtaOP')->
             with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.VONtaOP', compact('callings'));
+            return view('callings.VONtaOP', compact('callings','filter'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
-            $callings = Calling::where('status', 'Profkom')->
+            $callings = $this->filters($filter)
+            ->where('status', 'Profkom')->
             with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.Profkom', compact('callings'));
+            return view('callings.Profkom', compact('callings','filter'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
-            $callings = Calling::where('status', 'SVNtaPB')->
+            $callings = $this->filters($filter)
+            ->where('status', 'SVNtaPB')->
             with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
             ->get()->keyBy('id');            
-            return view('callings.SVNtaPB', compact('callings'));
+            return view('callings.SVNtaPB', compact('callings','filter'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
             // Отримати всі підрозділи, до яких належить начальник
             $userDivisionIds = Auth::user()->personal->divisions()->pluck('division_id');
 
             // Вибрати виклики, де статус 'workshop-chief' і є працівники з тими ж підрозділами, що й начальник
-            $callings = Calling::where('status', 'workshop-chief')
-                ->where(function ($query) {
+            $callings =$this->filters($filter)
+            ->where('status', 'workshop-chief')
+             /*   ->where(function ($query) {
                     $query->where('author_id', Auth::user()->personal->id)
                         ->orWhereHas('workers', function ($query) {
                             $query->where('personal_id', Auth::user()->personal->id);
@@ -62,28 +68,30 @@ class CallingController extends Controller
                 })
                 ->whereHas('workers.divisions', function ($query) use ($userDivisionIds) {
                     $query->whereIn('division_id', $userDivisionIds);
-                })
+                })*/
                 ->with(['workers.divisions', 'workers.positions'])
                 ->orderBy('id', 'asc')
                 ->get()
                 ->keyBy('id');
 
-            return view('callings.workshop_chief', compact('callings'));
+            return view('callings.workshop_chief', compact('callings','filter'));
 
         }        
         elseif(Auth::user()->hasRole('supervision')){
 
-            $callings = Calling::where('status', 'supervision')
+            $callings = $this->filters($filter)
+            ->where('status', 'supervision')
             ->orwhere('personal_start_id',null)
             ->orwhere('personal_arrival_id',null)
             ->orwhere('personal_end_id',null)
-            ->with(['workers.divisions'])           
+         //   ->with(['workers.divisions'])           
              ->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.supervision', compact('callings'));
+            return view('callings.supervision', compact('callings','filter'));
         }
         elseif( Auth::user()->hasRole('user')){
          $userPersonalId = Auth::user()->personal->id;
-         $callings = Calling::where(function ($query) {
+         $callings = $this->filters($filter)
+         ->where(function ($query) {
             $query->where('author_id', Auth::user()->personal->id)
                   ->orWhereHas('workers', function ($query) {
                       $query->where('personal_id', Auth::user()->personal->id);
@@ -95,11 +103,43 @@ class CallingController extends Controller
         ->get()
         ->keyBy('id');
 
-              return view('callings.index', compact('callings'));
+              return view('callings.index', compact('callings','filter'));
         }
 
   
     }
+
+    public function filters($param)
+    {
+        $query = Calling::query();
+    
+        if ($param == 'today') {
+            $query->whereDate('created_at', Carbon::today());
+        } elseif ($param == 'week') {
+            $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        } elseif ($param == 'month') {
+            $query->whereMonth('created_at', Carbon::now()->month);
+        } elseif ($param == 'in_sup') {
+            $query->where('status', 'supervision');
+        } elseif ($param == 'in_work') {
+            $query->where('end_time', null);
+        } elseif ($param == 'not_started') {
+            $query->where('start_time', null);
+        } elseif ($param == 'completed') {
+            $query->where('status', 'completed');
+        } elseif ($param == 'in_boss') {
+            $query->where('status', 'workshop-chief');
+        } elseif ($param == 'in_svn') {
+            $query->where('status', 'SVNtaPB');
+        } elseif ($param == 'in_profcom') {
+            $query->where('status', 'Profkom');
+        } elseif ($param == 'in_vonop') {
+            $query->where('status', 'VONtaOP');
+        }
+    
+        return $query;
+    }
+    
 
     
     public function printOrder(Request $request){

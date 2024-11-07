@@ -99,6 +99,9 @@ $alarm_position=['керевник','начальник','руководител
                             
                                     <label class="form-check-label" for="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}">
                                         {{ __($Vyklyk_na_robotu_id->name) }}
+                                        @if($Vyklyk > 0) 
+                                            <input type="hidden" id="nedoruchni" value="{{ $Vyklyk_na_robotu_id->id }}">
+                                            @endif
                                     </label>
                                 </div>
                                 @php $Vyklyk ++; @endphp
@@ -422,7 +425,7 @@ function DisplayWorkInfo(finish_type_id) {
                     const comments = worker.pivot.comments ? worker.pivot.comments : ''; // По умолчанию пустая строка, если не указано
 
                     // Генерация вариантов оплаты в зависимости от условия
-                    const paymentOptions = vyklykValue != 56
+                    const paymentOptions = vyklykValue == document.getElementById('nedoruchni').value
                         ? types_payment.map(type =>
                             `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
                         ).join('') // Собираем все в строку
