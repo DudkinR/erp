@@ -23,11 +23,50 @@
         </div>
     </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
             <h3>{{__('Form of callings')}}</h3>
             <h1>{{__('Boss')}}</h1>
+        </div>
+        <div class="col-md-6">
+
+            <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
+                @csrf
+                <select name="filter" class="form-control">
+                    <option value="">{{ __('All') }}</option>
+                    <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
+                    <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
+                    <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
+                    <option value="in_sup" @if(($filter ?? '') == 'in_sup') selected @endif>{{ __('In supervisor') }}</option>
+                    <option value="in_work" @if(($filter ?? '') == 'in_work') selected @endif>{{ __('In work') }}</option>
+                    <option value="not_started" @if(($filter ?? '') == 'not_started') selected @endif>{{ __('Not started') }}</option>
+                    <option value="completed" @if(($filter ?? '') == 'completed') selected @endif>{{ __('Completed') }}</option>
+                    <option value="in_boss" @if(($filter ?? '') == 'in_boss') selected @endif>{{ __('In boss') }}</option>
+                    <option value="in_svn" @if(($filter ?? '') == 'in_svn') selected @endif>{{ __('In SVN') }}</option>
+                    <option value="in_profcom" @if(($filter ?? '') == 'in_profcom') selected @endif>{{ __('In profcom') }}</option>
+                    <option value="in_vonop" @if(($filter ?? '') == 'in_vonop') selected @endif>{{ __('In vonop') }}</option>
+                </select>
+                <button type="submit" class="btn btn-success">{{ __('Filter') }}</button>  
+
+                <script>
+                    function validateFilters() {
+                        if (document.querySelector('select[name="filter"]').value == '') {
+                            alert('{{ __("Choose filter") }}');
+                            return false;
+                        }
+                        return true;
+                    }
+                </script>
+            </form>
             </div>
         </div>    
+        <div class="row">
+            <div class="col-md-6">
+                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
+            </div>
+            <div class="col-md-6">
+                <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
+            </div>
+        </div>  
         <div class="container">
             <table class="table table-striped">
                 <thead>
@@ -197,7 +236,39 @@
         </div>
     </div>
 </div>
+<div class="modal" id="modalReserve">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{__('Reserve form blank')}}</h5>
+                <button onclick="hideModalReserve()" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{route('callings.reserveStore')}}" method="POST">
+                    @csrf
+                    <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <div class="form-group">
+                        <label for="tab_number">{{__('Tab Number of people')}}</label>
+                        <input type="number" name="tab_number" id="tab_number" class="form-control"                         
+                        onblur="WhatPersonelByTN()">
+                        <div id=show_personel></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="description">{{__('Description of work')}}</label>
+                        <textarea name="description" id="description" class="form-control"></textarea>
+                    </div>
+                    <button class="btn btn-success">{{__('Reserve')}}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
+            function hideModalReserve() {
+            $('#modalReserve').modal('hide');
+        }
         const search = document.getElementById('search');
         var Vcallings = @json($callings);
        // console.log(Vcallings);

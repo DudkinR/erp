@@ -605,5 +605,21 @@
       "The briefing is over": "Інструктаж закінчено",
       "The order of the briefing has been violated, start over": "Порушено порядок інструктажу, почніть спочатку",
       "Be careful": "Будьте обережні",  
+      "Today":"Сьогодні",
+      "Yesterday":"Вчора",
+      "Month":"Місяць",
+      "Week":"Тиждень",
+      "In supervisor":"У НЗС",
+      "Not started":"Не почато",
+      "In boss":"У начальника",
+      "In SVN":"У СВН",
+      "In profcom":"У профкому",
+      "In vonop":"У ВОН та ОП",
+      "Filter":"Фільтр",
+      "Reserve":"Резерв",
+      "Reserve form blank":"Зарезервірувати бланк",
+      "Tab Number of people":"Табельний номер старшого",
+      "Description of work":"Опис роботи",
+
     "Archives" : "Архіви"
 }

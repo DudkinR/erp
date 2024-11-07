@@ -76,7 +76,7 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                <!-- Поле выбора вызова на работу -->
                                 <div class="form-group mb-3">
                                     <h2>{{ __('Call to Work Type') }}</h2>
-                                    @php $Vyklyk = 0; @endphp
+                                    @php $Vyklyk = 0;  @endphp
                                     @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu" 
@@ -86,6 +86,9 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                                             @if($Vyklyk == 0) checked @endif>
                                         <label class="form-check-label" for="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}">
                                             {{ __($Vyklyk_na_robotu_id->name) }}
+                                            @if($Vyklyk > 0) 
+                                            <input type="hidden" id="nedoruchni" value="{{ $Vyklyk_na_robotu_id->id }}">
+                                            @endif
                                         </label>
                                     </div>
                                     @php $Vyklyk ++; @endphp
@@ -322,9 +325,13 @@ function WListener() {
         const workerName = option.text;
         const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked').value;
         
-        // Умовне відображення варіантів оплати
-        const paymentOptions = vyklyk_na_robotu != 56
-            ? types_payment.map(type => `<option value="${type.id}" ${type.id == (oldData[workerId]?.payment || 1) ? 'selected' : ''}>${type.name}</option>`).join('')
+          // Умовне відображення варіантів оплати
+          const paymentOptions = vyklyk_na_robotu !== document.getElementById('nedoruchni').value
+            ? types_payment.map(type => `
+                <option value="${type.id}" ${type.id === (oldData[workerId]?.payment || 1) ? 'selected' : ''}>
+                    ${type.name}
+                </option>
+            `).join('')
             : `<option value="${types_payment[0].id}" selected>${types_payment[0].name}</option>`;
 
         const row = `
@@ -391,35 +398,35 @@ function WListener() {
     Array.from(workersSelect.options).find(option => option.value == workerId).selected = false;
 }
 
-function dataFilling() {
-    // Отримуємо значення з полів
-    const arrival_time = document.getElementById('arrival_time').value;
-    const start_time = document.getElementById('start_time').value;
-    const end_time = document.getElementById('end_time').value;
+    function dataFilling() {
+        // Отримуємо значення з полів
+        const arrival_time = document.getElementById('arrival_time').value;
+        const start_time = document.getElementById('start_time').value;
+        const end_time = document.getElementById('end_time').value;
 
-    // Визначаємо, яке значення встановити в інші поля (беремо перше непорожнє значення)
-    let dtt = arrival_time || start_time || end_time;
+        // Визначаємо, яке значення встановити в інші поля (беремо перше непорожнє значення)
+        let dtt = arrival_time || start_time || end_time;
 
-    // Якщо знайдено непорожнє значення, заповнюємо ним лише порожні поля
-    if (dtt) {
-        if (!arrival_time) {
-            document.getElementById('arrival_time').value = dtt;
-        }
-        if (!start_time) {
-            document.getElementById('start_time').value = dtt;
-        }
-        if (!end_time) {
-            document.getElementById('end_time').value = dtt;
+        // Якщо знайдено непорожнє значення, заповнюємо ним лише порожні поля
+        if (dtt) {
+            if (!arrival_time) {
+                document.getElementById('arrival_time').value = dtt;
+            }
+            if (!start_time) {
+                document.getElementById('start_time').value = dtt;
+            }
+            if (!end_time) {
+                document.getElementById('end_time').value = dtt;
+            }
         }
     }
-}
-let hideTimeout;
+    let hideTimeout;
 
-document.getElementById('description').addEventListener('input', (e) => {
-    posible_descriptions(e.target.value);
-});
+    document.getElementById('description').addEventListener('input', (e) => {
+        posible_descriptions(e.target.value);
+    });
 
-function posible_descriptions(description) {
+    function posible_descriptions(description) {
     var words = description.split(' ');
     if (words.length > 2) {
         fetch("{{ route('callings.getPosibleDescriptions') }}", {
@@ -445,33 +452,33 @@ function posible_descriptions(description) {
             }
         });
     }
-}
+    }
 
-function copyToDescription(description) {
-    document.getElementById('description').value = description;
-    posible_descriptions(description);
-}
+    function copyToDescription(description) {
+        document.getElementById('description').value = description;
+        posible_descriptions(description);
+    }
 
-// Додаємо затримку перед очищенням підказок при втраті фокуса
-document.getElementById('description').addEventListener('blur', (e) => {
-    hideTimeout = setTimeout(() => {
-        const showPosibleDescription = document.getElementById('Show_posible_description');
-        showPosibleDescription.innerHTML = ''; // Очистка старых значений
-    }, 300); // Затримка в 300 мс
-});
+    // Додаємо затримку перед очищенням підказок при втраті фокуса
+    document.getElementById('description').addEventListener('blur', (e) => {
+        hideTimeout = setTimeout(() => {
+            const showPosibleDescription = document.getElementById('Show_posible_description');
+            showPosibleDescription.innerHTML = ''; // Очистка старых значений
+        }, 300); // Затримка в 300 мс
+    });
 
-// Скасовуємо очищення, якщо користувач наводить курсор на підказки
-document.getElementById('Show_posible_description').addEventListener('mouseenter', () => {
-    clearTimeout(hideTimeout);
-});
+    // Скасовуємо очищення, якщо користувач наводить курсор на підказки
+    document.getElementById('Show_posible_description').addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+    });
 
-// Очищення підказок після виходу з області
-document.getElementById('Show_posible_description').addEventListener('mouseleave', () => {
-    hideTimeout = setTimeout(() => {
-        const showPosibleDescription = document.getElementById('Show_posible_description');
-        showPosibleDescription.innerHTML = ''; // Очистка старых значений
-    }, 300); // Та ж затримка
-});
+    // Очищення підказок після виходу з області
+    document.getElementById('Show_posible_description').addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+            const showPosibleDescription = document.getElementById('Show_posible_description');
+            showPosibleDescription.innerHTML = ''; // Очистка старых значений
+        }, 300); // Та ж затримка
+    });
 
 
 
