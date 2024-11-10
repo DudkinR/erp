@@ -58,15 +58,15 @@
                 
             </div>
             
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
-                </div>
-                <div class="col-md-6">
-                    <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
-                </div>
-            </div>  
+            <div class="col-md-6">
+                <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
+            </div>
+        </div>  
         <div class="container">
             <table class="table table-striped">
                 <thead>
@@ -86,6 +86,7 @@
                         <td>{{$calling->id}}</td>
                         <td>
                            @php  $mass_divisions=[]; @endphp
+                           @if($calling->personal_arrival_id!==null)
                             @foreach($calling->workers as $worker)
                                 @if($worker->pivot->worker_type_id == 6)
                                     {{ $worker->divisions[0]->name }} 
@@ -95,8 +96,12 @@
                                     <br>
                                    <u> {{$worker->phone}} </u>
                                 @endif
-                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
+                                @php
+                                    //Undefined array key 0
+                                    if(!isset($mass_divisions[$worker->divisions[0]->name])) $mass_divisions[$worker->divisions[0]->name]=[]; 
+                                @endphp
                             @endforeach
+                            @endif
                         </td>
                         <td>
                             {{$calling->description}}

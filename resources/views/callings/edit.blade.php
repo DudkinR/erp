@@ -65,7 +65,7 @@ $alarm_position=['керевник','начальник','руководител
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">{{ __('New Form Calling') }}</h1>
-            <form action="{{ route('callings.update',$calling) }}"  method="POST">
+            <form action="{{ route('callings.update',$calling) }}"  method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <!-- Form section -->
@@ -255,6 +255,18 @@ $alarm_position=['керевник','начальник','руководител
                                 </div>
                             @endforeach
                         </div>
+                        <!-- Add picture with signatures -->
+                        <div class="form-group"> 
+                            <a href="{{route('callings.print',$calling)}}" class="btn btn-success w-100" target="_blank" >{{__('Print')}}</a>
+                            <!-- if has picture with signatures  show-->
+                            @if($calling->picture)
+                                <img src="{{ asset('storage/callings/'.$calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
+                                <h3 for="add_picture">{{ __('Update picture with signatures') }}</h3>    
+                            @else
+                            <h3 for="add_picture">{{ __('Add picture with signatures') }}</h3>
+                            @endif
+                            <input type="file" id="add_picture" class="form-control" name="add_picture" accept="image/*">
+                        </div>
                         <!-- Add personnel by TN -->
                         <div class="form-group">
                             <h3 for="add_personel_tn">{{ __('Add personnel by TN') }}</h3>
@@ -262,8 +274,7 @@ $alarm_position=['керевник','начальник','руководител
                             <button type="button" class="btn btn-primary" onclick="addPersonelByTN()">{{ __('Add') }}</button>
                         </div>
                 </div>
-                <a href="{{route('callings.print',$calling)}}" class="btn btn-success w-100" target="_blank" >{{__('Print')}}</a>
-          
+           
                 <!-- Submit button -->
                 <button type="submit" class="btn btn-primary w-100">{{ __('Update') }}</button>
             </form>

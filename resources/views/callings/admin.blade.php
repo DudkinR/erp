@@ -25,7 +25,7 @@
         <div class="row">
             <div class="col-md-12">
             <h3>{{__('Form of callings')}}</h3>
-            <h1>{{__('VONtaOP')}}</h1>
+            <h1>{{__('Admin')}}</h1>
             </div>
         </div>  
         <div class="row">
@@ -38,7 +38,7 @@
                 <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                     @csrf
                     <select name="filter" class="form-control">
-                        <option value="all">{{ __('All') }}</option>
+                        <option value="">{{ __('All') }}</option>
                         <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
                         <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
                         <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
@@ -343,7 +343,6 @@
         const tableBody = document.querySelector('#callingsTable tbody');
 
         // Status mappings for colors and labels
-        // Status mappings for colors and labels
         const statusMap = {
             'for_print': { color: 'bg-info', text: '{{__('For print')}}' },
             'workshop-chief': { color: 'bg-light', text: ' {{__('Workshop chief')}}' },
@@ -356,7 +355,7 @@
             'default': { color: 'bg-danger', text: ' {{__('Not found')}}' },
         };
         // Initial render
-      //  renderTable(Vcallings);
+        
 
         // Search function
         searchInput.addEventListener('keyup', (e) => {

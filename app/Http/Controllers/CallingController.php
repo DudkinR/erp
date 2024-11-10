@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Console\View\Components\Warn;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Helpers\FileHelpers as FileHelper;
+
 
 class CallingController extends Controller
 {
@@ -29,22 +31,40 @@ class CallingController extends Controller
     public function index(Request $request)
     {
        // Get the collection of started callings
+       $alarm_position=['керевник','начальник','руководитель','директор','заступник']; 
        $type = $request->type ?? null;
        $start = $request->start ?? null;
        $finish = $request->finish ?? null;
        $filter = $request->filter ?? null;  // Ensuring it's either the filter or null
-   
+       if(Auth::user()->hasRole('admin')){ 
+        $callings = $this->filters($filter)
+        ->with(['workers.divisions','workers.positions'])
+        ->orderBy('id', 'asc')
+        ->get()
+        ->keyBy('id');
+        return view('callings.admin', compact('callings','filter','alarm_position'));
+       }
        if(Auth::user()->hasRole('VONtaOP')){
+        
+        if($filter!==null){
+           // return  $this->filters($filter)->get();
             $callings = $this->filters($filter)
-            ->where('status', 'VONtaOP')->
-            with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.VONtaOP', compact('callings','filter'));
+            //   
+                ->with(['workers.divisions','workers.positions'])
+                ->orderBy('id', 'asc')
+                ->get()
+                ->keyBy('id');
+            }
+        else{
+            $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id');
+            }
+            return view('callings.VONtaOP', compact('callings','filter','alarm_position'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
             $callings = $this->filters($filter)
             ->where('status', 'Profkom')->
             with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.Profkom', compact('callings','filter'));
+            return view('callings.Profkom', compact('callings','filter','alarm_position'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = $this->filters($filter)
@@ -52,7 +72,7 @@ class CallingController extends Controller
             with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
             ->get()->keyBy('id');            
-            return view('callings.SVNtaPB', compact('callings','filter'));
+            return view('callings.SVNtaPB', compact('callings','filter','alarm_position'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
             // Отримати всі підрозділи, до яких належить начальник
@@ -88,7 +108,7 @@ class CallingController extends Controller
             ->orwhere('personal_end_id',null)
          //   ->with(['workers.divisions'])           
              ->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.supervision', compact('callings','filter'));
+            return view('callings.supervision', compact('callings','filter','alarm_position'));
         }
         elseif( Auth::user()->hasRole('user')){
          $userPersonalId = Auth::user()->personal->id;
@@ -105,7 +125,7 @@ class CallingController extends Controller
         ->get()
         ->keyBy('id');
 
-              return view('callings.index', compact('callings','filter'));
+              return view('callings.index', compact('callings','filter','alarm_position'));
         }
 
   
@@ -138,7 +158,6 @@ class CallingController extends Controller
         } elseif ($param == 'in_vonop') {
             $query->where('status', 'VONtaOP');
         }
-    
         return $query;
     }
     
@@ -554,6 +573,31 @@ class CallingController extends Controller
             $calling->save();
             $filling++;
         }
+        /*
+                                <!-- Add picture with signatures -->
+                        <div class="form-group"> 
+                            <a href="{{route('callings.print',$calling)}}" class="btn btn-success w-100" target="_blank" >{{__('Print')}}</a>
+                            <!-- if has picture with signatures  show-->
+                            @if($calling->picture)
+                                <img src="{{ asset('storage/callings/'.$calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
+                                <h3 for="add_picture">{{ __('Update picture with signatures') }}</h3>    
+                            @else
+                            <h3 for="add_picture">{{ __('Add picture with signatures') }}</h3>
+                            @endif
+                            <input type="file" id="add_picture" class="form-control" name="add_picture" accept="image/*">
+                        </div>*/
+
+        if($request->add_picture){
+            $path = FileHelper::processAndStoreImage($request->file('add_picture'));
+            if($path){
+                $calling->picture = $path;
+                $calling->save();
+            }
+            else
+            {
+                $errors="Error wit picture";  
+            }
+        }
         if($request->payments){
             $calling->workers()->detach();
             $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
@@ -613,7 +657,9 @@ class CallingController extends Controller
             $calling->save();
         }
        // return $this->validateTimes($calling->arrival_time,  $calling->start_time, $calling->end_time);
-        return redirect()->route('callings.index');
+       // return redirect()->route('callings.index');
+       // to edit page back with errors
+         return redirect()->route('callings.edit', $calling->id );
 
     }
 
@@ -638,6 +684,14 @@ class CallingController extends Controller
         $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
         $calling = Calling::find($id);
         return view('callings.print', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
+    }
+    // printBlank
+    public function printBlank(string $id)
+    {
+        $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
+        $calling = Calling::find($id);
+        return view('callings.printBlank', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }
 
     // getPosibleDescriptions

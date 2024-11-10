@@ -35,19 +35,29 @@ if ($calling->type_id != null) {
         <!-- Заголовок и кнопка возврата -->
         <div class="row mb-4">
             <div class="col-md-12">
-                <h1>{{ __('Calling Details') }}</h1>
+             
                 <a class="btn btn-light w-100 mb-3" href="{{ route('callings.index') }}">
                     {{ __('Back') }}
                 </a>
             </div>
         </div>
-
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <a class="btn btn-info w-100 mb-3" href="{{ route('callings.printBlank', $calling->id) }}">                    
+                    {{ __('Print') }}
+                </a>  
+                 <h1>{{ __('Calling Details') }}</h1>
+            </div>
+        </div>
       <!-- Карточка вызова -->
         <div class="row">
             <div class="col-md-12">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary text-white">
                         <h4>{{ __('Calling Information') }}</h4>
+                        @if($calling->author)
+                        <h6>{{__('Created Author')}}: {{$calling->author->fio}}</h6>
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -141,7 +151,13 @@ if ($calling->type_id != null) {
                                                 <strong> {{ $DI['all_types'][$worker->pivot->worker_type_id]->name }}</strong>
                                             </div>
                                             <div class="col-md-3">
-                                                <strong>{{ $DI['all_types'][$worker->pivot->payment_type_id]->name }}</strong> 
+                                                <strong>
+                                                    @if(isset($DI['all_types'][$worker->pivot->payment_type_id]))
+                                                    {{ $DI['all_types'][$worker->pivot->payment_type_id]->name }}
+                                                    @else
+                                                    {{ __('Not specified') }}
+                                                    @endif
+                                                </strong> 
                                             </div>
                                         </div>
                                         <div class="mt-2">
@@ -180,7 +196,14 @@ if ($calling->type_id != null) {
                                                 <strong>{{ __('PIB') }}:</strong> {{ $checkin->fio }}
                                             </div>
                                             <div class="col-md-3">
-                                                <strong> {{$DI['all_types'][$checkin->pivot->checkin_type_id]->name}} </strong>
+
+                                                <strong> 
+                                                    @if(isset($DI['all_types'][$checkin->pivot->checkin_type_id]))
+                                                    {{$DI['all_types'][$checkin->pivot->checkin_type_id]->name}}
+                                                    @else
+                                                    {{ __('Not specified') }}
+                                                    @endif
+                                                 </strong>
                                             </div>
                                             <div class="col-md-1">
 

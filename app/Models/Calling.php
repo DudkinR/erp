@@ -15,14 +15,16 @@ class Calling extends Model
     // Fillable columns
     protected $fillable = [
         'description',
+        'status',
         'type_id',
-        'start_time',
-        'personal_start_id',
         'arrival_time',
-        'personal_arrival_id',
+        'personal_arrival_id', // id of the worker who made calling
+        'start_time',
+        'personal_start_id',        
         'end_time',
         'personal_end_id',
-        'author_id'
+        'author_id',
+        'picture',
     ];
 
     // Relationship to workers via a pivot table 'callings_workers'
@@ -30,6 +32,27 @@ class Calling extends Model
     {
         return $this->belongsToMany(Personal::class, 'callings_workers')
                     ->withPivot('worker_type_id', 'payment_type_id', 'comment', 'start_time', 'end_time');
+    }
+
+    // author
+    public function author()
+    {
+        return $this->belongsTo(Personal::class, 'author_id');
+    }
+    //  arrival supervisor
+    public function arrivalP()
+    {
+        return $this->belongsTo(Personal::class, 'personal_arrival_id');
+    }
+    //  start supervisor
+    public function startP()
+    {
+        return $this->belongsTo(Personal::class, 'personal_start_id');
+    }
+    //  end supervisor
+    public function endP()
+    {
+        return $this->belongsTo(Personal::class, 'personal_end_id');
     }
 
     // Relationship to checkins

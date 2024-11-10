@@ -620,6 +620,12 @@
       "Reserve form blank":"Зарезервірувати бланк",
       "Tab Number of people":"Табельний номер старшого",
       "Description of work":"Опис роботи",
+      "For print" : "Для друку",
+      "Workshop chief" : "Начальник цеху",
+      "Created" : "Створено",
+      "Supervision" : "У НЗС",
+      "Created Author" : "Автор створення",
+      "Reject" : "Відхилить",
 
     "Archives" : "Архіви"
 }
