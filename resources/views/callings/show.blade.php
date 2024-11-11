@@ -176,6 +176,13 @@ if ($calling->type_id != null) {
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if($calling->picture)
+                <img src="{{ asset($calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
+                @endif
+            </div> 
+        </div>
 
         <!-- Карточка с информацией о чекинах -->
         <div class="row mt-4">

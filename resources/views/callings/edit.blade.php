@@ -65,8 +65,7 @@ $alarm_position=['керевник','начальник','руководител
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">{{ __('New Form Calling') }}</h1>
-            <form action="{{ route('callings.update',$calling) }}"  method="POST" enctype="multipart/form-data">
-                @csrf
+            <form action="{{ route('callings.update', $calling) }}" method="POST" enctype="multipart/form-data">      @csrf
                 @method('PUT')
                 <!-- Form section -->
                 <div class="container">
@@ -260,7 +259,7 @@ $alarm_position=['керевник','начальник','руководител
                             <a href="{{route('callings.print',$calling)}}" class="btn btn-success w-100" target="_blank" >{{__('Print')}}</a>
                             <!-- if has picture with signatures  show-->
                             @if($calling->picture)
-                                <img src="{{ asset('storage/callings/'.$calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
+                                <img src="{{ asset($calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
                                 <h3 for="add_picture">{{ __('Update picture with signatures') }}</h3>    
                             @else
                             <h3 for="add_picture">{{ __('Add picture with signatures') }}</h3>

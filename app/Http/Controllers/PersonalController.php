@@ -282,7 +282,7 @@ class PersonalController extends Controller
     {
         set_time_limit(0);
         $personals= Personal::whereNotIn('tn', User::pluck('tn'))
-        ->with('user')->limit(450)
+        ->with('user')
         ->get();
         foreach ($personals as $personal) {
             if(!$user =User::where('email', $personal->email)->first()){

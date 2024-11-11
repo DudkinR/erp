@@ -72,15 +72,6 @@
                 <thead>
                     <tr>
                         @php
-                        /*
-                        <th>{{__('№')}}</th>
-                        <th>{{__('Department')}}</th>
-                        <th>{{__('Name')}}</th>
-                        <th>{{__('Call')}}</th>
-                        <th>{{__('In work')}}</th>
-                        <th>{{__('Completed')}}</th>
-                        <th>{{__('Number of people')}}</th>
-                        */
                         @endphp
                         <th>{{__('№ of form')}}</th>
                         <th>{{__('Name')}}</th>
@@ -96,54 +87,13 @@
                     @foreach($callings as $calling)
                     <tr>
                         <td>{{$calling->id}}</td>
-                        <td>{{$calling->id}}</td>
-                        <td>
-                           @php  $mass_divisions=[]; @endphp
-                           @if($calling->personal_arrival_id!==null)
-                            @foreach($calling->workers as $worker)
-                                @if($worker->pivot->worker_type_id == 6)
-                                    {{ $worker->divisions[0]->name }} 
-                                    <br>
-                                    @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
-                                   <b> {{$fn}}</b>
-                                    <br>
-                                   <u> {{$worker->phone}} </u>
-                                @endif
-                                @php
-                                    //Undefined array key 0
-                                    if(!isset($mass_divisions[$worker->divisions[0]->name])) $mass_divisions[$worker->divisions[0]->name]=[]; 
-                                @endphp
-                            @endforeach
-                            @endif
-                        </td>
-                        <td>
-                            {{$calling->description}}
+                        <td>{{$calling->description}}
                             <a href="{{ route('callings.edit', $calling->id) }}" class ="btn w-100 btn-warning">
-                            {{__("Edit")}}                                
-                            </a>
-                            <a href="{{ route('callings.show', $calling->id) }}" class ="btn w-100 btn-info">
-                            {{__("Show")}}                                
-                            </a>
-                            
-                        </td>                        
-                        <td title="{{ $calling->arrival_time }}"
-                            @if($calling->arrival_time==null && $calling->personal_arrival_id==null)
-                                style="background-color: #ff8040 "
-                                @elseif($calling->arrival_time!==null && $calling->personal_arrival_id==null)
-                                style="background-color: ##ffff80"
-                            @endif
-                            >
-                            @if($calling->arrival_time!==null && $calling->personal_arrival_id!==null)
-
-                            {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}
-
-                            @elseif($calling->arrival_time!==null && $calling->personal_arrival_id==null)
-
-                            <a class="btn btn-warning" title="{{__('Confirm')}}"> {{ \Carbon\Carbon::parse($calling->arrival_time)->format('H:i') }}</a>
-
-                            @else
-                            ------
-                            @endif
+                                {{__("Edit")}}                                
+                                </a>
+                                <a href="{{ route('callings.show', $calling->id) }}" class ="btn w-100 btn-info">
+                                {{__("Show")}}                                
+                                </a>
                         </td>
                         <td title="{{ $calling->start_time }}"
                             @if($calling->start_time==null && $calling->personal_start_id==null)
@@ -160,7 +110,6 @@
                             -----
                             @endif
                         </td>
-
                         <td title="{{ $calling->end_time }}"
                             @if($calling->end_time==null && $calling->personal_end_id==null)
                                 style="background-color: #ff8040 "
@@ -178,12 +127,37 @@
                             @endif
                         </td>
                         <td>
-                            @foreach($mass_divisions as $key=>$value)
-                                <a href="" title="@foreach($value as $v){{$v}} &#13;@endforeach">
-                                    {{$key}} -  {{count($value)}}
-
-                                </a>
+                           @php  
+                           $mass_divisions=[]; 
+                           $Kerivnyk_bryhady=App\Models\Type::where('name','Керівник бригади')->first();
+                           @endphp
+                            @foreach($calling->workers as $worker)
+                                      {{ $worker->divisions[0]->name }} 
+                                    <hr>                                 
                             @endforeach
+
+                            
+                        </td>
+                        <td>
+                            @foreach($calling->workers as $worker)
+                      
+                      
+                               <b> {{$worker->positions[0]->name}}</b>
+                                <hr>
+                        @endforeach
+                            
+                        </td>                        
+                        <td >
+                            @foreach($calling->workers as $worker)
+                                {{$worker->fio}}
+                                <hr>
+                            @endforeach
+                        </td>
+                       
+
+                        
+                        <td> 
+                            {{$calling->start_personal_id}}
                         </td>
                     </tr>
                     @endforeach

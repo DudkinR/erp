@@ -574,15 +574,19 @@ class CallingController extends Controller
             $filling++;
         }
         if($request->add_picture){
-            $path = FileHelper::processAndStoreImage($request->file('add_picture'));
-            if($path){
-                $calling->picture = $path;
-                $calling->save();
-            }
-            else
-            {
-                $errors="Error wit picture";  
-            }
+            //dd($request->file('add_picture')); // Перевірити, чи файл присутній
+                 if ($request->hasFile('add_picture')) {
+                    $file = $request->file('add_picture');
+                    $old_delete_file = public_path() . $calling->picture;
+                    if (file_exists($old_delete_file)) {
+                        unlink($old_delete_file);
+                    }
+                    $file->move(public_path() . '/callings/', $file->getClientOriginalName());
+                    $img_path = '/callings/'. $file->getClientOriginalName();
+                    $calling->picture = $img_path;
+                    $calling->save();
+                }
+           
         }
         if($request->payments){
             $calling->workers()->detach();
