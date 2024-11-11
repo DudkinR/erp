@@ -112,13 +112,13 @@ class RiskController extends Controller
         
         }
    //return $reasons;
-        
+        $ncouses=0;
         foreach ($events as $event) {
             $yearsAgo = $currentYear - $event['year'];
     
             // Определение вероятности (В) на основе 'npp' и 'year'
             if ($event['npp'] == 3) {
-                $V = 5; // актуальное для станции
+                $V = 7; // актуальное для станции
             } elseif ($event['npp'] == 1) {
                 $V = 3; // для страны
             } else {
@@ -126,7 +126,10 @@ class RiskController extends Controller
             }
     
             // Коррекция вероятности в зависимости от года события (чем старше, тем меньше вероятность) 0 to 100  
-            if ($yearsAgo <=  2) {
+            if ($yearsAgo > 2) {
+                $V = $V;
+            } elseif 
+             ($yearsAgo <=  2) {
                 $V = $V * 0.9;
             } elseif ($yearsAgo <=  5) {
                 $V = $V * 0.8;
@@ -141,7 +144,7 @@ class RiskController extends Controller
             }
     
             // Ограничение вероятности до 5
-            $V = min($V, 5);
+            $V = min($V, 7);
     
             // Тяжесть последствий (Т)
             $T = $event['consequence'];
@@ -155,18 +158,18 @@ class RiskController extends Controller
            // couses 
               $reasons = $event->reasons->pluck('id')->toArray();
             foreach ($reasons as $reason){
-                
-                if(!isset($RS[$reason])) $RS[$reason] = 1;
+                if(!isset($RS[$reason])) 
+                $RS[$reason] = 1;
                 else
                 $RS[$reason] += 1;
+
+                $ncouses++;
             }
 
         }
         $RS = array_map(function($value) use ($n){
-            return $value/$n;
+            return ($value*100)/$ncouses;
         }, $RS);
-        
-    
          return ['result'=>$result/$n, 'n'=>$n, 'reasons'=>$RS];
     }
 

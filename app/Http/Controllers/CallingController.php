@@ -573,20 +573,6 @@ class CallingController extends Controller
             $calling->save();
             $filling++;
         }
-        /*
-                                <!-- Add picture with signatures -->
-                        <div class="form-group"> 
-                            <a href="{{route('callings.print',$calling)}}" class="btn btn-success w-100" target="_blank" >{{__('Print')}}</a>
-                            <!-- if has picture with signatures  show-->
-                            @if($calling->picture)
-                                <img src="{{ asset('storage/callings/'.$calling->picture) }}" alt="{{__('Picture with signatures')}}" class="img-fluid">
-                                <h3 for="add_picture">{{ __('Update picture with signatures') }}</h3>    
-                            @else
-                            <h3 for="add_picture">{{ __('Add picture with signatures') }}</h3>
-                            @endif
-                            <input type="file" id="add_picture" class="form-control" name="add_picture" accept="image/*">
-                        </div>*/
-
         if($request->add_picture){
             $path = FileHelper::processAndStoreImage($request->file('add_picture'));
             if($path){

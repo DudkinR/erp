@@ -13,70 +13,76 @@ if ($calling->type_id != null) {
     $ParentType = $CallingType ? \App\Models\Type::find($CallingType->parent_id) : null;
 }
 @endphp
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>{{__('Calling form')}}  
-                <span  style="font-size: 70%; border-bottom: 1px solid #000; padding-top: 5px;"
-                > {{__('from')}} {{$calling->created_at->format('d.m.Y')}}</span>
-                 № {{$calling->id}}</h1>
-            <h2>{{__('Type')}}: <u> {{$ParentType->name}}</u></h2>
-            <h3>{{__('Start time')}}: 
-                <u>
-                    @if($calling->start_time)
-                         {{ \Carbon\Carbon::parse($calling->start_time)->format('H година i хв. d.m.Y') }}
-                    @else
-                        {{ __('Not specified') }}
-                    @endif
-                </u>
-            </h3>
-            <h4 title="{{$CallingType->name}}">
-                {{$CallingType->description}}
-            </h4>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h3>{{__('Description')}}</h3>
-            <p>{{$calling->description}}</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h3>{{__('Team`s complition')}}</h3>
-            <table class="table table-bordered">                
-                <thead>
-                    <tr>
-                        <th>{{__('FIO')}}</th>
-                        <th>{{__('tab.#')}}</th>
-                        <th>{{__('Position')}}</th>
-                        <th>{{__('Time calling is')}}</th>
-                        <th>{{__('Signature')}}</th>
-                    </tr>
-                <tbody>
-                    @foreach($calling->workers as $worker)
-                    <tr>
-                        <td>{{$worker->fio}}</td>
-                        <td>{{$worker->tn}}</td>
-                        <td>{{$worker->positions[0]->name }}</td>
-                        <td>
-                            {{$Oplata_pratsi_ids->where('id', $worker->pivot->payment_type_id)->first()->name}}
-                        </td>
-                        <td></td>
+<div class="container" lang="UK" style="tab-interval:35.4pt">
 
-                   
-                    </tr>
-                    @endforeach
-                    
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <p>{!!__('text zgoda')!!}</p>
-        </div>
-    </div>
+<div class="WordSection1">
+
+    <p class="MsoNormal"><b>БЛАНК від <u>{{ date('d.m.Y', strtotime($calling->start_time)) }} № {{$calling->id}}</u></b></p>
+
+    <p class="MsoNormal">
+        @if($ParentType->name == 'Надурочні роботи')
+       <u> виклику на роботу в надурочний час, </u>
+        неробочі, вихідні і святкові дні
+        @else
+        виклику на роботу в надурочний час, 
+       <u>  неробочі, вихідні і святкові дні</u>
+        @endif
+    </p>
+
+    <p class="MsoNormal" style="font-size:9.0pt; margin-top:-14pt;">(необхідне підкреслити)</p>
+
+    <p class="MsoNormal" style="margin-top:6.0pt">Час виклику:<u>{{ date('d.m.Y H', strtotime($calling->arrival_time)) }}</u> година <u>{{ date('i', strtotime($calling->arrival_time)) }}</u>хв. <b> <u>{{ \App\Models\Personal::where('tn', $calling->personal_arrival_id )->first()->fio }}</u></b></p>
+
+    <p class="MsoNormal" >Час прибуття бригади <u>{{ date('H', strtotime($calling->start_time)) }} </u> година <u>{{ date('i', strtotime($calling->start_time)) }}</u> хв. у складі <u>{{$calling->workers->count()}}</u> осіб підтверджую:</p>
+
+    <p class="MsoNormal">НЗ АЕС (НЗЦ, НЗ КГ) <b> <u>{{ \App\Models\Personal::where('tn', $calling->personal_start_id )->first()->fio }}</u></b></p>
+
+    <p class="MsoNormal" style="font-size:9.0pt; margin-top:-14pt;">(необхідне підкреслити) підпис ПІБ</p>
+
+    <p class="MsoNormal" style="margin-bottom:6.0pt;">Склад бригади:</p>
+
+    <table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+    <tr>
+    <td width="101" rowspan="2" valign="top">П.І.Б.</td>
+    <td width="60" rowspan="2" valign="top">таб. №</td>
+    <td width="144" rowspan="2" valign="top">посада, професія</td>
+    <td width="252" colspan="3" valign="top">Час роботи за викликом підлягає</td>
+    <td width="96" rowspan="2" valign="top">Підпис працівника</td>
+    </tr>
+    <tr>
+    <td width="126" >оплаті	</td>
+     <td width="126" >наданню іншого дня відпочинку наданню</td>
+    </tr>
+    </table>
+
+    Керівник бригади___________________  _______________________    _________ <br>
+                                            підпис                                      ПІБ                               дата<br>
+Виклик бригади даного складу  для ___________________________________________________<br>
+__________________________________________________________________________________<br>
+(найменування роботи)<br>
+підтверджую:<br>
+НЗ АЕС (НЗЦ, НЗ КГ) __________________   ____________________________<br>
+    (необхідне підкреслити)                     підпис                                          ПІБ<br>
+    <br>
+Роботи з усунення несправності (вантажно-розвантажувальні роботи) закінчені, бригада відправлена додому в ______ годину ______хв. дата_____________<br>
+НЗ АЕС (НЗЦ, НЗ КГ)  ____________        ______________<br>
+    (необхідне підкреслити)               підпис                          ПІБ<br>
+
+Начальник підрозділу: _____________         ______________<br>
+                                                підпис                               ПІБ<br>
+
+Взяття на облік виклику:<br>
+
+Начальник СВНіПБ _____________ ______________________ _____________<br>
+                                              підпис                         ПІБ                               дата<br>
+
+Надано дозвіл:<br>
+
+Голова профкому     _________________<br>
+
+
+</div>
+
     <div class="row" id="button_area">
         <div class="col-md-12">
             <button class="btn btn-light w-100" onclick="printPage()">{{__('Print')}}</button>

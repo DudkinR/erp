@@ -280,7 +280,33 @@ class PersonalController extends Controller
     //import personal data from csv file
     public function import()
     {
-        return view('personals.import');
+        set_time_limit(0);
+        $personals= Personal::whereNotIn('tn', User::pluck('tn'))
+        ->with('user')->limit(450)
+        ->get();
+        foreach ($personals as $personal) {
+            if(!$user =User::where('email', $personal->email)->first()){
+            // Створюємо нового користувача
+            $user = new User([
+                'tn' => $personal->tn,
+                'name' => $personal->fio,
+                'email' => $personal->email,
+                'password' => bcrypt($personal->tn)
+            ]);}
+            else {
+                $user->tn=$personal->tn;
+                $user->name=$personal->fio;
+                 $user->password= bcrypt($personal->tn);
+            }
+            $user->save();
+
+            // Додаємо роль для користувача
+            $user->roles()->attach(4);
+        }
+         Personal::whereNotIn('tn', User::pluck('tn'))
+        ->with('user')
+        ->get()->count();
+       return  view('personals.import');
     }
     // import personal data from csv file to database
     public function importData(Request $request)

@@ -30,7 +30,7 @@
                 <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                     @csrf
                     <select name="filter" class="form-control">
-                        <option value="">{{ __('All') }}</option>
+                        <option value="all">{{ __('All') }}</option>
                         <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
                         <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
                         <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
@@ -71,6 +71,8 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        @php
+                        /*
                         <th>{{__('№')}}</th>
                         <th>{{__('Department')}}</th>
                         <th>{{__('Name')}}</th>
@@ -78,11 +80,22 @@
                         <th>{{__('In work')}}</th>
                         <th>{{__('Completed')}}</th>
                         <th>{{__('Number of people')}}</th>
+                        */
+                        @endphp
+                        <th>{{__('№ of form')}}</th>
+                        <th>{{__('Name')}}</th>
+                        <th>{{__('Start')}}</th>
+                        <th>{{__('Completed')}}</th>
+                        <th>{{__('Department')}}</th>
+                        <th>{{__('Position')}}</th>
+                        <th>{{__('PIB')}}</th>
+                        <th>{{__('SS')}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($callings as $calling)
                     <tr>
+                        <td>{{$calling->id}}</td>
                         <td>{{$calling->id}}</td>
                         <td>
                            @php  $mass_divisions=[]; @endphp
