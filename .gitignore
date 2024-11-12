@@ -1,5 +1,6 @@
 /.phpunit.cache
 /public/hot
+/public/callings
 /storage/*.key
 /vendor
 .env
