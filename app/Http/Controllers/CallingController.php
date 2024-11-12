@@ -36,13 +36,14 @@ class CallingController extends Controller
        $start = $request->start ?? null;
        $finish = $request->finish ?? null;
        $filter = $request->filter ?? null;  // Ensuring it's either the filter or null
+       $DI = $this->publicInformation();
        if(Auth::user()->hasRole('admin')){ 
         $callings = $this->filters($filter)
         ->with(['workers.divisions','workers.positions'])
         ->orderBy('id', 'asc')
         ->get()
         ->keyBy('id');
-        return view('callings.admin', compact('callings','filter','alarm_position'));
+        return view('callings.admin', compact('callings','filter','alarm_position' ,'DI'));
        }
        if(Auth::user()->hasRole('VONtaOP')){
         
@@ -58,13 +59,13 @@ class CallingController extends Controller
         else{
             $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id');
             }
-            return view('callings.VONtaOP', compact('callings','filter','alarm_position'));
+            return view('callings.VONtaOP', compact('callings','filter','alarm_position' ,'DI'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
             $callings = $this->filters($filter)
             ->where('status', 'Profkom')->
             with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.Profkom', compact('callings','filter','alarm_position'));
+            return view('callings.Profkom', compact('callings','filter','alarm_position' ,'DI'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = $this->filters($filter)
@@ -72,7 +73,7 @@ class CallingController extends Controller
             with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
             ->get()->keyBy('id');            
-            return view('callings.SVNtaPB', compact('callings','filter','alarm_position'));
+            return view('callings.SVNtaPB', compact('callings','filter','alarm_position' ,'DI'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
             // Отримати всі підрозділи, до яких належить начальник
@@ -108,7 +109,7 @@ class CallingController extends Controller
             ->orwhere('personal_end_id',null)
          //   ->with(['workers.divisions'])           
              ->orderBy('id', 'asc')->get()->keyBy('id');
-            return view('callings.supervision', compact('callings','filter','alarm_position'));
+            return view('callings.supervision', compact('callings','filter','alarm_position' ,'DI'));
         }
         elseif( Auth::user()->hasRole('user')){
          $userPersonalId = Auth::user()->personal->id;
@@ -125,7 +126,7 @@ class CallingController extends Controller
         ->get()
         ->keyBy('id');
 
-              return view('callings.index', compact('callings','filter','alarm_position'));
+              return view('callings.index', compact('callings','filter','alarm_position' ,'DI'));
         }
 
   
@@ -344,13 +345,14 @@ class CallingController extends Controller
         $calling->author_id=Auth::user()->personal->id;
         $calling->arrival_time = now();
         $calling->description = $request->description;
+        $calling->type_id = $request->type_of_work;
         $calling->save();
         $worker=Personal::where('tn',$request->tab_number)->first();
         $Kerivnyk_bryhady = Type::where('slug', 'Kerivnyk-bryhady')->first();
         $calling->workers()->attach($worker->id, ['worker_type_id' => $Kerivnyk_bryhady->id, 'payment_type_id' =>0, 'comment' => null, 'start_time' => NULL, 'end_time' => NULL]);
         // send massege to email
         Mail::raw($mail_text, function ($message) use ($mail) {
-            $message->to($mail)
+           return  $message->to($mail)
                     ->subject("New Calling Created");
         });
         return redirect()->route('callings.index');
@@ -581,8 +583,9 @@ class CallingController extends Controller
                     if ($calling->picture && file_exists($old_delete_file)) {
                         unlink($old_delete_file);
                     }
-                    $file->move(public_path() . '/callings/', $file->getClientOriginalName());
-                    $img_path = '/callings/'. $file->getClientOriginalName();
+                    $new_name=now()->timestamp."_".Auth::user()->tn.".".$file->getClientOriginalExtension();
+                    $file->move(public_path() . '/callings/', $new_name);
+                    $img_path = '/callings/'.$new_name;
                     $calling->picture = $img_path;
                     $calling->save();
                 }

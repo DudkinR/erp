@@ -181,14 +181,32 @@
                     <input type="hidden" name="calling_id" id="calling_id_reserve">
                     <div class="form-group">
                         <label for="tab_number">{{__('Tab Number of people')}}</label>
-                        <input type="number" name="tab_number" id="tab_number" class="form-control"                         
-                        onblur="WhatPersonelByTN()">
-                        <div id=show_personel></div>
-
+                        <input type="hidden" name="tab_number" id="tab_number" class="form-control" value="{{Auth::user()->tn}}">
+                        <div id=show_personel>
+                            {{Auth::user()->personal->fio}}
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="description">{{__('Description of work')}}</label>
-                        <textarea name="description" id="description" class="form-control"></textarea>
+                        <textarea name="description" id="description" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="type_of_work">{{__('Type of work')}}</label>
+                        <select name="type_of_work" id="type_of_work" class="form-control" required>
+                            @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
+                            <optgroup label="{{$Vyklyk_na_robotu_id->name}}">
+                                @foreach($DI['works_names'] as $parent_id=>$work_type)
+                                 @if( $Vyklyk_na_robotu_id->id == $parent_id)
+                                  @foreach($work_type as $key=>$work) 
+                                  <option value="{{$key}}">
+                                    {{$work['name']}}
+                                    </option>
+                                  @endforeach
+                                 @endif                                     
+                                @endforeach
+                            </optgroup>
+                            @endforeach
+                        </select>
                     </div>
                     <button class="btn btn-success">{{__('Reserve')}}</button>
                 </form>

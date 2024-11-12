@@ -30,6 +30,14 @@
         </div>  
         <div class="row">
             <div class="col-md-6">
+                <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
+            </div>
+            <div class="col-md-6">
+                <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
+            </div>
+        </div>  
+        <div class="row">
+            <div class="col-md-6">
                 <a href="{{route('callings.printOrder')}}" class="btn btn-light w-100">{{__('Print')}}</a>
 
             </div>
@@ -211,6 +219,51 @@
         
         </div>
     </div>
+</div><div class="modal" id="modalReserve">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{__('Reserve form blank')}}</h5>
+                <button onclick="hideModalReserve()" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{route('callings.reserveStore')}}" method="POST">
+                    @csrf
+                    <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <div class="form-group">
+                        <label for="tab_number">{{__('Tab Number of people')}}</label>
+                        <input type="number" name="tab_number" id="tab_number" class="form-control"                         
+                        onblur="WhatPersonelByTN()" required>
+                        <div id=show_personel></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="description">{{__('Description of work')}}</label>
+                        <textarea name="description" id="description" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="type_of_work">{{__('Type of work')}}</label>
+                        <select name="type_of_work" id="type_of_work" class="form-control" required>
+                            @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
+                            <optgroup label="{{$Vyklyk_na_robotu_id->name}}">
+                                @foreach($DI['works_names'] as $parent_id=>$work_type)
+                                 @if( $Vyklyk_na_robotu_id->id == $parent_id)
+                                  @foreach($work_type as $key=>$work) 
+                                  <option value="{{$key}}">
+                                    {{$work['name']}}
+                                    </option>
+                                  @endforeach
+                                 @endif                                     
+                                @endforeach
+                            </optgroup>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button class="btn btn-success">{{__('Reserve')}}</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal" id="modalWin">
     <div class="modal-dialog">
@@ -308,7 +361,9 @@
             // Now we can use `forEach` on Vcallings
 
     
-
+            function hideModalReserve(){
+                $('#modalReserve').modal('hide');
+            }
       //  console.log(Vcallings); 
 
         

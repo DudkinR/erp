@@ -140,8 +140,15 @@ $workers = $personnelInSameDivisions ? $personnelInSameDivisions : [];
                 <div class="form-section">
                     <div class="form-group">
                         <h2 for="Type_of_work">{{ __('Type of work') }}:</h2>
-                        <select id="Type_of_work" class="form-control" name="Type_of_work" onchange="DisplayWorkInfo(this.value)" required>
+
+                        <select id="Type_of_work" class="form-control" name="Type_of_work" required>
                             <option value="">{{ __('Select work type') }}</option>
+                        
+                            @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
+                                <optgroup label="{{ __($Vyklyk_na_robotu_id->name) }}">
+                                   
+                                </optgroup>
+                            @endforeach
                         </select>
                     </div>
                 </div>
