@@ -578,7 +578,7 @@ class CallingController extends Controller
                  if ($request->hasFile('add_picture')) {
                     $file = $request->file('add_picture');
                     $old_delete_file = public_path() . $calling->picture;
-                    if (file_exists($old_delete_file)) {
+                    if ($calling->picture && file_exists($old_delete_file)) {
                         unlink($old_delete_file);
                     }
                     $file->move(public_path() . '/callings/', $file->getClientOriginalName());

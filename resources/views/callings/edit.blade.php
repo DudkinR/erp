@@ -61,7 +61,15 @@ $alarm_position=['керевник','начальник','руководител
     @if(session('error'))
         <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
-
+    <!-- Заголовок и кнопка возврата -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            
+            <a class="btn btn-light w-100 mb-3" href="{{ route('callings.index') }}">
+                {{ __('Back') }}
+            </a>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">{{ __('New Form Calling') }}</h1>
