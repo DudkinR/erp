@@ -82,7 +82,7 @@ $alarm_position=['керевник','начальник','руководител
                         <div class="col-md-6">
                             <div class="form-section">
                                <!-- Поле выбора вызова на работу -->
-                               <div class="form-group mb-3">
+                                <div class="form-group mb-3">
                                 <h2>{{ __('Call to Work Type') }}</h2>
                                 @php
                                 $CallingType = null;
@@ -95,28 +95,25 @@ $alarm_position=['керевник','начальник','руководител
                                     $CallingType = \App\Models\Type::where('slug', 'Oplata-pratsi')->first();
                                     $ParentType = $CallingType ? \App\Models\Type::find($CallingType->parent_id) : null;
                                 }
-                                @endphp
-                            
-                                @foreach($DI['Vyklyk_na_robotu_ids'] as $Vyklyk_na_robotu_id)
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}" name="vyklyk_na_robotu"                                    
-                                        value="{{ $Vyklyk_na_robotu_id->id }}" 
-                                        onclick="Select_type_of_work({{ $Vyklyk}})"
-                                        @if($ParentType && $ParentType->id == $Vyklyk_na_robotu_id->id) checked @endif>
-                            
-                                    <label class="form-check-label" for="vyklyk_na_robotu_{{ $Vyklyk_na_robotu_id->id }}">
-                                        {{ __($Vyklyk_na_robotu_id->name) }}
-                                        @if($Vyklyk > 0) 
-                                            <input type="hidden" id="nedoruchni" value="{{ $Vyklyk_na_robotu_id->id }}">
-                                            @endif
-                                    </label>
-                                </div>
-                                @php $Vyklyk ++; @endphp
-                                @endforeach
-                            </div>
-                            
-                
+                               // dd($DI['Vyklyk_na_robotu_ids']);
+                                @endphp                            
+                                @foreach($DI['Vyklyk_na_robotu_ids'] as  $vid=>$Vyklyk_na_robotu_id)
                                
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="vyklyk_na_robotu_{{ $vid }}" name="vyklyk_na_robotu"                                    
+                                            value="{{ $vid }}" 
+                                            onclick="Select_type_of_work({{$vid}})"
+                                            @if($ParentType && $ParentType->id == $Vyklyk_na_robotu_id->id) checked @endif>                                
+                                        <label class="form-check-label" for="vyklyk_na_robotu_{{ $vid }}">
+                                            {{ __($Vyklyk_na_robotu_id->name) }}
+                                            @if($Vyklyk > 0) 
+                                                <input type="hidden" id="nedoruchni" value="{{ $vid }}">
+                                                @endif
+                                        </label>
+                                    </div>
+                                    @php $Vyklyk ++; @endphp
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                 
@@ -126,6 +123,7 @@ $alarm_position=['керевник','начальник','руководител
                                 <div class="form-group mb-3">
                                     <h2 for="arrival_time">{{ __('Arrival Time') }}</h2>
                                     <input type="datetime-local" id="arrival_time" class="form-control" name="arrival_time"
+                                    onblur="FillTime(this)"
                                     @if($calling->arrival_time==null) value= "" style="background-color: yellow"
                                     @else
                                      value= "{{ date('Y-m-d\TH:i', strtotime($calling->arrival_time)) }}" 
@@ -136,12 +134,11 @@ $alarm_position=['керевник','начальник','руководител
                                 <div class="form-group mb-3">
                                     <h2 for="start_time" title="{{ __('Go to KPP') }}">{{ __('Start Time') }}</h2>
                                     <input type="datetime-local" id="start_time" class="form-control" name="start_time"
+                                    onblur="FillTime(this)"
                                     @if($calling->start_time==null) value= "" style="background-color: yellow"
-
                                     @else
                                         value= "{{ date('Y-m-d\TH:i', strtotime($calling->start_time)) }}" 
                                     @endif
-
                                 required>
                                 </div>
                 
@@ -149,6 +146,7 @@ $alarm_position=['керевник','начальник','руководител
                                 <div class="form-group mb-3">
                                     <h2 for="end_time">{{ __('End Time') }}</h2>
                                     <input type="datetime-local" id="end_time" class="form-control" name="end_time"
+                                    onblur="FillTime(this)"
                                     @if($calling->end_time==null) value= "" style="background-color: yellow"
                                     @else
                                         value= "{{ date('Y-m-d\TH:i', strtotime($calling->end_time)) }}" 
@@ -159,8 +157,6 @@ $alarm_position=['керевник','начальник','руководител
                         </div>
                     </div>
                 </div>
-                
-
                 <!-- Description textarea -->
                 <div class="form-section">
                     <div class="form-group">
@@ -180,7 +176,6 @@ $alarm_position=['керевник','начальник','руководител
                                 {{ $type['name'] }}
                             </option>
                         @endforeach
-
                         @else
                             <option value="" disabled>{{ __('No work types available') }}</option>
                         @endif
@@ -290,43 +285,39 @@ $alarm_position=['керевник','начальник','руководител
 </div>
 
 <script>
-        // Работы и их описание
-        const works_names = @json($DI['works_names']);
-        const all_types = @json($DI['all_types']);
-        const alarm_position =@json($alarm_position);
-        var workers = @json($calling->workers);
-        const  types_payment = Object.values(@json($DI['Oplata_pratsi_ids']));
-        console.log(types_payment);
-       // console.log(all_types[1].name);
-        var Type_of_work;
-        function Select_type_of_work(work_type_id) {
-            if (!works_names[work_type_id]) {
-            console.error("Невірний ID типу роботи:", work_type_id);
-            return;
-            }
-            // Очистка предыдущих опций
-            var select = document.getElementById('Type_of_work');
-            select.innerHTML = ''; // Очистка старых значений
-            const type_id_before = document.querySelector('input[name="type_id_before"]').value;
-            var info_select = 0;   
-
-            // Получение конечных типов работ по выбранному типу работы
-            var Type_of_work = works_names[work_type_id];
-
-            // Заполнение выпадающего списка
-            for (var finish_type_id in Type_of_work) {
-                var finish_type = Type_of_work[finish_type_id];
-                var option = document.createElement('option');
-                option.value = finish_type_id;  // Устанавливаем ID как значение
-                option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
-                if (finish_type_id == type_id_before) {
-                    option.selected = true;
-                    DisplayWorkInfo(type_id_before); // Показ информации для выбранного типа работы
-                    info_select = 1;
-                }
-                select.appendChild(option);
+// Работы и их описание
+const works_names = @json($DI['works_names']);
+const all_types = @json($DI['all_types']);
+const alarm_position =@json($alarm_position);
+var workers = @json($calling->workers);
+const  types_payment = Object.values(@json($DI['Oplata_pratsi_ids']));
+var Type_of_work;
+function Select_type_of_work(work_type_id) {
+    
+    if (!works_names[work_type_id]) {
+    console.error("Невірний ID типу роботи:", work_type_id);
+    return;
     }
-
+    // Очистка предыдущих опций
+    var select = document.getElementById('Type_of_work');
+    select.innerHTML = ''; // Очистка старых значений
+    const type_id_before = document.querySelector('input[name="type_id_before"]').value;
+    var info_select = 0;   
+    // Получение конечных типов работ по выбранному типу работы
+    var Type_of_work = works_names[work_type_id];
+    // Заполнение выпадающего списка
+    for (var finish_type_id in Type_of_work) {
+        var finish_type = Type_of_work[finish_type_id];
+        var option = document.createElement('option');
+        option.value = finish_type_id;  // Устанавливаем ID как значение
+        option.text = finish_type.name; // Устанавливаем имя конечного типа работы как текст
+        if (finish_type_id == type_id_before) {
+            option.selected = true;
+            DisplayWorkInfo(type_id_before); // Показ информации для выбранного типа работы
+            info_select = 1;
+        }
+        select.appendChild(option);
+    }
     // Автоматически показать информацию для первого конечного типа работы, если он есть
     if (select.options.length > 0 && info_select == 0) {
         DisplayWorkInfo(select.options[0].value); // Показ информации для первого типа работы
@@ -335,7 +326,8 @@ $alarm_position=['керевник','начальник','руководител
 
 function ExtractText(id) {
     let result = [];
-    let current_type = all_types.find(x => x.id == id);
+ //   console.log(id); 
+    let current_type = all_types[id];
     result.push("<b>" + current_type.name + "</b><br> " + current_type.description);
     return result;
 }
@@ -359,167 +351,174 @@ function DisplayWorkInfo(finish_type_id) {
 
 
 
-            function addPersonelByTN() {
-        const tn = document.getElementById('add_personel_tn').value;
+function addPersonelByTN() {
+    const tn = document.getElementById('add_personel_tn').value;
 
-        fetch("{{ route('callings.getPersonalForTN') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ tn })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Network response was not ok");
-            return response.json();
-        })
-        .then(data => {
-            if (data && Array.isArray(data) && data.length > 0 && data[0] && typeof data[0] === 'object') {
- 
-                let worker = data[0];
+    fetch("{{ route('callings.getPersonalForTN') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ tn })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+    })
+    .then(data => {
+        if (data && Array.isArray(data) && data.length > 0 && data[0] && typeof data[0] === 'object') {
 
-                // Добавляем поле "pivot" с нужными значениями
-                worker.pivot = {
-                    calling_id: 9, // можно динамически передавать значение
-                    personal_id: worker.id,
-                    worker_type_id: null, // или заменить на значение по умолчанию
-                    payment_type_id: null, // или заменить на значение по умолчанию
-                    comment: null
-                };
+            let worker = data[0];
 
-                // Добавляем работника в массив workers
-                workers.push(worker);
+            // Добавляем поле "pivot" с нужными значениями
+            worker.pivot = {
+                calling_id: 9, // можно динамически передавать значение
+                personal_id: worker.id,
+                worker_type_id: null, // или заменить на значение по умолчанию
+                payment_type_id: null, // или заменить на значение по умолчанию
+                comment: null
+            };
 
-                // Очищаем поле ввода
-                document.getElementById('add_personel_tn').value = '';
+            // Добавляем работника в массив workers
+            workers.push(worker);
 
-                // Обновляем отображение списка работников
-                WListener();
-            } else {
-        console.error("Невірний формат даних або пустий результат:", data);
-                }
-            })
-            .catch(error => {
-                console.error("Помилка при отриманні даних:", error);
-            });
-        }
+            // Очищаем поле ввода
+            document.getElementById('add_personel_tn').value = '';
 
-
-            var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
-            function ReadValWorkers() {
-                var workersSelect = document.getElementById('workers');
-                var old_values = [];
-                Array.from(workersSelect.selectedOptions).forEach(option => {
-                    old_values.push(option.value);
-                });
-                return old_values;
-            }
-
-            function WListener() {
-                if (!Array.isArray(types_payment)) {
-                    console.error("types_payment не є масивом або не визначений");
-                    return;
-                }
-                const showWorkers = document.getElementById('show_workers');
-                showWorkers.innerHTML = ''; // Очищаем существующие строки
-               // val OldValWorkers = ReadValWorkers();
-                // Проверяем, есть ли рабочие в массиве
-                if (!workers || workers.length === 0) {
-                    showWorkers.innerHTML = '<p>No workers available</p>'; // Сообщение, если список пуст
-                    return;
-                }
-
-                workers.forEach(worker => {
-                    const workerId = worker.id;
-                    const workerName = worker.fio;
-                    const positionName = worker.positions && worker.positions.length > 0 ? worker.positions[0].name : 'No Position';
-
-                    const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked');
-                    const vyklykValue = vyklyk_na_robotu ? vyklyk_na_robotu.value : null; // Проверка наличия выбранного элемента
-
-                    const payment_type_id = worker.pivot.payment_type_id;
-                    const worker_type_id = worker.pivot.worker_type_id;
-                    const comments = worker.pivot.comments ? worker.pivot.comments : ''; // По умолчанию пустая строка, если не указано
-
-                    // Генерация вариантов оплаты в зависимости от условия
-                    const paymentOptions = vyklykValue != document.getElementById('nedoruchni').value
-                        ? types_payment.map(type =>
-                            `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
-                        ).join('') // Собираем все в строку
-                        : `<option value="" disabled selected>Not available</option>`; // Значение по умолчанию, если `vyklykValue == document.getElementById('nedoruchni').value
-                        const isAlarm = alarm_position.some(word => positionName.toLowerCase().includes(word.toLowerCase()));
-                    console.log(isAlarm);
-                    // Формируем HTML строки
-                    const row = `
-                        <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
-                            <div class="col-md-3">
-                                <h5 class="mb-0">${workerName}</h5>
-                                 <p class="text-muted mb-1 ${isAlarm ? 'bg-warning' : 'bg-light'}">${positionName}</p> <!-- Должность работника -->
-              
-                                <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
-                            </div>
-                            <div class="col-md-4">
-                                <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${worker.pivot.comment ? worker.pivot.comment : ''}</textarea>
-                                <label for="start_time_${workerId}" title="{{ __('Go to KPP') }}">{{__('Start Time')}}</label>
-                                <input type="datetime-local" id="start_timew_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${worker.pivot.start_time}">
-                                <label for="end_time_${workerId}">{{__('End Time')}}</label>
-                                <input type="datetime-local" id="end_timew_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${worker.pivot.end_time}">
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]" >
-                                    ${paymentOptions}
-                                </select>
-                            </div>
-                            <div class="col-md-1 d-flex align-items-center">
-                                <input type="radio" class="form-check-input" name="chief" value="${workerId}"
-                                    ${worker_type_id == kerevnik_bryhady ? 'checked' : ''}
-                                    required>
-                            </div>
-                        </div>
-                    `;
-
-                    // Добавляем строку к HTML
-                    showWorkers.innerHTML += row;
-                });
-            }
-
-
-
-
-
-            
-            document.getElementById('start_time').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    document.getElementById('personal_start_id').checked = true;
-                }
-            });
-
-            document.getElementById('arrival_time').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    document.getElementById('personal_arrival_id').checked = true;
-                }
-            });
-
-            function parseDateTime(input) {
-                return input ? new Date(input) : null;
-            }
-
-            document.getElementById('start_time').addEventListener('blur', () => {
-                const startTime = parseDateTime(document.getElementById('start_time').value);
-                const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
-
-                if (startTime && (!arrivalTime || arrivalTime < startTime)) {
-                    document.getElementById('arrival_time').value = document.getElementById('start_time').value;
-                }
-            });
-
-        WListener();
-        function removeWorker(workerId) {
-            document.getElementById(`worker_${workerId}`).remove(); // Приховуємо рядок перед оновленням списку
-            workers = workers.filter(worker => worker.id !== workerId);
+            // Обновляем отображение списка работников
             WListener();
+        } else {
+    console.error("Невірний формат даних або пустий результат:", data);
+            }
+        })
+        .catch(error => {
+            console.error("Помилка при отриманні даних:", error);
+        });
+    }
+
+
+var kerevnik_bryhady = {{$Kerivnyk_bryhady->id}}; 
+function ReadValWorkers() {
+    var workersSelect = document.getElementById('workers');
+    var old_values = [];
+    Array.from(workersSelect.selectedOptions).forEach(option => {
+        old_values.push(option.value);
+    });
+    return old_values;
+}
+
+function WListener() {
+    if (!Array.isArray(types_payment)) {
+        console.error("types_payment не є масивом або не визначений");
+        return;
+    }
+    const showWorkers = document.getElementById('show_workers');
+    showWorkers.innerHTML = ''; // Очищаем существующие строки
+    // val OldValWorkers = ReadValWorkers();
+    // Проверяем, есть ли рабочие в массиве
+    if (!workers || workers.length === 0) {
+        showWorkers.innerHTML = '<p>No workers available</p>'; // Сообщение, если список пуст
+        return;
+    }
+
+    workers.forEach(worker => {
+        const workerId = worker.id;
+        const workerName = worker.fio;
+        const positionName = worker.positions && worker.positions.length > 0 ? worker.positions[0].name : 'No Position';
+        var start_time = worker.pivot.start_time;
+        var end_time = worker.pivot.end_time;
+        const global_start_time = document.getElementById('start_time').value;
+        const global_end_time = document.getElementById('end_time').value;
+
+        if (start_time == null) {
+            start_time = global_start_time;
         }
+        if (end_time == null) {
+            end_time = global_end_time;
+        }
+        const vyklyk_na_robotu = document.querySelector('input[name="vyklyk_na_robotu"]:checked');
+        const vyklykValue = vyklyk_na_robotu ? vyklyk_na_robotu.value : null; // Проверка наличия выбранного элемента
+
+        const payment_type_id = worker.pivot.payment_type_id;
+        const worker_type_id = worker.pivot.worker_type_id;
+        const comments = worker.pivot.comments ? worker.pivot.comments : ''; // По умолчанию пустая строка, если не указано
+
+        // Генерация вариантов оплаты в зависимости от условия
+        const paymentOptions = vyklykValue != document.getElementById('nedoruchni').value
+            ? types_payment.map(type =>
+                `<option value="${type.id}" ${type.id == payment_type_id ? 'selected' : ''}>${type.name}</option>`
+            ).join('') // Собираем все в строку
+            : `<option value="" disabled selected>Not available</option>`; 
+
+        var isAlarm = alarm_position.some(word => positionName.toLowerCase().includes(word.toLowerCase()));
+        //  console.log(isAlarm);
+        // Формируем HTML строки
+        const row = `
+            <div class="row align-items-center mb-4 p-3 border rounded shadow-sm" id="worker_${workerId}">
+                <div class="col-md-3">
+                    <h5 class="mb-0">${workerName}</h5>
+                        <p class="text-muted mb-1 ${isAlarm ? 'bg-warning' : 'bg-light'}">${positionName}</p> <!-- Должность работника -->
+    
+                    <button type="button" class="btn btn-danger" onclick="removeWorker(${workerId})">X</button>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="comments_${workerId}" name="comments[${workerId}]" rows="2" placeholder="Add your comment">${worker.pivot.comment ? worker.pivot.comment : ''}</textarea>
+                    <label for="start_time_${workerId}" title="{{ __('Go to KPP') }}">{{__('Start Time')}}</label>
+                    <input type="datetime-local" id="start_timew_${workerId}" class="form-control" name="start_timew[${workerId}]" value="${start_time}">
+                    <label for="end_time_${workerId}">{{__('End Time')}}</label>
+                    <input type="datetime-local" id="end_timew_${workerId}" class="form-control" name="end_timew[${workerId}]" value="${end_time}">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="payments_${workerId}" name="payments[${workerId}]" >
+                        ${paymentOptions}
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-center">
+                    <input type="radio" class="form-check-input" name="chief" value="${workerId}"
+                        ${worker_type_id == kerevnik_bryhady ? 'checked' : ''}
+                        required>
+                </div>
+            </div>
+        `;
+
+        // Добавляем строку к HTML
+        showWorkers.innerHTML =showWorkers.innerHTML +  row;
+    });
+}
+
+function parseDateTime(input) {
+    return input ? new Date(input) : null;
+}
+
+
+function FillTime(input) {
+    console.log(input.value);
+    const time = parseDateTime(input.value);
+    const startTime = parseDateTime(document.getElementById('start_time').value);
+    const endTime = parseDateTime(document.getElementById('end_time').value);
+    const arrivalTime = parseDateTime(document.getElementById('arrival_time').value);
+    if(startTime == null) {
+        document.getElementById('start_time').value = input.value;
+        // delete style="background-color: yellow"
+        document.getElementById('start_time').style.backgroundColor = '';
+    }
+    if(endTime == null) {
+        document.getElementById('end_time').value = input.value;
+        document.getElementById('end_time').style.backgroundColor = '';
+    }
+    if(arrivalTime == null) {
+        document.getElementById('arrival_time').value = input.value;
+        document.getElementById('arrival_time').style.backgroundColor = '';
+    }
+}
+
+WListener();
+function removeWorker(workerId) {
+    document.getElementById(`worker_${workerId}`).remove(); // Приховуємо рядок перед оновленням списку
+    workers = workers.filter(worker => worker.id !== workerId);
+    WListener();
+}
 </script>
 
 @endsection
