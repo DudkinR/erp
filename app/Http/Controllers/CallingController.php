@@ -35,7 +35,7 @@ class CallingController extends Controller
        $type = $request->type ?? null;
        $start = $request->start ?? null;
        $finish = $request->finish ?? null;
-       $filter = $request->filter ?? null;  // Ensuring it's either the filter or null
+       $filter = $request->filter ??  null;
        $DI = $this->publicInformation();
        if(Auth::user()->hasRole('admin')){ 
         $callings = $this->filters($filter)
@@ -43,10 +43,12 @@ class CallingController extends Controller
         ->orderBy('id', 'asc')
         ->get()
         ->keyBy('id');
+        if($filter == null){
+            $filter="all";
+        }
         return view('callings.admin', compact('callings','filter','alarm_position' ,'DI'));
        }
-       if(Auth::user()->hasRole('VONtaOP')){
-        
+       if(Auth::user()->hasRole('VONtaOP')){        
         if($filter!==null){
            // return  $this->filters($filter)->get();
             $callings = $this->filters($filter)
@@ -56,23 +58,35 @@ class CallingController extends Controller
                 ->get()
                 ->keyBy('id');
             }
-        else{
-            $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id');
+            else{
+                $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id');
             }
+            if($filter == null){
+                $filter="in_vonop";
+             }
             return view('callings.VONtaOP', compact('callings','filter','alarm_position' ,'DI'));
         }        
         elseif(Auth::user()->hasRole('Profkom')){
             $callings = $this->filters($filter)
-            ->where('status', 'Profkom')->
-            with(['workers.divisions','workers.positions'])->orderBy('id', 'asc')->get()->keyBy('id');
+           // ->where('status', 'Profkom')
+            ->with(['workers.divisions','workers.positions'])
+            ->orderBy('id', 'asc')
+            ->get()
+            ->keyBy('id');
+            if($filter == null){
+                $filter="in_profcom";
+             }
             return view('callings.Profkom', compact('callings','filter','alarm_position' ,'DI'));
         }        
         elseif(Auth::user()->hasRole('SVNtaPB')){
             $callings = $this->filters($filter)
-            ->where('status', 'SVNtaPB')->
-            with(['workers.divisions','workers.positions'])
+         //   ->where('status', 'SVNtaPB')
+           -> with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
-            ->get()->keyBy('id');            
+            ->get()->keyBy('id');     
+            if($filter == null){
+                $filter="in_svn";
+             }       
             return view('callings.SVNtaPB', compact('callings','filter','alarm_position' ,'DI'));
         } 
         elseif(Auth::user()->hasRole('workshop-chief')){
@@ -81,7 +95,8 @@ class CallingController extends Controller
 
             // Вибрати виклики, де статус 'workshop-chief' і є працівники з тими ж підрозділами, що й начальник
 
-            $callings = Calling::where('status', 'workshop-chief')
+            $callings =  $this->filters($filter)
+            // Calling::where('status', 'workshop-chief')
              /* ->where(function ($query) {
                 $query->where('author_id', Auth::user()->personal->id)
                     ->orWhereHas('workers', function ($query) {
@@ -95,20 +110,26 @@ class CallingController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->keyBy('id');
-
-        return view('callings.workshop_chief', compact('callings'));
+            if($filter == null){
+                $filter="in_boss";
+             }
+      
+        return view('callings.workshop_chief', compact('callings','filter','alarm_position' ,'DI'));
 
 
         }        
         elseif(Auth::user()->hasRole('supervision')){
 
             $callings = $this->filters($filter)
-            ->where('status', 'supervision')
+         /*   ->where('status', 'supervision')
             ->orwhere('personal_start_id',null)
             ->orwhere('personal_arrival_id',null)
             ->orwhere('personal_end_id',null)
-         //   ->with(['workers.divisions'])           
+         //   ->with(['workers.divisions'])      */     
              ->orderBy('id', 'asc')->get()->keyBy('id');
+             if($filter == null){
+                $filter="in_sup";
+             }
             return view('callings.supervision', compact('callings','filter','alarm_position' ,'DI'));
         }
         elseif( Auth::user()->hasRole('user')){
@@ -125,7 +146,9 @@ class CallingController extends Controller
         ->orderBy('id', 'asc')
         ->get()
         ->keyBy('id');
-
+        if($filter == null){
+            $filter="today";
+            }
               return view('callings.index', compact('callings','filter','alarm_position' ,'DI'));
         }
 
@@ -166,7 +189,7 @@ class CallingController extends Controller
     
     public function printOrder(Request $request){
         if(!Auth::user()->hasRole('VONtaOP')){
-            return redirect()->route('callings.index');
+            return redirect()->route('callings.index', ['filter' =>$request->filter]);
         } 
         $callings = Calling::where('status', 'for_print')->
         with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
@@ -240,8 +263,7 @@ class CallingController extends Controller
    
     public function store(Request $request)
     {
-
-      //  return $request;
+        //  return $request;
         $Oplata_pratsi = $request->payments;
 
         $calling = new Calling();
@@ -332,8 +354,8 @@ class CallingController extends Controller
             $calling->status = 'supervision';
             $calling->save();
         }
-          $filling;
-        return redirect()->route('callings.index');
+         // $filling;
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
     }
     // reserveStore short store only tn  Kerivnyk_bryhady and description
     public function reserveStore(Request $request)
@@ -355,7 +377,8 @@ class CallingController extends Controller
            return  $message->to($mail)
                     ->subject("New Calling Created");
         });
-        return redirect()->route('callings.index');
+       
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
     }
     
     public function validateTimes($arrival_time, $start_time, $end_time)
@@ -443,7 +466,7 @@ class CallingController extends Controller
                 'created_at' => now(), 
                 'updated_at' => now()]);
         }
-        return redirect()->route('callings.index');
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
     }
 //rejectSS
     public function rejectSS(Request $request)
@@ -461,7 +484,7 @@ class CallingController extends Controller
              'updated_at' => now()]);
         }
         // $calling->checkins;
-        return redirect()->route('callings.index');
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
     }
 
     // confirmSSS
@@ -480,8 +503,9 @@ class CallingController extends Controller
              $calling->status = 'workshop-chief';
              $calling->save();
          }
-        return redirect()->route('callings.index');
-    }
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
+
+     }
     // confirmS
     public function create()
     {
@@ -659,14 +683,14 @@ class CallingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id , Request $request)
     {
         //
         $calling = Calling::find($id);
         if ($calling) {
             $calling->delete();
         }
-        return redirect()->route('callings.index');
+        return redirect()->route('callings.index', ['filter' =>$request->filter]);
         
     }
 

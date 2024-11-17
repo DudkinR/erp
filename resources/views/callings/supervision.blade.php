@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="input-group">
-                <input type="text" id="search" class="form-control" placeholder="{{__('Search')}}">
+                <input type="text" id="search"  class="form-control" placeholder="{{__('Search')}}">
                 <span class="input-group-text" onclick="findResults()">
                     <i class="search_input_button">{{__('Search')}}</i>
                 </span>
@@ -33,16 +33,16 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
             </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
 
             <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                 @csrf
-                <select name="filter" class="form-control">
-                    <option value="">{{ __('All') }}</option>
+                <select name="filter" class="form-control" onchange="sendThisForm(this)">
+                    <option value="all">{{ __('All') }}</option>
                     <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
                     <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
                     <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
@@ -68,12 +68,7 @@
                 </script>
             </form>
         </div>
-    </div> 
-    <div class="row">
-        <div class="col-md-6">
-            <a class="btn btn-warning w-100" href="{{ route('callings.create') }}">{{__('New')}}</a>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <a class="btn btn-info w-100" onclick="$('#modalReserve').modal('show')">{{__('Reserve')}}</a>
         </div>
     </div>  
@@ -106,7 +101,10 @@
                                     <br>
                                    <u> {{$worker->phone}} </u>
                                 @endif
-                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
+                                @php
+                                if(isset($worker->divisions[0]))
+                                 $mass_divisions[$worker->divisions[0]->name][]=$worker->fio;
+                                @endphp
                             @endforeach
                         </td>
                         <td>
@@ -195,6 +193,7 @@
                 <form action="{{route('callings.confirmStore')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id">
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <div class="form-group">
                         <label for="number">{{__('Number of people')}}</label>
                         <span id="number"></span>
@@ -250,6 +249,7 @@
                 <form action="{{route('callings.reserveStore')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <div class="form-group">
                         <label for="tab_number">{{__('Tab Number of people')}}</label>
                         <input type="number" name="tab_number" id="tab_number" class="form-control"
@@ -288,7 +288,7 @@
 </div>
 
     <script>
-    const search = document.getElementById('search');
+    const searchInput = document.getElementById('search');
     var Vcallings = @json($callings);
         console.log(Vcallings);
     function hideModalWin() {

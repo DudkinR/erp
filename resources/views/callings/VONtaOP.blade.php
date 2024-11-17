@@ -37,7 +37,7 @@
   
                 <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                     @csrf
-                    <select name="filter" class="form-control">
+                    <select name="filter" class="form-control" onchange="sendThisForm(this)">
                         <option value="all">{{ __('All') }}</option>
                         <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
                         <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
@@ -223,6 +223,7 @@
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id" >
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <input type="hidden" name="tp_check" value="VONtaOP">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="77">
                     <div class="form-group">

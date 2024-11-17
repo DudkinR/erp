@@ -496,28 +496,28 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // callings
     Route::any('/Icallings', 'App\Http\Controllers\CallingController@index')->name('callings.index');
     Route::get('/callings/create', 'App\Http\Controllers\CallingController@create')->name('callings.create');
-    Route::any('/confirmSS', 'App\Http\Controllers\CallingController@confirmSS')->name('callings.confirmSS');
+    Route::post('/confirmSS', 'App\Http\Controllers\CallingController@confirmSS')->name('callings.confirmSS');
     //callings.rejectSS
-    Route::any('/rejectSS', 'App\Http\Controllers\CallingController@rejectSS')->name('callings.rejectSS');
+    Route::post('/rejectSS', 'App\Http\Controllers\CallingController@rejectSS')->name('callings.rejectSS');
     // post confirmSS
     Route::post('/confirmStore', 'App\Http\Controllers\CallingController@confirmStore')->name('callings.confirmStore');
     Route::get('/confirm/{id}', 'App\Http\Controllers\CallingController@confirm')->name('callings.confirm');
     // post confirm
     Route::post('/confirmStoreCh', 'App\Http\Controllers\CallingController@confirmStoreCh')->name('callings.confirmStoreCh');
     Route::post('/callingsOrder', 'App\Http\Controllers\CallingController@callingsOrder')->name('callings.order');
-    Route::post('/callings', 'App\Http\Controllers\CallingController@store')->name('callings.store');
-    Route::get('/callings/{id}', 'App\Http\Controllers\CallingController@show')->name('callings.show');
+    Route::post('/callingsstore', 'App\Http\Controllers\CallingController@store')->name('callings.store');
+    Route::get('/callings/{id}/show', 'App\Http\Controllers\CallingController@show')->name('callings.show');
     Route::get('/callingprint/{id}', 'App\Http\Controllers\CallingController@print')->name('callings.print');
     Route::any('/callingsPrintOrder', 'App\Http\Controllers\CallingController@printOrder')->name('callings.printOrder');
     Route::get('/callings/{id}/edit', 'App\Http\Controllers\CallingController@edit')->name('callings.edit');
-    Route::put('/callings/{id}', 'App\Http\Controllers\CallingController@update')->name('callings.update');
+    Route::put('/callings/{id}/update', 'App\Http\Controllers\CallingController@update')->name('callings.update');
     Route::delete('/callings/{id}', 'App\Http\Controllers\CallingController@destroy')->name('callings.destroy');
     // getPosibleDescriptions
-    Route::any('/getPosibleDescriptions', 'App\Http\Controllers\CallingController@getPosibleDescriptions')->name('callings.getPosibleDescriptions');
+    Route::post('/getPosibleDescriptions', 'App\Http\Controllers\CallingController@getPosibleDescriptions')->name('callings.getPosibleDescriptions');
     //callings.finalize
     Route::get('/callings/{id}/finalize', 'App\Http\Controllers\CallingController@finalize')->name('callings.finalize');
     // callings.get personal for tn
-    Route::any('/getPersonalForTN', 'App\Http\Controllers\CallingController@getPersonalForTN')->name('callings.getPersonalForTN');
+    Route::post('/getPersonalForTN', 'App\Http\Controllers\CallingController@getPersonalForTN')->name('callings.getPersonalForTN');
     //callings.reserve post
     Route::post('/callingsReserve', 'App\Http\Controllers\CallingController@reserveStore')->name('callings.reserveStore');
     //callings.printBlank

@@ -23,10 +23,42 @@
         </div>
     </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
             <h3>{{__('Form of callings')}}</h3>
             <h1>{{__('Profkom')}}</h1>
             </div>
+            <div class="col-md-6">
+
+                <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
+                    @csrf
+    
+                    <select name="filter" class="form-control" onchange="sendThisForm(this)">
+                        <option value="all">{{ __('All') }}</option>
+                        <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
+                        <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
+                        <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
+                        <option value="in_sup" @if(($filter ?? '') == 'in_sup') selected @endif>{{ __('In supervisor') }}</option>
+                        <option value="in_work" @if(($filter ?? '') == 'in_work') selected @endif>{{ __('In work') }}</option>
+                        <option value="not_started" @if(($filter ?? '') == 'not_started') selected @endif>{{ __('Not started') }}</option>
+                        <option value="completed" @if(($filter ?? '') == 'completed') selected @endif>{{ __('Completed') }}</option>
+                        <option value="in_boss" @if(($filter ?? '') == 'in_boss') selected @endif>{{ __('In boss') }}</option>
+                        <option value="in_svn" @if(($filter ?? '') == 'in_svn') selected @endif>{{ __('In SVN') }}</option>
+                        <option value="in_profcom" @if(($filter ?? '') == 'in_profcom') selected @endif>{{ __('In profcom') }}</option>
+                        <option value="in_vonop" @if(($filter ?? '') == 'in_vonop') selected @endif>{{ __('In vonop') }}</option>
+                    </select>
+                    <button type="submit" class="btn btn-success">{{ __('Filter') }}</button>  
+    
+                    <script>
+                        function validateFilters() {
+                            if (document.querySelector('select[name="filter"]').value == '') {
+                                alert('{{ __("Choose filter") }}');
+                                return false;
+                            }
+                            return true;
+                        }
+                    </script>
+                </form>
+                </div>
         </div>    
         <div class="container">
             <table class="table table-striped">
@@ -45,17 +77,31 @@
                     <tr>
                         <td>{{$calling->id}}</td>
                         <td>
-                           @php  $mass_divisions=[]; @endphp
-                            @foreach($calling->workers as $worker)
-                                @if($worker->pivot->worker_type_id == 6)
-                                    {{ $worker->divisions[0]->name }} <br>
-                                    @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
-                                   <b> {{$fn}}</b>
-                                    <br>
-                                   <u> {{$worker->phone}} </u>
-                                @endif
-                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
-                            @endforeach
+                            @php
+                            $mass_divisions = [];
+                        @endphp
+                        
+                        @foreach($calling->workers as $worker)
+                            @if($worker->pivot->worker_type_id == 6)
+                                {{ $worker->divisions[0]->name }} <br>
+                                @php 
+                                    $fio = explode(" ", $worker->fio); 
+                                    $fn = $fio[0]; 
+                                @endphp
+                                <b>{{ $fn }}</b><br>
+                                <u>{{ $worker->phone }}</u>
+                            @endif
+                            @php
+                                // Перевірка наявності розділу за назвою
+                                $divisionName = $worker->divisions[0]->name ?? null;
+                                if ($divisionName) {
+                                    if (!isset($mass_divisions[$divisionName])) {
+                                        $mass_divisions[$divisionName] = [];
+                                    }
+                                    $mass_divisions[$divisionName][] = $worker->fio;
+                                }
+                            @endphp
+                        @endforeach
                         </td>
                         <td>
                             <p style = "font-size: 20px;">
@@ -126,6 +172,7 @@
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id" >
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <input type="hidden" name="tp_check" value="Profkom">
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="76">
                     <div class="form-group">
@@ -232,13 +279,15 @@ function ShowModalWin(calling_id) {
 }
 
 
-        search.addEventListener('keyup', (e) => {
-            const value = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                row.querySelector('td').textContent.toLowerCase().includes(value) ? row.style.display = '' : row.style.display = 'none';
-            });
-        }); 
-        
+search.addEventListener('keyup', (e) => {
+    const value = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        row.querySelector('td').textContent.toLowerCase().includes(value) ? row.style.display = '' : row.style.display = 'none';
+    });
+}); 
+
+
+
     </script>
 @endsection

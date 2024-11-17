@@ -31,8 +31,9 @@
 
             <form action="/Icallings" method="post" class="form-inline" onsubmit="return validateFilters()">
                 @csrf
-                <select name="filter" class="form-control">
-                    <option value="">{{ __('All') }}</option>
+
+                <select name="filter" class="form-control" onchange="sendThisForm(this)">
+                    <option value="all">{{ __('All') }}</option>
                     <option value="today" @if(($filter ?? '') == 'today') selected @endif>{{ __('Today') }}</option>
                     <option value="week" @if(($filter ?? '') == 'week') selected @endif>{{ __('Week') }}</option>
                     <option value="month" @if(($filter ?? '') == 'month') selected @endif>{{ __('Month') }}</option>
@@ -84,17 +85,31 @@
                     <tr>
                         <td>{{$calling->id}}</td>
                         <td>
-                           @php  $mass_divisions=[]; @endphp
-                            @foreach($calling->workers as $worker)
-                                @if($worker->pivot->worker_type_id == 6)
-                                    {{ $worker->divisions[0]->name }} <br>
-                                    @php $fio =explode(" ", $worker->fio); $fn = $fio[0]; @endphp
-                                   <b> {{$fn}}</b>
-                                    <br>
-                                   <u> {{$worker->phone}} </u>
-                                @endif
-                                @php $mass_divisions[$worker->divisions[0]->name][]=$worker->fio @endphp
-                            @endforeach
+                            @php
+                            $mass_divisions = [];
+                        @endphp
+                        
+                        @foreach($calling->workers as $worker)
+                            @if($worker->pivot->worker_type_id == 6)
+                                {{ $worker->divisions[0]->name }} <br>
+                                @php 
+                                    $fio = explode(" ", $worker->fio); 
+                                    $fn = $fio[0]; 
+                                @endphp
+                                <b>{{ $fn }}</b><br>
+                                <u>{{ $worker->phone }}</u>
+                            @endif
+                            @php
+                                // Перевірка наявності розділу за назвою
+                                $divisionName = $worker->divisions[0]->name ?? null;
+                                if ($divisionName) {
+                                    if (!isset($mass_divisions[$divisionName])) {
+                                        $mass_divisions[$divisionName] = [];
+                                    }
+                                    $mass_divisions[$divisionName][] = $worker->fio;
+                                }
+                            @endphp
+                        @endforeach
                         </td>
                         <td>
                             <p style = "font-size: 20px;">
@@ -168,6 +183,7 @@
                 <form action="{{route('callings.confirmSS')}}" method="POST">
                     @csrf
                     <input type="hidden" name="tp_check" value="workshop_chief">
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <input type="hidden" name="calling_id" id="calling_id" >
                     <input type="hidden" name="checkin_type_id" id="checkin_type_id" value="74">
                     <div class="form-group">
@@ -247,6 +263,7 @@
                 <form action="{{route('callings.reserveStore')}}" method="POST">
                     @csrf
                     <input type="hidden" name="calling_id" id="calling_id_reserve">
+                    <input type="hidden" name="filter" value="{{$filter ?? ''}}">
                     <div class="form-group">
                         <label for="tab_number">{{__('Tab Number of people')}}</label>
                         <input type="number" name="tab_number" id="tab_number" class="form-control"                         

@@ -435,10 +435,20 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
                     <td  class="${error_color}">${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}</td>
                     <td>
                         ${actionButton}
-                        <a href="/callings/${calling.id}" class="btn btn-warning w-100"> Показати </a>
+                        <a href="/callings/${calling.id}/show" class="btn btn-warning w-100"> Показати </a>
                     </td>
                 </tr>
             `;
             tableBody.insertAdjacentHTML('beforeend', row);
         });
+    }
+
+    function sendThisForm(element) {
+        // Знаходимо найближчу форму для елемента, який викликав функцію
+        const thisForm = element.closest('form');
+        
+        // Перевіряємо, чи форма знайдена, і відправляємо її
+        if (thisForm) {
+            thisForm.submit();
+        }
     }
