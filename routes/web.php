@@ -530,7 +530,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // risksPrintBrief post
     Route::post('/risksPrintBrief', 'App\Http\Controllers\RiskController@risksPrintBrief')->name('risks.risksPrintBrief');
     // currentRisk post
-    Route::post('/currentRisk', 'App\Http\Controllers\RiskController@currentRisk')->name('risks.currentRisk'); 
+    Route::any('/currentRisk', 'App\Http\Controllers\RiskController@currentRisk')->name('risks.currentRisk'); 
     Route::get('/risks/create', 'App\Http\Controllers\RiskController@create')->name('risks.create');
     Route::post('/risks', 'App\Http\Controllers\RiskController@store')->name('risks.store');
     Route::get('/risks/{id}', 'App\Http\Controllers\RiskController@show')->name('risks.show');

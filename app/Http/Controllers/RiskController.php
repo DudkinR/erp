@@ -58,10 +58,9 @@ class RiskController extends Controller
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
         $addition_actions = Jit::All();
-         $briefs = Brief::orderBy('order', 'asc')
+        $briefs = Brief::orderBy('order', 'asc')
         ->with('actions', 'jitqws', 'reasons')
-        ->get();
-       
+        ->get();       
         return  view('risks.risks', compact('equipments', 'systems',  'actions','addition_actions','briefs'));
     }
     // currentRisk
@@ -92,6 +91,7 @@ class RiskController extends Controller
             ->whereHas('actions', function($query) use ($actionIds) {
                 $query->whereIn('types.id', $actionIds);
             })
+            ->with('systems', 'equipments', 'actions', 'reasons')
             ->orderBy('consequence' , 'desc')
             ->get();
           
@@ -103,75 +103,83 @@ class RiskController extends Controller
     {
         $currentYear = date('Y');
         $result = 0;
-        $n=0;
+        $n = 0;
+        $ncouses = 1;
+    
+        // Отримуємо список причин
         $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->pluck('id')->toArray();
-         $RS =[];
-        foreach ($causes as $cause){
-            $RS[$cause] = 0;
-        
-        }
-   //return $reasons;
-        $ncouses=0;
+        $RS = array_fill_keys($causes, 0);
+       //  $events;
+
         foreach ($events as $event) {
             $yearsAgo = $currentYear - $event['year'];
     
-            // Определение вероятности (В) на основе 'npp' и 'year'
+            // Визначення ймовірності (V)
             if ($event['npp'] == 3) {
-                $V = 7; // актуальное для станции
+                $V = 7; // Актуальне для станції
             } elseif ($event['npp'] == 1) {
-                $V = 3; // для страны
+                $V = 3; // Для країни
             } else {
-                $V = 1; // общее
+                $V = 1; // Загальне
             }
     
-            // Коррекция вероятности в зависимости от года события (чем старше, тем меньше вероятность) 0 to 100  
-            if ($yearsAgo > 2) {
-                $V = $V;
-            } elseif 
-             ($yearsAgo <=  2) {
-                $V = $V * 0.9;
-            } elseif ($yearsAgo <=  5) {
-                $V = $V * 0.8;
+            // Корекція ймовірності залежно від віку події
+            if ($yearsAgo <= 1) {
+                $V *= 1;
+            } elseif ($yearsAgo <= 2) {
+                $V *= 0.9;
+            } elseif ($yearsAgo <= 5) {
+                $V *= 0.8;
             } elseif ($yearsAgo <= 10) {
-                $V = $V * 0.6;
+                $V *= 0.6;
             } elseif ($yearsAgo <= 15) {
-                $V = $V * 0.4;
+                $V *= 0.4;
             } elseif ($yearsAgo <= 20) {
-                $V = $V * 0.2;
+                $V *= 0.2;
             } else {
-                $V = $V * 0.1;
+                $V *= 0.1;
             }
     
-            // Ограничение вероятности до 5
+            // Обмеження ймовірності до 7
             $V = min($V, 7);
     
-            // Тяжесть последствий (Т)
-            $T = $event['consequence'];
+            // Тяжкість наслідків (T)
+             $T = $event['consequence'];
     
-            // Вычисление риска (Р)
+            // Розрахунок ризику (R)
             $R = $V * $T;
     
-            // Сохранение результата
-            $result+=$R;
+            // Додавання до загального результату
+            $result += $R;
             $n++;
-           // couses 
-              $reasons = $event->reasons->pluck('id')->toArray();
-            foreach ($reasons as $reason){
-                if(!isset($RS[$reason])) 
-                $RS[$reason] = 1;
-                else
-                $RS[$reason] += 1;
-
+           
+            // Обробка причин
+            foreach($event->reasons as $reason){
+                $causes = $reason->id;
+                if (!isset($RS[$causes])) {
+                    $RS[$causes] = 1;
+                } else {
+                    $RS[$causes]++;
+                }
                 $ncouses++;
             }
-
+           
         }
-        $RS = array_map(function($value) use ($n){
-            return ($value*100)/$ncouses;
+            // Перевірка, чи є події
+        if ($n === 0) {
+            return ['result' => 0, 'n' => 0, 'reasons' => []];
+        }
+    
+        // Обчислення відсотків для причин
+        $RS = array_map(function ($value) use ($ncouses) {
+            return ($value * 100) / $ncouses;
         }, $RS);
-         return ['result'=>$result/$n, 'n'=>$n, 'reasons'=>$RS];
+    
+        // Повернення результатів
+        return ['result' => $result / $n, 'n' => $n, 'reasons' => $RS];
     }
+    
 
     public function experiences()
     {

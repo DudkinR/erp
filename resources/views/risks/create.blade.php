@@ -126,7 +126,7 @@
                                 @foreach($causes as $cause)
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="causes[]" value="{{ $cause->id }}">
-                                        <label class="form-check-label">{{ $cause->id }}{{ $cause->name }}</label>
+                                        <label class="form-check-label">{{ $cause->name }}</label>
                                     </div>
                                 @endforeach
                             </div>

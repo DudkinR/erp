@@ -18,7 +18,8 @@
     @endif
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('Experiences')}}</h1>
+                index
+            <h1>{{__('Experiences')}}</h1> 
                 <a class="btn btn-light w-100" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
             </div>
         </div>

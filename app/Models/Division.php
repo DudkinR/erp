@@ -36,5 +36,10 @@ class Division extends Model
     {
         return $this->belongsToMany(Personal::class, 'personal_division');
     }
+    // divisions_systems
+    public function systems()
+    {
+        return $this->belongsToMany(System::class, 'divisions_systems', 'division_id', 'system_id');
+    }
 
 }

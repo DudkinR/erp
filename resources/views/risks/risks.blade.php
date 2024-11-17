@@ -112,7 +112,7 @@
     }
 </style>
 
-    <form action="{{ route('risks.risksPrintBrief') }}" method="post" id = "form_current" target="_blank">
+    <form action="{{ route('risks.risksPrintBrief') }}"  method="POST" id = "form_current" target="_blank">
         @csrf
         <div class="container" id="risk">
             <div class="risk-container" id="possible_risk">
@@ -145,11 +145,9 @@
     @endif
         <div class="row">
             <div class="col-md-4">
+                risks
             <h1 class="text-center">{{__('Experiences')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('experiences') }}">{{__('Add')}}</a>
-
-                
-                    
+                <a class="btn btn-light w-100" href="{{ route('risks.create') }}">{{__('Add')}}</a>    
                 <div class="container bg-info">
                     <div class="row">
                         <div class="col-md-12">
@@ -315,58 +313,66 @@
 
     </form>
     <script>
-     const briefs = @json($briefs);
+const briefs = @json($briefs); 
 let risk = 0;
 let realRiskReasons = []; //  рельний вплив на ризик різних факторів
 let reasons = {}; // назначенний вплив на ризик від дій
 
 // Function to calculate real risk based on selected actions
 function countRealRisk(initialRisk) {
-    reasons = {}; // Clear previous reasons
+    console.log("Initial Risk:", initialRisk);
 
-    // Sum impacts from realRiskReasons
-    if (Array.isArray(realRiskReasons)) {
-        realRiskReasons.forEach(reason => {
-            if (reasons[reason.id]) {
-                reasons[reason.id] += reason.impact;
-            } else {
-                reasons[reason.id] = reason.impact;
-            }
-        });
-    }
-
-    // Get all selected checkboxes with names starting with 'br_action'
     const checkboxes = document.querySelectorAll('input[name^="br_action"]');
     const checkedIds = Array.from(checkboxes)
         .filter(cb => cb.checked)
         .map(cb => parseInt(cb.value));
 
-    // Calculate the impact of each selected action on risk
+    let realRiskReasons = {}; // Об'єкт для зберігання ризиків
+
+    // Вплив кожної обраної дії на ризик
     checkedIds.forEach(id => {
         const brief = briefs.find(item => item.id === id);
         if (brief && brief.reasons) {
             brief.reasons.forEach(reason => {
-                if (reasons[reason.id]) {
-                    reasons[reason.id] += brief.risk; // Adjust this if necessary
+                if (!realRiskReasons[reason.id]) {
+                    realRiskReasons[reason.id] = brief.risk;
                 } else {
-                    reasons[reason.id] = brief.risk;
+                    realRiskReasons[reason.id] += brief.risk;
                 }
             });
         }
     });
 
-    // Calculate total impacts
-    const totalImpact = Object.values(reasons).reduce((sum, impact) => sum + impact, 0);
-    const totalImpactReal = Object.values(realRiskReasons).reduce((sum, reason) => sum + reason.impact, 0) || 1; // Avoid division by zero
+    // Нормалізація ризиків (поділ на кількість дій)
+    const normalizedRiskReasons = Object.keys(realRiskReasons).reduce((acc, key) => {
+        acc[key] = realRiskReasons[key] / checkedIds.length;
+        return acc;
+    }, {});
 
-    // Determine the percentage reduction in risk
-    const riskReductionPercentage = Math.min(totalImpact / totalImpactReal, 1); // Cap at 100%
+    console.log("Normalized Risk Reasons:", normalizedRiskReasons);
 
-    // Calculate real risk, ensuring it doesn't go below 0.01
-    const realRisk = Math.max(initialRisk * (1 - riskReductionPercentage), 0.01);
+    // Розрахунок реального ризику
+    let currentRisk = initialRisk; // Початковий ризик
 
-    return realRisk;
+    Object.keys(normalizedRiskReasons).forEach(key => {
+        const reasonImpact = normalizedRiskReasons[key];
+        const reasonEfficiency = reasons[key];
+
+        if (reasonImpact > 0 && reasonEfficiency > 0) {
+            const reduction = currentRisk * reasonImpact * (reasonEfficiency / 100); // Зниження від попереднього значення
+            currentRisk -= reduction; // Зменшуємо ризик
+            console.log(
+                `Reason ID: ${key}, Impact: ${reasonImpact}, Efficiency: ${reasonEfficiency}%, Reduction: ${reduction}, New Risk: ${currentRisk}`
+            );
+        }
+    });
+
+    currentRisk = Math.max(currentRisk, 0); // Гарантуємо, що ризик не стане від’ємним
+    console.log("Final Real Risk:", currentRisk);
+
+    return currentRisk;
 }
+
 
 // Function to show risk on the UI
 function showRisk(currentRisk) {
@@ -424,13 +430,14 @@ function animateNumber(element, start, end, duration) {
 }
 // Функція для оновлення ризиків у відповідних контейнерах
 function updateRiskDisplay(currentRisk) {
+    //console.log(currentRisk);
+     // Перетворення в число або встановлення значення за замовчуванням
+     currentRisk = isNaN(parseFloat(currentRisk)) ? 10 : parseFloat(currentRisk);
     // Форматування ризику до двох знаків після коми
-    currentRisk = parseFloat(currentRisk.toFixed(2));
-    
+    currentRisk = parseFloat(currentRisk.toFixed(2));    
     // Визначаємо межі кольорів
     const redThreshold = 7;
     const yellowThreshold = 5;
-
     // Оновлення контейнера для можливого ризику
     const possibleRiskContainer = document.getElementById('possible_risk');
     possibleRiskContainer.className = ''; // Очищення класів
@@ -441,9 +448,7 @@ function updateRiskDisplay(currentRisk) {
     } else {
         possibleRiskContainer.classList.add('text-center', 'bg-success');
     }
-
     possibleRiskContainer.innerText = `Risk Before Actions: ${currentRisk}`; // Оновлюємо текст
-
     // Обчислюємо реальний ризик і оновлюємо контейнер для реального ризику
     const realRisk = countRealRisk(currentRisk); // Обчислюємо реальний ризик
     const realRiskContainer = document.getElementById('real_risk');
@@ -465,18 +470,21 @@ function updateRiskDisplay(currentRisk) {
 async function getRisk() {
         let form = document.getElementById('form_current');
         let formData = new FormData(form);
-
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('risk', risk);
+        formData.append('reasons', JSON.stringify(reasons));
+        // change url to "{{route('risks.currentRisk')}}"
+        formData.append('experiences', JSON.stringify(experiences));       
         try {
             const response = await fetch("{{route('risks.currentRisk')}}", {
-                method: 'POST',
+                method: 'POST',                         
                 body: formData
             });
             const data = await response.json();
-            
-           // console.log(data.risk);
-            
+           //console.log(data.risk);
             // Update experiences and display risk
             experiences = data.experiences;
+           // console.log(experiences);
             showExperiences();
             showRisk(data.risk.result);
             risk = data.risk.result;
@@ -485,7 +493,7 @@ async function getRisk() {
             if (data.risk.reasons) {
                 reasons = data.risk.reasons;
                 document.getElementById('reasons').value = JSON.stringify(reasons);
-
+                updateRiskDisplay(data.risk.result);
             }
         } catch (error) {
             console.error('Error fetching risk data:', error);
@@ -499,7 +507,7 @@ checkboxes.forEach(item => {
 });
 
 // Приклад ініціалізації
-updateRiskDisplay(10); // Викликаємо для початкового значення ризику
+updateRiskDisplay(5); // Викликаємо для початкового значення ризику
         var experiences;
      // show selected equipments in sistems_names_show 
         document.getElementById('equipments').addEventListener('change', function(){

@@ -298,7 +298,7 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
         inputs[i].addEventListener('change', function(event) {
             var name = event.target.name ? event.target.name : event.target.id;
             var value = event.target.value;
-            console.log(name, value);
+           // console.log(name, value);
             var data = {
                 ns: name,
                 vs: value

@@ -12,5 +12,10 @@ class System extends Model
     protected $table = 'systems';
     // columns
     protected $fillable = ['uk', 'ru', 'en', 'abv', 'group', 'svb'];
+    // divisions_systems
+    public function divisions()
+    {
+        return $this->belongsToMany(Division::class, 'divisions_systems', 'system_id', 'division_id');
+    }
     
 }
