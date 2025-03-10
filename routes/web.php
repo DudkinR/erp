@@ -564,6 +564,23 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // plan cars routes
     Route::get('/plancars', 'App\Http\Controllers\CarController@plancars')->name('plancars');
     Route::post('/assign-driver', 'App\Http\Controllers\CarController@assignDriver')->name('assign-driver');
+    // epm
+    Route::get('/epm', 'App\Http\Controllers\EPMController@index')->name('epm');
+    Route::get('/epm/create', 'App\Http\Controllers\EPMController@create')->name('epm.create');
+    Route::post('/epm', 'App\Http\Controllers\EPMController@store')->name('epm.store');
+    Route::get('/epm/{id}', 'App\Http\Controllers\EPMController@show')->name('epm.show');
+    Route::get('/epm/{id}/edit', 'App\Http\Controllers\EPMController@edit')->name('epm.edit');
+    Route::put('/epm/{id}', 'App\Http\Controllers\EPMController@update')->name('epm.update');
+    Route::delete('/epm/{id}', 'App\Http\Controllers\EPMController@destroy')->name('epm.destroy');
+    // wanoarea
+    Route::get('/wanoarea', 'App\Http\Controllers\WANOARController@index')->name('wanoarea');
+    Route::get('/wanoarea/create', 'App\Http\Controllers\WANOARController@create')->name('wanoarea.create');
+    Route::post('/wanoarea', 'App\Http\Controllers\WANOARController@store')->name('wanoarea.store');
+    Route::get('/wanoarea/{id}', 'App\Http\Controllers\WANOARController@show')->name('wanoarea.show');
+    Route::get('/wanoarea/{id}/edit', 'App\Http\Controllers\WANOARController@edit')->name('wanoarea.edit');
+    Route::put('/wanoarea/{id}', 'App\Http\Controllers\WANOARController@update')->name('wanoarea.update');
+    Route::delete('/wanoarea/{id}', 'App\Http\Controllers\WANOARController@destroy')->name('wanoarea.destroy');
+
 
 
 });
