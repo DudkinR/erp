@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if(Schema::hasTable('structure_divition')) {
+        if(Schema::hasTable('structure_division')) {
             return;
         }
-        Schema::create('structure_divition', function (Blueprint $table) {
+        Schema::create('structure_division', function (Blueprint $table) {
             $table->id();
             $table->foreignId('struct_id')->constrained()->onDelete('cascade');
             $table->foreignId('division_id')->constrained()->onDelete('cascade');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('structure_divition');
+        Schema::dropIfExists('structure_division');
     }
 };

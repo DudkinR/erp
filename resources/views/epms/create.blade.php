@@ -37,11 +37,13 @@
                             @foreach($divisions as $division)
                                 <option value="{{ $division->id }}">{{ $division->name }}</option>
                             @endforeach
-                        </select>
-
-                        
+                        </select>                        
                     </div>
-                    @php $wanoareas = \App\Models\WANOAREA::all(); @endphp
+                    @php 
+                    $wanoareas = \App\Models\WANOAREA::where('id', '!=', 0)
+                    ->orderBy('name', 'desc')
+                    ->get();
+                    @endphp
                     <div class="form-group">
                         <label for="wanoarea">{{__('Wanoarea')}}</label>
                         <select class="form-control" id="wanoarea" name="wanoarea">
@@ -51,9 +53,6 @@
                             @endforeach
                         </select>
                     </div>
-
-                        
-                        
                     <button type="submit" class="btn btn-primary w-100">{{__('Create')}}</button>
                 </form>
             </div>

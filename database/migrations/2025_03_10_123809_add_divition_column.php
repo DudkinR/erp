@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasColumn('epm', 'divition')) {
+        if (Schema::hasColumn('epm', 'division')) {
             return;
         }
         //'epm',  add column integer 'area' to the table  after 'description' wanoarea.id
         Schema::table('epm', function (Blueprint $table) {
-            $table->integer('divition')->after('description');
+            $table->integer('division')->after('description');
         });
     }
 
@@ -26,11 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         //
-        if (!Schema::hasColumn('epm', 'divition')) {
+        if (!Schema::hasColumn('epm', 'division')) {
             return;
         }
         Schema::table('epm', function (Blueprint $table) {
-            $table->dropColumn('divition');
+            $table->dropColumn('division');
         });
     }
 };

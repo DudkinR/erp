@@ -27,7 +27,7 @@ class Struct extends Model
     {
         return $this->hasMany(Struct::class, 'parent_id', 'id');
     }
-    // structure_divition
+    // structure_division
     public function divisions()
     {
         return $this->belongsToMany(Division::class, 'structure_division', 'struct_id', 'division_id');

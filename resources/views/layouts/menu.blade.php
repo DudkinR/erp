@@ -131,6 +131,7 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                 <a class="dropdown-item" href="{{ route('epm') }}">{{__('Monstoring')}}</a>
                 <a class="dropdown-item" href="{{ route('wanoarea') }}">{{__('Areas')}}</a>
+                <a class="dropdown-item" href="{{ route('epmdata') }}">{{__('Data')}}</a>
                 
           </div>
                 

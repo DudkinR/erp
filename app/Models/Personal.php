@@ -61,7 +61,7 @@ class Personal extends Model
     {
         return $this->belongsToMany(Comment::class, 'personal_comment', 'personal_id', 'comment_id');
     }
-    // personal_divition - таблица связи belongtomany
+    // personal_division - таблица связи belongtomany
     public function divisions()
     {
         return $this->belongsToMany(Division::class, 'personal_division', 'personal_id', 'division_id');
