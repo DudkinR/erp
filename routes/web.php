@@ -576,12 +576,15 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/epmdata', 'App\Http\Controllers\EPMController@epmdata')->name('epmdata');
     Route::get('/epmdata/create', 'App\Http\Controllers\EPMController@createEpmData')->name('epmdata.create');
     Route::post('/epmdata', 'App\Http\Controllers\EPMController@storeEpmData')->name('epmdata.store');
-    Route::get('/epmdata/{id}', 'App\Http\Controllers\EPMController@showEpmData')->name('epmdata.show');
+    Route::get('/epmdata/{date}', 'App\Http\Controllers\EPMController@showEpmData')->name('epmdata.show');
     Route::get('/epmdata/{id}/edit', 'App\Http\Controllers\EPMController@editEpmData')->name('epmdata.edit');
     Route::put('/epmdata/{id}', 'App\Http\Controllers\EPMController@updateEpmData')->name('epmdata.update');
     Route::delete('/epmdata/{id}', 'App\Http\Controllers\EPMController@destroyEpmData')->name('epmdata.destroy');    
     // epmdata.load
     Route::get('/epmdataload', 'App\Http\Controllers\EPMController@load')->name('epmdata.load');
+    // epmdata.loadupdate put
+    Route::put('/epmdataloadupdate', 'App\Http\Controllers\EPMController@loadupdate')->name('epmdata.loadupdate');
+
     // wanoarea
     Route::get('/wanoarea', 'App\Http\Controllers\WANOARController@index')->name('wanoarea');
     Route::get('/wanoarea/create', 'App\Http\Controllers\WANOARController@create')->name('wanoarea.create');

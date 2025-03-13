@@ -13,17 +13,12 @@ class EPM extends Model
         'name', 
         'description',
         'area',
-        'division'
+        'division',
+        'min',
+        'max',
     ];
-    // wano  relationship with WANOAREA epm_area = wanoarea_id
-    public function wanoarea()
-    {        
-        return $this->belongsTo('App\Models\WANOAREA', 'epm_area', 'wanoarea_id');   
-    }
-    // division relationship with DIVISION epm_division = division_id
-    public function div()
-    {        
-        return $this->belongsTo('App\Models\Division', 'epm_division', 'division_id');   
-    }
+
+   
+   
  
 }

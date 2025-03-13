@@ -53,6 +53,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="min">{{__('Min')}}</label>
+                        <input type="text" class="form-control" id="min" name="min" placeholder="{{__('Enter min')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="max">{{__('Max')}}</label>
+                        <input type="text" class="form-control" id="max" name="max" placeholder="{{__('Enter max')}}">
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary w-100">{{__('Create')}}</button>
                 </form>
             </div>
