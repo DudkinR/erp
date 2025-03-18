@@ -25,7 +25,11 @@
                      {{$division->name}}
                 @endif
             </h1>
-                <form method="POST" action="{{ route('epmdata.loadupdate',$date) }}">
+            <h2>
+                {{__('Data for')}} : {{ $date }}
+            </h2>
+            <a href="{{ route('epmdata') }}" class="btn btn-primary mb-4 w-100"> {{__('Back to Data')}} </a>
+            <form method="POST" action="{{ route('epmdata.loadupdate',$date) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="PUT">
                     <input type="hidden" name="date" value="{{ $date }}">

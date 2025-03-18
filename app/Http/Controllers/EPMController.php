@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EPM;
 use App\Models\EPMdata;
 use App\Models\Division;
+use App\Models\WANOAREA;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -158,9 +159,76 @@ class EPMController extends Controller
     
         return view('epmdata.index', compact('epmdata_by_date'));
     }
+    // bloked
+    public function bloked(Request $request)
+    {
+        $date = $request->date;
+        $epmdata = EPMdata::where('date_received', $date)->get();
+        foreach ($epmdata as $epm) {
+            $epm->blocked = 1;
+            $epm->save();
+        }
+        // redirect to back
+        return redirect()->back()->with('success', 'epmdata blocked!');
+    }
+    // download CSV
+    public function download(Request $request)
+    {
+        $date = $request->date;
+        $epmdata = EPMdata::where('date_received', $date)->get();
+        
+        $filename = storage_path('app/epmdata.csv');
+        $handle = fopen($filename, 'w+');
+    
+        // Додаємо BOM для коректного відкриття в Excel
+        fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+    
+        fputcsv($handle, ['Назва', 'area','value'], ';');
+    
+        foreach ($epmdata as $epmd) {
+            $epm = EPM::find($epmd->epm_id);
+            $area = WANOAREA::find($epm->area);
+
+            $epm_name = $epm ? $epm->name : 'Unknown';
+            $area_name = $area ? $area->name : 'Unknown';
+            $value = $epmd->value;
+    
+            fputcsv($handle, [$epm_name, $area_name, $value], ';');
+        }
+    
+        fclose($handle);
+    
+        return response()->download($filename, 'epmdata.csv', [
+            'Content-Type' => 'text/csv',
+        ])->deleteFileAfterSend(true);
+    }
+    // info
+    public function info()
+    {
+        $epmdata = EPMdata::orderBy('date_received')->get();
+        $epms = EPM::all()->keyBy('id');
+        $areas = WANOAREA::all()->keyBy('id');
+    
+        $area_data = [];
+        $area_title = [];
+        foreach ($epmdata as $epmd) {
+            $epm = $epms[$epmd->epm_id] ?? null;
+            if (!$epm) continue;
+    
+            $area = $areas[$epm->area] ?? null;
+            if (!$area) continue;
+    
+            $area_name = $area->name;
+            $area_data[$area_name]['values'][] = $epmd->value;
+            $area_data[$area_name]['dates'][] = $epmd->date_received;
+            $area_title[$area_name] = $areas[$epm->area]->description;
+        }
+    
+        return view('epmdata.info', compact('area_data', 'area_title'));
+    }
     
     
- 
+   
 
     public function createEpmData()
     {
@@ -171,6 +239,11 @@ class EPMController extends Controller
     {
         $date=$request->date;
         $epms = EPM::all();
+        // if date is not set
+        if(EPMdata::where('date_received', $date)->exists()){
+            return redirect('/epmdata')->with('error', 'epmdata already exists!');
+        }
+        
         foreach ($epms as $epm) {
             $epmdata = EPMdata::create([
                 'epm_id' => $epm->id,
@@ -218,7 +291,6 @@ class EPMController extends Controller
     //load get with data and division
     public function load(Request $request)
     {
-        
         $date= date('Y-m-d', strtotime($request->date));
         $divvision_id= $request->division;
         if($divvision_id !== 'no_division'){
@@ -237,7 +309,8 @@ class EPMController extends Controller
             ->get();
         }
         $epms = EPM::all()->keyBy('id'); 
-      // return   $epmdatas;
+        
+       // return   $epmdatas;
         return view('epmdata.newdata', compact('epmdatas','division','date','epms'));
     }
     //loadupdate
@@ -262,6 +335,13 @@ class EPMController extends Controller
         }
        
         return redirect('/epmdata')->with('success', 'epmdata updated!');
+    }
+    // Route::get('/epmdata/{date}', 'App\Http\Controllers\EPMController@showEpmData')->name('epmdata.show');
+   
+    public function showEpmDataByDate($date)
+    {
+        $epmdata = EPMdata::where('date_received', $date)->get();
+        return view('epmdata.show', compact('epmdata'));
     }
 
 }

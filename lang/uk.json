@@ -626,6 +626,15 @@
       "Supervision" : "У НЗС",
       "Created Author" : "Автор створення",
       "Reject" : "Відхилить",
+      "Enter value" : "Введіть значення",
+      "Analises" : "Аналіз",
+      "epmdata" : "Дані ЕПМ",
+      "Monitoring" : "Моніторинг",
+      "Areas" : "Області",
+      "wanoarea" : "Області WANO",
+      "EPM Data Analytics by Areas" : "Аналітика даних ЕПМ за областями",
+      "Back to Data" : "Назад до даних",
+      "Data for" : "Дані для",
 
     "Archives" : "Архіви"
 }

@@ -19,7 +19,9 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('wanoarea')}}</h1>
+            @if(Auth::user()->hasRole('admin'))     
                 <a class="btn btn-light w-100" href="{{ route('wanoarea.create') }}">{{__('Create')}}</a>
+            @endif
             </div>
         </div>  
         @foreach($wanoareas as $wanoarea)
@@ -31,12 +33,14 @@
                     </div>
                     <div class="card-body">
                         <small>{{ $wanoarea->abv }}</small> <small>{{ $wanoarea->focus }}</small><p>{{ $wanoarea->description }}</p>
+                        @if(Auth::user()->hasRole('admin'))     
                         <a class="btn btn-light" href="{{ route('wanoarea.edit', $wanoarea->id) }}">{{__('Edit')}}</a>
                         <form method="POST" action="{{ route('wanoarea.destroy', $wanoarea->id) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
                         </form>
+                        @endif
                     </div>
                 </div>
             </div>

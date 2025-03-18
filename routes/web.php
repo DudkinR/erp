@@ -584,7 +584,12 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/epmdataload', 'App\Http\Controllers\EPMController@load')->name('epmdata.load');
     // epmdata.loadupdate put
     Route::put('/epmdataloadupdate', 'App\Http\Controllers\EPMController@loadupdate')->name('epmdata.loadupdate');
-
+    // epmdata.bloked
+    Route::get('/epmdatabloked', 'App\Http\Controllers\EPMController@bloked')->name('epmdata.bloked');
+    // epmdata.download
+    Route::get('/epmdatadownload', 'App\Http\Controllers\EPMController@download')->name('epmdata.download');
+    //epmdata.info
+    Route::get('/epmdatainfo', 'App\Http\Controllers\EPMController@info')->name('epmdata.info');
     // wanoarea
     Route::get('/wanoarea', 'App\Http\Controllers\WANOARController@index')->name('wanoarea');
     Route::get('/wanoarea/create', 'App\Http\Controllers\WANOARController@create')->name('wanoarea.create');

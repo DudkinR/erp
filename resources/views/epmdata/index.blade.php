@@ -22,26 +22,46 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('epmdata')}}</h1>
+                <a class="btn btn-info w-100" href="{{ route('epmdata.info') }}">{{__('Analises')}}</a>
+                @if(Auth::user()->hasRole('admin'))     
                 <a class="btn btn-light w-100" href="{{ route('epmdata.create') }}">{{__('Create')}}</a>
+                @endif
             </div>
         </div>   
-@php
-$divisions = \App\Models\Division::all()
-->pluck('name', 'id')
-->toArray();
-@endphp
+        @php
+        $divisions = \App\Models\Division::all()
+        ->pluck('name', 'id')
+        ->toArray();
+        @endphp
         <div class="row">
-            <div class="col-md-12">
+            
                 @foreach($epmdata_by_date as $date => $data)
+                    @if(!$data['completed']) 
+                        <div class="col-md-12">
+                    @else
+                        <div class="col-md-4">
+                    @endif
                     <div class="card">
                         <div class="card-body @if(!$data['completed']) bg-danger 
-                        @elseif($data['blocked']) bg-success
-                        @endif">
+                            @elseif($data['blocked']) bg-success
+                            @endif">
                             <h5 class="card-title">{{ $date }}</h5>
-                            <p>Статус: @if($data['completed']) ✅ Заповнено @else ❌ Є порожні @endif</p>
+                            <p>
+                                Статус: @if($data['completed']) ✅ Заповнено @else ❌ Є порожні @endif
+                                @if($data['completed'])  
+                                    <a href="{{ route('epmdata.download', ['date' => $date]) }}" class="btn btn-light"
+                                    target = "_blank"
+                                    >
+                                        {{__('Download')}} CSV
+                                    </a>
+                                @endif
+                                
+
+                            </p>
+
                             <p>Редагування: @if($data['blocked']) 🔒 Закрите @else 
                                 @if($data['completed']) 
-                                <a href="" class="btn btn-light">
+                                <a href="{{route('epmdata.bloked',['date'=>$date])}}" class="btn btn-light">
                                     🔓 Відкрите                                
                                 </a>
                                 @else
@@ -66,8 +86,9 @@ $divisions = \App\Models\Division::all()
                         </ul>
                         @endif
                     </div>
+                    </div>
                 @endforeach
-            </div>
+           
         </div>
     </div>
 @endsection

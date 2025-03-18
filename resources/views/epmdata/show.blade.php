@@ -19,7 +19,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('epmdata')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('epmdata.index') }}">
+                <a class="btn btn-light w-100" href="{{ route('epmdata') }}">
                 {{__('Back')}}</a>
             </div>  
         </div>
