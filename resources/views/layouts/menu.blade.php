@@ -39,9 +39,13 @@
                     <a class="dropdown-item" href="{{ route('steps.index') }}">{{__('Steps')}}</a>
                     <a class="dropdown-item" href="{{ route('controls.index') }}">{{__('Controls')}}</a>
                     <a class="dropdown-item" href="{{ route('dimensions.index') }}">{{__('Dimensions')}}</a> 
-                   
-                      <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
-                    @endif
+                    <a class="dropdown-item" href="{{ route('imports.index') }}">{{__('Imports')}}</a>
+
+                    
+                    @endif                  
+                      <hr>
+                    <a class="dropdown-item" href="{{ route('archived-documents.index') }}">{{__('Archived Documents')}}</a>
+                    <a class="dropdown-item" href="{{ route('archived-documents.packages') }}">{{__('Archived Packages')}}</a>
                 </div>
             </li>
           

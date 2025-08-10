@@ -599,6 +599,27 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::put('/wanoarea/{id}', 'App\Http\Controllers\WANOARController@update')->name('wanoarea.update');
     Route::delete('/wanoarea/{id}', 'App\Http\Controllers\WANOARController@destroy')->name('wanoarea.destroy');
 
+    // ArhiveDocumentController
+    Route::get('/archived-documents', 'App\Http\Controllers\ArhiveDocumentController@index')->name('archived-documents.index');
+    // /archived-packeges
+    Route::get('/archived-packeges', 'App\Http\Controllers\ArhiveDocumentController@archivedPackages')->name('archived-documents.packages');
+    Route::get('/archived-packeges/{id}', 'App\Http\Controllers\ArhiveDocumentController@showPackage')->name('archived-documents.packages.show');
+    // archived-documents.edit
+    Route::get('/archived-packeges/{id}/edit', 'App\Http\Controllers\ArhiveDocumentController@editPackage')->name('archived-documents.packages.edit');
+    Route::put('/archived-packeges/{id}', 'App\Http\Controllers\ArhiveDocumentController@packageUpdate')->name('archived-documents.packages.update');
+    // post exportPDF
+    Route::any('/archived-documents-export-pdf', 'App\Http\Controllers\ArhiveDocumentController@exportPDF')->name('archived-documents.export.pdf');
+
+    // archived documents
+    Route::get('/archived-documents/create', 'App\Http\Controllers\ArhiveDocumentController@create')->name('archived-documents.create');
+    Route::get('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@show')->name('archived-documents.show');
+    Route::post('/archived-documents', 'App\Http\Controllers\ArhiveDocumentController@store')->name('archived-documents.store');
+    Route::get('/archived-documents/{id}/edit', 'App\Http\Controllers\ArhiveDocumentController@edit')->name('archived-documents.edit');
+    Route::put('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@update')->name('archived-documents.update');
+    Route::delete('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@destroy')->name('archived-documents.destroy');
+    // load  archived documents
+    Route::get('/archived-documents-import', 'App\Http\Controllers\ArhiveDocumentController@import')->name('archived-documents.import');
+    Route::post('/archived-documents-import', 'App\Http\Controllers\ArhiveDocumentController@importStore')->name('archived-documents.import.store');    
 
 
 });
