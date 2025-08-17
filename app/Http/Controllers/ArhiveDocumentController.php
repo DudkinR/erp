@@ -28,7 +28,7 @@ class ArhiveDocumentController extends Controller
         ini_set('memory_limit', '256M'); // або '512M' при потребі
 
         $documents = Adocument::with('packages')
-        //->limit(13000)
+        ->orderBy('id', 'desc')
         ->get();
         return view('arch.index', compact('documents'));
     }
@@ -64,7 +64,7 @@ class ArhiveDocumentController extends Controller
 
     public function create()
     {
-      /*  $docs = Adocument::all();
+       /* $docs = Adocument::all();
         foreach ($docs as $doc) {
          $foreing_name = $doc->foreign_name;
          $national_name = $doc->national_name;
@@ -77,8 +77,8 @@ class ArhiveDocumentController extends Controller
                     'national_name' => $national_name,
                 ]);
             }
-        }
-        */
+        }*/
+        
         $packages = Apackage::all();
          $docTypes = DocType::all();
        $buildings = Building::all();
@@ -97,30 +97,30 @@ class ArhiveDocumentController extends Controller
     public function store(Request $request)
 {
     // Валідація: хоча б одне з назв пакета (укр або іноземне) обов’язкове
-    $request->validate([
-        'new_package_national_name' => 'required_without:new_package_foreign_name',
-        'new_package_foreign_name'  => 'required_without:new_package_national_name',
-    ], [
-        'new_package_national_name.required_without' => 'Вкажіть назву пакета українською або іноземною.',
-        'new_package_foreign_name.required_without'  => 'Вкажіть назву пакета українською або іноземною.',
-    ]);
+
 
     // Якщо створюється новий пакет
-    if ($request->has('new_package_checkbox')) {
-        $package = Apackage::create([
-            'foreign_name'  => $request->input('new_package_foreign_name', ''),
-            'national_name' => $request->input('new_package_national_name', ''),
-        ]);
-    } else {
-        $package = Apackage::find($request->input('package_id'));
-    }
-    
+    if($request->package_id==0){
+        if ($request->has('package_foreign_name') || $request->has('package_national_name')) {
+            $package = Apackage::create([
+                'foreign_name'  => $request->input('new_package_foreign_name', ''),
+                'national_name' => $request->input('new_package_national_name', ''),
+            ]);
+        } 
+    }else {
+            $package = Apackage::find($request->input('package_id'));
+        }
+
+    $location = $request->input('storage_location')."_".$request->input('location', '');
+
     // Створення документа з заміною null → ""
     $document = Adocument::create([
         'foreign_name'    => $request->input('foreign_name', ''),
         'national_name'   => $request->input('national_name', ''),
         'reg_date'        => $request->input('reg_date', ''),
-        'pages'           => $request->input('pages', 0),
+        'pages'           => $request->input('pages', 0)?: 0,
+        'doc_type_id'     => $request->input('doc_type_id', null),
+        'notes'           => $request->input('notes', ''),
         'production_date' => $request->input('production_date', ''),
         'kor'             => $request->input('kor', ''),
         'part'            => $request->input('part', ''),
@@ -132,7 +132,7 @@ class ArhiveDocumentController extends Controller
         'code'            => $request->input('code', ''),
         'inventory'       => $request->input('inventory', ''),
         'path'            => '',
-        'storage_location'=> $request->input('storage_location', ''),
+        'storage_location'=> $location,
     ]);
         $file_name=  $request->input('unit', '')."_".$request->input('object', '')."_".$request->input('stage', '')."_".$request->input('code', '').$document ->id;
         // загрузити файл, якщо він є зберегти в сторедж документація  і зберегти путь  розширеніе залишити
@@ -142,6 +142,7 @@ class ArhiveDocumentController extends Controller
             $document->path = $file_path;
             $document->save();
         }
+        $document->packages()->attach($package);
         return redirect()->route('archived-documents.index')->with('success', 'Документ успішно створено та збережено в архіві.');
     }
    public function editPackage($id)
@@ -163,30 +164,27 @@ class ArhiveDocumentController extends Controller
         $document = Adocument::findOrFail($id)->with('packages')->first();
         $package = $document->packages->first();
         $packages = Apackage::all();
-        return view('arch.edit', compact('document', 'packages', 'package'));
+        $docTypes = DocType::all();
+        $buildings = Building::all();
+        $docs = Adocument::all();
+        $develops = Division::all();
+
+        return view('arch.edit', compact('document', 'packages', 'package', 'docTypes', 'buildings', 'docs', 'develops'));
     }
 
 
    public function update(Request $request, Adocument $document)
     {
-        // Валідація
-        $request->validate([
-            'foreign_name' => 'required|string|max:255',
-            'reg_date' => 'nullable|date',
-            // інші правила за потребою...
-            // Валідація пакетів: хоча б одна з назв обов’язкова для кожного пакета
-            'packages.*.foreign_name' => 'required_without:packages.*.national_name|string|nullable',
-            'packages.*.national_name' => 'required_without:packages.*.foreign_name|string|nullable',
-        ], [
-            'packages.*.foreign_name.required_without' => 'Вкажіть назву пакета українською або іноземною.',
-            'packages.*.national_name.required_without' => 'Вкажіть назву пакета українською або іноземною.',
-        ]);
+       
+       
 
         // Оновлення полів документа (null → '')
         $document->foreign_name    = $request->input('foreign_name', '');
         $document->national_name   = $request->input('national_name', '');
-        $document->reg_date        = $request->input('reg_date', '');
-        $document->pages           = $request->input('pages', 0);
+        $document->reg_date        = $request->input('reg_date', '');        
+        $document->pages           = $request->input('pages', 0) ? $request->input('pages', 0) : 0;
+        $document->doc_type_id     = $request->input('doc_type_id', null);
+        $document->notes           = $request->input('notes', '');
         $document->production_date = $request->input('production_date', '');
         $document->kor             = $request->input('kor', '');
         $document->part            = $request->input('part', '');
@@ -197,7 +195,7 @@ class ArhiveDocumentController extends Controller
         $document->stage           = $request->input('stage', '');
         $document->code            = $request->input('code', '');
         $document->inventory       = $request->input('inventory', '');
-        $document->storage_location= $request->input('storage_location', '');
+        $document->storage_location= $request->input('location', ''); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // Ім'я файлу для збереження
         $file_name = $request->input('unit', '') . "_" . $request->input('object', '') . "_" . $request->input('stage', '') . "_" . $request->input('code', '') . $document->id;
@@ -211,18 +209,20 @@ class ArhiveDocumentController extends Controller
 
         $document->save();
 
-        // Оновлення пакетів (якщо надіслані)
-        $packagesInput = $request->input('packages', []);
-        foreach ($packagesInput as $pkgData) {
-            if (isset($pkgData['id'])) {
-                $package = Apackage::find($pkgData['id']);
-                if ($package) {
-                    $package->foreign_name = $pkgData['foreign_name'] ?? '';
-                    $package->national_name = $pkgData['national_name'] ?? '';
-                    $package->save();
-                }
+        // Оновлення пакетів (якщо надіслані) package_id
+       if ($request->input('package_id')!==0) {
+           $document->packages()->sync([$request->input('package_id')]);
+       }
+       else{
+          if($request->input('package_foreign_name') || $request->input('package_national_name')) {
+            $newPackage = Apackage::create([
+                'foreign_name'  => $request->input('new_package_foreign_name', ''),
+                'national_name' => $request->input('new_package_national_name', ''),
+            ]);
+            $document->packages()->sync([$newPackage->id]);
             }
-        }
+       }
+
 
         return redirect()->route('archived-documents.show', $document->id)
                         ->with('success', 'Документ успішно оновлено.');
@@ -279,6 +279,8 @@ public function destroy($id)
                             'national_name'    => "",
                             'reg_date'         => $this->parseDate($row[2]),
                             'pages'            => 0,
+                            'doc_type_id'      => NULL, // Тип документа
+                            'notes'            => NULL,
                             'kor'              => $row[3],
                             'part'             => $row[4],
                             'contract'         => $row[5],
@@ -431,6 +433,8 @@ public function destroy($id)
                 'foreign_name' => $doc->foreign_name,
                 'national_name' => $doc->national_name,
                 'doc_type_id' => $doc->doc_type_id,
+                'notes' => $doc->notes,
+                'pages' => $doc->pages,
                 'reg_date' => $doc->reg_date,
                 'production_date' => $doc->production_date,
                 'kor' => $doc->kor,
@@ -474,6 +478,8 @@ public function destroy($id)
                 'foreign_name' => $doc->foreign_name,
                 'national_name' => $doc->national_name,
                 'doc_type_id' => $doc->doc_type_id,
+                'notes' => $doc->notes,
+                'pages' => $doc->pages,
                 'reg_date' => $doc->reg_date,
                 'production_date' => $doc->production_date,
                 'kor' => $doc->kor,

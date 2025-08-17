@@ -14,6 +14,7 @@ class DampAD extends Model
       'national_name',
       'reg_date',
       'pages',
+      'notes',
       'doc_type_id', 
       'production_date',
       'kor',

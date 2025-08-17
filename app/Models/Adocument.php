@@ -16,6 +16,7 @@ class Adocument extends Model
         'doc_type_id',
         'reg_date',
         'pages',
+        'notes',
         'production_date',
         'kor',
         'part',

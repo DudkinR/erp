@@ -86,15 +86,19 @@
                     <input type="text" class="form-control" name="inventory" placeholder="{{ __('Inventory No.') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Дата реєстрації</label>
                     <input type="date" class="form-control" name="reg_date">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Дата  в виробництві</label>
                     <input type="date" class="form-control" name="production_date">
                 </div>
-            </div>
+                <div class="col-md-4">
+                    <label class="form-label">Службова записка</label>
+                    <input type="text" class="form-control" name="notes" placeholder="{{ __('Службова записка') }}">
+                </div>
+
 
             <div class="row g-3 mt-2">
                 <div class="col-md-4"><input type="text" class="form-control" name="kor" placeholder="{{ __('Contractor') }}"></div>
@@ -123,7 +127,7 @@
                     <input type="text" class="form-control" name="code" placeholder="{{ __('Code') }}"></div>
                 <div class="col-md-3">
                     <label class="form-label">Кількість сторінок</label>
-                    <input type="number" class="form-control" name="pages" placeholder="{{ __('Pages') }}"></div>
+                    <input type="number" class="form-control" name="pages" placeholder="{{ __('Pages') }}" value="{{ old('pages')?: 0 }}"   ></div>
                <div class="col-md-3">
                 <label class="form-label">Статус</label>
                 <select class="form-select" name="status" id="status_select">
@@ -156,7 +160,7 @@
             {{-- === Зберігання === --}}
             <h5 class="mb-3">📂 Місце зберігання</h5>
             <div class="mb-3">
-                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >
             </div>
 
             <div class="form-check form-check-inline">
@@ -168,7 +172,7 @@
                 <label class="form-check-label">Загальний архів</label>
             </div>
 
-            <input type="text" class="form-control mt-2" name="storage_location" placeholder="Деталі (ряд, шафа, коробка...)">
+            <input type="text" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)">
 
         </div>
 

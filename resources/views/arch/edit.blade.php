@@ -23,7 +23,7 @@
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#packageModal">
                     🔍 Вибрати пакет
                 </button>
-                    <span id="s_package" class="text-muted">
+                    <span id="selected_package" class="text-muted">
                         {{ $document->packages->first()
                             ? ($document->packages->first()->national_name ?: $document->packages->first()->foreign_name)
                             : 'Не вибрано' }}
@@ -88,13 +88,17 @@
                     <input type="text" class="form-control" name="inventory" placeholder="{{ __('Inventory No.') }}" value="{{ $document->inventory }}">
                 </div>
 
-                <div class="col-md-6">
+                <<div class="col-md-4">
                     <label class="form-label">Дата реєстрації</label>
                     <input type="date" class="form-control" name="reg_date" value="{{ $document->reg_date }}">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Дата  в виробництві</label>
                     <input type="date" class="form-control" name="production_date" value="{{ $document->production_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Службова записка</label>
+                    <input type="text" class="form-control" name="notes" placeholder="{{ __('Службова записка') }}" value="{{ $document->notes }}">
                 </div>
             </div>
 
@@ -162,7 +166,7 @@
             {{-- === Зберігання === --}}
             <h5 class="mb-3">📂 Місце зберігання</h5>
             <div class="mb-3">
-                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >
                 <a href="{{ asset($document->scan) }}" target="_blank">Переглянути файл</a>
             </div>
 
@@ -175,13 +179,13 @@
                 <label class="form-check-label">Загальний архів</label>
             </div>
 
-            <input type="text" class="form-control mt-2" name="storage_location" placeholder="Деталі (ряд, шафа, коробка...)">
+            <input type="text" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)" value="{{ $document->storage_location }}">
 
         </div>
 
         <div class="card-footer text-end bg-light rounded-bottom-4">
             <a href="{{ route('archived-documents.index') }}" class="btn btn-secondary me-2">⬅ Назад</a>
-            <button type="submit" class="btn btn-success">💾 Створити</button>
+            <button type="submit" class="btn btn-success">💾 Зберегти</button>
         </div>
     </form>
 

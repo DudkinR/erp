@@ -16,7 +16,7 @@
     <h1>Документи</h1>
     <div class="row">
         <div class="col-md-12 mb-3">
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
             
             <a href="{{ route('archived-documents.load') }}?date={{ $documents->pluck('damp_date')->first() }}" class="btn btn-warning ">Завантажити документи</a>
             @endif
