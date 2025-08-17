@@ -21,7 +21,7 @@
             <h1 class="text-primary">{{ __('Master Tasks') }}</h1>
         </div>
     </div>
-    @if(Auth::user()->hasRole('quality-engineer','admin'))
+    @if(Auth::user()->hasRole('admin'))
     <div class="row mb-4">
         <div class="col-md-12">
             <a class="btn btn-success w-100 btn-lg mb-3" href="{{ route('master.create') }}">
@@ -120,7 +120,7 @@
 </div>
 
     @endforeach
-    @if(Auth::user()->hasRole('quality-engineer','admin'))
+    @if(Auth::user()->hasRole('admin'))
     <!-- Bottom New Task Button -->
     <div class="row mt-4">
         <div class="col-md-12">

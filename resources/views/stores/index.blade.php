@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('stores')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
             
                 <a class="text-right" href="{{ route('stores.create') }}">{{__('stores')}}</a>
            @endif </div>

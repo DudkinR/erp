@@ -9,7 +9,8 @@
             <h4 class="mb-0">📦 {{ $package->foreign_name ?: 'Без назви' }}</h4>
         </div>
         <div class="card-body">
-            <p><strong>Національна назва:</strong> {{ $package->national_name ?: '—' }}</p>
+            <p><strong>Українська назва:</strong> {{ $package->national_name ?: '—' }}</p>
+            <p><strong>Сторінки:</strong> {{ $package->pages() ?: '0' }}</p>
             <p><strong>Створено:</strong> {{ \Carbon\Carbon::parse($package->created_at)->format('d.m.Y H:i') }}</p>
         </div>
     </div>
@@ -26,7 +27,7 @@
                         <thead class="table-secondary">
                             <tr>
                                 <th>Назва</th>
-                                <th>Національна назва</th>
+                                <th>Українська назва</th>
                                 <th>Дата реєстрації</th>
                                 <th>Код</th>
                                 <th>Інвентарний</th>
@@ -34,15 +35,21 @@
                                 <th>Об'єкт</th>
                                 <th>Стадія</th>
                                 <th class="text-center">Файл</th>
+                                <th>Сторінки</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($package->documents as $doc)
                                 <tr>
-                                    <td>{{ $doc->foreign_name ?: '—' }}</td>
+                                    <td>
+                                    <a href="/archived-documents/{{$doc->id}}">
+                                    {{ $doc->foreign_name ?: '—' }}
+                                </a>        
+                                </td>
                                     <td
                                     @if($doc->national_name=='') class="bg-warning" @endif
-                                    >{{ $doc->national_name ?: '—' }}</td>
+                                    > <a href="/archived-documents/{{$doc->id}}">
+                                    {{ $doc->national_name ?: '—' }} </a>  </td>
                                     <td>{{ $doc->reg_date ?: '—' }}</td>
                                     <td>{{ $doc->code ?: '—' }}</td>
                                     <td>{{ $doc->inventory ?: '—' }}</td>
@@ -58,6 +65,7 @@
                                             <span class="text-muted">—</span>
                                         @endif
                                     </td>
+                                    <td>{{ $doc->pages ?: '0' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -68,9 +76,9 @@
             @endif
         </div>
         <div class="card-footer text-end bg-light rounded-bottom-4">
-            
+             @if(Auth::user()->hasRole('quality-engineer','admin'))
             <a href="{{ route('archived-documents.packages.edit', $package->id) }}" class="btn btn-warning">✏️ Редагувати пакет</a>
-            
+            @endif
             <a href="{{ route('archived-documents.packages') }}" class="btn btn-secondary">⬅ Повернутись</a>
         </div>
     </div>

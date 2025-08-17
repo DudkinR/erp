@@ -13,20 +13,20 @@
     <h1>Packages</h1>
     <div class="row">
         <div class="col-md-12 mb-3">
+             @if(Auth::user()->hasRole('quality-engineer','admin'))
             <a href="{{ route('archived-documents.create') }}" class="btn btn-primary">Додати документ</a>
+           @endif
             <button id="print-pdf" class="btn btn-secondary"
         onclick="exportPDF()"
         >Друкувати PDF</button>  
         </div>
     </div>
-
     <input type="text" id="search" placeholder="Пошук пакетів..." class="form-control mb-3">
     <div class="row">
         <div class="col-md-12">
             {{__('Total Packages') }}: <span id="total-packages">{{ count($packages) }}</span>
         </div>
     </div>
-
     <table class="table table-bordered" id="packages-table">
         <thead>
             <tr>
@@ -38,12 +38,11 @@
         </thead>
         <tbody></tbody>
     </table>
-
     <div class="d-flex justify-content-center mt-3" id="pagination"></div>
 </div>
-
 <script>
 const packages = @json($packages);
+
 let currentPage = 1;
 const rowsPerPage = 100;
 let sortColumn = null;
@@ -109,7 +108,7 @@ function renderTablePackages() {
                 <a href="/archived-packeges/${pkg.id}" target="_blank">
                 ${pkg.foreign_name ?? ''}</a>
                 </td>
-                <td>${pkg.documents ? pkg.documents.length : 0}</td>
+                <td>${pkg.total_pages ?? 0}</td>
                 <td>${docsHTML}</td>
             </tr>
         `;

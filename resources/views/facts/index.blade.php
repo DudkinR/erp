@@ -36,7 +36,7 @@
                                 <td>{{ $fact->name }}</td>
                                 <td>{!! $fact->description !!}
                                     <a href="{{ route('facts.show', $fact) }}">{{__('View')}}</a>
-                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                    @if(Auth::user()->hasRole('admin'))
                                     <a href="{{ route('facts.edit', $fact) }}">{{__('Edit')}}</a>
                                     <form method="POST" action="{{ route('facts.destroy', $fact) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">

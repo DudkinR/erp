@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Types')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
            
                 <a class="btn btn-success w-100" href="{{ route('types.create') }}">{{__('Create')}}</a>
             @endif </div>
@@ -79,7 +79,7 @@ function show_row(type)  {
         html += '</div>';
     }
     html += '</div>';
-    @if(Auth::user()->hasRole('quality-engineer','admin'))
+    @if(Auth::user()->hasRole('admin'))
     html += '<div class="col-md-2 d-flex flex-column">';
     html += '<a class="btn btn-success w-100" href="/types/' + type.id + '">{{__('View')}}</a>';
     html += '<a class="btn btn-warning w-100" href="/types/' + type.id + '/edit"> {{__('Edit')}}</a>';

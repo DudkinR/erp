@@ -42,7 +42,7 @@
                                                     <li>{{ $fun->name }}</li>
                                                 @endforeach
                                             </ul>
-                                            @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                            @if(Auth::user()->hasRole('admin'))
                                            
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFunctionModal">
                                                 {{__('Add Function')}}
@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                         @endforeach
-                    </div>     @if(Auth::user()->hasRole('quality-engineer','admin'))
+                    </div>     @if(Auth::user()->hasRole('admin'))
                    
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObjectiveModal">
                         {{__('Add Objective')}}
@@ -62,7 +62,7 @@
     <div class="modal fade" id="addObjectiveModal" tabindex="-1" role="dialog" aria-labelledby="addObjectiveModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                @if(Auth::user()->hasRole('admin'))
                 
                 <form method="POST" action="{{ route('objectives.store') }}">
                     <div class="modal-header">
@@ -99,7 +99,7 @@
     <div class="modal fade" id="addFunctionModal" tabindex="-1" role="dialog" aria-labelledby="addFunctionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">    
-                 @if(Auth::user()->hasRole('quality-engineer','admin'))
+                 @if(Auth::user()->hasRole('admin'))
                 
                 <form method="POST" action="{{ route('funs.store') }}">
                     <div class="modal-header">

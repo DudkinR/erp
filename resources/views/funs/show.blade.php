@@ -35,7 +35,7 @@
                     </div>
                 </div>
             </div>
-        </div> @if(Auth::user()->hasRole('quality-engineer','admin'))
+        </div> @if(Auth::user()->hasRole('admin'))
         <div class="row">
             <div class="col-md-6">
                

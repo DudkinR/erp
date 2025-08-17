@@ -19,7 +19,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('controls')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
                 <a class="text-right" href="{{ route('controls.create') }}">{{__('control add')}}</a>
                 @endif
             </div>
@@ -33,7 +33,7 @@
                             <th>{{__('Description')}}</th>
                             <th>{{__('Steps')}}</th>
                             <th>{{__('Dimensions')}}</th>
-                            @if(Auth::user()->hasRole('quality-engineer','admin'))
+                            @if(Auth::user()->hasRole('admin'))
                             <th>{{__('Actions')}}</th>
                             @endif
                         </tr>
@@ -55,7 +55,7 @@
                                         <a href="{{route("dimensions.show",$dimension->id)}}">{{ $dimension->name }}</a>
                                     @endforeach
                                 </td>
-                                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                @if(Auth::user()->hasRole('admin'))
                                 <td>
                                     
                                     <a href="{{ route('controls.edit',$control) }}" class="btn btn-primary">{{__('Edit')}}</a>

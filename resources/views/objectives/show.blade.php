@@ -39,7 +39,7 @@
                             </select>
                         </div>
                         <div class="col-md-4"><label for="exist">{{__('Exists Function')}}</label>
-                            @if(Auth::user()->hasRole('quality-engineer','admin'))    
+                            @if(Auth::user()->hasRole('admin'))    
                         <button type="button"
                             onclick="submitajax_exist(document.getElementById('exist').value);"
                         >{{__('Add')}}</button>
@@ -60,7 +60,7 @@
                                             <label for="description">{{ __('Description') }}</label>
                                             <textarea class="form-control" id="description" rows="6" name="description">{{ old('description') }}</textarea>
                                         </div>
-                                        @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                        @if(Auth::user()->hasRole('admin'))
                                         <button type="button" class="btn btn-primary" onclick="submitajax();">{{ __('Create') }}</button>
                                         @endif
                                     </form>
@@ -69,7 +69,7 @@
                             </div>
                         </div>
                     </div>
-                     @if(Auth::user()->hasRole('quality-engineer','admin'))
+                     @if(Auth::user()->hasRole('admin'))
                     <a href="{{ route('objectives.edit', $objective) }}" class="btn btn-warning w-100">{{ __('Edit') }}</a>
                     <form method="POST" action="{{ route('objectives.destroy', $objective) }}">
                         @csrf

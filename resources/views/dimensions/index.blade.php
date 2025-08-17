@@ -19,7 +19,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Dimension')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
                 <a class="text-right" href="{{ route('dimensions.create') }}">{{__('Create new')}}</a>
                 @endif
             </div>
@@ -33,7 +33,7 @@
                             </div>
                             <div class="card-body">
                                 <p>{{ $dimension->description }}</p>
-                                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                @if(Auth::user()->hasRole('admin'))
                                 <a href="{{ route('dimensions.edit',$dimension) }}">{{__('Edit')}}</a>
                                 <hr>
                                 <form method="POST" action="{{ route('dimensions.destroy',$dimension) }}">

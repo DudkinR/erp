@@ -26,10 +26,13 @@ class PersonalController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-      // return  Personal::find(1)->positions()->get();
-      $divisions = Division::where('name', 'ЗП КЕР-ВО')->get();
-        $personals = Personal::with('positions')
+    {       
+    //  $divisions = Division::where('name', 'ЗП КЕР-ВО')->get();
+      $personals = Personal
+      ::with('positions', 'divisions','rooms','phones')
+      ->get();
+      
+      /*with('positions')
         -> whereHas('divisions', function($query) use ($divisions){
             $query->whereIn('division_id', $divisions->pluck('id'));
         })
@@ -38,7 +41,7 @@ class PersonalController extends Controller
         ->with('positions', 'divisions','rooms','phones')
         ->get();
         //return $personals;
-        //$personals = Personal::orderBy('id', 'desc')->get();
+        //$personals = Personal::orderBy('id', 'desc')->get();*/
         return view('personals.index', compact('personals'));
     }
     public function search(Request $request)
@@ -232,11 +235,28 @@ class PersonalController extends Controller
             $user = new User([
                 'tn' => $request->tn,
                 'email' => $request->email,
-                'password' => bcrypt($request->tn)
+               // 'password' => bcrypt($request->tn)
             ]);
             $user->save();            
         }
-        // email 
+        // update user name
+        if($request->fio){
+            $user->name = $request->name;
+            $user->save();
+            $personal->fio = $request->name;
+            $personal->save();
+        }
+        if($request->old_password && $request->new_password == $request->new_password_confirmation){
+            if (Hash::check($request->old_password, $user->password)) {
+                if ($request->new_password) {
+                    $user->password = bcrypt($request->new_password);
+                }
+            } else {
+                return redirect()->back()->withErrors(['old_password' => 'Old password is incorrect']);
+            }
+        }
+
+        // email
         if($request->email){
             $user->email = $request->email;
             $user->save();
@@ -522,6 +542,24 @@ class PersonalController extends Controller
         $personal->rooms()->sync($rooms);
       return $personal;
 
+    }
+
+    // password update
+    public function password(Request $request)
+    {
+
+        return $request->all();
+
+        $user = Auth::user();
+
+        if (Hash::check($request->old_password, $user->password)) {
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return redirect()->back()->with('status', 'Password updated successfully.');
+        }
+
+        return redirect()->back()->withErrors(['old_password' => 'Old password is incorrect']);
     }
 
 }

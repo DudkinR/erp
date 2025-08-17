@@ -13,7 +13,7 @@
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <p><strong>Національна назва:</strong> {{ $document->national_name ?: '—' }}</p>
+                    <p><strong>Українська назва:</strong> {{ $document->national_name ?: '—' }}</p>
                     <p><strong>Дата реєстрації:</strong> {{ $document->reg_date ?: '—' }}</p>
                     <p><strong>Дата виготовлення:</strong> {{ $document->production_date ?: '—' }}</p>
                     <p><strong>Виконавець (КОР):</strong> {{ $document->kor ?: '—' }}</p>
@@ -34,6 +34,7 @@
                 <p><strong>Інвентарний номер:</strong> {{ $document->inventory ?: '—' }}</p>
                 <p><strong>Код:</strong> {{ $document->code ?: '—' }}</p>
                 <p><strong>Місце зберігання:</strong> {{ $document->storage_location ?: '—' }}</p>
+                <p><strong>{{__('Pages')}}:</strong> {{ $document->pages ?: '0' }}</p>
                 @if($document->path)
                     <p>
                         <strong>Файл:</strong>
@@ -64,7 +65,9 @@
         </div>
 
         <div class="card-footer text-end bg-light rounded-bottom-4">
+             @if(Auth::user()->hasRole('quality-engineer','admin'))
             <a href="{{ route('archived-documents.edit', $document->id) }}" class="btn btn-warning">✏️ Редагувати документ</a>
+            @endif
             <a href="{{ route('archived-documents.index') }}" class="btn btn-secondary">⬅ Повернутись</a>
         </div>
     </div>

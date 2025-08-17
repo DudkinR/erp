@@ -44,7 +44,7 @@
                         {{__('Actions')}}
                     </div>
                     <div class="card-body">
-                        @if(Auth::user()->hasRole('quality-engineer','admin'))
+                        @if(Auth::user()->hasRole('admin'))
                         <a href="{{ route('cars.edit', $car->id) }}" class="btn btn-warning">{{__('Edit')}}</a>
                         <form action="{{ route('cars.destroy', $car->id) }}" method="POST" style="display: inline;">
                             @csrf

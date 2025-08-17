@@ -10,9 +10,12 @@ class Adocument extends Model
     protected $table = 'adocuments';
     // fillable attributes
     protected $fillable = [
+       
         'foreign_name',
         'national_name',
+        'doc_type_id',
         'reg_date',
+        'pages',
         'production_date',
         'kor',
         'part',
@@ -25,10 +28,28 @@ class Adocument extends Model
         'inventory',
         'path',
         'storage_location',
+        'status'
     ];
     public function packages()
     {
         return $this->belongsToMany(Apackage::class, 'adocument_apackage');
     }
-    
+
+    public function documentRelations() // Відношення документів
+    {
+        return $this->hasMany(DocumentRelation::class, 'document_id');
+    }
+
+    public function replacedBy() // Документ, який замінює
+    {
+        return $this->hasOne(DocumentRelation::class, 'document_id')
+                    ->where('relation_type', 'replaced_by');
+    }
+
+    public function canceledBy() // Документ, який анульовано
+    {
+        return $this->hasOne(DocumentRelation::class, 'document_id')
+                    ->where('relation_type', 'canceled_by');
+    }
+
 }

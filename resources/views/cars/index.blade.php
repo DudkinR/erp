@@ -43,7 +43,7 @@ function showCar(id) {
                     <div class="card-body">
                         <p> ${car.gov_number}</p>
                         <p>${condition ? condition.name : ''}</p>
-                        @if(Auth::user()->hasRole('quality-engineer','admin'))
+                        @if(Auth::user()->hasRole('admin'))
                         <a href="${carShowUrl}" class="btn btn-primary">{{__('Show')}}</a>
                         <a href="/cars/${car.id}/edit" class="btn btn-warning">{{__('Edit')}}</a>
                         <form action="/cars/${car.id}" method="POST" style="display: inline;">
@@ -86,7 +86,7 @@ function showType(id) {
                         <div class="card-header">
                             <p>
                                 ${carTypeName}
-                                 @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                 @if(Auth::user()->hasRole('admin'))
                                 <a href="/cars/create?type_id=${id}" class="btn btn-primary float-right">{{__('Create')}}</a>
                                 @endif
                             </p>

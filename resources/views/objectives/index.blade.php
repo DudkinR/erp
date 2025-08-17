@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Objectives')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
                 <a class="btn btn-info w-100" href="{{ route('objectives.create') }}">{{__('Create')}}</a>
             @endif
             </div>
@@ -23,7 +23,7 @@
                     <a href="{{ route('objectives.show', $objective) }}"
                           class="btn btn-primary"
                     >{{__('Show')}}</a>
-                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                    @if(Auth::user()->hasRole('admin'))
                     <a href="{{ route('objectives.edit', $objective) }}"
                             class="btn btn-warning"
                     >{{__('Edit')}}</a>

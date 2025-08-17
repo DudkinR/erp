@@ -75,7 +75,7 @@
                     ">${dict.description}</td>
                     <td>${dict.example}
                     <hr>
-                     @if(Auth::user()->hasRole('quality-engineer','admin'))
+                     @if(Auth::user() &&  Auth::user()->hasRole('quality-engineer','admin'))
                         <a href="/dictionary/${dict.id}/show">Show</a> 
                         <a href="/dictionary/${dict.id}/edit">Edit</a> 
                         <form action="/dictionary/${dict.id}" method="POST" style="display:inline;">

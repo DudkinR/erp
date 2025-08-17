@@ -26,7 +26,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h1> {{$fact->name}} </h1>
-                                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                @if(Auth::user()->hasRole('admin'))
                                 <a href="{{ route('facts.edit',  $fact) }}" class="btn btn-warning">{{__('Edit')}}</a>
                                 <form method="POST" action="{{ route('facts.destroy', $fact) }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">

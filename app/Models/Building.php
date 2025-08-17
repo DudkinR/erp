@@ -10,7 +10,7 @@ class Building extends Model
 {
     use HasFactory;
     //table name
-    protected $table = 'building';
+    protected $table = 'buildings';
     //columns
     protected $fillable = [
         'IDBuilding',

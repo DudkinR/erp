@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Positions')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
                 <a class="text-right" href="{{ route('positions.create') }}">{{__('Create')}}</a>
                 @endif
             </div>
@@ -34,7 +34,7 @@
                                 <td>{{ $position->data_closed }}</td>
                                 <td>
                                          <a href="{{ route('positions.show', $position->id) }}">{{__('Show')}}</a>
-                                         @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                         @if(Auth::user()->hasRole('admin'))
                                     <a href="{{ route('positions.edit', $position->id) }}">{{__('Edit')}}</a>
                                
                                     <form method="POST" action="{{ route('positions.destroy', $position->id) }}">

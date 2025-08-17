@@ -10,6 +10,7 @@ class Apackage extends Model
     protected $table = 'apackages';
     // fillable attributes
     protected $fillable = [
+        
         'foreign_name',
         'national_name',
     ];
@@ -17,6 +18,8 @@ class Apackage extends Model
     {
         return $this->belongsToMany(Adocument::class, 'adocument_apackage');
     }
-
+    public function pages(){
+       return $this->documents->sum('pages');
+    }
 
 }

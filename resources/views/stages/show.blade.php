@@ -16,7 +16,7 @@
                 </div>
                 <div class="card-body">
                     <p>{!! nl2br(e($stage->description)) !!}</p>
-                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                    @if(Auth::user()->hasRole('admin'))
                     <div class="form-group mb-2">
                         <label for="new_step">{{ __('New Step') }}</label>
                         <div id="successful_step"></div>
@@ -25,7 +25,7 @@
                     </div>
                     @endif
                 </div>
-                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                @if(Auth::user()->hasRole('admin'))
                 <div class="card-footer">
                     <a href="{{ route('stages.edit', $stage) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                 </div>
@@ -33,7 +33,7 @@
             </div>
         </div>
     </div>
-    @if(Auth::user()->hasRole('quality-engineer','admin'))
+    @if(Auth::user()->hasRole('admin'))
     <div class="row">
         <div class="col-md-3">
             <h2>{{ __('Generate blank') }}</h2>

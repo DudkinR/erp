@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-md-12">
             <h1>{{__('Divisions')}}</h1>
-            @if(Auth::user()->hasRole('quality-engineer','admin'))
+            @if(Auth::user()->hasRole('admin'))
                 <a class="text-right" href="{{ route('divisions.create') }}">{{__('Create')}}</a>
                 @endif
             </div>
@@ -57,8 +57,9 @@
                                     {{ $division->name }}
                                 </td>
                                 <td>{{ $division->description }}</td>
-                                <td><a href="{{ route('divisions.show', $division->id) }}">{{__('Show')}}</a>
-                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                <td>
+                                    <a href="{{ route('divisions.show', $division->id) }}">{{__('Show')}}</a>
+                                    @if(Auth::user()->hasRole('admin'))
                                     <a href="{{ route('divisions.edit', $division->id) }}">{{__('Edit')}}</a>
                                     
                                     <form action="{{ route('divisions.destroy', $division->id) }}" method="POST">

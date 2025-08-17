@@ -12,21 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         //table rooms delete colmbn address, add column square, floor 
-        if (!Schema::hasColumn('rooms', 'address')) {
-            Schema::table('rooms', function (Blueprint $table) {
-                $table->string('address')->nullable();
-            });
-        }
-            if (!Schema::hasColumn('rooms', 'square')) {
-                Schema::table('rooms', function (Blueprint $table) {
-                    $table->dropColumn('square');
-                });
-            }
-        if (!Schema::hasColumn('rooms', 'floor')) {
-            Schema::table('rooms', function (Blueprint $table) {
-                $table->dropColumn('floor');
-            });
-        }
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->dropColumn('address');
+            $table->string('square')->nullable();
+            $table->string('floor')->nullable();
+        });
     }
 
     /**

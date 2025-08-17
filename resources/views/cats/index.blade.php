@@ -19,7 +19,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('cats')}}  </h1>
-                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                @if(Auth::user()->hasRole('admin'))
                 <a class="text-right" href="{{ route('cats.create') }}">{{__('Create Category')}}</a>
                 @endif
                 <table class="table">
@@ -39,7 +39,7 @@
                                 <td>{!! $category->description !!}
                                     <hr>
                                     <a href="{{ route('cats.show', $category) }}" class = "btn btn-info" >{{__('View')}}</a>
-                                    @if(Auth::user()->hasRole('quality-engineer','admin'))
+                                    @if(Auth::user()->hasRole('admin'))
                                     <a href="{{ route('cats.edit', $category) }}" class = "btn btn-warning">{{__('Edit')}}</a>
                                     <form method="POST" action="{{ route('cats.destroy', $category) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">

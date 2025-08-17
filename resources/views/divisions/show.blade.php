@@ -81,7 +81,7 @@
                     </ul>
                     @endif
                 </div>
-                @if(Auth::user()->hasRole('quality-engineer','admin'))
+                @if(Auth::user()->hasRole('admin'))
                 <div class="card-footer text-right">
                     <a href="{{ route('divisions.edit', $division->id) }}" class="btn btn-primary">{{ __('Edit') }}</a>
                     <form action="{{ route('divisions.destroy', $division->id) }}" method="POST" class="d-inline-block">

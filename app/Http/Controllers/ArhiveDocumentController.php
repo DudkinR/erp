@@ -5,27 +5,87 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Adocument;
 use App\Models\Apackage;
+use App\Models\DocType;
+use App\Models\Building;
+use App\Models\Division;
+use App\Models\DampAD;
+use App\Models\DampAP;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ArhiveDocumentController extends Controller
 {
+    public function panel()
+    {
+         $documents = Adocument::with('packages')
+        //->limit(13000)
+        ->get();
+        return view('arch.panel', compact('documents'));
+    }
+
     public function index()
     {
-        $documents = Adocument::with('packages')->get();
+        ini_set('memory_limit', '256M'); // або '512M' при потребі
+
+        $documents = Adocument::with('packages')
+        //->limit(13000)
+        ->get();
         return view('arch.index', compact('documents'));
     }
     // archivedPackages
     public function archivedPackages()
     {
-        $packages = Apackage::with('documents')->get();
+        ini_set('memory_limit', '256M'); // або '512M' при потребі
+
+        $packages = Apackage::with('documents')
+      //  ->limit(10)
+        ->get()->map(function ($package) {
+        $package->total_pages = $package->pages(); // додаємо нове поле
+            return $package;
+        });
         return view('arch.indexpackege', compact('packages'));
         
     }
+    //storePackage
+    public function storePackage(Request $request)
+    {
+        $request->validate([
+            'national_name' => 'required|string|max:255',
+            'foreign_name' => 'nullable|string|max:255',
+        ]);
+
+        $Apackage = new Apackage();
+        $Apackage->national_name = $request->input('national_name');
+        $Apackage->foreign_name = $request->input('foreign_name');
+        $Apackage->save();
+        // edit package
+        return redirect()->route('archived-documents.packages')->with('success', 'Пакет успішно створено.');
+    }
+
     public function create()
     {
+      /*  $docs = Adocument::all();
+        foreach ($docs as $doc) {
+         $foreing_name = $doc->foreign_name;
+         $national_name = $doc->national_name;
+         $type= DocType::where('foreign_name', $foreing_name)
+            ->first();
+            if (!$type) {
+                DocType::create([
+                    'old_id' => NULL,
+                    'foreign_name' => $foreing_name,
+                    'national_name' => $national_name,
+                ]);
+            }
+        }
+        */
         $packages = Apackage::all();
-        return view('arch.create', compact('packages'));
+         $docTypes = DocType::all();
+       $buildings = Building::all();
+        $develops = Division::all();
+     $docs = Adocument::all();
+
+        return view('arch.create', compact('packages', 'docTypes', 'buildings', 'develops', 'docs'));
     }
 
     public function show($id)
@@ -60,6 +120,7 @@ class ArhiveDocumentController extends Controller
         'foreign_name'    => $request->input('foreign_name', ''),
         'national_name'   => $request->input('national_name', ''),
         'reg_date'        => $request->input('reg_date', ''),
+        'pages'           => $request->input('pages', 0),
         'production_date' => $request->input('production_date', ''),
         'kor'             => $request->input('kor', ''),
         'part'            => $request->input('part', ''),
@@ -73,22 +134,36 @@ class ArhiveDocumentController extends Controller
         'path'            => '',
         'storage_location'=> $request->input('storage_location', ''),
     ]);
-    $file_name=  $request->input('unit', '')."_".$request->input('object', '')."_".$request->input('stage', '')."_".$request->input('code', '').$document ->id;
-    // загрузити файл, якщо він є зберегти в сторедж документація  і зберегти путь  розширеніе залишити
-    if ($request->hasFile('scan')) {
-        $file = $request->file('scan');
-        $file_path = $file->storeAs('documents', $file_name.'.'.$file->getClientOriginalExtension());
-        $document->path = $file_path;
-        $document->save();
+        $file_name=  $request->input('unit', '')."_".$request->input('object', '')."_".$request->input('stage', '')."_".$request->input('code', '').$document ->id;
+        // загрузити файл, якщо він є зберегти в сторедж документація  і зберегти путь  розширеніе залишити
+        if ($request->hasFile('scan')) {
+            $file = $request->file('scan');
+            $file_path = $file->storeAs('documents', $file_name.'.'.$file->getClientOriginalExtension());
+            $document->path = $file_path;
+            $document->save();
+        }
+        return redirect()->route('archived-documents.index')->with('success', 'Документ успішно створено та збережено в архіві.');
     }
-    return redirect()->route('archived-documents.index')->with('success', 'Документ успішно створено та збережено в архіві.');
-}
+   public function editPackage($id)
+    {
+        $package = Apackage::findOrFail($id);      
+        return view('arch.editp', compact( 'package'));
+    }
+    public function updatep(Request $request, Apackage $package)
+    {
+          $package->foreign_name    = $request->input('foreign_name', '');
+        $package->national_name   = $request->input('national_name', '');
+        $package->save();
+        return redirect()->route('archived-documents.packages.show', $package->id)
+                        ->with('success', 'Пакетт успішно оновлено.');
 
+    }
     public function edit($id)
     {
-        $document = Adocument::findOrFail($id);
+        $document = Adocument::findOrFail($id)->with('packages')->first();
+        $package = $document->packages->first();
         $packages = Apackage::all();
-        return view('arch.edit', compact('document', 'packages'));
+        return view('arch.edit', compact('document', 'packages', 'package'));
     }
 
 
@@ -111,6 +186,7 @@ class ArhiveDocumentController extends Controller
         $document->foreign_name    = $request->input('foreign_name', '');
         $document->national_name   = $request->input('national_name', '');
         $document->reg_date        = $request->input('reg_date', '');
+        $document->pages           = $request->input('pages', 0);
         $document->production_date = $request->input('production_date', '');
         $document->kor             = $request->input('kor', '');
         $document->part            = $request->input('part', '');
@@ -153,28 +229,29 @@ class ArhiveDocumentController extends Controller
     }
 
 
-    public function destroy($id)
+public function destroy($id)
     {
         Adocument::destroy($id);
         return response()->json(null, 204);
     }
     //import
-    public function import()
+  public function import()
     {
         return view('arch.import');
     }
 
-  
-
     public function importStore(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
-        ]);
+     
+       // return 8888;
         // Maximum execution time of 360 seconds exceeded
         ini_set('max_execution_time', 360);
-       
-        $path = $request->file('file')->getRealPath();
+        $path = storage_path('app/public/archive0.csv');
+
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'Файл не знайдено'], 404);
+        }
+      //  $path = $request->file('file')->getRealPath();
 
         if (($handle = fopen($path, 'r')) !== false) {
             $header = fgetcsv($handle, 1000, ','); // пропускаємо заголовок
@@ -187,7 +264,7 @@ class ArhiveDocumentController extends Controller
 
                     // 1. Пакет
                     $package = Apackage::firstOrCreate(
-                        ['id' => $row[0]], // зберігаємо ID з CSV
+                        ['id' => $row[1]], // зберігаємо ID з CSV
                         [
                             'foreign_name'  => $row[6], // Наименование проекта
                             'national_name' => "",
@@ -196,11 +273,12 @@ class ArhiveDocumentController extends Controller
 
                     // 2. Документ
                     $document = Adocument::firstOrCreate(
-                        ['id' => $row[1]], // ID документа з CSV
+                        ['id' => $row[0]], // ID документа з CSV
                         [
                             'foreign_name'     => $row[11], // NAME документа
                             'national_name'    => "",
                             'reg_date'         => $this->parseDate($row[2]),
+                            'pages'            => 0,
                             'kor'              => $row[3],
                             'part'             => $row[4],
                             'contract'         => $row[5],
@@ -212,6 +290,7 @@ class ArhiveDocumentController extends Controller
                             'inventory'        => $row[13],
                             'path'             => "",
                             'storage_location' => "",
+                            'status'           => 'active', // або інший статус за замовчуванням
                         ]
                     );
 
@@ -241,6 +320,7 @@ class ArhiveDocumentController extends Controller
     {
         $package = Apackage::findOrFail($id)
             ->load('documents'); // Завантажуємо документи, пов'язані з пакетом
+       // return  $package->pages();  
         return view('arch.package', compact('package'));
     } 
 
@@ -264,6 +344,15 @@ class ArhiveDocumentController extends Controller
                     'isHtml5ParserEnabled' => true,
                     'isRemoteEnabled' => true
                 ]);
+            $dompdf = $pdf->getDomPDF();
+            $canvas = $dompdf->getCanvas();
+            $cpdf = $canvas->get_cpdf();
+
+            // Додаємо метадані
+            $cpdf->setTitle('Архівний документ');
+            $cpdf->setAuthor('Система архівації');
+            $cpdf->setSubject('Документ з ID запиту');
+            $cpdf->setKeywords('архів, pdf, id, водяний знак');      
         } catch (\Exception $e) {
             \Log::error('PDF generation failed: '.$e->getMessage());
             return response()->json(['message' => 'PDF generation failed', 'error' => $e->getMessage()], 500);
@@ -271,134 +360,141 @@ class ArhiveDocumentController extends Controller
 
         return $pdf->download('archive.pdf');
     }
+    /*
 
+        Route::get('/archived-documents-load', 'App\Http\Controllers\ArhiveDocumentController@load')->name('archived-documents.load');
+         */
+    public function load(Request $request)
+    {
+        //set min time php
+        ini_set('max_execution_time', 300); // 5 minutes        
 
+        $date = $request->query('date');
+        $this->new_dump();
+        $this->reload_dump($date);
+        return redirect()->route('archived-documents.index')->with('success', 'Документи успішно завантажені з резервної копії. ('.$date.')');  
+    }
 
+    public function dump()
+    {
+        $dumps = DampAP::getUniqueDates();
+         return view('arch.dumpindex', compact('dumps'));
+    }
+    public function dumpStore(Request $request)
+    {
+       $this->new_dump();
+        return redirect()->route('archived-documents.dump.index')->with('success', 'Резервна копія успішно створена.');
+    }
 
+    //dumpDestroy
+    public function dumpDestroy($date)
+    {
+        DampAD::where('damp_date', $date)->delete();
+        DampAP::where('damp_date', $date)->delete();
 
-     public  $rus_words = [
-        'Альбом',
-        'Анализ',
-        'Ведомость деталей (сборочных единиц) к типовому (групповому) технологическому процессу(операции)',
-        'Ведомость деталей, изделий, приборов',
-        'Ведомость материалов',
-        'Ведомость объемов строительных и монтажных работ',
-        'Ведомость работы',
-        'Генплан (включая сводные и ситуационные планы, горизонтальные и вертикальные планировки и др..)',
-        'Детали закладные',
-        'Дополнительные материалы по анализу безопасности',
-        'Журнал силовых и контрольных кабелей',
-        'Задание заводу на оборудование',
-        'Задание техническое',
-        'Записка',
-        'Записка пояснительная к Проекту',
-        'Записка пояснительная к разработанной проектной документации по модернизации/реконструкции',
-        'Инструкция',
-        'Инструкция технологическая',
-        'Исполнительная документация',
-        'Карта технологическая',
-        'Классификация',
-        'Материалы',
-        'Методика (техническая) выполнения работ (расчетов)',
-        'Монтажный чертеж',
-        'Обоснование (Обосновывающие материалы)',
-        'Общие виды',
-        'Окончательный отчет по анализу безопасности',
-        'Описание',
-        'Описание техническое по эксплуатации',
-        'Опросный лист',
-        'Отчет',
-        'Отчет о расследовании нарушения в работе АС',
-        'Отчет о энергетическом пуске',
-        'Отчет по анализу безопасности',
-        'Паспорт',
-        'Перечень',
-        'Перечень материалов по техническому обоснованию безопасности',
-        'План аварийный ( в случае радиационной аварии)',
-        'План мероприятий при нарушений нормальных условий эксплуатации установок по обращению с РАО',
-        'Положение по выполнению работ',
-        'Предписание',
-        'Программа',
-        'Программа комплексная гидравлических (пневматических) испытаний',
-        'Программа технического обслуживания СВБ',
-        'Проект (энергоблока)',
-        'Проект изоляции и/или антикоррозионной защиты',
-        'Проект производства работ для строительства',
-        'Проект рабочий',
-        'Проект технический',
-        'Проект типовой',
-        'Расчет гидравлический (тепло-гидравлический)',
-        'Расчет на все виды воздействия',
-        'Расчет на прочность (сейсмостойкость, устойчивость)',
-        'Расчет электрический',
-        'Регламент',
-        'Реестр',
-        'Руководство по автоматизированным системам управления (руководство администратора программного обеспечения, программиста, пользователя)',
-        'Сборочные',
-        'Смета',
-        'Спецификация'
-    ];
-    public $ukr_words = [
-        'Альбом',
-        'Аналіз',
-        'Відомість деталей (складальних одиниць) до типового (групового) технологічного процесу (операції)',
-        'Відомість деталей, виробів, приладів',
-        'Відомість матеріалів',
-        'Відомість обсягів будівельних і монтажних робіт',
-        'Відомість роботи',
-        'Генплан (включаючи зведені та ситуаційні плани, горизонтальні та вертикальні планування тощо)',
-        'Деталі закладні',
-        'Додаткові матеріали з аналізу безпеки',
-        'Журнал силових і контрольних кабелів',
-        'Завдання заводу на обладнання',
-        'Завдання технічне',
-        'Записка',
-        'Записка пояснювальна до Проекту',
-        'Записка пояснювальна до розробленої проектної документації з модернізації/реконструкції',
-        'Інструкція',
-        'Інструкція технологічна',
-        'Виконавча документація',
-        'Карта технологічна',
-        'Класифікація',
-        'Матеріали',
-        'Методика (технічна) виконання робіт (розрахунків)',
-        'Монтажний креслення',
-        'Обґрунтування (Обґрунтовуючі матеріали)',
-        'Загальні види',
-        'Остаточний звіт з аналізу безпеки',
-        'Опис',
-        'Опис технічне з експлуатації',
-        'Опросний лист',
-        'Звіт',
-        'Звіт про розслідування порушення в роботі АС',
-        'Звіт про енергетичний пуск',
-        'Звіт з аналізу безпеки',
-        'Паспорт',
-        'Перелік',
-        'Перелік матеріалів з технічного обґрунтування безпеки',
-        'План аварійний (у разі радіаційної аварії)',
-        'План заходів при порушеннях нормальних умов експлуатації установок з поводження з РАО',
-        'Положення з виконання робіт',
-        'Припис',
-        'Програма',
-        'Програма комплексна гідравлічних (пневматичних) випробувань',
-        'Програма технічного обслуговування СВБ',
-        'Проект (енергоблоку)',
-        'Проект ізоляції та/або антикорозійного захисту',
-        'Проект виробництва робіт для будівництва',
-        'Проект робочий',
-        'Проект технічний',
-        'Проект типовий',
-        'Розрахунок гідравлічний (тепло-гідравлічний)',
-        'Розрахунок на всі види впливу',
-        'Розрахунок на міцність (сейсмостійкість, стійкість)',
-        'Розрахунок електричний',
-        'Регламент',
-        'Реєстр',
-        'Посібник з автоматизованим системам управління (посібник адміністратора програмного забезпечення, програміста, користувача)',
-        'Складальні',
-        'Кошторис',
-        'Специфікація'
-    ];
+        return redirect()->route('archived-documents.dump.index')->with('success', 'Резервна копія успішно видалена.');
+    }
+    //dumpShow
+    public function dumpShow($date)
+    {
+        $documents = DampAD::where('damp_date', $date)
+       ->with('package')
+       
+       ->get();
+        $packages = DampAP::where('damp_date', $date)->get();
+
+        return view('arch.dumpShow', compact('documents', 'packages'));
+    }
+
+    public function new_dump()
+    {
+        // Логіка для створення нового дампу
+        $date = now('Europe/Kiev')->subHours(3)->format('Y-m-d H:i:s');
+
+        $packages = Apackage::all();
+       foreach ($packages as $package) {
+            DampAP::create([
+                'damp_date' => $date,
+                'id_npp' => $package->id,
+                'foreign_name' => $package->foreign_name,
+                'national_name' => $package->national_name,
+            ]);
+        }
+        $docs = Adocument::with('packages')
+            ->get();
+            
+        foreach ($docs as $doc) {
+           // echo $doc->packages->first()->id;
+          DampAD::create([
+                'damp_date' => $date,
+                'id_npp' => $doc->id, // додано для відповідності DampAD
+                'foreign_name' => $doc->foreign_name,
+                'national_name' => $doc->national_name,
+                'doc_type_id' => $doc->doc_type_id,
+                'reg_date' => $doc->reg_date,
+                'production_date' => $doc->production_date,
+                'kor' => $doc->kor,
+                'part' => $doc->part,
+                'contract' => $doc->contract,
+                'develop' => $doc->develop,
+                'object' => $doc->object,
+                'unit' => $doc->unit,
+                'stage' => $doc->stage,
+                'code' => $doc->code,
+                'inventory' => $doc->inventory,
+                'path' => $doc->path,
+                'storage_location' => $doc->storage_location,
+                'status' => $doc->status? $doc->status : 'active', // якщо статус не вказано, встановлюємо 'active'
+                'package_id' => $doc->packages->first()->id ?? null, // якщо пакет не вказано, встановлюємо null
+            ]);
+        }
+    }
+
+    public function reload_dump($date)
+    {
+        // Видаляємо всі старі дані
+        Adocument::query()->delete();
+        Apackage::query()->delete();
+
+        // Завантажуємо пакети
+        $packages = DampAP::where('damp_date', $date)->get();
+        foreach ($packages as $package) {
+            Apackage::create([
+                'id' => $package->id, // бо id_npp у тебе null
+                'foreign_name' => $package->foreign_name,
+                'national_name' => $package->national_name,
+            ]);
+        }
+
+        // Завантажуємо документи
+        $documents = DampAD::where('damp_date', $date)->get();
+        foreach ($documents as $doc) {
+            $d = Adocument::create([
+                'id' => $doc->id, // а не id_npp
+                'foreign_name' => $doc->foreign_name,
+                'national_name' => $doc->national_name,
+                'doc_type_id' => $doc->doc_type_id,
+                'reg_date' => $doc->reg_date,
+                'production_date' => $doc->production_date,
+                'kor' => $doc->kor,
+                'part' => $doc->part,
+                'contract' => $doc->contract,
+                'develop' => $doc->develop,
+                'object' => $doc->object,
+                'unit' => $doc->unit,
+                'stage' => $doc->stage,
+                'code' => $doc->code,
+                'inventory' => $doc->inventory,
+                'path' => $doc->path,
+                'storage_location' => $doc->storage_location,
+                'status' => $doc->status ?? 'active',
+            ]);
+
+            if ($doc->package_id && Apackage::find($doc->package_id)) {
+                $d->packages()->attach($doc->package_id);
+            }
+        }
+    }
+
 
 }

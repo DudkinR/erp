@@ -35,7 +35,7 @@
                         <div class="card-body">
                             <p>{{ $mag->description }}</p>
                             <p>{{__('Published on')}}: {{ $mag->created_at }}</p>
-                       @if(Auth::user()->hasRole('quality-engineer','admin'))
+                       @if(Auth::user()->hasRole('admin'))
                                 <a href="{{ route('mag.edit', $mag) }}" class="btn btn-primary">{{__('Edit')}}</a>
                                 <form action="{{ route('mag.destroy', $mag) }}" method="POST" class="d-inline">
                                     @csrf
