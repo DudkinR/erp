@@ -13,23 +13,17 @@
         <div class="card-body">
         {{-- === Пакет === --}}
             <h5 class="mb-3">📦 Пакет</h5>
-
-            <div class="mb-3">
-            
+            <div class="mb-3">            
                 <input type="hidden" name="package_foreign_name" id="package_foreign_name" value="">
                 <input type="hidden" name="package_national_name" id="package_national_name" value="">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#packageModal">
-                    🔍 Вибрати пакет
+                    🔍 Вибрати пакет  
                 </button>
                     <span id="selected_package" class="text-muted">
-                        Не вибрано
+                         {{$packages[$_GET['package']]->national_name ?: $packages[$_GET['package']]->foreign_name ?: 'Не вибрано'}}
                     </span>
-                <input type="hidden" name="package_id" id="package_id" value="0">
-
+                <input type="hidden" name="package_id" id="package_id" value="{{$_GET['package'] ?? '0'}}">
             </div>
-
-          
-
             {{-- === Modal === --}}
             <div class="modal fade" id="packageModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
@@ -64,28 +58,36 @@
                     </div>
                 </div>
             </div>
-
-
             <hr>
-
             {{-- === Документ === --}}
             <h5 class="mb-3">📄 Картка документа</h5>
             <div class="row g-3">
-                <div class="col-md-4 position-relative">
+                <div class="col-md-6 position-relative">
                     <label class="form-label">Назва документа <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="national_name" required id="national_name" autocomplete="off" onfocus="initDocAutocomplete()">
                 </div>
-
-                <div class="col-md-4 position-relative">
+                <div class="col-md-6 position-relative">
                     <label class="form-label">Іноземна назва</label>
                     <input type="text" class="form-control" name="foreign_name" id="foreign_name" autocomplete="off" onfocus="initDocAutocomplete()">
                     <div id="doc_suggestions" class="list-group position-absolute w-100" style="z-index: 2002;"></div>
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Архівний №</label>
-                    <input type="text" class="form-control" name="inventory" placeholder="{{ __('Inventory No.') }}">
+                    <label class="form-label">Тип документа</label>
+                    <select name="doc_type_id" id="doc_type" class="form-select">
+                        <option value=""></option>
+                        @foreach ($docTypes as $type)
+                            <option value="{{ $type->id }}">{{ __($type->national_name ?: $type->foreign_name) }}</option>
+                        @endforeach
+                    </select>
                 </div>
-
+                <div class="col-md-4 position-relative">
+                    <label class="form-label">Архівний №</label>
+                    <input type="text" class="form-control" name="archive_number" placeholder="{{ __('Archive No.') }}">
+                </div>
+                <div class="col-md-4 position-relative">
+                    <label class="form-label">Інвентарний №</label>
+                    <input type="text" class="form-control" name="inventory_number" placeholder="{{ __('Inventory No.') }}">
+                </div>
                 <div class="col-md-4">
                     <label class="form-label">Дата реєстрації</label>
                     <input type="date" class="form-control" name="reg_date">

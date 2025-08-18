@@ -27,6 +27,7 @@ class Adocument extends Model
         'stage',
         'code',
         'inventory',
+        'archive_number', // New field for archive number
         'path',
         'storage_location',
         'status'

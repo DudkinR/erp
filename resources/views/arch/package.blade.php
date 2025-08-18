@@ -77,6 +77,9 @@
         </div>
         <div class="card-footer text-end bg-light rounded-bottom-4">
              @if(Auth::user()->hasRole('quality-engineer','admin'))
+
+             <a href="{{ route('archived-documents.create') }}?package={{ $package->id }}" class="btn btn-primary">Додати документ</a>
+
             <a href="{{ route('archived-documents.packages.edit', $package->id) }}" class="btn btn-warning">✏️ Редагувати пакет</a>
             @endif
             <a href="{{ route('archived-documents.packages') }}" class="btn btn-secondary">⬅ Повернутись</a>

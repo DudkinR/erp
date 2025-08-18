@@ -130,7 +130,8 @@ class ArhiveDocumentController extends Controller
         'unit'            => $request->input('unit', ''),
         'stage'           => $request->input('stage', ''),
         'code'            => $request->input('code', ''),
-        'inventory'       => $request->input('inventory', ''),
+        'inventory'       => $request->input('inventory_number', ''),
+        'archive_number'  => $request->input('archive_number', ''),
         'path'            => '',
         'storage_location'=> $location,
     ]);
@@ -195,6 +196,7 @@ class ArhiveDocumentController extends Controller
         $document->stage           = $request->input('stage', '');
         $document->code            = $request->input('code', '');
         $document->inventory       = $request->input('inventory', '');
+        $document->archive_number  = $request->input('archive_number', '');
         $document->storage_location= $request->input('location', ''); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // Ім'я файлу для збереження
@@ -290,6 +292,7 @@ public function destroy($id)
                             'stage'            => $row[10],
                             'code'             => $row[12],
                             'inventory'        => $row[13],
+                            'archive_number'   => "",
                             'path'             => "",
                             'storage_location' => "",
                             'status'           => 'active', // або інший статус за замовчуванням
@@ -446,6 +449,7 @@ public function destroy($id)
                 'stage' => $doc->stage,
                 'code' => $doc->code,
                 'inventory' => $doc->inventory,
+                'archive_number' => $doc->archive_number,
                 'path' => $doc->path,
                 'storage_location' => $doc->storage_location,
                 'status' => $doc->status? $doc->status : 'active', // якщо статус не вказано, встановлюємо 'active'
@@ -491,6 +495,7 @@ public function destroy($id)
                 'stage' => $doc->stage,
                 'code' => $doc->code,
                 'inventory' => $doc->inventory,
+                'archive_number' => $doc->archive_number,
                 'path' => $doc->path,
                 'storage_location' => $doc->storage_location,
                 'status' => $doc->status ?? 'active',
