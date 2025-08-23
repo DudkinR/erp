@@ -316,7 +316,7 @@
 const briefs = @json($briefs); 
 let risk = 0;
 let realRiskReasons = []; //  рельний вплив на ризик різних факторів
-let reasons = {}; // назначенний вплив на ризик від дій
+let reasons = {}; // назначенний вплив на ризик Вид дій
 
 // Function to calculate real risk based on selected actions
 function countRealRisk(initialRisk) {

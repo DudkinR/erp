@@ -19,7 +19,7 @@ class CarController extends Controller
     {
         //
         $cars = Car::orderBy('id', 'asc')->get();
-        $allTypes = Type::all();
+        $allTypes = Type::all()->keyBy('id')->values();
        // 'name', 'type_id', 'gov_number', 'condition_id', 'driver_personal_id'
         return view('cars.index', compact('cars' , 'allTypes'));
     }
@@ -68,7 +68,7 @@ class CarController extends Controller
     {
         //
         $car = Car::find($id);
-        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id');
+        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id')->values();
         return view('cars.edit', compact('car', 'all_types'));
     }
 
@@ -113,7 +113,7 @@ class CarController extends Controller
     public function carorders()
     {
         //
-       $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id');
+       $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id')->values();
         $carorders = CarOrder::orderBy('id', 'asc')->get();
         return view('carorders.index', compact('carorders', 'all_types'));
     }
@@ -121,7 +121,7 @@ class CarController extends Controller
     public function createCarOrder()
     {
         //
-        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id');
+        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id')->values();
         return view('carorders.create', compact('all_types'));
     }
 
@@ -156,7 +156,7 @@ class CarController extends Controller
     {
         //
         $carorder = CarOrder::find($id);
-        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id');
+        $all_types = Type::orderBy('id', 'asc')->get()->keyBy('id')->values();
         
         return view('carorders.edit', compact('carorder', 'all_types'));
     }
@@ -205,7 +205,7 @@ class CarController extends Controller
         })
         ->get();
         $cars = Car::orderBy('type_id', 'asc')->get();
-        $allTypes = Type::orderBy('id', 'asc')->get()->keyBy('id');
+        $allTypes = Type::orderBy('id', 'asc')->get()->keyBy('id')->values();
         $carorders = CarOrder::orderBy('id', 'asc')->get();
         $date=date('Y-m-d');
        // 'name', 'type_id', 'gov_number', 'condition_id', 'driver_personal_id'

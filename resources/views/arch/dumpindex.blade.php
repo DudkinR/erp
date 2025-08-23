@@ -41,7 +41,7 @@
                                     <a href="{{ route('archived-documents.dump.show', $dump) }}" class="btn btn-sm btn-info">
                                         <i class="bi bi-eye"></i> Переглянути
                                     </a>
-                                    <form action="{{ route('archived-documents.destroy',  $dump) }}" 
+                                    <form action="{{ route('archived-dump.destroy',  $dump) }}" 
                                           method="POST" 
                                           class="d-inline"
                                           onsubmit="return confirm('Ви впевнені, що хочете видалити цей дамп?');">

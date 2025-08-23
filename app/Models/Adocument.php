@@ -10,27 +10,27 @@ class Adocument extends Model
     protected $table = 'adocuments';
     // fillable attributes
     protected $fillable = [
-       
-        'foreign_name',
-        'national_name',
-        'doc_type_id',
-        'reg_date',
-        'pages',
-        'notes',
-        'production_date',
-        'kor',
-        'part',
-        'contract',
-        'develop',
-        'object',
-        'unit',
-        'stage',
-        'code',
-        'inventory',
-        'archive_number', // New field for archive number
-        'path',
-        'storage_location',
-        'status'
+
+        'foreign_name', // російска або англійська назва
+        'national_name', // українська назва
+        'doc_type_id', // ID типу документа
+        'reg_date', // дата реєстрації
+        'pages', // кількість сторінок
+        'notes', // номер службової записки
+        'production_date', // дата в виробництві
+        'kor', // виконавець
+        'part', // частина
+        'contract', // договор
+        'develop', // розробник
+        'object', // об'єкт
+        'unit', // блок
+        'stage', // стадія проекта
+        'code', // шифр розробника
+        'inventory', // інвентарний номер
+        'archive_number', // архівний номер
+        'path', // шлях на сервері
+        'storage_location', // місце зберігання оригінала
+        'status' // статус (діючий / анульований)
     ];
     public function packages()
     {
@@ -52,6 +52,29 @@ class Adocument extends Model
     {
         return $this->hasOne(DocumentRelation::class, 'document_id')
                     ->where('relation_type', 'canceled_by');
+    }
+    public function relatedDocs()
+    {
+        return $this->belongsToMany(
+            Adocument::class,  // зв'язуємо саму модель Adocument
+            'doc_doc',         // таблиця
+            'doc_id',          // поле в doc_doc яке вказує на цей документ
+            'related_doc_id'   // поле на пов'язаний документ
+        )
+        ->withPivot('type')
+        ->wherePivot('type', 'A');
+    }
+    // back relations doc_doc
+    public function replacedBack()
+    {
+        return $this->belongsToMany(
+            Adocument::class,  // зв'язуємо саму модель Adocument
+            'doc_doc',         // таблиця
+            'related_doc_id',  // поле в doc_doc яке вказує на цей документ
+            'doc_id'           // поле на пов'язаний документ
+        )
+        ->withPivot('type')
+        ->wherePivot('type', 'A');
     }
 
 }

@@ -14,7 +14,7 @@ class JitqwController extends Controller
     public function index()
     {
         //
-        $jitqws = Jitqw::all();
+        $jitqws = Jitqw::all()->keyBy('id')->values();
        
         return view('jitqws.index', compact('jitqws'));
     }
@@ -25,7 +25,7 @@ class JitqwController extends Controller
     public function create()
     {
         //
-        $briefs = Brief::all();
+        $briefs = Brief::all()->keyBy('id')->values();
         return view('jitqws.create', compact('briefs'));
     }
 
@@ -59,7 +59,7 @@ class JitqwController extends Controller
     {
         //
         $jitqw = Jitqw::find($id);
-        $briefs = Brief::all();
+        $briefs = Brief::all()->keyBy('id')->values();
         return view('jitqws.edit', compact('jitqw', 'briefs'));
     }
 

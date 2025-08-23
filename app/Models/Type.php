@@ -11,7 +11,7 @@ class Type extends Model
     // table name
     protected $table = 'types';
     // fillable fields `name`, `description`, `icon`, `color`, `slug`, `parent_id`
-    protected $fillable = ['name', 'description', 'icon', 'color', 'slug', 'parent_id'];
+    protected $fillable = ['name', 'foreing', 'description', 'icon', 'color', 'slug', 'parent_id'];
     // parent
     public function parent()
     {

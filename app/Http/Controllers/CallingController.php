@@ -42,7 +42,7 @@ class CallingController extends Controller
         ->with(['workers.divisions','workers.positions'])
         ->orderBy('id', 'asc')
         ->get()
-        ->keyBy('id');
+        ->keyBy('id')->values();
         if($filter == null){
             $filter="all";
         }
@@ -56,10 +56,10 @@ class CallingController extends Controller
                 ->with(['workers.divisions','workers.positions'])
                 ->orderBy('id', 'asc')
                 ->get()
-                ->keyBy('id');
+                ->keyBy('id')->values();
             }
             else{
-                $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id');
+                $callings = Calling::with( ['workers.divisions','workers.positions']) ->where('status', 'VONtaOP')->orderBy('id', 'asc')->get()->keyBy('id')->values();
             }
             if($filter == null){
                 $filter="in_vonop";
@@ -72,7 +72,7 @@ class CallingController extends Controller
             ->with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
             ->get()
-            ->keyBy('id');
+            ->keyBy('id')->values();
             if($filter == null){
                 $filter="in_profcom";
              }
@@ -83,7 +83,7 @@ class CallingController extends Controller
          //   ->where('status', 'SVNtaPB')
            -> with(['workers.divisions','workers.positions'])
             ->orderBy('id', 'asc')
-            ->get()->keyBy('id');     
+            ->get()->keyBy('id')->values();     
             if($filter == null){
                 $filter="in_svn";
              }       
@@ -109,7 +109,7 @@ class CallingController extends Controller
             ->with(['workers.divisions', 'workers.positions'])
             ->orderBy('id', 'asc')
             ->get()
-            ->keyBy('id');
+            ->keyBy('id')->values();
             if($filter == null){
                 $filter="in_boss";
              }
@@ -126,7 +126,7 @@ class CallingController extends Controller
             ->orwhere('personal_arrival_id',null)
             ->orwhere('personal_end_id',null)
          //   ->with(['workers.divisions'])      */     
-             ->orderBy('id', 'asc')->get()->keyBy('id');
+             ->orderBy('id', 'asc')->get()->keyBy('id')->values();
              if($filter == null){
                 $filter="in_sup";
              }
@@ -145,7 +145,7 @@ class CallingController extends Controller
         ->with(['workers.divisions'])
         ->orderBy('id', 'asc')
         ->get()
-        ->keyBy('id');
+        ->keyBy('id')->values();
         if($filter == null){
             $filter="today";
             }
@@ -192,13 +192,13 @@ class CallingController extends Controller
             return redirect()->route('callings.index', ['filter' =>$request->filter]);
         } 
         $callings = Calling::where('status', 'for_print')->
-        with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id');
+        with(['workers.divisions'])->orderBy('id', 'asc')->get()->keyBy('id')->values();
         return view('callings.FormOrder', compact('callings'));       
     }
      public function callingsOrder(Request $request){
        $callings=Calling::whereIn('id',$request->call_)
         ->orderBy('type_id','asc')
-        ->get()->keyBy('id');
+        ->get()->keyBy('id')->values();
 
         $Workings=[];
         $divisions =[];
@@ -520,7 +520,7 @@ class CallingController extends Controller
                 $query->whereIn('division_id', $userDivisionIds);
             })
             ->with(['positions'])
-            ->get()->keyBy('id');
+            ->get()->keyBy('id')->values();
             return view('callings.create', ['DI' => $publicInformation, 'personnelInSameDivisions'=>$personnelInSameDivisions]);
         } 
         return view('callings.create', ['DI' => $publicInformation]);
@@ -532,11 +532,11 @@ class CallingController extends Controller
             $all_types[$type->id] = $type;  
         }
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id')->values();
         $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
-        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get()->keyBy('id');
+        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get()->keyBy('id')->values();
         $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
-        $works_types = Type::where('parent_id', $works_type->id)->get()->keyBy('id');
+        $works_types = Type::where('parent_id', $works_type->id)->get()->keyBy('id')->values();
         $works_names = [];
         foreach($works_types as $work_type){
             $finish_types = Type::where('parent_id', $work_type->id)->get();
@@ -698,7 +698,7 @@ class CallingController extends Controller
     public function print(string $id)
     {
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id')->values();
         $calling = Calling::find($id);
         return view('callings.print', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }
@@ -706,7 +706,7 @@ class CallingController extends Controller
     public function printBlank(string $id)
     {
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id');
+        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id')->values();
         $calling = Calling::find($id);
         return view('callings.printBlank', ['calling' => $calling , 'Oplata_pratsi_ids' => $Oplata_pratsi_ids]);
     }

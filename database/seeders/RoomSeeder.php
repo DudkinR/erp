@@ -17,9 +17,9 @@ class RoomSeeder extends Seeder
     {
         //
         Room::factory()->count(10)->create();
-        $rooms = Room::all();
-        $phones = Phone::all();
-        $buildings = Building::all();
+        $rooms = Room::all()->keyBy('id')->values();
+        $phones = Phone::all()->keyBy('id')->values();
+        $buildings = Building::all()->keyBy('id')->values();
         for($i = 0; $i < 10; $i++){
             foreach ($rooms as $room) {
                 $room->phones()->attach($phones->random()->id);

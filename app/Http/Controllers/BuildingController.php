@@ -244,7 +244,7 @@ class BuildingController extends Controller
             Log::error("Bindings: " . json_encode($e->getBindings()));
             return redirect()->route('buildings.index')->withErrors(['msg' => 'Error during import']);
         }
-$rooms = Room::all();
+$rooms = Room::all()->keyBy('id')->values();
         return $rooms;
        // return redirect()->route('buildings.index')->with('success', 'Data imported successfully');
     }

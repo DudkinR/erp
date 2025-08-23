@@ -548,7 +548,7 @@ class PersonalController extends Controller
     public function password(Request $request)
     {
 
-        return $request->all();
+        return $request->all()->keyBy('id')->values();
 
         $user = Auth::user();
 

@@ -34,7 +34,7 @@ return new class extends Migration
                 $table->string('object')->nullable(); //Obekt	
                 $table->string('unit')->nullable(); //Блок	
                 $table->string('stage')->nullable(); //Стадия_проекта	
-               $table->string('code')->nullable();  //Шифр (обозначение документа)	
+               $table->string('code')->nullable();  //Шифр  документа (обозначение документа)	
                 $table->string('inventory')->nullable(); //Инв_№разраб_пр
                $table->string('path')->nullable();  // file puth
                 $table->string('storage_location')->nullable(); // Місце зберігання            

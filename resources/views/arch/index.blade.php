@@ -13,6 +13,7 @@
     <h1>Документи</h1>
     <div class="row">
         <div class="col-md-12 mb-3">
+             <a href="{{ route('archived-documents.panel') }}" class="btn btn-light">Повернутися</a>
             @if(Auth::user()->hasRole('quality-engineer','admin'))
             <a href="{{ route('archived-documents.create') }}" class="btn btn-primary">Додати документ</a>
             @endif
@@ -21,9 +22,56 @@
         >Друкувати PDF</button>  
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
 
+            <label for="search_type">Вид:</label>
+            <input type="checkbox" name="search_type" id="search_type" checked>
+            <label for="search_name">Назва:</label>
+            <input type="checkbox" name="search_name" id="search_name" checked>
+            {{-- служебна записка архівний номер інвентарний номер Дати реєстрації виконавець розробник договір блок об'єкт статус--}}
+            
+            <label for="search_inventory">Інв №:</label>
+            <input type="checkbox" name="search_inventory" id="search_inventory" checked>
 
-    <input type="text" id="search" placeholder="Пошук..." class="form-control mb-3">
+            <label for="search_archive_number">Арх №:</label>
+            <input type="checkbox" name="search_archive_number" id="search_archive_number" checked>
+            <label for="search_code">Шифр:</label>
+            <input type="checkbox" name="search_code" id="search_code" checked>
+            <label for="search_kor">Кореспондент:</label>
+            <input type="checkbox" name="search_kor" id="search_kor" checked>
+            <label for="search_reg_date">Дата реєстрації:</label>
+            <input type="checkbox" name="search_reg_date" id="search_reg_date" checked>
+            <label for="search_executor">Виконавець:</label>
+            <input type="checkbox" name="search_executor" id="search_executor" checked>
+            <label for="search_developer">Розробник:</label>
+            <input type="checkbox" name="search_developer" id="search_developer" checked>
+            <label for="search_contract">Договір:</label>
+            <input type="checkbox" name="search_contract" id="search_contract" checked>
+            <label for="search_block">Блок:</label>
+            <input type="checkbox" name="search_block" id="search_block" checked>
+            <label for="search_object">Об'єкт:</label>
+            <input type="checkbox" name="search_object" id="search_object" checked>
+            <label for="search_status">Статус:</label>
+            <input type="checkbox" name="search_status" id="search_status" checked>
+            <label for="search_note">Сл.з:</label>
+            <input type="checkbox" name="search_note" id="search_note" checked>
+        </div>
+    </div>            
+    <div class="row">
+        <div class="col-md-8">
+            <input type="text" id="search" placeholder="Пошук..." class="form-control mb-3">
+        </div>
+        <div class="col-md-2">
+            <label for="search_start_date">Дата початку:</label>
+            <input type="date" id="search_start_date" value="">
+        </div>
+        <div class="col-md-2">
+            <label for="search_end_date">Дата закінчення:</label>
+            <input type="date" id="search_end_date" value="{{ date('Y-m-d') }}">
+        </div>
+
+    </div>
 
     <div class="row">
         <div class="col-md-12">
@@ -61,14 +109,93 @@ let sortAsc = true;
 let searchTerm = "";
 function renderTableAD() {
     const tableBody = document.querySelector('#docs-table tbody');
-    let filtered = documents.filter(doc => {
-        const docValues = Object.values(doc).map(v => (v ?? '').toString().toLowerCase());
-        const packagesStr = doc.packages.map(p => (p.foreign_name ?? '').toLowerCase()).join(' ');
-        const searchLower = searchTerm.toLowerCase();
+   let searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
 
-        // Пошук по полях документа або по пакетах
-        return docValues.some(val => val.includes(searchLower)) || packagesStr.includes(searchLower);
-    });
+let filtered = documents
+    .map(doc => {
+        let score = 0; // кількість співпадень
+
+        const fields = [];
+
+        if (document.getElementById('search_type').checked) {
+            fields.push(doc.type ?? '');
+        }
+        if (document.getElementById('search_name').checked) {
+            fields.push(doc.foreign_name ?? '', doc.national_name ?? '');
+        }
+        if (document.getElementById('search_kor').checked) {
+            fields.push(doc.kor ?? '');
+        }
+        if (document.getElementById('search_inventory').checked) {
+            fields.push(doc.inventory ?? '');
+        }
+        if (document.getElementById('search_archive_number').checked) {
+            fields.push(doc.archive_number ?? '');
+        }
+        if (document.getElementById('search_code').checked) {
+            fields.push(doc.code ?? '');
+        }
+        if (document.getElementById('search_reg_date').checked) {
+            fields.push(doc.reg_date ?? '');
+        }
+        if (document.getElementById('search_executor').checked) {
+            fields.push(doc.executor ?? '');
+        }
+        if (document.getElementById('search_developer').checked) {
+            fields.push(doc.develop ?? '');
+        }
+        if (document.getElementById('search_contract').checked) {
+            fields.push(doc.contract ?? '');
+        }
+        if (document.getElementById('search_block').checked) {
+            fields.push(doc.unit ?? '');
+        }
+        if (document.getElementById('search_object').checked) {
+            fields.push(doc.object ?? '');
+        }
+        if (document.getElementById('search_status').checked) {
+            fields.push(doc.status ?? '');
+        }
+        if (document.getElementById('search_note').checked) {
+            fields.push(doc.notes ?? '');
+        }
+
+        // пакети
+        const packagesStr = doc.packages.map(p =>
+            `${p.foreign_name ?? ''} ${p.national_name ?? ''}`
+        ).join(' ');
+        fields.push(packagesStr);
+
+        // рахунок співпадінь
+        const text = fields.join(' ').toLowerCase();
+        searchWords.forEach(word => {
+            if (word && text.includes(word)) {
+                score++;
+            }
+        });
+
+        return { doc, score };
+    })
+    .filter(item => item.score > 0) // тільки ті, що мають співпадіння
+    .sort((a, b) => b.score - a.score) // більше співпадінь — вище
+    .map(item => item.doc);
+
+
+    // --- окремий фільтр по датах ---
+    const startDate = document.getElementById('search_start_date').value;
+    const endDate = document.getElementById('search_end_date').value;
+
+    if (startDate || endDate) {
+        filtered = filtered.filter(doc => {
+            if (!doc.reg_date) return false;
+            const docDate = new Date(doc.reg_date);
+
+            if (startDate && docDate < new Date(startDate)) return false;
+            if (endDate && docDate > new Date(endDate)) return false;
+            return true;
+        });
+    }
+
 
     if (sortColumn) {
         filtered.sort((a, b) => {

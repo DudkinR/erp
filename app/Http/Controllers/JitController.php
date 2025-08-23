@@ -28,7 +28,7 @@ class JitController extends Controller
      */
     public function create()
     {
-        $jitqws = Jitqw::all();
+        $jitqws = Jitqw::all()->keyBy('id')->values();
         return view('jits.create', compact('jitqws'));
     }
 
@@ -54,7 +54,7 @@ class JitController extends Controller
     public function edit(string $id)
     {
         //
-        $jitqws = Jitqw::all();
+        $jitqws = Jitqw::all()->keyBy('id')->values();
         $jit = Jit::find($id);
         return view('jits.edit', compact('jit', 'jitqws'));
     }
@@ -121,7 +121,7 @@ class JitController extends Controller
                 $brief->save();
             }
         }
-        return Brief::all();
+        return Brief::all()->keyBy('id')->values();
     
     $opyts= DB::connection('mysql2')->table('oput_bp')
        ->select('text','npp','system','action','equipment','year','post','cause','take') 
@@ -172,7 +172,7 @@ class JitController extends Controller
             );
         }
         //Хмельницкой АЭС
-        return Experience::all();
+        return Experience::all()->keyBy('id')->values();
         */
 
    /* public function NPP($npp,$text)

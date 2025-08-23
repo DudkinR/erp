@@ -17,6 +17,13 @@
                             <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}"  autofocus>
                       
                     </div>
+         
+                    <div class="form-group">
+                        <label for="foreing" >{{__('Foreing')}}</label>
+                        
+                            <input id="foreing" type="text" class="form-control" name="foreing" value="{{ old('foreing') }}"  autofocus>
+                      
+                    </div>
                     <div class="form-group">
                         <label for="description" >{{__('Description')}}</label>                        
                             <textarea id="description" rows=7 class="form-control" name="description"  autofocus>{{ old('description') }}</textarea>                                

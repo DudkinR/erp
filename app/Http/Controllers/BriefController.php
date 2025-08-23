@@ -15,7 +15,7 @@ class BriefController extends Controller
     public function index()
     {
         //
-        $briefs= Brief::all();
+        $briefs= Brief::all()->keyBy('id')->values();
        
         return view('briefs.index', compact('briefs'));
 
@@ -56,7 +56,7 @@ class BriefController extends Controller
         $causes = Type::where('parent_id', $causes_parent->id)->get();
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
-        $jits = Jit::all();
+        $jits = Jit::all()->keyBy('id')->values();
         // only id
          $myjits = $this->jits($brief)
          ->pluck('id')

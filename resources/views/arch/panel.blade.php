@@ -4,34 +4,8 @@
 <div class="container py-5">
     <h1 class="mb-4 text-center fw-bold">{{ __('Document Archive Control Panel') }}</h1>
 
-    <div class="row g-4">
-        <!-- Створити пакет -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📦 {{ __('Create Package') }}</h5>
-                    <p class="text-muted">{{ __('Add a new document package to the archive') }}</p>
-                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createPackageModal">
-                        {{ __('Create') }}
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Створити документ -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📄 {{ __('Create Document') }}</h5>
-                    <p class="text-muted">{{ __('Register a new document into the archive') }}</p>
-                    <a class="btn btn-success w-100" href="{{ route('archived-documents.create') }}">
-                        {{ __('Create') }}
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Пошук пакета -->
+    <div class="row g-4">     
+         <!-- Пошук пакета -->
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
@@ -56,8 +30,33 @@
                 </div>
             </div>
         </div>
+        <!-- Створити пакет -->
+         @if(Auth::user()->hasRole('quality-engineer','admin'))  
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📦 {{ __('Create Package') }}</h5>
+                    <p class="text-muted">{{ __('Add a new document package to the archive') }}</p>
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createPackageModal">
+                        {{ __('Create') }}
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        <!-- Редагування -->
+        <!-- Створити документ -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📄 {{ __('Create Document') }}</h5>
+                    <p class="text-muted">{{ __('Register a new document into the archive') }}</p>
+                    <a class="btn btn-success w-100" href="{{ route('archived-documents.create') }}">
+                        {{ __('Create') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+ <!-- Редагування -->
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
@@ -75,12 +74,43 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">📦 {{ __('Dump Documents') }}</h5>
                     <p class="text-muted">{{ __('Create a dump of all documents') }}</p>
+                     
                     <a class="btn btn-secondary w-100" href="{{ route('archived-documents.dump.index') }}">
                         {{ __('Dump') }}
+                    </a>
+                   
+                </div>
+            </div>
+        </div>
+        <!-- налаштування -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">⚙️ {{ __('Settings') }}</h5>
+                    <p class="text-muted">{{ __('Manage application settings and preferences') }}</p>
+                    
+                    <a class="btn btn-primary w-100" href="{{ route('archived-documents.set') }}">
+                        {{ __('Configure') }}
                     </a>
                 </div>
             </div>
         </div>
+        <!-- Analitics -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📊 {{ __('Analytics') }}</h5>
+                    <p class="text-muted">{{ __('View usage statistics and reports') }}</p>
+                    <a class="btn btn-info w-100 text-white" href="{{ route('archived-documents.analytics') }}">
+                        {{ __('View Reports') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+  
+
+       
 
     </div>
 </div>
@@ -121,7 +151,7 @@
 <div class="modal fade" id="editModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content p-3">
-      <input type="text" name="search" id="search" class="form-control mb-3" placeholder="{{ __('Search by document name or package') }}">
+      <input type="text" name="search" id="search" class="form-control mb-3" placeholder="{{ __('Search by archive number') }}">
       <div id='link_edit'></div>
     </div>
   </div>
@@ -145,15 +175,10 @@ document.getElementById('search').addEventListener('keyup', function() {
     documents.forEach(doc => {
         const matchDoc =
             (doc.code && doc.code.toLowerCase().includes(searchValue)) ||
-            (doc.foreign_name && doc.foreign_name.toLowerCase().includes(searchValue)) ||
-            (doc.national_name && doc.national_name.toLowerCase().includes(searchValue));
+            (doc.archive_number && doc.archive_number.toLowerCase().includes(searchValue)) ||
+            (doc.inventory && doc.inventory.toLowerCase().includes(searchValue));        
 
-        const matchPackages = (doc.packages || []).some(pkg =>
-            (pkg.foreign_name && pkg.foreign_name.toLowerCase().includes(searchValue)) ||
-            (pkg.national_name && pkg.national_name.toLowerCase().includes(searchValue))
-        );
-
-        if (matchDoc || matchPackages) {
+        if (matchDoc) {
             results.push(doc);
         }
     });
@@ -179,17 +204,12 @@ document.getElementById('search').addEventListener('keyup', function() {
             ? ` (${doc.foreign_name})` 
             : '';
 
-        // Пакети
-        const packages = doc.packages
-            .map(pkg => pkg.national_name && pkg.national_name.trim() !== '' 
-                ? pkg.national_name 
-                : (pkg.foreign_name ?? '')
-            )
-            .join(', ');
+
 
         // Формування тексту
-        link.textContent = `${mainName}${secondName} - ${doc.code ?? ''}` 
-            + (packages ? ` - ${packages}` : '');
+        link.textContent = `${mainName}${secondName} - ${doc.code ?? ''}` +
+                           `${doc.archive_number ? ' | Архівний №: ' + doc.archive_number : ''}` +
+                           `${doc.inventory ? ' | Інв. №: ' + doc.inventory : ''}`;
 
         link.className = 'd-block mb-2';
         linkEdit.appendChild(link);

@@ -54,10 +54,10 @@ class RiskController extends Controller
     public function StartBriefRisk(){
         $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
-        $systems = System::all();
+        $systems = System::all()->keyBy('id')->values();
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
-        $addition_actions = Jit::All();
+        $addition_actions = Jit::all()->keyBy('id')->values();
         $briefs = Brief::orderBy('order', 'asc')
         ->with('actions', 'jitqws', 'reasons')
         ->get();       
@@ -124,7 +124,7 @@ class RiskController extends Controller
                 $V = 1; // Загальне
             }
     
-            // Корекція ймовірності залежно від віку події
+            // Корекція ймовірності залежно Вид віку події
             if ($yearsAgo <= 1) {
                 $V *= 1;
             } elseif ($yearsAgo <= 2) {
@@ -192,7 +192,7 @@ class RiskController extends Controller
     {
         $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
-        $systems = System::all();
+        $systems = System::all()->keyBy('id')->values();
        $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->get();
         $actions_parent = Type::where('slug', 'action')->first();
@@ -243,7 +243,7 @@ class RiskController extends Controller
       
         $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
-        $systems = System::all();
+        $systems = System::all()->keyBy('id')->values();
         $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->get();
         $actions_parent = Type::where('slug', 'action')->first();
@@ -366,14 +366,14 @@ class RiskController extends Controller
     {
         $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
-        $systems = System::all();
+        $systems = System::all()->keyBy('id')->values();
         $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->get();
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
         $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->get();
-        $addition_actions = Jit::All();
+        $addition_actions = Jit::all()->keyBy('id')->values();
         // without reasons
         $experiences = Experience::whereDoesntHave('reasons')->get();
 

@@ -42,6 +42,9 @@ class TypeController extends Controller
         // $fillable = ['name', 'description', 'icon', 'color', 'slug', 'parent_id'];
         $type = new Type();
         $type->name = $request->name;
+         if($request->has('foreing')) {
+            $type->foreing = $request->foreing;
+        }
         $type->description = $request->description;
         if($request->has('icon')) {
             $type->icon = $request->icon;
@@ -89,6 +92,9 @@ class TypeController extends Controller
         //
         $type = Type::find($id);
         $type->name = $request->name;
+        if($request->has('foreing')) {
+            $type->foreing = $request->foreing;
+        }
         $type->description = $request->description;
         if($request->has('icon')) {
             $type->icon = $request->icon;
@@ -115,7 +121,7 @@ class TypeController extends Controller
         //
         $type = Type::find($id);
         $type->delete();
-        return redirect()->route('types.index');
+         return redirect()->back()->with('success', 'Тип успішно видалено.');
     }
     // import data from csv file
     public function import()

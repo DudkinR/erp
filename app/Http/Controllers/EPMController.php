@@ -17,7 +17,7 @@ class EPMController extends Controller
     public function index()
     {
         //
-        $epms = EPM::all();
+        $epms = EPM::all()->keyBy('id')->values();
         return view('epms.index', compact('epms'));
     }
 
@@ -206,8 +206,8 @@ class EPMController extends Controller
     public function info()
     {
         $epmdata = EPMdata::orderBy('date_received')->get();
-        $epms = EPM::all()->keyBy('id');
-        $areas = WANOAREA::all()->keyBy('id');
+        $epms = EPM::all()->keyBy('id')->values();
+        $areas = WANOAREA::all()->keyBy('id')->values();
     
         $area_data = [];
         $area_title = [];
@@ -238,7 +238,7 @@ class EPMController extends Controller
     public function storeEpmData(Request $request)
     {
         $date=$request->date;
-        $epms = EPM::all();
+        $epms = EPM::all()->keyBy('id')->values();
         // if date is not set
         if(EPMdata::where('date_received', $date)->exists()){
             return redirect('/epmdata')->with('error', 'epmdata already exists!');
@@ -308,7 +308,7 @@ class EPMController extends Controller
             })
             ->get();
         }
-        $epms = EPM::all()->keyBy('id'); 
+        $epms = EPM::all()->keyBy('id')->values(); 
         
        // return   $epmdatas;
         return view('epmdata.newdata', compact('epmdatas','division','date','epms'));

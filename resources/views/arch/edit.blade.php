@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container py-4">
+    <a href="{{ route('archived-documents.panel') }}" class="btn btn-light">Повернутися</a>
 
     <form action="{{ route('archived-documents.update', $document->id) }}" method="POST" enctype="multipart/form-data" class="card shadow-lg border-0 rounded-4">
         @csrf
@@ -28,8 +29,9 @@
                             ? ($document->packages->first()->national_name ?: $document->packages->first()->foreign_name)
                             : 'Не вибрано' }}
                     </span>
+                
+                <input type="hidden" name="package_id" id="package_id" value="@if(isset($package->id) && $package->id!==null) {{ $package->id}} @else 0 @endif">
 
-                <input type="hidden" name="package_id" id="package_id" value="{{ $package->id}}">
 
             </div>
           {{-- === Modal === --}}
@@ -77,33 +79,32 @@
                     <label class="form-label">Назва документа <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="national_name" required id="national_name" autocomplete="off" onfocus="initDocAutocomplete()" value="{{ $document->national_name }}">
                 </div>
-
                 <div class="col-md-6 position-relative">
                     <label class="form-label">Іноземна назва</label>
                     <input type="text" class="form-control" name="foreign_name" id="foreign_name" autocomplete="off" onfocus="initDocAutocomplete()" value="{{ $document->foreign_name }}">
                     <div id="doc_suggestions" class="list-group position-absolute w-100" style="z-index: 2002;"></div>
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Тип документа</label>
+                    <label class="form-label">Вид документа</label>
                     <select name="doc_type_id" id="doc_type" class="form-select">
                         <option value=""></option>
                         @foreach ($docTypes as $type)
                             <option value="{{ $type->id }}"
                             @if ($document->doc_type_id == $type->id) selected @endif
-                            >{{ __($type->national_name ?: $type->foreign_name) }}</option>
+                            >{{ __($type->name ?: $type->foreign) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Архівний №</label>
+                    <label class="form-label">Архівний № ХАЕС</label>
                     <input type="text" class="form-control" name="archive_number" placeholder="{{ __('Archive No.') }}" value="{{ $document->archive_number }}">
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Інвентарний №</label>
+                    <label class="form-label">Інвентарний № розробника</label>
                     <input type="text" class="form-control" name="inventory_number" placeholder="{{ __('Inventory No.') }}" value="{{ $document->inventory }}">
                 </div>
 
-                <<div class="col-md-4">
+               <div class="col-md-4">
                     <label class="form-label">Дата реєстрації</label>
                     <input type="date" class="form-control" name="reg_date" value="{{ $document->reg_date }}">
                 </div>
@@ -118,7 +119,10 @@
             </div>
 
             <div class="row g-3 mt-2">
-                <div class="col-md-4"><input type="text" class="form-control" name="kor" placeholder="{{ __('Contractor') }}" value="{{ $document->kor }}"></div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="kor" placeholder="{{ __('Contractor') }}" value="{{ $document->kor }}" autocomplete="off" id="kor_input" onfocus="initKorAutocomplete()">
+                    <div id="kor_suggestions" class="list-group position-absolute w-100" style="z-index: 2000;"></div>
+                </div>
                 <div class="col-md-4"><input type="text" class="form-control" name="part" placeholder="{{ __('Part') }}" value="{{ $document->part }}"></div>
                 <div class="col-md-4"><input type="text" class="form-control" name="contract" placeholder="{{ __('Contract') }}" value="{{ $document->contract }}"></div>
             </div>
@@ -140,7 +144,7 @@
                     <label class="form-label">Стадія</label>
                     <input type="text" class="form-control" name="stage" placeholder="{{ __('Stage') }}" value="{{ $document->stage }}"></div>
                 <div class="col-md-3">
-                    <label class="form-label">Шифр</label>
+                    <label class="form-label">Шифр  документа</label>
                     <input type="text" class="form-control" name="code" placeholder="{{ __('Code') }}" value="{{ $document->code }}"></div>
                 <div class="col-md-3">
                     <label class="form-label">Кількість сторінок</label>
@@ -148,11 +152,11 @@
                <div class="col-md-3">
                 <label class="form-label">Статус</label>
                 <select class="form-select" name="status" id="status_select">
-                    <option @if($document->status == 'active') selected @endif value="active">{{ __('Active') }}</option>
-                    <option @if($document->status == 'canceled') selected @endif value="canceled">{{ __('Canceled') }}</option>
-                    <option @if($document->status == 'replaced') selected @endif value="replaced">{{ __('Replaced') }}</option>
-                    <option @if($document->status == 'draft') selected @endif value="draft">{{ __('Draft') }}</option>
-                    <option @if($document->status == 'other') selected @endif value="other">{{ __('Other') }}</option>
+                    <option @if($document->status == 'active') selected @endif value="active">{{ __('Діючий') }}</option>
+                    <option @if($document->status == 'canceled') selected @endif value="canceled">{{ __('Анульований') }}</option>
+                    <option @if($document->status == 'replaced') selected @endif value="replaced">{{ __('Замінений') }}</option>
+                    <option @if($document->status == 'draft') selected @endif value="draft">{{ __('Чернетка') }}</option>
+                    <option @if($document->status == 'other') selected @endif value="other">{{ __('Інше') }}</option>
                 </select>
 
                 <!-- приховане поле для ID -->
@@ -180,27 +184,62 @@
 
             {{-- === Зберігання === --}}
             <h5 class="mb-3">📂 Місце зберігання</h5>
+
             <div class="mb-3">
-                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >
-                <a href="{{ asset($document->scan) }}" target="_blank">Переглянути файл</a>
+                <label class="form-label">Місце зберігання  електронної версії</label>
+                <input type="text" class="form-control"           name="scan"                 id="scan" placeholder="Введіть шлях до файла сканованої копії"
+                value="{{ $document->path }}">
+                {{--<input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >                <a href="{{ asset($document->scan) }}" target="_blank">Переглянути файл</a>--}}
+            </div>
+            <div class="row">
+                <h5 class="mb-3">📂 Місце зберігання орігіналу</h5>
+                @php
+                    $storage_location =explode("_",$document->storage_location);
+                    $archive = $storage_location[0] ?? '';
+                    $shelf = $storage_location[1] ?? '';
+                    $cabinet = $storage_location[2] ?? '';
+                    $box = $storage_location[3] ?? '';
+                    $folder = $storage_location[4] ?? '';
+                @endphp
+
+                @foreach ($archiveTypes as $atype)
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" name="archive_type" value="{{ $atype->foreing }}" id="archive_type_{{ $atype->id }}"
+                        @if($archive == $atype->foreing) checked @endif
+                        onclick="set_storage_location()"
+                        >
+                        <label class="form-check-label" for="archive_type_{{ $atype->id }}">{{ $atype->name }}</label>
+                    </div>
+                @endforeach
+            </div>
+            <div class="row">
+                {{-- ряд / стелаж / бокс / папка --}}
+                <div class="col-md-3">
+                    <label class="form-label">Ряд</label>
+                    <input type="text" class="form-control" name="shelf" placeholder="Ряд" value="{{ $shelf }}" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Шафа</label>
+                    <input type="text" class="form-control" name="cabinet" placeholder="Шафа" value="{{ $cabinet }}" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Коробка</label>
+                    <input type="text" class="form-control" name="box" placeholder="Коробка" value="{{ $box }}" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Папка</label>
+                    <input type="text" class="form-control" name="folder" placeholder="Папка" value="{{ $folder }}" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
             </div>
 
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="storage_location" value="tech-archive" checked>
-                <label class="form-check-label">Технічний архів</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="storage_location" value="external-archive">
-                <label class="form-check-label">Загальний архів</label>
-            </div>
-
-            <input type="text" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)" value="{{ $document->storage_location }}">
+            <input type="hidden" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)" value="{{ $document->storage_location }}">
 
         </div>
 
         <div class="card-footer text-end bg-light rounded-bottom-4">
             <a href="{{ route('archived-documents.index') }}" class="btn btn-secondary me-2">⬅ Назад</a>
             <button type="submit" class="btn btn-success">💾 Зберегти</button>
+           
         </div>
     </form>
 

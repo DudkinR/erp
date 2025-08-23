@@ -46,8 +46,8 @@
                         <input type="date" class="form-control" id="control_date" name="control_date" value="@if(isset($copy_event)){{ $copy_event->control_date }}@else{{ old('control_date') }}@endif">
                     </div>
                     @php
-                    $projects = App\Models\Project::all();
-                    $steps = App\Models\Step::all();
+                    $projects = App\Models\Project::all()->keyBy('id')->values();
+                    $steps = App\Models\Step::all()->keyBy('id')->values();
                     $divisions = App\Models\Division::orderBy('name', 'asc')->get();    
                     @endphp
                     <div class="form-group">

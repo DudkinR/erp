@@ -1,9 +1,22 @@
 <script>
+//   return view('arch.edit', compact('document', 'stageTypes', 'objectTypes', 'packages', 'package', 'docTypes', 'buildings', 'docs', 'develops','Contractors', 'archiveTypes', 'parent_type_doc', 'parent_type_Developer', 'parent_type_Contractor', 'parent_type_object', 'parent_type_arhive'));
+
+
+
             const packages = @json($packages);
             const docs = @json($docTypes);
-            const objects = @json($buildings);
+            const objects = @json($objectTypes);
+            console.log(objects);
             const develops = @json($develops);
             const adocs = @json($docs);
+            const contractors = @json($Contractors);
+            const archiveTypes = @json($archiveTypes);
+
+            const parent_type_doc = @json($parent_type_doc);
+            const parent_type_Developer = @json($parent_type_Developer);
+            const parent_type_Contractor = @json($parent_type_Contractor);
+            const parent_type_object = @json($parent_type_object);
+            const parent_type_arhive = @json($parent_type_arhive);
 
             const packageIdInput = document.getElementById('package_id');
             const packageNationalNameInput = document.getElementById('package_national_name');
@@ -64,24 +77,49 @@
 
                 bootstrap.Modal.getInstance(document.getElementById('packageModal')).hide();
             }
-
- function initDevelopAutocomplete() {
-        const input = document.getElementById('develop_input');
-        const suggestionsDiv = document.getElementById('develop_suggestions');
-
+    function initKorAutocomplete() {
+        const input = document.getElementById('kor_input');
+        const suggestionsDiv = document.getElementById('kor_suggestions');
         input.addEventListener('input', function () {
             const query = this.value.toLowerCase().trim();
             suggestionsDiv.innerHTML = '';
-
             if (query.length < 1) return;
-
+            const results = kors.filter(kor =>
+                kor.name.toLowerCase().includes(query) ||
+                (kor.abv && kor.abv.toLowerCase().includes(query))
+            ).slice(0, 8);
+            if (results.length === 0) return;
+            results.forEach(kor => {
+                const item = document.createElement('button');
+                item.type = "button";
+                item.className = "list-group-item list-group-item-action";
+                item.textContent = kor.name;
+                item.onclick = () => {
+                    input.value = kor.name;
+                    suggestionsDiv.innerHTML = ''; // сховати підказки
+                };
+                suggestionsDiv.appendChild(item);
+            });
+        });
+        // Ховаємо підказки при кліку поза полем
+        document.addEventListener('click', function (e) {
+            if (!input.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.innerHTML = '';
+            }
+        });
+    }
+    function initDevelopAutocomplete() {
+        const input = document.getElementById('develop_input');
+        const suggestionsDiv = document.getElementById('develop_suggestions');
+        input.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            suggestionsDiv.innerHTML = '';
+            if (query.length < 1) return;
             const results = develops.filter(dev => 
                 dev.name.toLowerCase().includes(query) || 
                 (dev.abv && dev.abv.toLowerCase().includes(query))
             ).slice(0, 8);
-
             if (results.length === 0) return;
-
             results.forEach(dev => {
                 const item = document.createElement('button');
                 item.type = "button";
@@ -94,7 +132,6 @@
                 suggestionsDiv.appendChild(item);
             });
         });
-
         // Ховаємо підказки при кліку поза полем
         document.addEventListener('click', function (e) {
             if (!input.contains(e.target) && !suggestionsDiv.contains(e.target)) {
@@ -102,7 +139,6 @@
             }
         });
     }
-
     function initObjectAutocomplete() {
         const input = document.getElementById('object_input');
         const suggestionsDiv = document.getElementById('object_suggestions');
@@ -110,25 +146,18 @@
         input.addEventListener('input', function () {
             const query = this.value.toLowerCase().trim();
             suggestionsDiv.innerHTML = '';
-
             if (query.length < 1) return;
-
             const results = objects.filter(obj =>
                 (obj.name && obj.name.toLowerCase().includes(query)) ||
-                (obj.abv && obj.abv.toLowerCase().includes(query)) ||
-                (obj.IDBuilding && obj.IDBuilding.toString().toLowerCase().includes(query))
+                (obj.abv && obj.abv.toLowerCase().includes(query)) 
             ).slice(0, 8);
-
             if (results.length === 0) return;
-
             results.forEach(obj => {
                 const item = document.createElement('button');
                 item.type = "button";
                 item.className = "list-group-item list-group-item-action";
-
                 // показуємо і назву, і абревіатуру, і IDBuilding
-                item.textContent = `${obj.name} (${obj.abv}) [ID: ${obj.IDBuilding}]`;
-
+                item.textContent = `${obj.name} `;
                 item.onclick = () => {
                     input.value = obj.name; // або можна вставляти `${obj.name} (${obj.abv})`
                     suggestionsDiv.innerHTML = ''; // сховати підказки
@@ -221,8 +250,6 @@
         if (query.length < 2) return;
 
         const matches = adocs.filter(d =>
-            (d.foreign_name && d.foreign_name.toLowerCase().includes(query)) ||
-            (d.national_name && d.national_name.toLowerCase().includes(query)) ||
             (d.code && d.code.toLowerCase().includes(query)) ||
             (d.inventory && d.inventory.toLowerCase().includes(query))
         );
@@ -234,11 +261,54 @@
             div.style.cursor = 'pointer';
             div.addEventListener('click', () => {
                 replacedId.value = doc.id;
-                replacedLabel.textContent = `Вибрано: ${doc.foreign_name || doc.national_name || doc.code} (ID: ${doc.code})`;
+                replacedLabel.textContent = `Вибрано: ${doc.foreign_name || doc.national_name || doc.code} (ID: ${doc.id}) (інв. №: ${doc.inventory}) (арх. №: ${doc.archive_number}) (шифр:   ${doc.code})`;
                 resultsDiv.innerHTML = '';
                 searchInput.value = '';
             });
             resultsDiv.appendChild(div);
         });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+  // Знаходимо всі відповідні input
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    // Перевірка при завантаженні
+    if (input.value.trim() === "") {
+      input.style.backgroundColor = "yellow";
+    }
+
+    // Перевірка при зміні значення
+    input.addEventListener("input", function () {
+      if (input.value.trim() === "") {
+        input.style.backgroundColor = "yellow";
+      } else {
+        input.style.backgroundColor = ""; // Повертаємо стандартний фон
+      }
+    });
+  });
+});
+
+   function set_storage_location() {
+    const archiveType = document.querySelector('input[name="archive_type"]:checked');
+    const shelf = document.querySelector('input[name="shelf"]').value.trim();
+    const cabinet = document.querySelector('input[name="cabinet"]').value.trim();
+    const box = document.querySelector('input[name="box"]').value.trim();
+    const folder = document.querySelector('input[name="folder"]').value.trim();
+
+    let locationParts = [];
+
+    // Якщо вибрано archiveType – його значення, якщо ні – "__"
+    locationParts.push(archiveType ? archiveType.value : "__");
+
+    // Додаємо інші поля з "__", якщо вони пусті
+    locationParts.push(shelf || "__");
+    locationParts.push(cabinet || "__");
+    locationParts.push(box || "__");
+    locationParts.push(folder || "__");
+
+    const locationField = document.querySelector('input[name="location"]');
+    locationField.value = locationParts.join('_');
+}
+
 </script>

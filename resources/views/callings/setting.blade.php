@@ -31,7 +31,7 @@
 
                     @php 
                     // where pivot division == division_id of authorized user
-                    $types = \App\Models\Type:: all();
+                    $types = \App\Models\Type:: all()->keyBy('id')->values();
                     $Oplata_pratsi = \App\Models\Type::where('slug', 'Oplata-pratsi')->first();
                     @endphp
                     <!-- Workers (multi-select) -->

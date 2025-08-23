@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container py-4">
+    <a href="{{ route('archived-documents.panel') }}" class="btn btn-light">Повернутися</a>
 
     <form method="POST" action="{{ route('archived-documents.store') }}" enctype="multipart/form-data" class="card shadow-lg border-0 rounded-4">
         @csrf
@@ -20,7 +21,10 @@
                     🔍 Вибрати пакет  
                 </button>
                     <span id="selected_package" class="text-muted">
+                        @if(isset($_GET['package']))
                          {{$packages[$_GET['package']]->national_name ?: $packages[$_GET['package']]->foreign_name ?: 'Не вибрано'}}
+                        @endif
+
                     </span>
                 <input type="hidden" name="package_id" id="package_id" value="{{$_GET['package'] ?? '0'}}">
             </div>
@@ -72,25 +76,26 @@
                     <div id="doc_suggestions" class="list-group position-absolute w-100" style="z-index: 2002;"></div>
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Тип документа</label>
+                    <label class="form-label">Вид документа</label>
                     <select name="doc_type_id" id="doc_type" class="form-select">
                         <option value=""></option>
                         @foreach ($docTypes as $type)
-                            <option value="{{ $type->id }}">{{ __($type->national_name ?: $type->foreign_name) }}</option>
+                            <option value="{{ $type->id }}">{{ __($type->name ?: $type->foreign) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Архівний №</label>
+                    <label class="form-label">Архівний № ХАЕС</label>
                     <input type="text" class="form-control" name="archive_number" placeholder="{{ __('Archive No.') }}">
                 </div>
                 <div class="col-md-4 position-relative">
-                    <label class="form-label">Інвентарний №</label>
+                    <label class="form-label">Інвентарний № розробника</label>
                     <input type="text" class="form-control" name="inventory_number" placeholder="{{ __('Inventory No.') }}">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Дата реєстрації</label>
-                    <input type="date" class="form-control" name="reg_date">
+                    <input type="date" class="form-control" name="reg_date"
+                    value="{{ date('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Дата  в виробництві</label>
@@ -103,13 +108,19 @@
 
 
             <div class="row g-3 mt-2">
-                <div class="col-md-4"><input type="text" class="form-control" name="kor" placeholder="{{ __('Contractor') }}"></div>
+ 
+                <div class="col-md-4">
+
+                    <input type="text" class="form-control" name="kor" placeholder="{{ __('Contractor') }}" autocomplete="off" id="kor_input" onfocus="initKorAutocomplete()">
+                    <div id="kor_suggestions" class="list-group position-absolute w-100" style="z-index: 2000;"></div>
+               </div>
                 <div class="col-md-4"><input type="text" class="form-control" name="part" placeholder="{{ __('Part') }}"></div>
                 <div class="col-md-4"><input type="text" class="form-control" name="contract" placeholder="{{ __('Contract') }}"></div>
             </div>
 
             <div class="row g-3 mt-2">
                 <div class="col-md-4">
+                    
                     <input type="text" class="form-control" name="develop" placeholder="{{ __('Developer') }}" id="develop_input" autocomplete="off" onfocus="initDevelopAutocomplete()">
                     <div id="develop_suggestions" class="list-group position-absolute w-100" style="z-index: 2000;"></div>
                 </div>
@@ -125,7 +136,7 @@
                     <label class="form-label">Стадія</label>
                     <input type="text" class="form-control" name="stage" placeholder="{{ __('Stage') }}"></div>
                 <div class="col-md-3">
-                    <label class="form-label">Шифр</label>
+                    <label class="form-label">Шифр  документа</label>
                     <input type="text" class="form-control" name="code" placeholder="{{ __('Code') }}"></div>
                 <div class="col-md-3">
                     <label class="form-label">Кількість сторінок</label>
@@ -133,11 +144,11 @@
                <div class="col-md-3">
                 <label class="form-label">Статус</label>
                 <select class="form-select" name="status" id="status_select">
-                    <option value="active">{{ __('Active') }}</option>
-                    <option value="canceled">{{ __('Canceled') }}</option>
-                    <option value="replaced">{{ __('Replaced') }}</option>
-                    <option value="draft">{{ __('Draft') }}</option>
-                    <option value="other">{{ __('Other') }}</option>
+                    <option value="active">{{ __('Діючий') }}</option>
+                    <option value="canceled">{{ __('Анульований') }}</option>
+                    <option value="replaced">{{ __('Замінений') }}</option>
+                    <option value="draft">{{ __('Чернетка') }}</option>
+                    <option value="other">{{ __('Інше') }}</option>
                 </select>
 
                 <!-- приховане поле для ID -->
@@ -160,21 +171,49 @@
             <hr>
 
             {{-- === Зберігання === --}}
-            <h5 class="mb-3">📂 Місце зберігання</h5>
+                       <h5 class="mb-3">📂 Місце зберігання</h5>
+
             <div class="mb-3">
-                <input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >
+                <label class="form-label">Місце зберігання  електронної версії</label>
+                <input type="text" class="form-control" id="scan"            name="scan"    placeholder="Введіть шлях до файла сканованої копії">
+                {{--<input type="file" class="form-control" name="scan" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" >                <a href="{{ asset($document->scan) }}" target="_blank">Переглянути файл</a>--}}
             </div>
 
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="storage_location" value="tech-archive" checked>
-                <label class="form-check-label">Технічний архів</label>
+            
+            <div class="row">
+                <h5 class="mb-3">📂 Місце зберігання орігіналу</h5>
+
+                @foreach ($archiveTypes as $atype)
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" name="archive_type" value="{{ $atype->foreing }}" id="archive_type_{{ $atype->id }}"
+                        @if("TA" == $atype->foreing) checked @endif
+                        onclick="set_storage_location()" 
+                        >
+                        <label class="form-check-label" for="archive_type_{{ $atype->id }}">{{ $atype->name }}</label>
+                    </div>
+                @endforeach
             </div>
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="storage_location" value="external-archive">
-                <label class="form-check-label">Загальний архів</label>
+            <div class="row">
+                {{-- ряд / стелаж / бокс / папка --}}
+                <div class="col-md-3">
+                     <label class="form-label">Ряд</label>
+                    <input type="text" class="form-control" name="shelf" placeholder="Ряд" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Шафа</label>
+                    <input type="text" class="form-control" name="cabinet" placeholder="Шафа" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Коробка</label>
+                    <input type="text" class="form-control" name="box" placeholder="Коробка" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Папка</label>
+                    <input type="text" class="form-control" name="folder" placeholder="Папка" onfocus="set_storage_location()" onblur="set_storage_location()">
+                </div>
             </div>
 
-            <input type="text" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)">
+            <input type="hidden" class="form-control mt-2" name="location" placeholder="Деталі (ряд, шафа, коробка...)" value="{{ old('location') }}">
 
         </div>
 

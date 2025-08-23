@@ -80,7 +80,17 @@
 
              <a href="{{ route('archived-documents.create') }}?package={{ $package->id }}" class="btn btn-primary">Додати документ</a>
 
+
             <a href="{{ route('archived-documents.packages.edit', $package->id) }}" class="btn btn-warning">✏️ Редагувати пакет</a>
+           <form action="{{ route('archived-packege.destroy', $package->id) }}" 
+                method="POST" 
+                class="d-inline"
+                onsubmit="return confirm('Ви впевнені, що хочете видалити?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">Видалити</button>
+            </form>
+
             @endif
             <a href="{{ route('archived-documents.packages') }}" class="btn btn-secondary">⬅ Повернутись</a>
         </div>

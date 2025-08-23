@@ -13,7 +13,7 @@ class WANOARController extends Controller
     public function index()
     {
         //
-        $wanoareas = WANOAREA::all();
+        $wanoareas = WANOAREA::all()->keyBy('id')->values();
         return view('wanoareas.index', compact('wanoareas'));
     }
 

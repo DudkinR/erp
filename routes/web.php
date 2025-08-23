@@ -603,39 +603,41 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // ArhiveDocumentController
     Route::get('/archived-documents_panel', 'App\Http\Controllers\ArhiveDocumentController@panel')->name('archived-documents.panel');
     Route::get('/archived-documents', 'App\Http\Controllers\ArhiveDocumentController@index')->name('archived-documents.index');
-    // /archived-packeges
-    Route::get('/archived-packeges', 'App\Http\Controllers\ArhiveDocumentController@archivedPackages')->name('archived-documents.packages');
-    Route::get('/archived-packeges/{id}', 'App\Http\Controllers\ArhiveDocumentController@showPackage')->name('archived-documents.packages.show');
-    // packages.store
-    Route::post('/archived-packeges', 'App\Http\Controllers\ArhiveDocumentController@storePackage')->name('archived-documents.packages.store');
-    // archived-documents.edit
-    Route::get('/archived-packeges/{id}/edit', 'App\Http\Controllers\ArhiveDocumentController@editPackage')->name('archived-documents.packages.edit');
-    Route::put('/archived-packeges/{id}', 'App\Http\Controllers\ArhiveDocumentController@packageUpdate')->name('archived-documents.packages.update');
-    // post exportPDF
-    Route::any('/archived-documents-export-pdf', 'App\Http\Controllers\ArhiveDocumentController@exportPDF')->name('archived-documents.export.pdf');
+     Route::any('/archived-documents-export-pdf', 'App\Http\Controllers\ArhiveDocumentController@exportPDF')->name('archived-documents.export.pdf');
 
-    // archived documents
     Route::get('/archived-documents/create', 'App\Http\Controllers\ArhiveDocumentController@create')->name('archived-documents.create');
     Route::get('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@show')->name('archived-documents.show');
     Route::post('/archived-documents', 'App\Http\Controllers\ArhiveDocumentController@store')->name('archived-documents.store');
     Route::get('/archived-documents/{id}/edit', 'App\Http\Controllers\ArhiveDocumentController@edit')->name('archived-documents.edit');
     Route::put('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@update')->name('archived-documents.update');
+    Route::delete('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@destroy')->name('archived-document.destroy');    
+    Route::get('/archived-documents-copy/{id}', 'App\Http\Controllers\ArhiveDocumentController@copy')->name('archived-document.copy');
+
    
-    Route::put('/archived-packages/{id}', 'App\Http\Controllers\ArhiveDocumentController@updatep')->name('archived-packages.update');
-    Route::delete('/archived-documents/{id}', 'App\Http\Controllers\ArhiveDocumentController@destroy')->name('archived-documents.destroy');
-    // load  archived documents
+   Route::put('/archived-packages/{id}', 'App\Http\Controllers\ArhivePackegeController@update')->name('archived-packages.update');
+    Route::delete('/archived-packages/{id}',     'App\Http\Controllers\ArhivePackegeController@destroy'      )->name('archived-packege.destroy');
+    Route::get('/archived-packeges/{id}/edit', 'App\Http\Controllers\ArhivePackegeController@edit')->name('archived-documents.packages.edit');
+    Route::put('/archived-packeges/{id}', 'App\Http\Controllers\ArhivePackegeController@update')->name('archived-documents.packages.update');
+    Route::post('/archived-packeges', 'App\Http\Controllers\ArhivePackegeController@store')->name('archived-documents.packages.store');
+    Route::get('/archived-packeges', 'App\Http\Controllers\ArhivePackegeController@index')->name('archived-documents.packages');
+    Route::get('/archived-packeges/{id}', 'App\Http\Controllers\ArhivePackegeController@show')->name('archived-documents.packages.show');
+    Route::get('/archived-packeges-copy/{id}', 'App\Http\Controllers\ArhivePackegeController@show')->name('archived-documents.packages.show');
+
+     // load  archived documents
     Route::get('/archived-documents-import', 'App\Http\Controllers\ArhiveDocumentController@import')->name('archived-documents.import');
     Route::post('/archived-documents-import', 'App\Http\Controllers\ArhiveDocumentController@importStore')->name('archived-documents.import.store');
-    // archived-documents.dump
     Route::get('/archived-documents-dump', 'App\Http\Controllers\ArhiveDocumentController@dump')->name('archived-documents.dump.index');
-    // create
     Route::post('/archived-documents-dump', 'App\Http\Controllers\ArhiveDocumentController@dumpStore')->name('archived-documents.dump.store');
-    // archived-documents.dump.show
     Route::get('/archived-documents-dump/{date}', 'App\Http\Controllers\ArhiveDocumentController@dumpShow')->name('archived-documents.dump.show');
-    // load archived documents
     Route::get('/archived-documents-dump-load', 'App\Http\Controllers\ArhiveDocumentController@load')->name('archived-documents.load');
-    //delete
-    Route::delete('/archived-documents-dump/{date}', 'App\Http\Controllers\ArhiveDocumentController@dumpDestroy')->name('archived-documents.destroy');
+    Route::delete('/archived-documents-dump/{date}', 'App\Http\Controllers\ArhiveDocumentController@dumpDestroy')->name('archived-dump.destroy');
+    
+    Route::get('/archived-setting', 'App\Http\Controllers\ArhiveDocumentController@settingshow')->name('archived-documents.set');
+    Route::post('/archived-setting-upd', 'App\Http\Controllers\ArhiveDocumentController@settingupd')->name('archived-documents.setupd');
+    // archived-documents.analytics
+    Route::get('/archived-documents-analytics', 'App\Http\Controllers\ArhiveDocumentController@analytics')->name('archived-documents.analytics');
+
+   
 
 });
 

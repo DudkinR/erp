@@ -28,7 +28,7 @@ class MagController extends Controller
     public function index()
     {
         //
-        $magtables = Magtable::all();
+        $magtables = Magtable::all()->keyBy('id')->values();
         return view('mag.index', compact('magtables'));
     }
 
@@ -38,8 +38,8 @@ class MagController extends Controller
     public function create()
     {
         $dimensions = Helpers::dimensions();
-        $divisions = Division::all();
-        $mems = Magmem::all();
+        $divisions = Division::all()->keyBy('id')->values();
+        $mems = Magmem::all()->keyBy('id')->values();
         return view('mag.create', compact('dimensions', 'divisions' , 'mems'));
     }
 
@@ -66,7 +66,7 @@ class MagController extends Controller
             $magtable->description = $request->description;
             // save
             $magtable->save();
-            $all_divisions = Division::all();
+            $all_divisions = Division::all()->keyBy('id')->values();
             if (is_array($request->division_writer)) {
                 if (!in_array('all', $request->division_writer)) {
                     $magtable->divisions()->attach($request->division_writer, ['type' => 0]); }
@@ -254,8 +254,8 @@ class MagController extends Controller
         //
         $magtable = Magtable::find($id);
         $dimensions = Helpers::dimensions();
-        $divisions = Division::all();
-        $mems = Magmem::all();
+        $divisions = Division::all()->keyBy('id')->values();
+        $mems = Magmem::all()->keyBy('id')->values();
         return view('mag.edit', compact('magtable', 'dimensions', 'divisions', 'mems'));
     }
 
@@ -277,7 +277,7 @@ class MagController extends Controller
         // save
         $magtable->save();
         // division_writer !== all add param type = 0
-        $all_divisions = Division::all();
+        $all_divisions = Division::all()->keyBy('id')->values();
         if (is_array($request->division_writer)) {
             if (!in_array('all', $request->division_writer)) {
                 $magtable->divisions()->detach();

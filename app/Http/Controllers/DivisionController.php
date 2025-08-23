@@ -27,8 +27,8 @@ class DivisionController extends Controller
     public function create()
     {
         //
-        $parents = Division::all();
-        $positions = Position::all();
+        $parents = Division::all()->keyBy('id')->values();
+        $positions = Position::all()->keyBy('id')->values();
         return view('divisions.create', compact('parents', 'positions'));
 
     }

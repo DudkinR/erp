@@ -32,7 +32,7 @@
                     </div>
                     <div class="form-group">
                         <label for="division">{{__('Division')}}</label>
-                        @php $divisions = \App\Models\Division::all(); @endphp
+                        @php $divisions = \App\Models\Division::all()->keyBy('id')->values(); @endphp
                         <select class="form-control" id="division" name="division">
                             <option value="">{{__('Select Division')}}</option>
                             @foreach($divisions as $division)
@@ -40,7 +40,7 @@
                             @endforeach
                         </select>
                     </div>
-                    @php $wanoareas = \App\Models\WANOAREA::all(); @endphp
+                    @php $wanoareas = \App\Models\WANOAREA::all()->keyBy('id')->values(); @endphp
                     <div class="form-group">
                     {{$epm->area}} 
                         <label for="wanoarea">{{__('Wanoarea')}}</label>

@@ -25,7 +25,7 @@
             </div>
         </div>   
         @php 
-            $areas = \App\Models\WANOAREA::all(); 
+            $areas = \App\Models\WANOAREA::all()->keyBy('id')->values(); 
         @endphp
         @foreach($epms as $epm)
         <div class="row mt-3">

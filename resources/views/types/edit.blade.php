@@ -19,6 +19,12 @@
                             <input id="name" type="text" class="form-control" name="name" value= "{{ $type->name }}"  autofocus>
                         
                     </div>
+                           <div class="form-group">
+                        <label for="foreing" >{{__('Foreing')}}</label>
+                        
+                            <input id="foreing" type="text" class="form-control" name="foreing" value="{{ $type->foreing }}"  autofocus>
+                      
+                    </div>
                     <div class="form-group ">
                         <label for="description" >{{__('Description')}}</label>
                        

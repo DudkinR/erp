@@ -32,9 +32,9 @@ class MasterController extends Controller
     // create
     public function create()
     {
-        $docs = Doc::all();
-        $personals = Personal::all();
-        $resources = Resource::all();
+        $docs = Doc::all()->keyBy('id')->values();
+        $personals = Personal::all()->keyBy('id')->values();
+        $resources = Resource::all()->keyBy('id')->values();
         return view('master.create', compact('docs', 'personals', 'resources'));
     }
     //search_text_task
@@ -79,9 +79,9 @@ class MasterController extends Controller
     public function edit($id)
     {
         $master = Master::find($id);
-        $docs = Doc::all();
-        $personals = Personal::all();
-        $resources = Resource::all();
+        $docs = Doc::all()->keyBy('id')->values();
+        $personals = Personal::all()->keyBy('id')->values();
+        $resources = Resource::all()->keyBy('id')->values();
         return view('master.edit', compact('master', 'docs', 'personals', 'resources'));
     }
     // step 1

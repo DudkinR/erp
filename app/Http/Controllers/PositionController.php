@@ -90,7 +90,7 @@ class PositionController extends Controller
     //get_position_from_divisions_api
     public function get_position_from_divisions_api(Request $request)
     {
-      /*  $personal = Personal::all(); // Получаем всех сотрудников
+      /*  $personal = Personal::all()->keyBy('id')->values(); // Получаем всех сотрудников
         foreach ($personal as $person) {
             $divisions = $person->divisions; // Получаем коллекцию связанных подразделений
             $positions = $person->positions; // Получаем связанные позиции для каждого сотрудника

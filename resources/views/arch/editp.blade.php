@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container py-4"> 
+    <a href="{{ route('archived-documents.panel') }}" class="btn btn-light">Повернутися</a>
 
     <form action="{{ route('archived-packages.update', $package->id) }}" method="POST" enctype="multipart/form-data" class="card shadow-lg border-0 rounded-4">
         @csrf

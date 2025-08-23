@@ -125,7 +125,7 @@ class StageController extends Controller
     // new_steps
     public function new_steps(Request $request)
     {
-       // return $request->all();{"_token":"lfRKYIfJDNioSd8SiE2D6m9K6sTtq6TZReRsFZ5E","_method":"POST","stage_id":"12","project_id":"204","deadline":"2024-05-24","steps":[{"order":"1","position_id":"1","count":"1","type":"photo","checkpoints":"on","step_id":"12"}
+       // return $request->all()->keyBy('id')->values();{"_token":"lfRKYIfJDNioSd8SiE2D6m9K6sTtq6TZReRsFZ5E","_method":"POST","stage_id":"12","project_id":"204","deadline":"2024-05-24","steps":[{"order":"1","position_id":"1","count":"1","type":"photo","checkpoints":"on","step_id":"12"}
        // нужно сгенерировать задания и сохранить Task
        // fillable fields `id`, `project_id`, `stage_id`, `step_id`, `dimension_id`, `control_id`, `deadline_date`, `status`, `responsible_position_id`, `dependent_task_id`, `parent_task_id`, `real_start_date`, `real_end_date`, `created_at`, `updated_at` , 'count'
        $project_id = $request->project_id;
