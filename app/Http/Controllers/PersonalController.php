@@ -204,8 +204,12 @@ class PersonalController extends Controller
             // add user roles
             $user->roles()->attach(4);
         }
+        $users = User::orderBy('name')->get();
         $divisions = Division::orderBy('name')->get();
-        return view('personals.edit', compact('personal', 'divisions'));
+        $positions = Position::orderBy('name' ,'asc')->get(); 
+        $boss =$user->relatedBack()->with('profile')->get();
+        $relatedUsers = $user->relatedUsers()->with('profile')->get();
+        return view('personals.edit', compact('personal', 'divisions', 'positions', 'boss', 'relatedUsers', 'user', 'users'));
     }
 
     /**
@@ -241,9 +245,9 @@ class PersonalController extends Controller
         }
         // update user name
         if($request->fio){
-            $user->name = $request->name;
+            $user->name = $request->fio;
             $user->save();
-            $personal->fio = $request->name;
+            $personal->fio = $request->fio;
             $personal->save();
         }
         if($request->old_password && $request->new_password == $request->new_password_confirmation){
@@ -285,7 +289,19 @@ class PersonalController extends Controller
         }
         $user->roles()->detach();
         $user->roles()->attach($request->roles);
-        return redirect('/personal')->with('success', 'Personal updated!');
+        // related users
+        $user->relatedUsers()->detach();
+        if($request->relatedUsers){
+            $user->relatedUsers()->attach($request->relatedUsers);
+        }
+        // boss
+        $user->relatedBack()->detach();
+        if($request->boss){
+            $user->relatedBack()->attach($request->boss);
+        }            
+        //return redirect('/personal')->with('success', 'Personal updated!');
+        // show
+        return redirect()->back()->with('success', 'Personal updated!');
     }
 
     /**

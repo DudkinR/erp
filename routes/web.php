@@ -637,6 +637,22 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // archived-documents.analytics
     Route::get('/archived-documents-analytics', 'App\Http\Controllers\ArhiveDocumentController@analytics')->name('archived-documents.analytics');
 
+
+    // team routes
+    Route::get('/teams', 'App\Http\Controllers\TeamController@index')->name('teams.index');
+    Route::get('/teams/create', 'App\Http\Controllers\TeamController@create')->name('teams.create');
+    Route::post('/teams', 'App\Http\Controllers\TeamController@store')->name('teams.store');
+    Route::get('/teams_show', 'App\Http\Controllers\TeamController@show')->name('teams.show');
+    Route::get('/teams/{id}/edit', 'App\Http\Controllers\TeamController@edit')->name('teams.edit');
+    Route::put('/teams/{id}', 'App\Http\Controllers\TeamController@update')->name('teams.update');
+    Route::delete('/teams/{id}', 'App\Http\Controllers\TeamController@destroy')->name('teams.destroy');
+    //teams.calendar
+    Route::get('/teams_calendar', 'App\Http\Controllers\TeamController@calendar')->name('teams.calendar');
+
+    //team-tasks.store
+    Route::post('/team-tasks', 'App\Http\Controllers\TeamController@storeTask')->name('team-tasks.store');
+    // team-task-reports.store
+    Route::post('/team-task-reports', 'App\Http\Controllers\TeamController@storeReport')->name('team-task-reports.store');
    
 
 });

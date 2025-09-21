@@ -25,9 +25,51 @@
                         <input type="phone" class="form-control" id="phone" name="phone" value="{{ $personal->phone }}">
                     </div>
                     <div class="form-group">
+                        <label for="boss">{{__('Boss')}}</label>
+                        <select class="form-control" id="boss" name="boss">
+                            <option value=""></option>
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}" @if($boss->pluck('id')->contains($u->id)) selected @endif>{{ $u->name }}</option>                                
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="relatedUsers">{{__('Related Users')}}</label>
+                        <div id="checkboxList" class="checkbox-list" 
+                            style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                            @foreach($relatedUsers as $ru)
+                                <div class="form-check" id="checkbox-{{ $ru->id }}">
+                                    <input class="form-check-input" type="checkbox" value="{{ $ru->id }}" 
+                                        id="relatedUser{{ $ru->id }}" 
+                                        name="relatedUsers[]" checked>
+                                    <label class="form-check-label" for="relatedUser{{ $ru->id }}">
+                                        {{ $ru->name }}
+                                        ({{ $ru->tn ?? '' }})
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" id="removeRelatedUserInput" 
+                            placeholder="{{__('select name or tn')}}" 
+                            class="form-control mb-2">
+
+                        <select class="form-control" id="relatedUsersSelect">
+                            <option value=""></option>
+                            @foreach($users as $u)
+                                @if(!$relatedUsers->pluck('id')->contains($u->id))
+                                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->tn }})</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="position">{{__('Position')}}</label>
-                        <?php
-                         $positions = App\Models\Position::orderBy('id', 'desc')->get(); ?>
+                        <input type="text" id="removePositionInput" 
+                            placeholder="{{__('select position')}}" 
+                            class="form-control mb-2"> 
                         <select class="form-control" id="position" name="position">
                             @foreach($positions as $position)
                                 <option value="{{ $position->id }}" @if($personal->positions->contains($position)) selected @endif>{{ $position->name }}</option>
@@ -76,6 +118,9 @@
                     </div>
                     <div class="form-group">
                         <label for="division">{{__('Division')}}</label>
+                        <input type="text" id="removeDivisionInput" 
+                            placeholder="{{__('select division')}}" 
+                            class="form-control mb-2">
                         <select class="form-control" id="division_id" name="division_id">
                             <option value="0"></option>
                             @foreach($divisions as $division)
@@ -90,5 +135,74 @@
             </div>
         </div>
     </div>
-  
+  <script>
+    const users = @json($users);
+// 🔎 Фільтрація select при наборі
+    const searchInput = document.getElementById('removeRelatedUserInput');
+
+    const select = document.getElementById('relatedUsersSelect');
+    
+    searchInput.addEventListener('keyup', function () {
+        let term = this.value.toLowerCase();
+        for (let option of select.options) {
+            if (!option.value) continue;
+            option.style.display = option.text.toLowerCase().includes(term) ? '' : 'none';
+        }
+    });
+
+    // ➕ Додавання користувача в checkbox-list при виборі
+    select.addEventListener('change', function () {
+        let userId = this.value;
+        if (!userId) return;
+
+        let user = users.find(u => u.id == userId);
+        if (!user) return;
+
+        // Створюємо елемент-чекбокс
+        let checkboxList = document.getElementById('checkboxList');
+        let div = document.createElement('div');
+        div.classList.add('form-check');
+        div.id = `checkbox-${user.id}`;
+        div.innerHTML = `
+            <input class="form-check-input" type="checkbox" value="${user.id}" 
+                   id="relatedUser${user.id}" name="relatedUsers[]" checked>
+            <label class="form-check-label" for="relatedUser${user.id}">
+                ${user.name} (${user.tn ?? ''})
+            </label>
+        `;
+        checkboxList.appendChild(div);
+
+        // Прибираємо зі select
+        this.querySelector(`option[value="${userId}"]`).remove();
+
+        // Скидаємо select і пошук
+        this.value = "";
+        searchInput.value = "";
+        for (let option of this.options) option.style.display = '';
+    });
+
+    //removePositionInput
+    const positions = @json($positions);
+    const positionInput = document.getElementById('removePositionInput');
+    const positionSelect = document.getElementById('position');
+    positionInput.addEventListener('keyup', function () {
+        let term = this.value.toLowerCase();
+        for (let option of positionSelect.options) {
+            if (!option.value) continue;
+            option.style.display = option.text.toLowerCase().includes(term) ? '' : 'none';
+        }
+    });
+    //removeDivisionInput
+    const divisions = @json($divisions);
+    const divisionInput = document.getElementById('removeDivisionInput');
+    const divisionSelect = document.getElementById('division_id');
+    divisionInput.addEventListener('keyup', function () {
+        let term = this.value.toLowerCase();
+        for (let option of divisionSelect.options) {
+            if (!option.value) continue;
+            option.style.display = option.text.toLowerCase().includes(term) ? '' : 'none';
+        }
+    });
+
+  </script>
 @endsection

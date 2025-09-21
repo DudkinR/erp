@@ -147,6 +147,7 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{ route('profiles.index') }}">{{__('Profile')}}</a>
+                    <a class="dropdown-item" href="{{ route('teams.show') }}">{{__('Teams')}}</a>
                     <a class="dropdown-item" href="{{ route('personal.index') }}">  {{__('Personal')}}</a>
                     <!-- logout -->
                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{__('Logout')}}</a>

@@ -81,5 +81,24 @@ class User extends Authenticatable
         // Manually fetch tasks from the profile
         return $this->profile ? $this->profile->tasks() : collect();
     }
+    public function relatedUsers()
+    {
+        return $this->belongsToMany(
+            User::class,          // зв'язуємо саму модель User
+            'user_user',         // таблиця
+            'user_id',          // поле в user_user яке вказує на цього користувача
+            'related_user_id'   // поле на пов'язаний користувач
+        );
+    }
+    // back relations user_user
+    public function relatedBack()
+    {
+        return $this->belongsToMany(
+            User::class,          // зв'язуємо саму модель User
+            'user_user',         // таблиця
+            'related_user_id',   // поле в user_user яке вказує на цього користувача
+            'user_id'          // поле на пов'язаний користувач
+        );
+    }
 
 }

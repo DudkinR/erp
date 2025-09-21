@@ -29,7 +29,7 @@ class Adocument extends Model
         'inventory', // інвентарний номер
         'archive_number', // архівний номер
         'path', // шлях на сервері
-        'storage_location', // місце зберігання оригінала
+        'storage_location', // місце зберігання оригінала (архів)_(ряд)_полиця_папка№
         'status' // статус (діючий / анульований)
     ];
     public function packages()
