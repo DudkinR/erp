@@ -136,7 +136,12 @@ class TeamController extends Controller
         ->where('status', '!=', 'completed')
         ->where('due_at', '<=', now())
         ->get();
-        return view('teams.show', compact('teams', 'tasks'));
+        $closedTasks = TeamTask::whereIn('team_id', $teams->pluck('id'))
+        ->where('status', 'completed')
+        // closed today
+        ->whereDate('updated_at', now()->toDateString())
+        ->get();
+        return view('teams.show', compact('teams', 'tasks', 'closedTasks'));
 
     }
     // колендар завдань всі завдання дивимось дні тижня як виконувались ким і що плануеться

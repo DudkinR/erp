@@ -23,4 +23,10 @@ class TeamTask extends Model
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
+
+    public function reports()
+    {
+        return $this->hasMany(TeamTaskReport::class, 'task_id');
+    }
+
 }

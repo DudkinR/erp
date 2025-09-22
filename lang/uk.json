@@ -724,6 +724,10 @@
       "Save Task" : "Зберегти завдання",
       "Creator" : "Створено",
       "pending" : "в очікуванні",
+      "completed" : "завершено",
+      "How many times should this repeat?" : "Як часто це має повторюватися?",
+      "Generate How Many Times" : "Згенерувати скільки разів",
+      "Closed Tasks" : "Закриті завдання",
 
       "Part" : "Частина",
       "Archives" : "Архіви"

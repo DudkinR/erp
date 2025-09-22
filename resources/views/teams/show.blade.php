@@ -237,4 +237,32 @@
         </div>
     </div>
 </div>
+<div class="container">
+    <h3>{{ __('Closed Tasks') }}</h3>
+    <div class="row g-3">
+        @foreach($closedTasks as $task)
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $task->title }}</h5>
+                        <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
+                        <p class="card-text"><strong>{{ __('Creator') }}:</strong> {{ $task->creator->name ?? '-' }}</p>
+                        <p class="card-text"><strong>{{ __('Assignee') }}:</strong> 
+                            {{ $task->assignee_id ? \App\Models\User::find($task->assignee_id)->name : '-' }}</p>
+                        <p class="card-text"><strong>{{ __('Status') }}:</strong> {{ __($task->status) }}</p>
+                    </div>
+                    <div class="card-footer">
+                        {{-- Відображення існуючих звітів --}}
+                        @foreach($task->reports ?? [] as $report)
+                            <div class="border p-2 mb-1">
+                                <strong>{{ $report->user->name }}:</strong> {{ Str::limit($report->report, 50) }}
+                            </div>
+                        @endforeach
+                    
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
 @endsection
