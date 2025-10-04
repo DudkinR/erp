@@ -651,6 +651,10 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
 
     //team-tasks.store
     Route::post('/team-tasks', 'App\Http\Controllers\TeamController@storeTask')->name('team-tasks.store');
+    // team-tasks.update
+    Route::put('/team-tasks/{id}', 'App\Http\Controllers\TeamController@updateTask')->name('team-tasks.update');
+    // team-tasks.destroy
+    Route::delete('/team-tasks/{id}', 'App\Http\Controllers\TeamController@destroyTask')->name('team-tasks.destroy');
     // team-task-reports.store
     Route::post('/team-task-reports', 'App\Http\Controllers\TeamController@storeReport')->name('team-task-reports.store');
    

@@ -131,11 +131,19 @@ class TeamController extends Controller
         $teams = Team::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->get();
-        // вибираємо всі завдання, які належать команді з вказаним командами
-        $tasks = TeamTask::whereIn('team_id', $teams->pluck('id'))
+        $id_auth = auth()->id();
+        // вибираємо всі завдання, які належать команді з вказаним командами 
+        $tasks_without_auth = TeamTask::whereIn('team_id', $teams->pluck('id'))
         ->where('status', '!=', 'completed')
+        ->where('assignee_id', '!=', $id_auth)        
         ->where('due_at', '<=', now())
         ->get();
+        $tasks_with_auth = TeamTask::whereIn('team_id', $teams->pluck('id'))
+        ->where('status', '!=', 'completed')
+        ->where('assignee_id', $id_auth)        
+        ->where('due_at', '<=', now())
+        ->get();
+        $tasks = $tasks_with_auth->merge($tasks_without_auth);
         $closedTasks = TeamTask::whereIn('team_id', $teams->pluck('id'))
         ->where('status', 'completed')
         // closed today
@@ -155,6 +163,7 @@ class TeamController extends Controller
         })->get();
         // вибираємо всі завдання, які належать команді з вказаним командами
         $tasks = TeamTask::whereIn('team_id', $teams->pluck('id'))
+        ->with('reports')
         ->get();
         return view('teams.calendar', compact('teams', 'tasks'));
 
@@ -253,7 +262,6 @@ class TeamController extends Controller
         return redirect()->route('teams.index')->with('success', 'Team updated successfully.');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -305,25 +313,68 @@ class TeamController extends Controller
 
         return redirect()->back()->with('success', 'Task created successfully.');
     }
-
-    // generate_times
-    public function generate_times($task,$generate_times,$type,$due_date)
+    
+    //updateTask
+    public function updateTask(Request $request, string $id)
     {
-        // 'once','template','daily','weekly','monthly','yearly','custom'
-        for ($i=1; $i <=$generate_times ; $i++) { 
-            if($type=='daily'){
+        $task = TeamTask::findOrFail($id);
+
+        // Перевірка, чи є користувач виконавцем завдання
+        if ($task->creator_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->assignee_id = $request->assignee_id;
+        $task->due_at = $request->due_date;       
+        $task->save();
+        if($task->type && $task->type!='once' && $request->generate_times && $request->due_date){
+            $this->generate_times($task,$request->generate_times,$task->type,$request->due_date);
+        }
+        return redirect()->back()->with('success', 'Task updated successfully.');
+    }
+
+   public function generate_times($task, $generate_times, $type, $due_date, $allowed_dates = [])
+    {
+        for ($i = 1; $i <= $generate_times; $i++) {
+            // Обчислення наступної дати
+            if ($type == 'daily') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 day'));
             }
-            if($type=='weekly'){
+            if ($type == 'weekly') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 week'));
             }
-            if($type=='monthly'){
+            if ($type == 'monthly') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 month'));
             }
-            if($type=='yearly'){
+            if ($type == 'yearly') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 year'));
             }
-            // створюємо нове завдання
+
+            // Перевірка на вихідний день
+            $dayOfWeek = date('N', strtotime($due_date)); // 6 = Saturday, 7 = Sunday
+            if ($dayOfWeek >= 6) {
+                continue; // пропускаємо суботу та неділю
+            }
+
+            // Якщо заданий масив дозволених дат — перевіряємо
+            if (!empty($allowed_dates) && !in_array($due_date, $allowed_dates)) {
+                continue;
+            }
+
+            // Перевірка на дублювання
+            $exists = TeamTask::where('team_id', $task->team_id)
+                ->where('title', $task->title)
+                ->where('description', $task->description)
+                ->whereDate('due_at', $due_date)
+                ->exists();
+
+            if ($exists) {
+                continue; // пропускаємо дублікати
+            }
+
+            // Створення нового завдання
             TeamTask::create([
                 'team_id' => $task->team_id,
                 'title' => $task->title,
