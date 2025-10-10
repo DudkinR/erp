@@ -91,7 +91,19 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/objectives/{id}/edit', 'App\Http\Controllers\ObjectiveController@edit')->name('objectives.edit');
     Route::put('/objectives/{id}', 'App\Http\Controllers\ObjectiveController@update')->name('objectives.update');
     Route::delete('/objectives/{id}', 'App\Http\Controllers\ObjectiveController@destroy')->name('objectives.destroy');
-
+    // provider
+    Route::get('/providers', 'App\Http\Controllers\ProviderController@index')->name('providers.index');
+    Route::get('/providers/create', 'App\Http\Controllers\ProviderController@create')->name('providers.create');
+    Route::post('/providers', 'App\Http\Controllers\ProviderController@store')->name('providers.store');
+    Route::post('/contacts', 'App\Http\Controllers\ProviderController@store_contract')->name('providers.store_contract');   
+    Route::post('/documents', 'App\Http\Controllers\ProviderController@store_document')->name('providers.store_document');
+    Route::get('/providers/{id}', 'App\Http\Controllers\ProviderController@show')->name('providers.show');
+    Route::get('/providers/{id}/edit', 'App\Http\Controllers\ProviderController@edit')->name('providers.edit');
+    Route::put('/providers/{id}', 'App\Http\Controllers\ProviderController@update')->name('providers.update');
+    Route::delete('/providers/{id}', 'App\Http\Controllers\ProviderController@destroy')->name('providers.destroy');
+    // import providers from csv file   
+    Route::get('/providersimport', 'App\Http\Controllers\ProviderController@import')->name('providers.import'); 
+    Route::post('/providersimport', 'App\Http\Controllers\ProviderController@importData')->name('providers.importData');
 
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');

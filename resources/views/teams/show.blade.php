@@ -274,11 +274,11 @@
                         <div class="mb-3">
                             <label for="team_id" class="form-label">{{ __('Team') }}</label>
                             <select class="form-select team-select" name="team_id"  id="team_id" required>
-                                @if($teams->count() > 1)
+ 
                                 <option value="">{{ __('Select a team') }}</option>
-                                @endif
+
                                 @foreach($teams as $team)
-                                    <option value="{{ $team->id }}">{{ $team->name }}</option>
+                                    <option value="{{ $team->id }}" >{{ $team->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -369,8 +369,11 @@
         @endforeach
     </div>
 </div>
+<pre>{{ json_encode($teams) }}</pre>
+
 <script>
   const tasks = @json($tasks);
+
    document.addEventListener('DOMContentLoaded', function () {
     const teams = @json($teams->map(function($team) {
         return [
@@ -378,7 +381,7 @@
             'members' => $team->users->map(fn($u) => ['id' => $u->id, 'name' => $u->name])
         ];
     }));
-
+   // console.log(teams);
     function updateAssignees(teamId, assigneeSelect) {
         assigneeSelect.innerHTML = '<option value="">{{ __("Unassigned") }}</option>';
 

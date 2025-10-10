@@ -728,6 +728,9 @@
       "How many times should this repeat?" : "Як часто це має повторюватися?",
       "Generate How Many Times" : "Згенерувати скільки разів",
       "Closed Tasks" : "Закриті завдання",
+      "Create Duplicate" :"Створити дублікат",
+      "Do you want to create a duplicate of this task with the same title, description, assignee, and team?":"Ви хочете створити дублікат цього завдання з такою ж назвою, описом, виконавцем та командою?",
+      "Duplicate Task":"Дублікат завдання",
 
       "Part" : "Частина",
       "Archives" : "Архіви"
