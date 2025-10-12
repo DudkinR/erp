@@ -1,12 +1,9 @@
 @extends('layouts.app')
 @section('content')
-<div class="container">
-
- 
+<div class="container"> 
     <div class="row mb-3">
         <div class="col-md-12 d-flex justify-content-between align-items-center">
             <h1>{{__('Постачальники')}}</h1>
-
             <div class="btn-group">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProviderModal">
                     ➕ Новий постачальник
@@ -173,15 +170,22 @@ document.addEventListener('DOMContentLoaded', function() {
         renderResultsDocs(topResults);
     }
 
-    // ===== ВИВІД РЕЗУЛЬТАТІВ =====
-    function renderResultsProviders(results) {
+   function renderResultsProviders(results) {
         answersDiv.innerHTML = '';
-        if (results.length === 0) return answersDiv.innerHTML = '<p>Нічого не знайдено.</p>';
+        if (results.length === 0) {
+            answersDiv.innerHTML = '<p>Нічого не знайдено.</p>';
+            return;
+        }
+
         results.forEach(({ provider, score }) => {
             const div = document.createElement('div');
             div.classList.add('card', 'mb-2');
-            if(provider.status === 1) div.classList.add('bg-light');
-            else if(provider.status === 0) div.classList.add('bg-danger');
+
+            // Додаємо подію натискання через JS (надійно)
+            div.addEventListener('click', () => rememberToCopy(provider.edrpou_code || ''));
+
+            if (provider.status === 1) div.classList.add('bg-light');
+            else if (provider.status === 0) div.classList.add('bg-danger');
 
             const tooltip = `
                 Коротка назва: ${provider.short_name || '-'}\n
@@ -195,10 +199,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 Релевантність: ${score}
             `.trim();
 
-            div.innerHTML = `<div class="card-body" title="${tooltip.replace(/"/g, '&quot;')}">
-                <h5 class="card-title">${provider.full_name}</h5>
-            </div>`;
+            div.innerHTML = `
+                <div class="card-body" title="${tooltip.replace(/"/g, '&quot;')}">
+                    <h5 class="card-title">${provider.full_name}</h5>
+                </div>
+            `;
             answersDiv.appendChild(div);
+        });
+    }
+
+    function rememberToCopy(text) {
+        if (!text) return alert('Немає даних для копіювання');
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Скопійовано в буфер обміну' + (text ? `: ${text}` : ''));
+        }).catch(err => {
+            console.error('Помилка копіювання:', err);
+            alert('Не вдалося скопіювати');
         });
     }
 

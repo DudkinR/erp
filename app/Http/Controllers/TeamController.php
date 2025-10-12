@@ -123,35 +123,57 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Request $request)
     {
-        //
-       $userId = auth()->id(); // ID авторизованого користувача
+        $userId = auth()->id();
 
+        // Отримуємо всі команди, де користувач є учасником
         $teams = Team::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->get();
-        $id_auth = auth()->id();
-        // вибираємо всі завдання, які належать команді з вказаним командами 
-        $tasks_without_auth = TeamTask::whereIn('team_id', $teams->pluck('id'))
-        ->where('status', '!=', 'completed')
-        ->where('assignee_id', '!=', $id_auth)        
-        ->where('due_at', '<=', now())
-        ->get();
-        $tasks_with_auth = TeamTask::whereIn('team_id', $teams->pluck('id'))
-        ->where('status', '!=', 'completed')
-        ->where('assignee_id', $id_auth)        
-        ->where('due_at', '<=', now())
-        ->get();
-        $tasks = $tasks_with_auth->merge($tasks_without_auth);
-        $closedTasks = TeamTask::whereIn('team_id', $teams->pluck('id'))
-        ->where('status', 'completed')
-        // closed today
-        ->whereDate('updated_at', now()->toDateString())
-        ->get();
-        return view('teams.show', compact('teams', 'tasks', 'closedTasks'));
 
+        // Якщо параметр ?team не переданий — беремо першу команду користувача
+        $team_id = $request->team ?? $teams->first()?->id;
+
+        // Якщо у користувача немає команд — повертаємо порожню сторінку
+        if (!$team_id) {
+            return view('teams.show', [
+                'teams' => $teams,
+                'tasks' => collect(),
+                'closedTasks' => collect(),
+                'team_id' => null
+            ]);
+        }
+
+        // ID авторизованого користувача
+        $id_auth = $userId;
+
+        // Завдання, які не призначені користувачу
+        $tasks_without_auth = TeamTask::where('team_id', $team_id)
+            ->where('status', '!=', 'completed')
+            ->where('assignee_id', '!=', $id_auth)
+            ->where('due_at', '<=', now())
+            ->get();
+
+        // Завдання, які призначені користувачу
+        $tasks_with_auth = TeamTask::where('team_id', $team_id)
+            ->where('status', '!=', 'completed')
+            ->where('assignee_id', $id_auth)
+            ->where('due_at', '<=', now())
+            ->get();
+
+        // Об’єднуємо
+        $tasks = $tasks_with_auth->merge($tasks_without_auth);
+
+        // Виконані сьогодні
+        $closedTasks = TeamTask::where('team_id', $team_id)
+            ->where('status', 'completed')
+            ->whereDate('updated_at', now()->toDateString())
+            ->get();
+
+        return view('teams.show', compact('teams', 'tasks', 'closedTasks', 'team_id'));
     }
+
     // колендар завдань всі завдання дивимось дні тижня як виконувались ким і що плануеться
     public function calendar()
     {
