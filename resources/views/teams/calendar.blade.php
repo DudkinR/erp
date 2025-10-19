@@ -21,6 +21,12 @@
 
     <!-- Список завдань -->
     <h3 class="mt-5">{{ __('Список завдань') }}</h3>
+    <div class="row" id="search">
+        <div class="col-md-4 mb-3">
+            <input type="text" id="taskSearch" class="form-control" placeholder="{{ __('Пошук завдань...') }}">
+        </div>
+    </div>
+    
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -28,9 +34,10 @@
                 <th>{{ __('Статус') }}</th>
                 <th>{{ __('Початок') }}</th>
                 <th>{{ __('Кінець') }}</th>
+                <th>{{ __('Дії') }}</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="taskTableBody">
             @foreach($tasks as $task)
                 <tr>
                     <td>{{ $task->title }}</td>
@@ -45,6 +52,159 @@
                     </td>
                     <td>{{ $task->start_at }}</td>
                     <td>{{ $task->due_at }}</td>
+                    <td>
+                        @if($task->creator_id == auth()->id())
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editTaskModal_{{ $task->id }}">
+                            {{ __('Редагувати') }}
+                        </button>
+                        {{-- Модальне вікно для редагування завдання --}}
+                <div class="modal fade" id="editTaskModal_{{ $task->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form method="POST" action="{{ route('team-tasks.update', $task->id) }}">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ __('Edit Task') }}: {{ $task->title }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+
+                                    <input type="hidden" name="team_id" value="@foreach($teams as $team){{ $team->id }}@break; @endforeach">
+
+                                    <div class="mb-3">
+                                        <label for="title_{{ $task->id }}" class="form-label">{{ __('Title') }}</label>
+                                        <input type="text" class="form-control" id="title_{{ $task->id }}" 
+                                                name="title" value="{{ $task->title }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="assignee_id" class="form-label assignee-select">{{ __('Assignee') }}</label>
+                                        <select class="form-select" name="assignee_id" id="assignee_id">
+                                            <option value="">{{ __('Unassigned') }}</option>
+                                            @foreach($teams->where('id', $task->team_id)->first()->users as $user)
+                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description_{{ $task->id }}" class="form-label">{{ __('Description') }}</label>
+                                        <textarea class="form-control" id="description_{{ $task->id }}" 
+                                                name="description" rows="3">{{ $task->description }}</textarea>
+                                    </div>
+            
+                                    <div class="mb-3">
+                                        <label for="due_date" class="form-label">{{ __('Due Date') }}</label>
+                                        <input type="date" class="form-control" name="due_date"
+                                        value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">{{ __('Type') }}</label>
+                                        <div>
+                                            <input type="radio" name="type" value="once" id="type_once" checked>
+                                            <label for="type_once">{{ __('Once') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="daily" id="type_daily">
+                                            <label for="type_daily">{{ __('Daily') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="weekly" id="type_weekly">
+                                            <label for="type_weekly">{{ __('Weekly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="monthly" id="type_monthly">
+                                            <label for="type_monthly">{{ __('Monthly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="yearly" id="type_yearly">
+                                            <label for="type_yearly">{{ __('Yearly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="custom" id="type_custom">
+                                            <label for="type_custom">{{ __('Custom') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper" >
+                                        <label for="generate_times" class="form-label">{{ __('Generate How Many Times') }}</label>
+                                        <input type="number" class="form-control" name="generate_times"  min="1" value="1">
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">{{ __('Save Changes') }}</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>  
+                 @endif
+                        {{-- Модальне вікно для дублювання завдання --}}
+                <div class="modal fade" id="duplicateTaskModal_{{ $task->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form method="POST" action="{{ route('team-tasks.store') }}">
+                            @csrf
+                            <input type="hidden" name="title" value="{{ $task->title }}">
+                            <input type="hidden" name="description" value="{{ $task->description }}">
+                            <input type="hidden" name="assignee_id" value="{{ $task->assignee_id }}">
+                            <input type="hidden" name="team_id" value="{{ $task->team_id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ __('Duplicate Task') }}: {{ $task->title }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body  ">
+                                    <p>{{ __('Do you want to create a duplicate of this task with the same title, description, assignee, and team?') }}</p>
+                                    <div class="mb-3">
+                                        <label for="due_date_{{ $task->id }}" class="form-label">{{ __('Due Date') }}</label>
+                                        <input type="date" class="form-control" name="due_date"
+                                        value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="type_{{ $task->id }}" class="form-label">{{ __('Type') }}</label>
+                                        <div>
+                                            <input type="radio" name="type" value="once" id="type_once_{{ $task->id }}" checked>
+                                            <label for="type_once_{{ $task->id }}">{{ __('Once') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="daily" id="type_daily_{{ $task->id }}">
+                                            <label for="type_daily_{{ $task->id }}">{{ __('Daily') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="weekly" id="type_weekly_{{ $task->id }}">
+                                            <label for="type_weekly_{{ $task->id }}">{{ __('Weekly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="monthly" id="type_monthly_{{ $task->id }}">
+                                            <label for="type_monthly_{{ $task->id }}">{{ __('Monthly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="yearly" id="type_yearly_{{ $task->id }}">
+                                            <label for="type_yearly_{{ $task->id }}">{{ __('Yearly') }}</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="type" value="custom" id="type_custom_{{ $task->id }}">
+                                            <label for="type_custom_{{ $task->id }}">{{ __('Custom') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper_{{ $task->id }}">
+                                        <label for="generate_times_{{ $task->id }}" class="form-label">{{ __('Generate How Many Times') }}</label>
+                                        <input type="number" class="form-control generate_times" name="generate_times"  min="1" value="1">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">{{ __('Create Duplicate') }}</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateTaskModal_{{ $task->id }}">
+                            {{ __('Дублювати') }}
+                        </button>
+                        
+                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -126,6 +286,21 @@
             calendar.addEventSource(filtered);
         });
     });
+
+    // Пошук завдань в таблиці 
+    document.getElementById('taskSearch').addEventListener('input', function() {
+        let query = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#taskTableBody tr');
+        rows.forEach(row => {
+            let title = row.cells[0].textContent.toLowerCase();
+            if (title.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
 </script>
 
 @endsection

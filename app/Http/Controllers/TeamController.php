@@ -312,6 +312,8 @@ class TeamController extends Controller
             'priority' => 'nullable|in:low,medium,high',
             'assignee_id' => 'nullable|exists:users,id',
         ]);
+        $due_date = $request->due_date ? date('Y-m-d', strtotime($request->due_date)) : now()->toDateString();
+        $due_date = $this->shiftDateIfWeekend($due_date);
 
         $task = TeamTask::create([
             'team_id' => $request->team_id,
@@ -367,6 +369,14 @@ class TeamController extends Controller
             if ($type == 'weekly') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 week'));
             }
+            // щоквартально
+            if ($type == 'quarterly') {
+                $due_date = date('Y-m-d', strtotime($due_date . ' +3 months'));
+            }
+            // щопівріччя
+            if ($type == 'biannually') {
+                $due_date = date('Y-m-d', strtotime($due_date . ' +6 months'));
+            }
             if ($type == 'monthly') {
                 $due_date = date('Y-m-d', strtotime($due_date . ' +1 month'));
             }
@@ -385,6 +395,8 @@ class TeamController extends Controller
                 continue;
             }
 
+
+            $due_date = $this->shiftDateIfWeekend($due_date);
             // Перевірка на дублювання
             $exists = TeamTask::where('team_id', $task->team_id)
                 ->where('title', $task->title)
@@ -412,6 +424,16 @@ class TeamController extends Controller
                 'parent_task_id' => $task->id
             ]);
         }
+    }
+    // внутрешня функція для смещення дати якщо попадає на вихідний - 1, 2 дні (раніше)
+    public function shiftDateIfWeekend($date) {
+        $dayOfWeek = date('N', strtotime($date));
+        if ($dayOfWeek == 6) { // Субота
+            return date('Y-m-d', strtotime($date . ' -1 day'));
+        } elseif ($dayOfWeek == 7) { // Неділя
+            return date('Y-m-d', strtotime($date . ' -2 days'));
+        }
+        return $date;
     }
 
     // storeReport

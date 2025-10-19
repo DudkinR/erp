@@ -118,7 +118,7 @@
                                             <label for="type_custom_{{ $task->id }}">{{ __('Custom') }}</label>
                                         </div>
                                     </div>
-                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper_{{ $task->id }}" style="display:none;">
+                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper_{{ $task->id }}">
                                         <label for="generate_times_{{ $task->id }}" class="form-label">{{ __('Generate How Many Times') }}</label>
                                         <input type="number" class="form-control generate_times" name="generate_times"  min="1" value="1">
                                     </div>
@@ -131,7 +131,6 @@
                         </form>
                     </div>
                 </div>
-
                 @if($task->creator_id == auth()->id())
                 {{-- Модальне вікно для редагування завдання --}}
                 <div class="modal fade" id="editTaskModal_{{ $task->id }}" tabindex="-1" aria-hidden="true">
@@ -193,7 +192,7 @@
                                             <label for="type_custom">{{ __('Custom') }}</label>
                                         </div>
                                     </div>
-                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper" style="display:none;">
+                                    <div class="mb-3 generate_times_wrapper" id="generate_times_wrapper" >
                                         <label for="generate_times" class="form-label">{{ __('Generate How Many Times') }}</label>
                                         <input type="number" class="form-control" name="generate_times"  min="1" value="1">
                                     </div>
@@ -310,7 +309,7 @@
                                 <label for="type_custom">{{ __('Custom') }}</label>
                             </div>
                         </div>
-                         <div class="mb-3 generate_times_wrapper"  style="display:none;">
+                         <div class="mb-3 generate_times_wrapper" >
                             <label for="generate_times" class="form-label">{{ __('Generate How Many Times') }}</label>
                             <input type="number" class="form-control" name="generate_times"  min="1" value="1">
                         </div>
@@ -358,7 +357,7 @@
   const tasks = @json($tasks);
 document.addEventListener('DOMContentLoaded', function () {
     const typeRadios = document.querySelectorAll('input[name="type"]');
-    const generateWrappers = document.querySelectorAll('.generate_times_wrapper');
+   
     const generateInputs = document.querySelectorAll('.generate_times');
 
     function updateGenerateTimes() {
@@ -366,7 +365,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!selected) return;
 
         if (selected.value !== 'once' && selected.value !== 'custom') {
-            generateWrappers.forEach(wrapper => wrapper.style.display = 'block');
             generateInputs.forEach(input => {
                // const times = prompt("{{ __('How many times should this repeat?') }}", 1);
                 input.value = times && !isNaN(times) && times > 0 ? parseInt(times) : 1;
