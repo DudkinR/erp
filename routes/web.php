@@ -669,7 +669,33 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::delete('/team-tasks/{id}', 'App\Http\Controllers\TeamController@destroyTask')->name('team-tasks.destroy');
     // team-task-reports.store
     Route::post('/team-task-reports', 'App\Http\Controllers\TeamController@storeReport')->name('team-task-reports.store');
-   
+
+    //'proposals'
+    Route::get('/proposals', 'App\Http\Controllers\ProposalController@index')->name('proposals.index');
+    Route::get('/proposals/create', 'App\Http\Controllers\ProposalController@create')->name('proposals.create');
+    Route::post('/proposals', 'App\Http\Controllers\ProposalController@store')->name('proposals.store');
+    Route::get('/proposals/{id}', 'App\Http\Controllers\ProposalController@show')->name('proposals.show');
+    Route::get('/proposals/{id}/edit', 'App\Http\Controllers\ProposalController@edit')->name('proposals.edit');
+    Route::put('/proposals/{id}', 'App\Http\Controllers\ProposalController@update')->name('proposals.update');
+    Route::delete('/proposals/{id}', 'App\Http\Controllers\ProposalController@destroy')->name('proposals.destroy');
+    //consideration
+    Route::get('/proposals_consider/{id}', 'App\Http\Controllers\ProposalController@consider')->name('proposals.consider');
+    // considerations.store
+    Route::post('/considerations', 'App\Http\Controllers\ProposalController@storeConsideration')->name('considerations.store');
+    //Route [considerations.edit] not defined.
+    Route::get('/considerations/{id}/edit', 'App\Http\Controllers\ProposalController@editConsideration')->name('considerations.edit');
+    // considerations.update
+    Route::put('/considerations/{id}', 'App\Http\Controllers\ProposalController@updateConsideration')->name('considerations.update');
+    // considerations.destroy
+    Route::delete('/considerations/{id}', 'App\Http\Controllers\ProposalController@destroyConsideration')->name('considerations.destroy');
+// efficiency_criteria.store
+    Route::post('/efficiency_criteria', 'App\Http\Controllers\ProposalController@storeEfficiencyCriterion')->name('efficiency_criteria.store');
+    // efficiency_criteria.update
+    Route::put('/efficiency_criteria/{id}', 'App\Http\Controllers\ProposalController@updateEfficiencyCriterion')->name('efficiency_criteria.update');
+    // efficiency_criteria.destroy
+    Route::delete('/efficiency_criteria/{id}', 'App\Http\Controllers\ProposalController@destroyEfficiencyCriterion')->name('efficiency_criteria.destroy');
+    // 'efficiency_criteria.edit
+    Route::get('/efficiency_criteria/{id}/edit', 'App\Http\Controllers\ProposalController@editEfficiencyCriterion')->name('efficiency_criteria.edit');
 
 });
 

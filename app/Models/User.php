@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->profile->positions;
       
     }
+    // division
+    public function division()
+    {
+        return $this->profile ?$this->profile->division : null;
+    }
 
     public function dependedPositions()
     {

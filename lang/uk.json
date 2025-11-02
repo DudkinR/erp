@@ -732,7 +732,21 @@
       "Do you want to create a duplicate of this task with the same title, description, assignee, and team?":"Ви хочете створити дублікат цього завдання з такою ж назвою, описом, виконавцем та командою?",
       "Duplicate Task":"Дублікат завдання",
       "Providers" : "Постачальники",
-
+      "Edit Considerations" : "Редагувати розгляди",
+      "Content" : "Зміст",
+      "Responsible" : "Відповідальний",
+      "Result Description" : "Опис результату",
+      "Add Efficiency Criterion" : "Додати критерій ефективності",
+      "Consideration updated successfully." : "Розгляд успішно оновлено.",
+      "Decision" : "Рішення",
+      "Created At" : "Створено",
+      "Updated At" : "Оновлено",
+      "Add Consideration" : "Додати розгляд",
+      "Proposals" : "Пропозиції",
+        "Proposal" : "Пропозиція",
+        "Create Proposal" : "Створити пропозицію",
+        "Back to Proposal" : "Назад до пропозицій",
+        "Consider Proposal" : "Розглянути пропозицію",
       "Part" : "Частина",
       "Archives" : "Архіви"
 }
