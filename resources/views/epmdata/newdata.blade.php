@@ -1,80 +1,77 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container">
-               @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        @if(session('success'))
-        <div class="alert alert-success">{{ __(session('success')) }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ __(session('error')) }}</div>
-    @endif
-        <div class="row">
-            <div class="col-md-12">
-            <h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1 class="mb-3 text-center text-secondary fw-bold">
                 @if(!$division)
                     {{__('EPM')}}
                 @else
-                     {{$division->name}}
+                    {{$division->name}}
                 @endif
             </h1>
-            <h2>
-                {{__('Data for')}} : {{ $date }}
+
+            <h2 class="text-center text-muted">
+                {{__('Data for')}} : <span class="badge bg-light text-dark">{{ $date }}</span>
             </h2>
-            <a href="{{ route('epmdata') }}" class="btn btn-primary mb-4 w-100"> {{__('Back to Data')}} </a>
-            <form method="POST" action="{{ route('epmdata.loadupdate',$date) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="PUT">
-                    <input type="hidden" name="date" value="{{ $date }}">
-                    @foreach($epmdatas as $epmdata)
-    <div class="form-group border p-2 
-        @if($epmdata->value == null) bg-dark text-white 
-        @else bg-light 
-        @endif">
-        
-        <label for="value_{{$epmdata->epm_id}}">
-            {{ $epms[$epmdata->epm_id]->name }}
-        </label>
-        
-        <input type="text" class="form-control" id="value_{{$epmdata->epm_id}}"
-            name="value[{{ $epmdata->id }}]"
-            value="{{ old('value.' . $epmdata->id, $epmdata->value) }}"
-            placeholder="{{__('Enter value')}}">
 
-        <h6 class="text-muted">
-            Min: <b>{{ $epms[$epmdata->epm_id]->min }}</b>  
-            & Max: <b>{{ $epms[$epmdata->epm_id]->max }}</b>
-            <br>
-            
-            <!-- Обрізаний текст -->
-            <span id="short_{{ $epmdata->epm_id }}">
-                {{ Str::limit($epms[$epmdata->epm_id]->description, 50) }}
-            </span>
-
-            <!-- Кнопка "Детальніше" -->
-            <a href="#" class="text-primary" data-bs-toggle="collapse" data-bs-target="#desc_{{ $epmdata->epm_id }}">
-                {{ __('Детальніше') }}
+            <a href="{{ route('epmdata') }}" class="btn btn-outline-secondary mb-4 w-100">
+                {{__('Back to Data')}}
             </a>
 
-            <!-- Розкриваємий текст -->
-            <div id="desc_{{ $epmdata->epm_id }}" class="collapse mt-2">
-                {!! nl2br(e($epms[$epmdata->epm_id]->description)) !!}
-            </div>
-        </h6>
-    </div>
-@endforeach
+            <form method="POST" action="{{ route('epmdata.loadupdate',$date) }}">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="date" value="{{ $date }}">
 
-                   
-                    <button type="submit" class="btn btn-primary w-100">{{__('Update')}}</button>
-                </form>
-            </div>
+                @foreach($epmdatas as $epmdata)
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body 
+                            @if($epmdata->value == null) bg-light text-muted 
+                            @else bg-white 
+                            @endif">
+
+                            <label for="value_{{$epmdata->epm_id}}" class="fw-bold">
+                                {{ $epm->name }}
+                            </label>
+
+                            <input type="text"
+                                   class="form-control mt-1"
+                                   id="value_{{$epmdata->epm_id}}"
+                                   name="value[{{ $epmdata->id }}]"
+                                   value="{{ old('value.' . $epmdata->id, $epmdata->value) }}"
+                                   placeholder="{{__('Enter value')}}">
+
+                            <small class="text-muted d-block mt-2">
+                                Min: <b>{{ $epm->min }}</b> &nbsp; | &nbsp;
+                                Max: <b>{{ $epm->max }}</b>
+                            </small>
+
+                            <div class="mt-2">
+                                <span id="short_{{ $epmdata->epm_id }}" class="text-muted">
+                                    {{ Str::limit($epm->description, 50) }}
+                                </span>
+
+                                <a href="#" class="text-primary ms-2"
+                                   data-bs-toggle="collapse"
+                                   data-bs-target="#desc_{{ $epmdata->epm_id }}">
+                                    {{ __('Детальніше') }}
+                                </a>
+
+                                <div id="desc_{{ $epmdata->epm_id }}" class="collapse mt-2 text-secondary">
+                                    {!! nl2br(e($epm->description)) !!}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    {{__('Update')}}
+                </button>
+            </form>
         </div>
     </div>
+</div>
 @endsection

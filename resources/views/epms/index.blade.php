@@ -34,7 +34,7 @@
                     <div class="card-header">
                         {{ $epm->name }}
                         -
-                        {{ $areas->where('id', $epm->area)->first()->name }}
+                        {{ $areas->where('id', $epm->area)->first()->name ?? '' }}
                    
                     </div>
                     <div class="card-body">

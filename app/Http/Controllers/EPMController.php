@@ -39,7 +39,7 @@ class EPMController extends Controller
             'name' => (string) $request->name,
             'description' => (string) $request->description, 
             'division' => $request->division ?? 0, // Додаємо значення за замовчуванням   
-            'area' => (int) $request->wanoarea,
+            'area' => (int) $request->wanoarea?? 0,
             'min' => (int) $request->min,
             'max' => (int) $request->max,
         ]);
@@ -76,7 +76,7 @@ class EPMController extends Controller
         $epm =  EPM::find($id);
         $epm->name = $request->name;
         $epm->description = $request->description;
-        $epm->area = $request->wanoarea;
+        $epm->area = $request->wanoarea ?? 0;
         $epm->division = $request->division;
         $epm->min = $request->min;
         $epm->max = $request->max;
@@ -96,68 +96,56 @@ class EPMController extends Controller
 
     public function epmdata()
     {
-        // Отримуємо всі унікальні дати з таблиці epmdata
-        $uniqueDates = EPMdata::whereNotNull('date_received')
-            ->distinct()
-            ->pluck('date_received')
-            ->toArray();
-    
-        // Масив для зберігання структурованих даних
+        // Завантажуємо всі EPM у пам'ять (щоб не робити find() у циклі)
+        $epms = EPM::all()->keyBy('id');
+        // Отримуємо всі записи з ненульовою датою одразу
+        $records = EPMdata::whereNotNull('date_received')
+            ->with('epm') // жадне завантаження зв'язку
+            ->get();
+
+        // Групуємо записи по датах
+        $groupedByDate = $records->groupBy('date_received');
+
         $epmdata_by_date = [];
-    
-        foreach ($uniqueDates as $date) {
-            // Отримуємо всі записи за певну дату
-            $epmdata_records = EPMdata::where('date_received', $date)->get();
-    
-            // Ініціалізуємо статуси
-            $completed = 1;  // Всі заповнені (1 - так, 0 - ні)
-            $blocked = 1;  // Всі заблоковані (1 - так, 0 - ні)
-            $divisions_data = []; // Масив для підрахунку даних по підрозділам
-    
+
+        foreach ($groupedByDate as $date => $epmdata_records) {
+            $completed = 1;
+            $blocked = 1;
+            $divisions_data = [];
+            $epm_id =$epmdata_records[0]->epm_id;
             foreach ($epmdata_records as $record) {
-                // Якщо хоч один запис має `value` = NULL, то не всі заповнені
                 if (is_null($record->value)) {
                     $completed = 0;
                 }
-    
-                // Якщо хоч один запис відкритий для редагування, то статус `blocked` = 0
+
                 if ($record->blocked == 0) {
                     $blocked = 0;
                 }
-    
-                // Отримуємо підрозділ, якщо він є
-                $epm = EPM::find($record->epm_id);
-                $division_id = $epm ? $epm->division : null;
-    
-                // Визначаємо ключ підрозділу (id або "без підрозділу")
+
+                $division_id = $record->epm ? $record->epm->division : null;
                 $division_key = $division_id ?? 'no_division';
-    
-                // Ініціалізуємо підрозділ, якщо його ще немає в списку
+
                 if (!isset($divisions_data[$division_key])) {
                     $divisions_data[$division_key] = [
-                        'empty' => 0, // Кількість порожніх значень
-                        'total' => 0  // Загальна кількість записів
+                        'empty' => 0,
+                        'total' => 0,
                     ];
                 }
-    
-                // Збільшуємо загальну кількість записів у підрозділі
+
                 $divisions_data[$division_key]['total']++;
-    
-                // Якщо значення порожнє, збільшуємо лічильник порожніх
                 if (is_null($record->value)) {
                     $divisions_data[$division_key]['empty']++;
                 }
             }
-    
-            // Зберігаємо інформацію про дату
             $epmdata_by_date[$date] = [
                 'completed' => $completed,
                 'blocked' => $blocked,
-                'divisions' => $divisions_data
+                'divisions' => $divisions_data,
+                'epm_id' => $epm_id
             ];
         }
-    
-        return view('epmdata.index', compact('epmdata_by_date'));
+
+        return view('epmdata.index', compact('epmdata_by_date', 'epms'));
     }
     // bloked
     public function bloked(Request $request)
@@ -232,28 +220,29 @@ class EPMController extends Controller
 
     public function createEpmData()
     {
+
         return view('epmdata.create');
     }
 
     public function storeEpmData(Request $request)
     {
-        $date=$request->date;
-        $epms = EPM::all()->keyBy('id')->values();
+      $date=$request->date;
+      // return Auth::id();
+
+      $epm = EPM::find($request->epm_id);
         // if date is not set
         if(EPMdata::where('date_received', $date)->exists()){
             return redirect('/epmdata')->with('error', 'epmdata already exists!');
-        }
-        
-        foreach ($epms as $epm) {
-            $epmdata = EPMdata::create([
+        }        
+        $epmdata = EPMdata::create([
                 'epm_id' => $epm->id,
-                'value' => null,
+                'value' => $request->data,
                 'date_received' => $date,
-                'date_entered' => null,
+                'date_entered' => $date,
                 'blocked' => 0,
-                'user_id' => 1
+                'user_id' => Auth::id() 
             ]);
-        }
+        
         return redirect('/epmdata')->with('success', 'epmdata saved!');
     }
 
@@ -308,10 +297,10 @@ class EPMController extends Controller
             })
             ->get();
         }
-        $epms = EPM::all()->keyBy('id')->values(); 
+          $epm = EPM::find($request->epm_id);
         
-       // return   $epmdatas;
-        return view('epmdata.newdata', compact('epmdatas','division','date','epms'));
+      // return   $request;
+        return view('epmdata.newdata', compact('epmdatas','division','date','epm'));
     }
     //loadupdate
     public function loadupdate(Request $request)

@@ -697,6 +697,15 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // 'efficiency_criteria.edit
     Route::get('/efficiency_criteria/{id}/edit', 'App\Http\Controllers\ProposalController@editEfficiencyCriterion')->name('efficiency_criteria.edit');
 
+    // procedures
+    Route::get('/procedures', 'App\Http\Controllers\ProcedureController@index')->name('procedures.index');
+    Route::get('/procedures/create', 'App\Http\Controllers\ProcedureController@create')->name('procedures.create');
+    Route::post('/procedures', 'App\Http\Controllers\ProcedureController@store')->name('procedures.store');
+    Route::get('/procedures/{id}', 'App\Http\Controllers\ProcedureController@show')->name('procedures.show');
+    Route::get('/procedures/{id}/edit', 'App\Http\Controllers\ProcedureController@edit')->name('procedures.edit');
+    Route::put('/procedures/{id}', 'App\Http\Controllers\ProcedureController@update')->name('procedures.update');
+    Route::delete('/procedures/{id}', 'App\Http\Controllers\ProcedureController@destroy')->name('procedures.destroy');
+    Route::post('/proceduresupdateSteps', 'App\Http\Controllers\ProcedureController@updateSteps')->name('procedures.updateSteps');
 });
 
 

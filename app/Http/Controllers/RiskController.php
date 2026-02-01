@@ -52,16 +52,38 @@ class RiskController extends Controller
     }
 
     public function StartBriefRisk(){
+        // equipment
         $equipments_parent = Type::where('slug', 'equipment')->first();
-        $equipments = Type::where('parent_id', $equipments_parent->id)->get();
+        $equipments = collect(); // порожня колекція за замовчуванням
+        if ($equipments_parent) {
+            $equipments = Type::where('parent_id', $equipments_parent->id)->get();
+        }
+
+        // systems
         $systems = System::all()->keyBy('id')->values();
+
+        // actions
         $actions_parent = Type::where('slug', 'action')->first();
-        $actions = Type::where('parent_id', $actions_parent->id)->get();
+        $actions = collect();
+        if ($actions_parent) {
+            $actions = Type::where('parent_id', $actions_parent->id)->get();
+        }
+
+        // addition actions
         $addition_actions = Jit::all()->keyBy('id')->values();
+
+        // briefs
         $briefs = Brief::orderBy('order', 'asc')
-        ->with('actions', 'jitqws', 'reasons')
-        ->get();       
-        return  view('risks.risks', compact('equipments', 'systems',  'actions','addition_actions','briefs'));
+            ->with('actions', 'jitqws', 'reasons')
+            ->get();
+
+        return view('risks.risks', compact(
+            'equipments',
+            'systems',
+            'actions',
+            'addition_actions',
+            'briefs'
+        ));
     }
     // currentRisk
     public function currentRisk(Request $request)

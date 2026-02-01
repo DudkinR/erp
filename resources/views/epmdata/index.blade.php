@@ -1,24 +1,6 @@
 @extends('layouts.app')
 @section('content')
     <div class="container">
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        @if(session('success'))
-            <div class="alert alert-success">{{ __(session('success')) }}</div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger">{{ __(session('error')) }}</div>
-        @endif
-
         <div class="row">
             <div class="col-md-12">
                 <h1>{{__('epmdata')}}</h1>
@@ -77,7 +59,7 @@
                                     <strong> {{ $division_id == 'no_division' ? 'Без підрозділу' : $divisions[$division_id] }}:</strong> 
                                     Заповнено {{ $div['total'] - $div['empty'] }} / {{ $div['total'] }} 
                                     (Порожніх: {{ $div['empty'] }})
-                                    <a href="{{ route('epmdata.load', ['date' => $date, 'division' => $division_id]) }}" class="btn btn-light">
+                                    <a href="{{ route('epmdata.load', ['epm_id' => $data['epm_id'],'date' => $date, 'division' => $division_id]) }}" class="btn btn-light">
                                     @if($div['empty'] > 0)    Заповнити @else    Переглянути @endif
                                     </a>
                                
@@ -90,5 +72,33 @@
                 @endforeach
            
         </div>
+        <hr>
+        <h3>Всі EPMs</h3>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва</th>
+                    <th>Division</th>
+                    <th>Area</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($epms as $epm)
+                    <tr>
+                        <td>{{ $epm->id }}</td>
+                        <td>{{ $epm->name }}</td>
+                        <td>{{ $epm->division ?? '—' }}</td>
+                        <td>{{ $epm->area ?? '—' }}</td>
+                        <td>
+                            <a href="{{ route('epm.show', $epm->id) }}" class="btn btn-sm btn-info">Відкрити</a>
+                            <a href="{{ route('epmdata.create', ['epm_id' => $epm->id]) }}" class="btn btn-sm btn-success">Додати дані</a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @endsection

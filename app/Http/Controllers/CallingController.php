@@ -36,7 +36,7 @@ class CallingController extends Controller
        $start = $request->start ?? null;
        $finish = $request->finish ?? null;
        $filter = $request->filter ??  null;
-       $DI = $this->publicInformation();
+      $DI = $this->publicInformation();
        if(Auth::user()->hasRole('admin')){ 
         $callings = $this->filters($filter)
         ->with(['workers.divisions','workers.positions'])
@@ -527,25 +527,55 @@ class CallingController extends Controller
     }
 
     public function publicInformation(){
-        foreach (Type::all() as $type)
-        {
+        $all_types = [];
+        foreach (Type::all() as $type) {
             $all_types[$type->id] = $type;  
         }
+
+        // Перевірка на null
         $Oplata_pratsi_parent = Type::where('slug', 'Oplata-pratsi')->first();
-        $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)->get()->keyBy('id')->values();
+        $Oplata_pratsi_ids = collect();
+        if ($Oplata_pratsi_parent) {
+            $Oplata_pratsi_ids = Type::where('parent_id', $Oplata_pratsi_parent->id)
+                ->get()
+                ->keyBy('id')
+                ->values();
+        }
+
         $Vyklyk_na_robotu = Type::where('slug', 'Zaluchennya-personalu')->first();
-        $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)->get()->keyBy('id')->values();
-        $works_type=Type::where('slug', 'Zaluchennya-personalu')->first();
-        $works_types = Type::where('parent_id', $works_type->id)->get()->keyBy('id')->values();
+        $Vyklyk_na_robotu_ids = collect();
+        if ($Vyklyk_na_robotu) {
+            $Vyklyk_na_robotu_ids = Type::where('parent_id', $Vyklyk_na_robotu->id)
+                ->get()
+                ->keyBy('id')
+                ->values();
+        }
+
         $works_names = [];
-        foreach($works_types as $work_type){
-            $finish_types = Type::where('parent_id', $work_type->id)->get();
-            foreach($finish_types as $finish_type){
-                $works_names[$work_type->id][$finish_type->id]['name'] = $finish_type->name;
-                $works_names[$work_type->id][$finish_type->id]['description'] = $finish_type->description;
+        $works_types = collect();
+        if ($Vyklyk_na_robotu) {
+            $works_types = Type::where('parent_id', $Vyklyk_na_robotu->id)
+                ->get()
+                ->keyBy('id')
+                ->values();
+
+            foreach ($works_types as $work_type) {
+                $finish_types = Type::where('parent_id', $work_type->id)->get();
+                foreach ($finish_types as $finish_type) {
+                    $works_names[$work_type->id][$finish_type->id] = [
+                        'name' => $finish_type->name,
+                        'description' => $finish_type->description,
+                    ];
+                }
             }
         }
-        return ['Oplata_pratsi_ids' => $Oplata_pratsi_ids, 'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids, 'works_names'=>$works_names, 'all_types'=>$all_types];
+
+        return [
+            'Oplata_pratsi_ids' => $Oplata_pratsi_ids,
+            'Vyklyk_na_robotu_ids' => $Vyklyk_na_robotu_ids,
+            'works_names' => $works_names,
+            'all_types' => $all_types
+        ];
     }
     /**
      * Show the form for editing the specified resource.
