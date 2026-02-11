@@ -208,7 +208,15 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/categories/{id}/edit', 'App\Http\Controllers\CategoryController@edit')->name('cats.edit');
     Route::put('/categories/{id}', 'App\Http\Controllers\CategoryController@update')->name('cats.update');
     Route::delete('/categories/{id}', 'App\Http\Controllers\CategoryController@destroy')->name('cats.destroy');
-    //  archives routes
+    // words routes
+    Route::get('/words', 'App\Http\Controllers\WordsController@index')->name('words.index');
+    Route::get('/words/create', 'App\Http\Controllers\WordsController@create')->name('words.create');
+    Route::post('/words', 'App\Http\Controllers\WordsController@store')->name('words.store');
+    Route::get('/words/{id}', 'App\Http\Controllers\WordsController@show')->name('words.show');
+    Route::get('/words/{id}/edit', 'App\Http\Controllers\WordsController@edit')->name('words.edit');
+    Route::put('/words/{id}', 'App\Http\Controllers\WordsController@update')->name('words.update');
+    Route::delete('/words/{id}', 'App\Http\Controllers\WordsController@destroy')->name('words.destroy');
+   //  archives routes
     Route::get('/archives', 'App\Http\Controllers\ArchiveController@index')->name('archives.index');
     Route::get('/archives/create', 'App\Http\Controllers\ArchiveController@create')->name('archives.create');
     Route::post('/archives', 'App\Http\Controllers\ArchiveController@store')->name('archives.store');
