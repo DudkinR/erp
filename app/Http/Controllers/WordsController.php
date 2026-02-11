@@ -73,8 +73,24 @@ class WordsController extends Controller
             $words = Word::whereHas('users', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })->get();
- return response()->json($words);
+$result = [];
 
+foreach ($words as $word) {
+
+    $type = $word->type;
+
+    if (!isset($result[$type])) {
+        $result[$type] = [
+            'words' => [],
+            'comments' => []
+        ];
+    }
+
+    $result[$type]['words'][] = $word->bedword;
+    $result[$type]['comments'][] = $word->comment;
+}
+
+return response()->json($result);
 
         }
 
