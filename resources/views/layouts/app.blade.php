@@ -39,6 +39,9 @@
     @if(session('error'))
         <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
+    @if(!empty($success))
+        <div class="alert alert-success">{{ $success }}</div>
+    @endif
     @yield('content')
     
 </body>

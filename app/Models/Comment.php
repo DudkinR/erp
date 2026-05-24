@@ -20,4 +20,10 @@ class Comment extends Model
     {
         return $this->belongsToMany(Task::class, 'task_comment', 'comment_id', 'task_id');
     }
+    // Inconsistency
+    public function inconsistencies()
+    {
+        return $this->belongsToMany(Inconsistency::class, 'inconsistency_comment', 'comment_id', 'inconsistency_id');
+    }
+
 }

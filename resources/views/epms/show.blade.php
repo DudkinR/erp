@@ -18,8 +18,8 @@
     @endif
         <div class="row">
             <div class="col-md-12">
-            <h1>{{__('_______')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('_______.index') }}">
+            <h1>{{__('EPM')}}</h1>
+                <a class="btn btn-light w-100" href="{{ route('epm') }}">
                 {{__('Back')}}</a>
             </div>  
         </div>

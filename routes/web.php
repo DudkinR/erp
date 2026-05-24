@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Doc;
 use Illuminate\Support\Facades\Route;
 require __DIR__.'/auth.php';
 
@@ -12,6 +13,8 @@ Route::get('/ss', 'App\Http\Controllers\ApiController@saveSession')->name('save-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+Route::get('/words/{id}', 'App\Http\Controllers\WordsController@show')->name('words.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', 'App\Http\Controllers\Auth\AuthenticatedSessionController@create')->name('login');
@@ -36,6 +39,26 @@ Route::delete('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@des
 
 
 Route::middleware('auth')->group(function () {
+
+  // inconsistency in documents routes
+  Route::get('/inconsistencis', 'App\Http\Controllers\InconsistencyController@index')->name('inconsistencis.index');
+  Route::get('/inconsistencis/create', 'App\Http\Controllers\InconsistencyController@create')->name('inconsistencis.create');
+  Route::post('/inconsistencis', 'App\Http\Controllers\InconsistencyController@store')->name('inconsistencis.store');
+  Route::get('/inconsistencis/{id}', 'App\Http\Controllers\InconsistencyController@show')->name('inconsistencis.show');
+  Route::get('/inconsistencis/{id}/edit', 'App\Http\Controllers\InconsistencyController@edit')->name('inconsistencis.edit');
+  Route::put('/inconsistencis/{id}', 'App\Http\Controllers\InconsistencyController@update')->name('inconsistencis.update');
+  Route::delete('/inconsistencis/{id}', 'App\Http\Controllers\InconsistencyController@destroy')->name('inconsistencis.destroy');
+  Route::get('/incsearchdoc', 'App\Http\Controllers\InconsistencyController@searchDocuments')->name('inconsistencis.searchdoc');
+  Route::post('/incdoc/{id}/approve', [App\Http\Controllers\InconsistencyController::class, 'approve'])
+  ->name('inconsistencis.approve');
+  Route::post('/incdoc/{id}/reject', [App\Http\Controllers\InconsistencyController::class, 'reject'])
+  ->name('inconsistencis.reject');
+  Route::get('document', 'App\Http\Controllers\DocumentController@index')->name('document.index');
+  Route::get('/documentId/{inv_no}',  'App\Http\Controllers\DocumentController@document')->name('document.document');  
+  Route::post('/documentId/{id_inc}',  'App\Http\Controllers\DocumentController@incorporationupdate')->name('incorporationupdate');  
+  
+
+ 
 // dictionary import routes
     Route::get('/dictionaryimport', 'App\Http\Controllers\DictionaryController@import')->name('dictionary.import');
     Route::post('/dictionaryimport', 'App\Http\Controllers\DictionaryController@importData')->name('dictionary.importData');
@@ -104,7 +127,21 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // import providers from csv file   
     Route::get('/providersimport', 'App\Http\Controllers\ProviderController@import')->name('providers.import'); 
     Route::post('/providersimport', 'App\Http\Controllers\ProviderController@importData')->name('providers.importData');
+// kndks routes
 
+    // 1. Сторінка завантаження (перехід на неї, наприклад: /kndks/5/import-page)
+    Route::get('/kndks/{id}/import-page', 'App\Http\Controllers\KndkController@showImportPage')->name('kndks.importPage');
+
+    // 2. Обробка файлу форми (POST-запит із файлом та ID)
+    Route::post('/kndks/{id}/import','App\Http\Controllers\KndkController@importCsvDocs')->name('kndks.importData');
+
+    Route::get('/kndks', 'App\Http\Controllers\KndkController@index')->name('kndks.index');
+    Route::get('/kndks/create', 'App\Http\Controllers\KndkController@create')->name('kndks.create');
+    Route::post('/kndks', 'App\Http\Controllers\KndkController@store')->name('kndks.store');
+    Route::get('/kndks/{id}', 'App\Http\Controllers\KndkController@show')->name('kndks.show');
+    Route::get('/kndks/{id}/edit', 'App\Http\Controllers\KndkController@edit')->name('kndks.edit');
+    Route::put('/kndks/{id}', 'App\Http\Controllers\KndkController@update')->name('kndks.update');
+    Route::delete('/kndks/{id}', 'App\Http\Controllers\KndkController@destroy')->name('kndks.destroy');
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');
     Route::get('/funs/create', 'App\Http\Controllers\FunController@create')->name('funs.create');
@@ -212,7 +249,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/words', 'App\Http\Controllers\WordsController@index')->name('words.index');
     Route::get('/words/create', 'App\Http\Controllers\WordsController@create')->name('words.create');
     Route::post('/words', 'App\Http\Controllers\WordsController@store')->name('words.store');
-    Route::get('/words/{id}', 'App\Http\Controllers\WordsController@show')->name('words.show');
+
     Route::get('/words/{id}/edit', 'App\Http\Controllers\WordsController@edit')->name('words.edit');
     Route::put('/words/{id}', 'App\Http\Controllers\WordsController@update')->name('words.update');
     Route::delete('/words/{id}', 'App\Http\Controllers\WordsController@destroy')->name('words.destroy');
@@ -430,6 +467,9 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::delete('/profile/{id}', 'App\Http\Controllers\ProfileController@destroy')->name('profiles.destroy');
     // import data 
     Route::get('/profileimport', 'App\Http\Controllers\ProfileController@import')->name('profiles.import');
+    // route('profiles.comment', $user->id)
+    Route::put('/profileCom/{id}/comment', 'App\Http\Controllers\ProfileController@comment')->name('profiles.comment');
+
 
     // тестовый роут
     Route::get('/test', 'App\Http\Controllers\DocController@test')->name('test');
@@ -611,6 +651,8 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/epmdatadownload', 'App\Http\Controllers\EPMController@download')->name('epmdata.download');
     //epmdata.info
     Route::get('/epmdatainfo', 'App\Http\Controllers\EPMController@info')->name('epmdata.info');
+    // createepmdata
+    Route::get('/createdateepmdata', 'App\Http\Controllers\EPMController@createdateepmdata')->name('epmdata.createdateepmdata');
     // wanoarea
     Route::get('/wanoarea', 'App\Http\Controllers\WANOARController@index')->name('wanoarea');
     Route::get('/wanoarea/create', 'App\Http\Controllers\WANOARController@create')->name('wanoarea.create');

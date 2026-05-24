@@ -7,6 +7,7 @@ use App\Models\EPMdata;
 use App\Models\Division;
 use App\Models\WANOAREA;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 class EPMController extends Controller
@@ -94,6 +95,37 @@ class EPMController extends Controller
         return redirect('/epm')->with('success', 'epmloyee deleted!');
     }
 
+    public function createdateepmdata()
+    {
+        // Завантажуємо всі EPM у пам'ять
+        $epms = EPM::all()->keyBy('id');
+        
+        // Отримуємо поточну дату та ID користувача
+        $currentDate = Carbon::now()->toDateString();
+        $userId = Auth::id() ?? 1; // Замініть 1 на дефолтний ID, якщо немає авторизації
+        
+        $dataToInsert = [];
+
+        // Перебір усіх EPM
+        foreach ($epms as $epm) {
+            $dataToInsert[] = [
+                'epm_id'        => $epm->id,
+                'value'         => null,
+                'date_received' => $currentDate,
+                'date_entered'  => $currentDate,
+                'blocked'       => 0, // Або false, залежно від типу колонки
+                'user_id'       => $userId,
+                'created_at'    => Carbon::now(), // Необхідно для масового insert
+                'updated_at'    => Carbon::now(),
+            ];
+        }
+
+        // Масовий запис у базу однією транзакцією
+        if (!empty($dataToInsert)) {
+            EPMdata::insert($dataToInsert);
+        }
+        return redirect('/epmdata')->with('success', 'epmdata saved!');
+    }
     public function epmdata()
     {
         // Завантажуємо всі EPM у пам'ять (щоб не робити find() у циклі)
@@ -284,22 +316,25 @@ class EPMController extends Controller
         $divvision_id= $request->division;
         if($divvision_id !== 'no_division'){
         $division = Division::where('id',$request->division)->first(); 
-         $epmdatas = EPMdata::where('date_received', $date)
+        $epmdatas = EPMdata::where('date_received', $date)
+       ->where('value',NULL)
         ->whereHas('epm', function ($query) use ($divvision_id) { 
             $query->where('division', $divvision_id);
                     })
+                    ->with('EPM')
         ->get();
         }else{
             $division = null;
-            $epmdatas = EPMdata::where('date_received', $date)            
+            $epmdatas = EPMdata::where('date_received', $date)    
+             ->where('value',NULL)       
             ->whereHas('epm', function ($query)  { 
              $query->whereNull('division');
-            })
+            })->with('EPM')
             ->get();
         }
           $epm = EPM::find($request->epm_id);
         
-      // return   $request;
+       // return  $epmdatas;
         return view('epmdata.newdata', compact('epmdatas','division','date','epm'));
     }
     //loadupdate

@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+         if (!Schema::hasTable('projects')){
         Schema::table('projects', function (Blueprint $table) {
             // додаємо колонку current_state
             $table->string('current_state')->nullable()->after('id');
         });
+    }
 
     }
 

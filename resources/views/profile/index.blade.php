@@ -62,15 +62,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('password.update') }}">
+                    <form method="POST" action="{{ route('profiles.update', $user->id) }}">
                         @csrf
-                         @method('PUT')
+                        @method('PUT')
                        
                          <input type="hidden" name="email" value="{{ $user->email }}"> 
                         <div class="mb-3">
                             <label for="current_password" class="form-label">{{ __('Поточний пароль') }}</label>
-                            <input type="password" class="form-control" id="current_password" name="password" required>
+                            <input type="password" class="form-control" id="old_password" name="old_password" required>
                         </div>
+
                         <div class="mb-3">
                             <label for="new_password" class="form-label">{{ __('Новий пароль') }}</label>
                             <input type="password" class="form-control" id="new_password" name="new_password" required>
@@ -96,8 +97,9 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="">
+                        <form method="POST" action="{{ route('profiles.comment', $user->id) }}">
                             @csrf
+                              @method('PUT')
                             <div class="mb-3">
                                 <label for="issue_description" class="form-label">{{ __('Опишіть проблему') }}</label>
                                 <textarea class="form-control" id="issue_description" name="issue_description" rows="4" required></textarea>

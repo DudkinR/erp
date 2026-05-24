@@ -47,8 +47,14 @@ class ProfileController extends Controller
         if(Auth::user()->id != $user->id){
                return redirect()->route('profile.index');
         }
-        $user->name = $request->name;
-        $user->email = $request->email;
+        if($request->name && $request->email){
+            $user->name = $request->name;
+            $user->email = $request->email;
+        }
+        // old_password зминить коли new_password ==new_password_confirmation но !== old_password
+        if($request->old_password && $request->new_password == $request->new_password_confirmation && $request->new_password != $request->old_password){
+            $user->password = bcrypt($request->new_password);
+        }
         $user->save();
         // roles == [] (if not role add role 3)
         if($user->roles == []){
@@ -102,5 +108,18 @@ class ProfileController extends Controller
         }
        }
       return $users = User::orderBy('id', 'desc')->get();
+    }
+    public function comment(Request $request, String $id)
+    {
+        $user = User::find($id);
+        // если юзер не аутентифицирован
+        if(Auth::user()->id != $user->id){
+               return redirect()->route('profile.index');
+        }
+        $successful = "Дякуємо за повідомлення!";
+        
+
+        return view('profile.index', compact('user'))->with('success', $successful);
+
     }
 }

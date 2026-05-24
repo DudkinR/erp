@@ -33,7 +33,7 @@
                             @endif">
 
                             <label for="value_{{$epmdata->epm_id}}" class="fw-bold">
-                                {{ $epm->name }}
+                                {{ $epmdata->epm->name }}
                             </label>
 
                             <input type="text"
@@ -44,13 +44,13 @@
                                    placeholder="{{__('Enter value')}}">
 
                             <small class="text-muted d-block mt-2">
-                                Min: <b>{{ $epm->min }}</b> &nbsp; | &nbsp;
-                                Max: <b>{{ $epm->max }}</b>
+                                Min: <b>{{ $epmdata->epm->min }}</b> &nbsp; | &nbsp;
+                                Max: <b>{{ $epmdata->epm->max }}</b>
                             </small>
 
                             <div class="mt-2">
                                 <span id="short_{{ $epmdata->epm_id }}" class="text-muted">
-                                    {{ Str::limit($epm->description, 50) }}
+                                    {{ Str::limit($epmdata->epm->description, 50) }}
                                 </span>
 
                                 <a href="#" class="text-primary ms-2"
@@ -60,7 +60,7 @@
                                 </a>
 
                                 <div id="desc_{{ $epmdata->epm_id }}" class="collapse mt-2 text-secondary">
-                                    {!! nl2br(e($epm->description)) !!}
+                                    {!! nl2br(e($epmdata->epm->description)) !!}
                                 </div>
                             </div>
                         </div>

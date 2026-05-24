@@ -6,7 +6,7 @@
                 <h1>{{__('epmdata')}}</h1>
                 <a class="btn btn-info w-100" href="{{ route('epmdata.info') }}">{{__('Analises')}}</a>
                 @if(Auth::user()->hasRole('admin'))     
-                <a class="btn btn-light w-100" href="{{ route('epmdata.create') }}">{{__('Create')}}</a>
+                <a class="btn btn-light w-100" href="{{ route('epmdata.createdateepmdata') }}">{{__('Create')}}</a>
                 @endif
             </div>
         </div>   
