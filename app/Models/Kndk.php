@@ -105,5 +105,44 @@ class Kndk extends Model
             'inv_no'              // Локальный ключ модели Document
         )->withTimestamps();
     }
-    
+     public function processes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Process::class,     // Пов'язана модель
+            'kndk_process',     // Назва проміжної таблиці (pivot)
+            'kndk_id',          // Зовнішній ключ цієї моделі в pivot-таблиці
+            'process_id'        // Зовнішній ключ пов'язаної моделі в pivot-таблиці
+        )->withTimestamps();    // Автоматично оновлювати created_at/updated_at у pivot
+    }
+    public function divisions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Division::class,      // Пов'язана модель підрозділу
+            'division_kndk',      // Назва вашої проміжної (pivot) таблиці
+            'kndk_id',            // Зовнішній ключ моделі Kndk у pivot-таблиці
+            'division_id'         // Зовнішній ключ моделі Division у pivot-таблиці
+        )->withTimestamps();
+    }
+
+    /**
+     * Зв'язок «багато до багатьох» з посадами.
+     */
+    public function positions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Position::class,      // Пов'язана модель посади
+            'kndk_position',      // Назва вашої проміжної (pivot) таблиці (або position_kndk)
+            'kndk_id',            // Зовнішній ключ моделі Kndk у pivot-таблиці
+            'position_id'         // Зовнішній ключ моделі Position у pivot-таблиці
+        )->withTimestamps();
+    }
+    public function responsibles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Position::class,         // Зв'язуємося з моделлю Посад
+            'kndk_responsible',     // Назва вашої таблиці в БД
+            'kndk_id',              // Ключ КНДК у проміжній таблиці
+            'position_id'           // Ключ Посади у проміжній таблиці
+        )->withTimestamps();
+    }
 }

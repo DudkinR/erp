@@ -1,4 +1,10 @@
 @extends('layouts.app')
+@php
+    $document_old = null;
+    if (session('document_inv_no')) {
+        $document_old = \App\Models\Document::where('inv_no', session('document_inv_no'))->first();
+    }
+@endphp
 
 @section('content')
 <div class="container mt-4">
@@ -11,7 +17,7 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <input type="text" id="search" class="form-control" placeholder="Введіть шифр, інв. номер або організацію">
+                        <input type="text" id="search" class="form-control" value="@if(session('document_inv_no')) {{ $document_old->short_content }}  @endif " placeholder="Введіть шифр, інв. номер або організацію">
                     </div>
                     <ul id="results" class="list-group"></ul>
                 </div>
@@ -67,6 +73,8 @@ function loadDocInfo(inv_no) {
             document.getElementById('doc-details').innerHTML = `
                 <p><strong>${doc.short_content}</strong></p>
                 <p>Шифр: ${doc.code}</p>
+                <p> <a href="/document_show/${doc.inv_no}">Подивитись</a>
+                            </p>
                 <p>Організація: ${doc.organization}</p>
                 <p>Тип: ${doc.doc_type}</p>
                 <p>Дата реєстрації: ${doc.registration_date}</p>

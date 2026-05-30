@@ -11,7 +11,7 @@ class Position extends Model
     // table name
     protected $table = 'positions';
     // fillable fields 
-        protected $fillable = ['name', 'description', 'start', 'data_start', 'closed', 'data_closed'];
+        protected $fillable = ['name', 'description', 'abv', 'start', 'data_start', 'closed', 'data_closed'];
 
     // relationships
     public function personals()

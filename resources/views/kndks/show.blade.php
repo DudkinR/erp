@@ -49,9 +49,10 @@
             <a href="{{ route('kndks.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center bg-white shadow-sm">
                 <i class="bi bi-arrow-left me-2"></i> Назад
             </a>
+             @if(Auth::user()->hasRole('admin'))      
             <a href="{{ route('kndks.edit',$item) }}" class="btn btn-warning d-inline-flex align-items-center shadow-sm fw-semibold">
                 <i class="bi bi-pencil me-2"></i> Редагувати
-            </a>
+            </a> @endif
         </div>
     </div>
 
@@ -114,81 +115,205 @@
             </div>
             @endif
         </div>
-    </div>
-    <!-- НОВИЙ БЛОК: Прив'язані документи з CSV -->
-    <div class="row g-4 mt-2">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
-                        <div class="d-flex align-items-center text-success">
-                            <i class="bi bi-file-earmark-text fs-3 me-2"></i>
-                            <h4 class="card-title fw-bold mb-0">Прив'язані документи ({{ $item->documents->count() }})</h4>
-                        </div>
-                        <!-- Кнопка для швидкого переходу на сторінку імпорту нових документів -->
-                        <a href="{{ route('kndks.importPage', $item->id) }}" class="btn btn-sm btn-success d-inline-flex align-items-center shadow-sm">
-                            <i class="bi bi-upload me-2"></i> Завантажити нові CSV
-                        </a>
-                    </div>
+   
+        <!-- Права колонка: Знайдені відповідності кодів + Гармошка зв'язків -->
+        <div class="col-lg-12">
+            
 
-                    @if($item->documents->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle border-top">
-                                <thead class="table-light text-secondary small text-uppercase">
-                                    <tr>
-                                        <th style="width: 120px;">Інв. Номер</th>
-                                        <th>Вид документа</th>
-                                        <th>Шифр / Код</th>
-                                        <th>Тип документа</th>
-                                        <th>Організація</th>
-                                        <th style="width: 100px;">Статус</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-secondary">
-                                    @foreach($item->documents as $doc)
-                                        <tr>
-                                            <!-- Первинний ключ-строка (Inv. No) -->
-                                            <td>
-                                                 <span class="badge bg-secondary font-monospace px-2 py-1.5 fs-6">{{ $doc->inv_no }}</span>                                    
-                                            </td>
-                                            <td class="fw-medium text-dark">{{ $doc->doc_type ?? '-' }}</td>
-                                            <td>                                              
-                                            <code class="text-danger fw-bold">{{ $doc->code  ?? '-' }}</code>
-                                            </td>
-                                            <td class="small">{{ $doc->short_content ?? '-' }}</td>
-                                            <td class="small">
-                                                <div class="text-truncate" style="max-width: 300px;" title="{{ $doc->short_content }}">
-                                                    {{ $doc->organization ?? '-' }}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @if($doc->is_cancelled)
-                                                    <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">Анульовано</span>
-                                                @else
-                                                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Діючий</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+
+            <!-- 2. НОВА КАРТКА: Гармошка відповідальності (Процеси, Підрозділи, Посади) -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3 text-success">
+                        <i class="bi bi-diagram-3 fs-4 me-2"></i>
+                        <h5 class="card-title fw-bold mb-0">Зв'язки</h5>
+                    </div>
+                    <div class="accordion accordion-flush" id="kndkRelationsAccordion">                        
+                        <!-- Вкладка: Процеси / Функції -->
+                        <div class="accordion-item border-bottom">
+                            <h2 class="accordion-header" id="headingProcesses">
+                                <button class="accordion-button collapsed fw-semibold px-0 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProcesses" aria-expanded="false" aria-controls="collapseProcesses">
+                                    <i class="bi bi-gear me-2 text-muted"></i> 
+                                    Процеси / Функції 
+                                    <span class="badge bg-light text-dark border ms-2">{{ $item->processes->count() }}</span>
+                                </button>
+                            </h2>
+                            <div id="collapseProcesses" class="accordion-collapse collapse" aria-labelledby="headingProcesses" data-bs-parent="#kndkRelationsAccordion">
+                                <div class="accordion-body px-0 py-2">
+                                    @if($item->processes->count() > 0)
+                                        <ul class="list-group list-group-flush small">
+                                            @foreach($item->processes as $process)
+                                                <li class="list-group-item px-1 border-0">
+                                                    <span class="fw-semibold d-block text-dark">{{ $process->name }}</span>
+                                                    @if($process->description)
+                                                        <span class="text-muted d-block small">{{ Str::limit($process->description, 80) }}</span>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="text-muted small my-2 ps-1">Процесів не закріплено</p>
+                                    @endif
+                                      @if(Auth::user()->hasRole('admin')) 
+                                        <a href="{{route('kndks.createprocess')}}" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg"></i> Додати елемент
+                                        </a>
+                                        @endif
+                                     </div>
+                            </div>
                         </div>
-                    @else
-                        <!-- Держатель місця (Placeholder), якщо документів немає -->
-                        <div class="text-center py-5 bg-light rounded-3 border border-dashed text-muted">
-                            <i class="bi bi-folder2-open d-block fs-1 mb-2 text-secondary"></i>
-                            <h5 class="fw-bold text-dark mb-1">Немає завантажених документів</h5>
-                            <p class="small mb-3">До цього КНДК ще не прив'язано жодного документа з автоматичного імпорту.</p>
-                            <a href="{{ route('kndks.importPage', $item->id) }}" class="btn btn-primary btn-sm px-4 shadow-sm">
-                                <i class="bi bi-plus-lg me-2"></i>Імпортувати документи
-                            </a>
+
+                        <!-- Вкладка: Підрозділи -->
+                        <div class="accordion-item border-bottom">
+                            <h2 class="accordion-header" id="headingDivisions">
+                                <button class="accordion-button collapsed fw-semibold px-0 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDivisions" aria-expanded="false" aria-controls="collapseDivisions">
+                                    <i class="bi bi-building me-2 text-muted"></i> 
+                                    Основні учасники процесу
+                                    <span class="badge bg-light text-dark border ms-2">{{ $item->divisions->count() }} - {{ $item->positions->count() }} </span>
+                                </button>
+                            </h2>
+                            <div id="collapseDivisions" class="accordion-collapse collapse" aria-labelledby="headingDivisions" data-bs-parent="#kndkRelationsAccordion">
+                                <div class="accordion-body px-0 py-2">
+                                    @if($item->divisions->count() > 0)
+                                        <div class="d-flex flex-wrap gap-1.5 my-2">
+                                            @foreach($item->divisions as $division)
+                                                <span class="badge bg-info bg-opacity-10 text-info-emphasis border border-info border-opacity-25 px-2.5 py-1.5 fs-7 rounded-2">
+                                                    {{ $division->name }} {{ $division->abv ? "({$division->abv})" : '' }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <p class="text-muted small my-2 ps-1">Підрозділів не закріплено</p>
+                                    @endif
+                                    @if($item->positions->count() > 0)
+                                        <div class="d-flex flex-wrap gap-1.5 my-2">
+                                            @foreach($item->positions as $position)
+                                                <span class="badge bg-second bg-opacity-10 text-info-emphasis border border-info border-opacity-25 px-2.5 py-1.5 fs-7 rounded-2">
+                                                   {{ $position->abv ? "({$position->abv})" : '' }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <p class="text-muted small my-2 ps-1">Посад не закріплено</p>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
-                    @endif
+
+                        <!-- Вкладка: Посади -->
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header" id="headingPositions">
+                                <button class="accordion-button collapsed fw-semibold px-0 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePositions" aria-expanded="false" aria-controls="collapsePositions">
+                                    <i class="bi bi-person-badge me-2 text-muted"></i> 
+                                    Власник процесу
+                                    <span class="badge bg-light text-dark border ms-2">{{ $item->responsibles->count() }}</span>
+                                </button>
+                            </h2>
+                            <div id="collapsePositions" class="accordion-collapse collapse" aria-labelledby="headingPositions" data-bs-parent="#kndkRelationsAccordion">
+                                <div class="accordion-body px-0 py-2">
+                                    @if($item->responsibles->count() > 0)
+                                        <ul class="list-group list-group-flush small">
+                                            @foreach($item->responsibles as $resp)
+                                                <li class="list-group-item px-1 border-0 text-dark">
+                                                    <i class="bi bi-dot text-secondary"></i> {{ $resp->name }} {{ $resp->abv ? "({$resp->abv})" : '' }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="text-muted small my-2 ps-1">Посад не закріплено</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+<!-- Вкладка: Організації документації (в строку) -->
+@php
+    $organizations = $item->documents->pluck('organization')->unique()->filter()->values();
+@endphp
+
+<div class="accordion-item border-0">
+    <h2 class="accordion-header" id="headingOrganizations">
+        <button class="accordion-button collapsed fw-semibold px-0 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrganizations" aria-expanded="false" aria-controls="collapseOrganizations">
+            <i class="bi bi-building me-2 text-muted"></i> 
+            Організації документації
+            <span class="badge bg-light text-dark border ms-2">{{ $organizations->count() }}</span>
+        </button>
+    </h2>
+    <div id="collapseOrganizations" class="accordion-collapse collapse" aria-labelledby="headingOrganizations" data-bs-parent="#kndkRelationsAccordion">
+        <div class="accordion-body px-1 py-2 text-dark small">
+            @if($organizations->count() > 0)
+                {{ $organizations->implode(', ') }}
+            @else
+                <span class="text-muted">Організацій не знайдено</span>
+            @endif
+        </div>
+    </div>
+</div>
+<!-- НОВИЙ БЛОК: Прив'язані документи з CSV -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
+                    <div class="d-flex align-items-center text-success">
+                        <i class="bi bi-file-earmark-text fs-3 me-2"></i>
+                        <h4 class="card-title fw-bold mb-0">
+                            Прив'язані документи (<span id="jsDocTotalCount">{{ $item->documents->count() }}</span>)
+                        </h4>
+                    </div>
+                     @if(Auth::user()->hasRole('admin'))      
+                    <a href="{{ route('kndks.importPage', $item->id) }}" class="btn btn-sm btn-success d-inline-flex align-items-center shadow-sm">
+                        <i class="bi bi-upload me-2"></i> Завантажити нові CSV
+                    </a> @endif
                 </div>
+
+                <!-- Панель пошуку всередині документів -->
+                <div id="docSearchPanel" class="mb-3 d-none">
+                    <div class="input-group input-group-sm" style="max-width: 400px;">
+                        <span class="input-group-text bg-white text-muted">🔍</span>
+                        <input type="text" id="docSearchInput" class="form-control" placeholder="Пошук за інв. номером, шифром, типом чи організацією...">
+                    </div>
+                </div>
+
+                <!-- Контейнер для таблиці або placeholder-а -->
+                <div id="docTableContainer">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle border-top">
+                            <thead class="table-light text-secondary small text-uppercase">
+                                <tr style="cursor: pointer;" id="docTableHeadRow">
+                                    <th style="width: 140px;" data-column="inv_no">Інв. Номер <span class="sort-icon"></span></th>
+                                    <th data-column="doc_type">Вид документа <span class="sort-icon"></span></th>
+                                    <th data-column="code">Шифр / Код <span class="sort-icon"></span></th>
+                                    <th data-column="short_content">Тип документа <span class="sort-icon"></span></th>
+                                    <th data-column="organization">Організація <span class="sort-icon"></span></th>
+                                    <th style="width: 130px;" data-column="is_cancelled">Статус <span class="sort-icon"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-secondary" id="docTableBody">
+                                <!-- Дані згенерує JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Держатель місця (Placeholder), якщо документів немає взагалі -->
+                <div id="docEmptyPlaceholder" class="text-center py-5 bg-light rounded-3 border border-dashed text-muted d-none">
+                    <i class="bi bi-folder2-open d-block fs-1 mb-2 text-secondary">📁</i>
+                    <h5 class="fw-bold text-dark mb-1">Немає завантажених документів</h5>
+                    <p class="small mb-3">До цього КНДК ще не прив'язано жодного документа з автоматичного імпорту.</p>
+                    <a href="{{ route('kndks.importPage', $item->id) }}" class="btn btn-primary btn-sm px-4 shadow-sm">
+                        <i class="bi bi-plus-lg me-2"></i>Імпортувати документи
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    window.documentsRawData = @json($item->documents);
+</script>
+
 
 <style>
     /* Плавні ефекти для кнопок та лінків */
@@ -203,4 +328,157 @@
         border-color: var(--bs-primary-border-subtle) !important;
     }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const allDocs = window.documentsRawData || [];
+    const tableBody = document.getElementById('docTableBody');
+    const searchInput = document.getElementById('docSearchInput');
+    const searchPanel = document.getElementById('docSearchPanel');
+    const emptyPlaceholder = document.getElementById('docEmptyPlaceholder');
+    const tableContainer = document.getElementById('docTableContainer');
+    const totalCountSpan = document.getElementById('jsDocTotalCount');
+    const headRow = document.getElementById('docTableHeadRow');
+
+    // Стан сортування
+    let currentSortColumn = '';
+    let isAscending = true;
+    let filteredDocs = [...allDocs];
+
+    // Якщо документів взагалі немає в базі
+    if (allDocs.length === 0) {
+        tableContainer.classList.add('d-none');
+        emptyPlaceholder.classList.remove('d-none');
+        return;
+    }
+
+    // Показуємо пошук, якщо є документи
+    searchPanel.classList.remove('d-none');
+
+    // Функція рендерингу рядків
+    function renderDocs(docs) {
+        tableBody.innerHTML = '';
+        totalCountSpan.textContent = docs.length;
+
+        if (docs.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        ❌ Нічого не знайдено за вашим запитом серед документів.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        let html = '';
+        docs.forEach(doc => {
+            const statusBadge = doc.is_cancelled 
+                ? '<span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">Анульовано</span>'
+                : '<span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Чинний</span>';
+
+            html += `
+                <tr>
+                    <td>
+                    
+                        <span class="badge bg-secondary font-monospace px-2 py-1.5 fs-6">${doc.inv_no}</span>                                    
+                    </td>
+                    <td class="fw-medium text-dark">${doc.doc_type}</td>
+                    <td><code class="text-danger fw-bold">${doc.code}</code></td>
+                    <td class="small">
+                    <a href="/document_show/${doc.inv_no}"  class="text-decoration-none text-dark d-block">
+                    ${doc.short_content}
+                   </a>
+                    </td>
+                    <td class="small">
+                        <div class="text-truncate" style="max-width: 300px;" title="${doc.short_content}">
+                            ${doc.organization}
+                        </div>
+                    </td>
+                    <td>${statusBadge}</td>
+                </tr> 
+            `;
+        });
+        tableBody.innerHTML = html;
+    }
+
+    // Функція сортування даних
+    function sortDocs(column) {
+        if (currentSortColumn === column) {
+            isAscending = !isAscending; // Міняємо напрямок, якщо клікнули повторно
+        } else {
+            currentSortColumn = column;
+            isAscending = true; // За замовчуванням А-Я
+        }
+
+        filteredDocs.sort((a, b) => {
+            let valA = a[column];
+            let valB = b[column];
+
+            // Для булевого статусу (is_cancelled) сортуємо як 0 та 1
+            if (typeof valA === 'boolean') {
+                valA = valA ? 1 : 0;
+                valB = valB ? 1 : 0;
+            } else {
+                // Приводимо до нижнього регістру для коректного текстового сортування
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+            }
+
+            if (valA < valB) return isAscending ? -1 : 1;
+            if (valA > valB) return isAscending ? 1 : -1;
+            return 0;
+        });
+
+        updateSortIcons();
+        renderDocs(filteredDocs);
+    }
+
+    // Оновлення стрілочок ▲ / ▼ біля стовпців
+    function updateSortIcons() {
+        const headers = headRow.querySelectorAll('th[data-column]');
+        headers.forEach(th => {
+            const iconSpan = th.querySelector('.sort-icon');
+            const colName = th.getAttribute('data-column');
+            
+            if (colName === currentSortColumn) {
+                iconSpan.textContent = isAscending ? ' ▲' : ' ▼';
+                th.classList.add('text-dark', 'fw-bold');
+            } else {
+                iconSpan.textContent = '';
+                th.classList.remove('text-dark', 'fw-bold');
+            }
+        });
+    }
+
+    // Живий пошук
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        
+        filteredDocs = allDocs.filter(doc => {
+            return doc.inv_no.toLowerCase().includes(query) ||
+                   doc.doc_type.toLowerCase().includes(query) ||
+                   doc.code.toLowerCase().includes(query) ||
+                   doc.short_content.toLowerCase().includes(query) ||
+                   doc.organization.toLowerCase().includes(query);
+        });
+
+        // Скидаємо сортування під час нового пошуку, щоб не плутати користувача
+        currentSortColumn = '';
+        updateSortIcons();
+        renderDocs(filteredDocs);
+    });
+
+    // Вішаємо подію кліку на заголовки таблиці для сортування
+    headRow.addEventListener('click', function(e) {
+        const th = e.target.closest('th[data-column]');
+        if (th) {
+            const column = th.getAttribute('data-column');
+            sortDocs(column);
+        }
+    });
+
+    // Ініціалізація: перший вивід документів
+    renderDocs(filteredDocs);
+});
+</script>
+
 @endsection

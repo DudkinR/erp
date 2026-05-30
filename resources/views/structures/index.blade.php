@@ -16,188 +16,141 @@
         </div>
         <div class="row">
 <style>
-    .structure {
-    font-family: Arial, sans-serif;
+ .tree-structure ul {
+    padding-top: 20px; 
+    position: relative;
+    transition: all 0.5s;
+    list-style-type: none;
+    padding-left: 20px;
 }
 
-.top-level {
-    background-color: #f2f2f2;
-    padding: 10px;
-    margin-bottom: 10px;
+.tree-structure li {
+    position: relative;
+    padding: 10px 0 10px 20px;
+    border-left: 2px solid #ccc; /* Вертикальна лінія зв'язку */
 }
 
-.sub-structure {
-    margin-left: 20px;
+/* Горизонтальна лінія до кожного елемента */
+.tree-structure li::before {
+    content: '';
+    position: absolute; 
+    top: 24px; 
+    left: 0;
+    width: 15px; 
+    height: 2px;
+    background: #ccc;
 }
 
-.sub-level {
-    background-color: #e6e6e6;
-    padding: 5px;
+/* Прибираємо залишок лінії у останнього елемента */
+.tree-structure li:last-child {
+    border-left: none;
+}
+.tree-structure li:last-child::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 25px;
+    background: #ccc;
+}
+
+/* Стиль карток для посад та людей */
+.struct-node {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: inline-block;
+    min-width: 250px;
+}
+.pos-badge {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+.person-badge {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    padding: 4px;
     margin-top: 5px;
-    margin-bottom: 5px;
+    border-radius: 4px;
 }
-.sub-structure2 {
-    margin-left: 20px;
-}
-.sub-level2{
-    background-color: #666;
-    padding: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-a {
-    color: #000;
-    text-decoration: none;
-}   
+
 </style>
-            <div class="container">
-                @foreach($structuries as $structure)
-                    @if($structure->parent_id == 0)
-                        <div class="col-md-12 bg-primary">
-                            
-                            <div class="row">
-                                @if($structure->positions()->get()->count() == 0)
-                                    <div class="col-md-12 bg-primary">
-                                    <strong>{{ $structure->name }}</strong>
-                                    @if(Auth::user()->hasRole('admin'))
-                                    <a href="{{ route('structure.edit', $structure->id) }}">{{__('+')}}</a>
-                                    @endif
+         <div class="container my-4">
+    <div class="tree-structure">
+        <ul>
+            <!-- КОРЕНЕВИЙ РІВЕНЬ (parent_id == 0) -->
+            @foreach($structuries as $structure)
+                @if($structure->parent_id == 0)
+                    <li>
+                        <div class="struct-node mb-3">
+                            <h5 class="text-primary mb-2">
+                                📁 {{ $structure->name }}
+                                @if(Auth::user()->hasRole('admin'))
+                                    <a href="{{ route('structure.edit', $structure->id) }}" class="btn btn-sm btn-link p-0">+</a>
                                 @endif
-                                @foreach($structure->positions()->get() as $position)
-                                <div class="col-md-2 border  bg-info">
-                                        <strong>{{ $position->name }}</strong>
-                                        @if(Auth::user()->hasRole('admin'))
-                                        <a href="{{ route('positions.edit', $position->id) }}" >{{__('+')}}</a>
-                                        @endif
-                                        <?php 
-                                        $position_id = $position->id;
-                                        $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
-                                        ->whereHas('positions', function ($query) use ($position_id) {
-                                            $query->where('position_id', $position_id);
-                                        })
-                                        ->get();
-                                        ?>
-                                        <div class="row">
-                                            @if($personals->count() == 0)
-                                                <div class="col-md-12 bg-danger">
-                                                    <strong>{{__("free") }}</strong>
-                                                </div>
-                                            @else
-                                            @foreach($personals as $personal)
-                                                <div class="col-md-12 border  bg-light">
-                                                    <strong>{{ $personal->nickname }}</strong>
-                                                </div>
-                                            @endforeach
-                                            @endif
-                                                </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <div class="col-md-12 bg-success">
+                            </h5>
+                            
+                            <!-- Посади та працівники кореневого рівня -->
+                           @include('structures.nodes', ['structure' => $structure])
+
+                        </div>
+
+                        <!-- ПІДРІВЕНЬ 1 -->
+                        @if($structuries->where('parent_id', $structure->id)->count() > 0)
+                            <ul>
                                 @foreach($structuries as $subStructure)
                                     @if($subStructure->parent_id == $structure->id)
-                                        <div class="col-md-12">
-                                            
-                                            <div class="row">
-                                                @if($subStructure->positions()->get()->count() == 0)
-                                                    <div class="col-md-12 bg-primary">
-                                                        <strong>{{ $subStructure->name }}</strong>
-                                                        @if(Auth::user()->hasRole('admin'))
-                                                <a href="{{ route('structure.edit', $subStructure->id) }}">{{__('+')}}</a>
-                                                @endif
-                                                    </div>
+                                        <li>
+                                            <div class="struct-node mb-2">
+                                                <h6 class="text-success mb-2">
+                                                    └── 📁 {{ $subStructure->name }}
+                                                    @if(Auth::user()->hasRole('admin'))
+                                                        <a href="{{ route('structure.edit', $subStructure->id) }}" class="btn btn-sm btn-link p-0">+</a>
                                                     @endif
-                                            @foreach($subStructure->positions()->get() as $position)
-                                            <div class="col-md-2 border bg-info">
-                                                    <strong>{{ $position->name }}</strong>
-                                                    <?php 
-                                                    $position_id = $position->id;
-                                                    $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
-                                                    ->whereHas('positions', function ($query) use ($position_id) {
-                                                        $query->where('position_id', $position_id);
-                                                    })
-                                                    ->get();
-                                                    ?>
-                                                    <div class="row">
-                                                        @if($personals->count() == 0)
-                                                            <div class="col-md-12 bg-danger">
-                                                                <strong>{{__("free") }}</strong>
-                                                            </div>
-                                                        @else
-                                                        @foreach($personals as $personal)
-                                                            <div class="col-md-12 border  bg-light">
-                                                                <strong>{{ $personal->nickname }}</strong>
-                                                            </div>
-                                                        @endforeach
-                                                        @endif
-                                                        </div>
-                                                </div>
-                                            @endforeach
-                                            </div>
-                                            <!-- Добавьте дополнительные подуровни, если необходимо -->
-                                            <div class="col bg-warning">
-                                                @foreach($structuries as $subStructure1)
-                                                    @if($subStructure1->parent_id == $subStructure->id)
-                                                        <div class="col-md-12">
-                                                            <strong>{{ $subStructure1->name }}</strong>
-                                                            @if(Auth::user()->hasRole('admin'))
-                                                           <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a>
-                                                           @endif
-                                                            <div class="row">
-                                                                @if($subStructure1->positions()->get()->count() == 0)
+                                                </h6>
+                                               @include('structures.nodes', ['structure' => $subStructure])
 
-                                                                    <div class="col-md-12 bg-primary">
-                                                                        <strong>{{ $subStructure1->name }}</strong>
-                                                                        @if(Auth::user()->hasRole('admin'))
-                                                                        <a href="{{ route('structure.edit', $subStructure1->id) }}">{{__('+')}}</a>
-                                                                        @endif 
-                                                                       
-                                                                    </div>
-                                                                @endif
-                                                            @foreach($subStructure1->positions()->get() as $position)
-                                                                <div class="col-md-2 border  bg-info">
-                                                                    <strong>{{ $position->name }}</strong>
+                                            </div>
+
+                                            <!-- ПІДРІВЕНЬ 2 -->
+                                            @if($structuries->where('parent_id', $subStructure->id)->count() > 0)
+                                                <ul>
+                                                    @foreach($structuries as $subStructure1)
+                                                        @if($subStructure1->parent_id == $subStructure->id)
+                                                            <li>
+                                                                <div class="struct-node">
+                                                                    <span class="text-warning font-weight-bold">└── 📁 {{ $subStructure1->name }}</span>
                                                                     @if(Auth::user()->hasRole('admin'))
-                                                                  <a href="{{ route('positions.edit', $position->id) }}">{{__('+')}}</a>
-                                                                  @endif
-                                                                  <?php
-                                                                    $position_id = $position->id;
-                                                                    $personals = App\Models\Personal::where('status', '!=', 'Звільнення')
-                                                                    ->whereHas('positions', function ($query) use ($position_id) {
-                                                                        $query->where('position_id', $position_id);
-                                                                    })
-                                                                    ->get();
-                                                                    ?>
-                                                                    <div class="row">
-                                                                        @if($personals->count() == 0)
-                                                                            <div class="col-md-12 bg-danger">
-                                                                                <strong>{{__("free") }}</strong>
-                                                                            </div>
-                                                                        @else
-                                                                        @foreach($personals as $personal)
-                                                                            <div class="col-md-12 border  bg-light">
-                                                                                <strong>{{ $personal->nickname }}</strong>
-                                                                            </div>
-                                                                        @endforeach
-                                                                        @endif
-                                                                        </div>
-                                                                        
+                                                                        <a href="{{ route('structure.edit', $subStructure1->id) }}" class="btn btn-sm btn-link p-0">+</a>
+                                                                    @endif
+                                                                    @include('structures.nodes', ['structure' => $subStructure1])
+
                                                                 </div>
-                                                            @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                                </div>
-                                        </div>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+
+                                        </li>
                                     @endif
                                 @endforeach
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
-            </div>
-        </div>
+                            </ul>
+                        @endif
+
+                    </li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+</div>
+
 
     </div>
 @endsection

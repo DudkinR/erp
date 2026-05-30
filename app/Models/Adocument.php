@@ -30,7 +30,7 @@ class Adocument extends Model
         'archive_number', // архівний номер
         'path', // шлях на сервері
         'storage_location', // місце зберігання оригінала (архів)_(ряд)_полиця_папка№
-        'status' // статус (діючий / анульований)
+        'status' // статус (Чинний / анульований)
     ];
     public function packages()
     {

@@ -56,7 +56,8 @@ Route::middleware('auth')->group(function () {
   Route::get('document', 'App\Http\Controllers\DocumentController@index')->name('document.index');
   Route::get('/documentId/{inv_no}',  'App\Http\Controllers\DocumentController@document')->name('document.document');  
   Route::post('/documentId/{id_inc}',  'App\Http\Controllers\DocumentController@incorporationupdate')->name('incorporationupdate');  
-  
+  Route::get('/document_show/{inv_no}',  'App\Http\Controllers\DocumentController@document_show')->name('document_show');  
+ 
 
  
 // dictionary import routes
@@ -133,15 +134,22 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/kndks/{id}/import-page', 'App\Http\Controllers\KndkController@showImportPage')->name('kndks.importPage');
 
     // 2. Обробка файлу форми (POST-запит із файлом та ID)
-    Route::post('/kndks/{id}/import','App\Http\Controllers\KndkController@importCsvDocs')->name('kndks.importData');
+   // Route::post('/kndks/{id}/import','App\Http\Controllers\KndkController@importCsvDocs')->name('kndks.importData');
 
     Route::get('/kndks', 'App\Http\Controllers\KndkController@index')->name('kndks.index');
     Route::get('/kndks/create', 'App\Http\Controllers\KndkController@create')->name('kndks.create');
+    // createprocess
+    Route::get('/createprocess', 'App\Http\Controllers\KndkController@createprocess')->name('kndks.createprocess');
+
     Route::post('/kndks', 'App\Http\Controllers\KndkController@store')->name('kndks.store');
     Route::get('/kndks/{id}', 'App\Http\Controllers\KndkController@show')->name('kndks.show');
     Route::get('/kndks/{id}/edit', 'App\Http\Controllers\KndkController@edit')->name('kndks.edit');
     Route::put('/kndks/{id}', 'App\Http\Controllers\KndkController@update')->name('kndks.update');
     Route::delete('/kndks/{id}', 'App\Http\Controllers\KndkController@destroy')->name('kndks.destroy');
+    // Сторінка з полем пошуку (візуальний інтерфейс)
+    Route::get('/kndkssearch-page', 'App\Http\Controllers\KndkController@searchPage')->name('kndks.search_page');
+    // AJAX-маршрут, який повертає результати у форматі JSON
+    Route::get('/kndkssearch', 'App\Http\Controllers\KndkController@search')->name('kndks.search');
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');
     Route::get('/funs/create', 'App\Http\Controllers\FunController@create')->name('funs.create');

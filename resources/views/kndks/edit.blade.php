@@ -55,7 +55,7 @@
                     <div class="col-md-4 {{ $kndk->level < 3 ? 'd-none' : '' }}" id="group_box">
                         <label for="group" class="form-label fw-semibold">Група (2 цифри) <span class="text-danger">*</span></label>
                         <input type="text" name="group" id="group" class="form-control @error('group') is-invalid @enderror" 
-                               value="{{ old('group', $kndk->group) }}" placeholder="Напр: 01" maxlength="2" pattern="[0-9]{2}"
+                               value="{{ old('group', $kndk->group) }}" placeholder="Напр: 01" maxlength="5" pattern="[0-9,'-']{5}"
                                {{ $kndk->level === 3 ? 'required' : '' }}>
                         @error('group') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
@@ -90,6 +90,81 @@
                         @error('object_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
+              <h5 class="text-primary mb-3 border-bottom pb-2">🔗 Налаштування зв'язків</h5>
+<div class="row g-3">
+
+    <!-- Ліва колонка: Власник процесу -->
+    <div class="col-md-6">
+        <div class="card h-100 bg-light-subtle">
+            <div class="card-body">
+                <h6 class="card-title fw-bold text-secondary mb-3">Власник процесу</h6>
+                
+                <label for="position_own_ids" class="form-label fw-semibold">Відповідальні посади (власники)</label>
+                <select name="position_own_ids[]" id="position_own_ids" class="form-select @error('position_own_ids') is-invalid @enderror" multiple style="min-height: 280px;">
+                    @foreach($positions as $position)
+                        <option value="{{ $position->id }}" 
+                            {{ 
+                                (is_array(old('position_own_ids')) && in_array($position->id, old('position_own_ids'))) || 
+                                (isset($kndk) && $kndk->responsibles->contains($position->id)) 
+                                ? 'selected' : '' 
+                            }}>
+                            {{ $position->abv }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="form-text text-muted small">Утримуйте <kbd>Ctrl</kbd> або <kbd>Cmd</kbd> для viбору кількох.</div>
+                @error('position_own_ids') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+        </div>
+    </div>
+
+    <!-- Права колонка: Основні учасники процесу -->
+    <div class="col-md-6">
+        <div class="card h-100 bg-light-subtle">
+            <div class="card-body">
+                <h6 class="card-title fw-bold text-secondary mb-3">Основні учасники процесу</h6>
+                
+                <!-- Підрозділи -->
+                <div class="mb-3">
+                    <label for="division_ids" class="form-label fw-semibold">Відповідальні підрозділи</label>
+                    <select name="division_ids[]" id="division_ids" class="form-select @error('division_ids') is-invalid @enderror" multiple style="min-height: 100px;">
+                        @foreach($rootDivisions as $division)
+                            <option value="{{ $division->id }}" 
+                                {{ 
+                                    (is_array(old('division_ids')) && in_array($division->id, old('division_ids'))) || 
+                                    (isset($kndk) && $kndk->divisions->contains($division->id)) 
+                                    ? 'selected' : '' 
+                                }}>
+                                {{ $division->name }} {{ $division->abv ? "({$division->abv})" : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('division_ids') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <!-- Посади -->
+                <div>
+                    <label for="position_ids" class="form-label fw-semibold">Відповідальні посади</label>
+                    <select name="position_ids[]" id="position_ids" class="form-select @error('position_ids') is-invalid @enderror" multiple style="min-height: 100px;">
+                        @foreach($positions as $position)
+                            <option value="{{ $position->id }}" 
+                                {{ 
+                                    (is_array(old('position_ids')) && in_array($position->id, old('position_ids'))) || 
+                                    (isset($kndk) && $kndk->positions->contains($position->id)) 
+                                    ? 'selected' : '' 
+                                }}>
+                                {{ $position->abv }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-text text-muted small">Утримуйте <kbd>Ctrl</kbd> або <kbd>Cmd</kbd> для вибору кількох.</div>
+                    @error('position_ids') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                 <!-- Кнопки дій -->
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">

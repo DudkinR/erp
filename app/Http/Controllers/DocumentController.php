@@ -29,10 +29,24 @@ class DocumentController extends Controller
     }
     public function document($inv_no)
     {
-        $doc = Document::where('inv_no', $inv_no)->firstOrFail();
+        $doc = Document::where('inv_no', $inv_no)
+        ->with('kndks')
+        ->firstOrFail();
         $inconsistencies = $doc->inconsistencies()->with('documents')->get();
 
         return response()->json([
+            'document' => $doc,
+            'inconsistencies' => $inconsistencies,
+        ]);
+    }
+        public function document_show($inv_no)
+    {
+        $doc = Document::where('inv_no', $inv_no)
+        ->with('kndks')
+        ->firstOrFail();
+        $inconsistencies = $doc->inconsistencies()->with('documents')->get();
+
+       return view('kndks.document', [
             'document' => $doc,
             'inconsistencies' => $inconsistencies,
         ]);

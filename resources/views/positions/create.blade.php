@@ -18,6 +18,10 @@
                             <textarea rows=8  class="form-control" id="description" name="description" placeholder="{{__('Description')}}"></textarea>
                         </div>
                     </div>
+                         <div class="form-group">
+                        <label for="abv">{{__('Abbreviation')}}</label>
+                        <input type="text" class="form-control" id="abv" name="abv">
+                    </div>
                      <div class="form-group row">
                         <label for="start" class="col-sm-2 col-form-label">{{__('Start')}}</label>
                         <div class="col-sm-10">

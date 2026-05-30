@@ -57,6 +57,9 @@
                     </div>
                 </form>
             </div>
+              <a href="/kndks/{{$kndk->id +1 }}/import-page" class="btn btn-outline-secondary border-0" title="Імпорт">
+                                          next
+                                        </a>
         </div>
     </div>
 @endsection

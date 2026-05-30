@@ -39,6 +39,7 @@ class PositionController extends Controller
         if($request->data_closed){
             $position->data_closed = $request->data_closed;
         }
+        $position->abv = $request->abv; 
         $position->save();
         // if has division 
         if($request->division_id){
@@ -66,6 +67,7 @@ class PositionController extends Controller
         $position = Position::find($id);
         $position->name = $request->name;
         $position->description = $request->description;
+         $position->abv = $request->abv; 
         $position->start = $request->start;
         $position->data_start = $request->data_start;
         $position->closed = $request->closed;

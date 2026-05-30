@@ -55,7 +55,7 @@
                     <div class="col-md-4 d-none" id="group_box">
                         <label for="group" class="form-label fw-semibold">Група (2 цифри) <span class="text-danger">*</span></label>
                         <input type="text" name="group" id="group" class="form-control @error('group') is-invalid @enderror" 
-                               value="{{ old('group') }}" placeholder="Напр: 01" maxlength="2" pattern="[0-9]{2}">
+                               value="{{ old('group') }}" placeholder="Напр: 01"  maxlength="5" pattern="[0-9\-]{2,5}">
                         @error('group') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 

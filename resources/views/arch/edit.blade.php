@@ -152,7 +152,7 @@
                <div class="col-md-3">
                 <label class="form-label">Статус</label>
                 <select class="form-select" name="status" id="status_select">
-                    <option @if($document->status == 'active') selected @endif value="active">{{ __('Діючий') }}</option>
+                    <option @if($document->status == 'active') selected @endif value="active">{{ __('Чинний') }}</option>
                     <option @if($document->status == 'canceled') selected @endif value="canceled">{{ __('Анульований') }}</option>
                     <option @if($document->status == 'replaced') selected @endif value="replaced">{{ __('Замінений') }}</option>
                     <option @if($document->status == 'draft') selected @endif value="draft">{{ __('Чернетка') }}</option>

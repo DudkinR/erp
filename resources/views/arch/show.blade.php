@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-    $status =['active'=>'Діючий','canceled'=>'Анульований','replaced'=>'Замінений','draft'=>'Чернетка','other'=>'Інше'];
+    $status =['active'=>'Чинний','canceled'=>'Анульований','replaced'=>'Замінений','draft'=>'Чернетка','other'=>'Інше'];
 @endphp
 <div class="container py-4">
 

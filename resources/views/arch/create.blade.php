@@ -144,7 +144,7 @@
                <div class="col-md-3">
                 <label class="form-label">Статус</label>
                 <select class="form-select" name="status" id="status_select">
-                    <option value="active">{{ __('Діючий') }}</option>
+                    <option value="active">{{ __('Чинний') }}</option>
                     <option value="canceled">{{ __('Анульований') }}</option>
                     <option value="replaced">{{ __('Замінений') }}</option>
                     <option value="draft">{{ __('Чернетка') }}</option>

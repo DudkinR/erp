@@ -12,41 +12,58 @@
         </div>
     </div>
 
-    {{-- Мої невідповідності --}}
-
-    <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-info text-white">
+{{-- Мої невідповідності --}}
+<div class="card mb-4 shadow-sm">
+    <!-- Клікабельний заголовок картки -->
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center" 
+         style="cursor: pointer;" 
+         data-bs-toggle="collapse" 
+         data-bs-target="#inconsistenciesCardBody" 
+         aria-expanded="true" 
+         aria-controls="inconsistenciesCardBody">
+        
         <h5 class="mb-0">Мої зауваження</h5>
+        <!-- Іконка-стрілочка (опціонально, для краси) -->
+        <span class="accordion-arrow">▼</span>
     </div>
-    <div class="card-body">
-        @forelse($userInconsistencies as $inc)
-            <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><strong>Пункт:</strong> {{ $inc->point }}</span>
-                    <span class="badge 
-                        @if($inc->status === 'approved') bg-success
-                        @elseif($inc->status === 'rejected') bg-danger
-                        @else bg-warning
-                        @endif">
-                        {{ ucfirst($inc->status) }}
-                    </span>
+
+    <!-- Тіло картки, яке згортається -->
+    <!-- Видаліть клас "show", якщо хочете, щоб картка була закрита за замовчуванням -->
+    <div id="inconsistenciesCardBody" class="collapse ">
+        <div class="card-body">
+            @forelse($userInconsistencies as $inc)
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><strong>Пункт:</strong> {{ $inc->point }}</span>
+                        <span class="badge 
+                            @if($inc->status === 'approved') bg-success
+                            @elseif($inc->status === 'rejected') bg-danger
+                            @else bg-warning
+                            @endif">
+                            {{ ucfirst($inc->status) }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-2">
+                            {{ $inc->documents->first()->short_content ?? 'Документ' }}
+                        </h6>
+                        <p class="mb-1">
+                            <span class="badge bg-secondary"> <a href="/document_show/{{$inc->documents->first()->inv_no}}"  class="text-decoration-none text-dark d-block">Шифр:
+                                
+                                    {{ $inc->documents->first()->code ?? '-' }}
+                                </a>
+                            </span>
+                            <span class="badge bg-info">Організація: {{ $inc->documents->first()->organization ?? '-' }}</span>
+                        </p>
+                        <p><strong>Причина:</strong> {{ $inc->reason }}</p>
+                        <p><strong>Стара редакція:</strong> {{ $inc->current_text }}</p>
+                        <p><strong>Запропонована редакція:</strong> {{ $inc->proposed_text }}</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h6 class="fw-bold mb-2">
-                        {{ $inc->documents->first()->short_content ?? 'Документ' }}
-                    </h6>
-                    <p class="mb-1">
-                        <span class="badge bg-secondary">Шифр: {{ $inc->documents->first()->code ?? '-' }}</span>
-                        <span class="badge bg-info">Організація: {{ $inc->documents->first()->organization ?? '-' }}</span>
-                    </p>
-                    <p><strong>Причина:</strong> {{ $inc->reason }}</p>
-                    <p><strong>Стара редакція:</strong> {{ $inc->current_text }}</p>
-                    <p><strong>Запропонована редакція:</strong> {{ $inc->proposed_text }}</p>
-                </div>
-            </div>
-        @empty
-            <p class="text-muted">Ви ще не створили жодної невідповідності.</p>
-        @endforelse
+            @empty
+                <p class="text-muted mb-0">Ви ще не створили жодної невідповідності.</p>
+            @endforelse
+        </div>
     </div>
 </div>
 
@@ -54,54 +71,74 @@
 
    {{-- Для служби якості --}}
 @if(Auth::user()->hasRole('quality-engineer'))
+
 <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-warning">
-        <h5 class="mb-0">Зауваження на розгляд</h5>
+    <!-- Клікабельний заголовок картки -->
+    <div class="card-header bg-warning d-flex justify-content-between align-items-center" 
+         style="cursor: pointer;" 
+         data-bs-toggle="collapse" 
+         data-bs-target="#qaCardBody" 
+         aria-expanded="true" 
+         aria-controls="qaCardBody">
+        
+        <h5 class="mb-0 text-dark">Зауваження на розгляд</h5>
+        <!-- Іконка-стрілочка -->
+        <span class="text-dark">▼</span>
     </div>
-    <div class="card-body">
-      
-        @forelse($qaInconsistencies as $inc)
-            <div class="border rounded p-3 mb-3">
-                <h6 class="fw-bold">
-                    {{ $inc->documents->first()->short_content ?? 'Документ' }}
-                </h6>
-                <p class="mb-1">
-                    <span class="badge bg-secondary">Шифр: {{ $inc->documents->first()->code ?? '-' }}</span>
-                    <span class="badge bg-info">Організація: {{ $inc->documents->first()->organization ?? '-' }}</span>
-                </p>
 
-                <p><strong>Пункт:</strong> {{ $inc->point }}</p>
-                <p><strong>Стара редакція:</strong> {{ $inc->current_text }}</p>
-                <p>
-                    <strong>Запропонована редакція:</strong>
-                    <span id="proposed-text-{{ $inc->id }}">
-                        {{ $inc->proposed_text }}
-                    </span>
-                </p>
-                <p><strong>Причина:</strong> {{ $inc->reason }}</p>
+    <!-- Тіло картки, яке згортається -->
+    <!-- Клас "show" тримає картку відкритою при завантаженні -->
+    <div id="qaCardBody" class="collapse ">
+        <div class="card-body">
+            @forelse($qaInconsistencies as $inc)
+                <div class="border rounded p-3 mb-3">
+                    <h6 class="fw-bold">
+                        {{ $inc->documents->first()->short_content ?? 'Документ' }}
+                    </h6>
+                    <p class="mb-1">
+                        <span class="badge bg-secondary">
+                            <a href="/document_show/{{$inc->documents->first()->inv_no}}"  class="text-decoration-none text-dark d-block">Шифр:
+                                
+                                    {{ $inc->documents->first()->code ?? '-' }}
+                                </a></span>
+                        <span class="badge bg-info">Організація: {{ $inc->documents->first()->organization ?? '-' }}</span>
+                    </p>
 
-                <div class="d-flex justify-content-between mt-3">
-                    <button class="btn btn-outline-primary btn-sm"
-        onclick="openEditModal({{ $inc->id }}, @js($inc->proposed_text))">
-                        <i class="bi bi-pencil-square"></i> Змінити запропонований текст
-                    </button>
+                    <p><strong>Пункт:</strong> {{ $inc->point }}</p>
+                    <p><strong>Стара редакція:</strong> {{ $inc->current_text }}</p>
+                    <p>
+                        <strong>Запропонована редакція:</strong>
+                        <span id="proposed-text-{{ $inc->id }}">
+                            {{ $inc->proposed_text }}
+                        </span>
+                    </p>
+                    <p><strong>Причина:</strong> {{ $inc->reason }}</p>
 
-                    <button class="btn btn-success btn-sm"
-                            onclick="approveInconsistency({{ $inc->id }})">
-                        <i class="bi bi-check-circle"></i> Погодити
-                    </button>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button class="btn btn-outline-primary btn-sm"
+                                onclick="openEditModal({{ $inc->id }}, @js($inc->proposed_text))">
+                            <i class="bi bi-pencil-square"></i> Змінити запропонований текст
+                        </button>
 
-                    <button class="btn btn-danger btn-sm"
-                            onclick="rejectInconsistency({{ $inc->id }})">
-                        <i class="bi bi-x-circle"></i> Відмова
-                    </button>
+                        <button class="btn btn-success btn-sm"
+                                onclick="approveInconsistency({{ $inc->id }})">
+                            <i class="bi bi-check-circle"></i> Погодити
+                        </button>
+
+                        <button class="btn btn-danger btn-sm"
+                                onclick="rejectInconsistency({{ $inc->id }})">
+                            <i class="bi bi-x-circle"></i> Відмова
+                        </button>
+                    </div>
                 </div>
-            </div>
-        @empty
-            <p class="text-muted">Немає нових зауважень для перевірки.</p>
-        @endforelse
+            @empty
+                <p class="text-muted mb-0">Немає нових зауважень для перевірки.</p>
+            @endforelse
+        </div>
     </div>
 </div>
+@endif
+
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -124,27 +161,39 @@
   </div>
 </div>
 
-@endif
 
 
-    {{-- Для автора документа --}}
+{{-- Для автора документа --}}
+<div class="card mb-4 shadow-sm">
+    <!-- Клікабельний заголовок картки -->
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center" 
+         style="cursor: pointer;" 
+         data-bs-toggle="collapse" 
+         data-bs-target="#authorCardBody" 
+         aria-expanded="true" 
+         aria-controls="authorCardBody">
+        
+        <h5 class="mb-0">Зауваження до моїх документів</h5>
+        <!-- Іконка-стрілочка -->
+        <span>▼</span>
+    </div>
 
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Зауваження до моїх документів</h5>
-        </div>
+    <!-- Тіло картки, яке згортається -->
+    <!-- Клас "show" залишає картку відкритою за замовчуванням -->
+    <div id="authorCardBody" class="collapse ">
         <div class="card-body">
             @forelse($authorInconsistencies as $inc)
-                <p>
+                <p class="mb-3">
                     <strong>{{ $inc->documents->first()->short_content ?? 'Документ' }}</strong> —
                     {{ $inc->proposed_text }}
                     <span class="badge bg-secondary ms-2">Зауважень: {{ $inc->authorResponses->count() }}</span>
                 </p>
             @empty
-                <p class="text-muted">До ваших документів наразі немає зауважень.</p>
+                <p class="text-muted mb-0">До ваших документів наразі немає зауважень.</p>
             @endforelse
         </div>
     </div>
+</div>
 
 
 </div>
