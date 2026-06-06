@@ -114,8 +114,7 @@
                     {{__('Risks')}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="{{ route('risks.StartBriefRisk') }}">{{__('Risks briefing')}}</a>
-                     <a class="dropdown-item" href="{{ route('risks.StartCardRisk') }}">{{__('Risks card')}}</a>
+                    <a class="dropdown-item" href="{{ route('risks.StartBriefRisk') }}">{{__('Risks')}}</a>
                 @if(Auth::user()->hasRole('admin'))       
                     <a class="dropdown-item" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
                     <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>

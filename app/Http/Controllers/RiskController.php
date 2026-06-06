@@ -7,7 +7,6 @@ use App\Models\Type;
 use App\Models\Experience;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-//use Illuminate\Support\Facades\Carbon;
 use App\Models\Jit;
 use App\Models\Brief;
 use Illuminate\Support\Facades\Auth;    
@@ -213,7 +212,7 @@ class RiskController extends Controller
     // create
     public function create()
     {
-       $equipments_parent = Type::where('slug', 'equipment')->first();
+        $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
         $systems = System::all()->keyBy('id')->values();
        $causes_parent = Type::where('slug', 'cause')->first();
@@ -471,105 +470,6 @@ class RiskController extends Controller
         }
     
         return redirect()->route('risks.import');
-    }
-    //StartCardRisk
-    public function StartCardRisk(){
-        $eventsData = [
-        // 🔹 Пересування до/від робочого місця
-        ['id'=>1,'work_type'=>'Пересування до/від робочого місця','name'=>'Пересування транспортом підприємства','keywords'=>['транспорт','автобус','службовий'],'severity'=>5,'probability'=>0,'frequency'=>0.25],
-        ['id'=>2,'work_type'=>'Пересування до/від робочого місця','name'=>'Пересування громадським транспортом','keywords'=>['громадський','маршрутка','поїзд'],'severity'=>4,'probability'=>0,'frequency'=>0],
-        ['id'=>3,'work_type'=>'Пересування до/від робочого місця','name'=>'Слизька або нерівна поверхня','keywords'=>['слизька','поверхня','ожеледиця'],'severity'=>3,'probability'=>0,'frequency'=>0],
-        ['id'=>4,'work_type'=>'Пересування до/від робочого місця','name'=>'Недостатнє освітлення','keywords'=>['освітлення','темрява'],'severity'=>2,'probability'=>0,'frequency'=>0.1],
-        ['id'=>5,'work_type'=>'Пересування до/від робочого місця','name'=>'Несприятливі погодні умови','keywords'=>['погода','дощ','сніг'],'severity'=>2,'probability'=>0,'frequency'=>0],
-
-        // 🔹 Виконання посадових обов’язків
-        ['id'=>6,'work_type'=>'Виконання посадових обов’язків','name'=>'Робота з документами','keywords'=>['документи','папери'],'severity'=>3,'probability'=>0,'frequency'=>1],
-        ['id'=>7,'work_type'=>'Виконання посадових обов’язків','name'=>'Робота з ПЕОМ','keywords'=>['комп\'ютер','ПЕОМ','монітор'],'severity'=>2,'probability'=>0,'frequency'=>0],
-
-        // 🔹 Відрядження
-        ['id'=>8,'work_type'=>'Відрядження','name'=>'Пересування транспортом підприємства','keywords'=>['відрядження','службовий транспорт'],'severity'=>4,'probability'=>0,'frequency'=>0],
-        ['id'=>9,'work_type'=>'Відрядження','name'=>'Пересування громадським транспортом','keywords'=>['відрядження','громадський транспорт'],'severity'=>3,'probability'=>0,'frequency'=>0],
-        ['id'=>10,'work_type'=>'Відрядження','name'=>'Загрози агресії РФ','keywords'=>['обстріл','агресія','війна'],'severity'=>5,'probability'=>0,'frequency'=>0],
-
-        // 🔹 Експлуатація побутових приладів
-        ['id'=>11,'work_type'=>'Експлуатація побутових приладів','name'=>'Температура','keywords'=>['гарячий','опік','температура'],'severity'=>3,'probability'=>0,'frequency'=>0],
-        ['id'=>12,'work_type'=>'Експлуатація побутових приладів','name'=>'Струм','keywords'=>['струм','електрика'],'severity'=>4,'probability'=>0,'frequency'=>0],
-        ['id'=>13,'work_type'=>'Експлуатація побутових приладів','name'=>'Електричні мережі','keywords'=>['мережа','коротке замикання'],'severity'=>4,'probability'=>0,'frequency'=>0],
-
-        // 🔹 Експлуатація кондиціонерів
-        ['id'=>14,'work_type'=>'Експлуатація кондиціонерів','name'=>'Електричні мережі','keywords'=>['кондиціонер','електрика'],'severity'=>3,'probability'=>0,'frequency'=>0],
-        ['id'=>15,'work_type'=>'Експлуатація кондиціонерів','name'=>'Переохолодження','keywords'=>['переохолодження','застуда'],'severity'=>2,'probability'=>0,'frequency'=>0],
-        ['id'=>16,'work_type'=>'Експлуатація кондиціонерів','name'=>'Відсутність вентиляції','keywords'=>['вентиляція','повітря'],'severity'=>2,'probability'=>0,'frequency'=>0],
-        ['id'=>17,'work_type'=>'Експлуатація кондиціонерів','name'=>'Фреон','keywords'=>['фреон','витік'],'severity'=>4,'probability'=>0,'frequency'=>0],
-
-        // 🔹 Евакуація персоналу
-        ['id'=>18,'work_type'=>'Евакуація персоналу','name'=>'Аварія радіаційна','keywords'=>['радіація','аварія'],'severity'=>5,'probability'=>0,'frequency'=>0],
-        ['id'=>19,'work_type'=>'Евакуація персоналу','name'=>'Пожежа','keywords'=>['пожежа','займання'],'severity'=>4,'probability'=>0,'frequency'=>0],
-        ['id'=>20,'work_type'=>'Евакуація персоналу','name'=>'Вибух','keywords'=>['вибух','детонація'],'severity'=>5,'probability'=>0,'frequency'=>0],
-        ['id'=>21,'work_type'=>'Евакуація персоналу','name'=>'Захаращення шляхів евакуації','keywords'=>['шлях','евакуація','перешкода'],'severity'=>3,'probability'=>0,'frequency'=>0],
-        ['id'=>22,'work_type'=>'Евакуація персоналу','name'=>'Обстріли РФ','keywords'=>['обстріл','ракета','агресія'],'severity'=>5,'probability'=>0,'frequency'=>0],
-    ];
-        // вибираємо досвід за останні 2 роки
-        $yearThreshold = date('Y') - 2; 
-        $experiences = Experience::where('year', '>=', $yearThreshold)->get();
-        $total = $experiences->count();
-        
-        foreach ($eventsData as &$event) {
-            $frequency=0;
-            foreach ($experiences as $exp) {
-                $text = strtolower($exp->text_uk.' '.$exp->text_ru.' '.$exp->text_en);
-                foreach ($event['keywords'] as $kw) {
-                    if (str_contains($text, strtolower($kw))) {
-                        $frequency++;
-                    }
-                }
-            }
-           // нормалізація ймовірності у діапазоні 0–7
-            $event['probability'] = $total > 0 
-                ? round(($frequency / $total) * 7, 2) 
-                : 0;
-           $event['frequency'] = $event['frequency'] + (
-            $total > 0 
-                ? round($frequency / $total, 2) 
-                : 0
-        );
-
-   
-        }
-
-       return view('risks.card',['eventsData' => $eventsData]);
-    }
-    //createform
-    public function createform(Request $request)
-    {   
-         $events = $request->input('events', []);
-        return view('risks.show', compact('events'));
-    }
-
-    //getEvents
-    public function getEvents(Request $request)
-    {
-      
-      $file = $request->file('csvFile');
-        $events = [];
-
-        if ($file && ($handle = fopen($file->getRealPath(), 'r')) !== false) {
-            $header = fgetcsv($handle, 1000, ',');
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-                $data = array_combine($header, $row);
-                if ($data['work_type'] === $request->input('workName')) {
-                    $events[] = [
-                        'id' => $data['id'],
-                        'name' => $data['name'],
-                        'description' => $data['description'],
-                    ];
-                }
-            }
-            fclose($handle);
-        }
-
-        return response()->json($events);
-
     }
 
 

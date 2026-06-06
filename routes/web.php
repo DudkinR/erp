@@ -613,12 +613,6 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/risksreimport', 'App\Http\Controllers\RiskController@reimport')->name('risks.reimport');
     //experiences
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
-    // risks.StartCardRisk
-    Route::get('/StartCardRisk', 'App\Http\Controllers\RiskController@StartCardRisk')->name('risks.StartCardRisk');
-    // /get-events post
-    Route::post('/get-events', 'App\Http\Controllers\RiskController@getEvents')->name('risks.getEvents');
-//risks.createform
-Route::post('/risksCreateform', 'App\Http\Controllers\RiskController@createform')->name('risks.createform');
 
     // cars
     Route::get('/cars', 'App\Http\Controllers\CarController@index')->name('cars.index');
