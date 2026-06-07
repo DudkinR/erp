@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('inconsistency_comments')) {
         Schema::create('inconsistency_comments', function (Blueprint $table) {
             $table->id();
 
@@ -27,10 +28,13 @@ return new class extends Migration
 
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('inconsistency_comments');
+        if (Schema::hasTable('inconsistency_comments')) {
+            Schema::dropIfExists('inconsistency_comments');
+        }
     }
 };

@@ -16,6 +16,8 @@ class Car extends Model
         'type_id',
         'gov_number',
         'condition_id',
+        'seats',
+        'features',
 
     ];
     // without timestamps

@@ -77,14 +77,17 @@ class CarController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
-        $car = Car::find($id);
-        $car->name = $request->name;
-        $car->type_id = $request->type_id;
-        $car->gov_number = $request->gov_number;
-        $car->condition_id = $request->condition_id;
-        $car->save();
-        return redirect()->route('cars.index');
+       $car = Car::findOrFail($id);
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'gov_number' => 'required|string|max:255',
+            'seats' => 'required|integer',
+            'features' => 'nullable|string',
+            'type_id' => 'required|exists:types,id',
+            'condition_id' => 'required|exists:types,id',
+        ]);
+        $car->update($validatedData);
+        return redirect()->route('taxi.index')->with('success', 'Car updated successfully.');
     }
 
     /**

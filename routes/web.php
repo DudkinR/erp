@@ -40,6 +40,32 @@ Route::delete('/dictionary/{id}', 'App\Http\Controllers\DictionaryController@des
 
 Route::middleware('auth')->group(function () {
 
+  Route::get('/taxi', 'App\Http\Controllers\TaxiController@index')->name('taxi.index');
+  Route::get('/taxi/create', 'App\Http\Controllers\TaxiController@create')->name('taxi.create');
+  Route::post('/taxi', 'App\Http\Controllers\TaxiController@store')->name('taxi.store');
+  Route::get('/taxi/{id}', 'App\Http\Controllers\TaxiController@show')->name('taxi.show');
+  Route::get('/taxi/{id}/edit', 'App\Http\Controllers\TaxiController@edit')->name('taxi.edit');
+  Route::put('/taxi/{id}', 'App\Http\Controllers\TaxiController@update')->name('taxi.update');
+  Route::delete('/taxi/{id}', 'App\Http\Controllers\TaxiController@destroy')->name('taxi.destroy');
+    ///taxicreatecar
+    Route::get('/taxicreatecar', 'App\Http\Controllers\TaxiController@createcar')->name('taxi.createcar');
+    Route::post('/taxicreatecar', 'App\Http\Controllers\TaxiController@storecar')->name('taxi.storecar');
+    Route::get('/taxieditcar/{id}', 'App\Http\Controllers\TaxiController@editcar')->name('taxi.editcar');
+    Route::put('/taxieditcar/{id}', 'App\Http\Controllers\TaxiController@updatecar')->name('taxi.updatecar');
+    // objects.store
+    Route::post('/taxiobjects', 'App\Http\Controllers\TaxiController@storeObject')->name('objects.store');
+    // taxiroutes.store
+    Route::post('/taxiroutes', 'App\Http\Controllers\TaxiController@storeRoute')->name('taxiroutes.store');
+    ///Route [cars.duty] not defined.
+    Route::post('/taxicarsduty', 'App\Http\Controllers\TaxiController@duty')->name('cars.duty');
+    /// feedback.store
+    Route::post('/taxifeedback', 'App\Http\Controllers\TaxiController@feedback')->name('taxi.feedback');
+    //  cars/
+    Route::get('/cars', 'App\Http\Controllers\TaxiController@cars')->name('cars.index');
+    Route::get('/car/{id}', 'App\Http\Controllers\TaxiController@car')->name('cars.show');
+   
+   
+
   // inconsistency in documents routes
   Route::get('/inconsistencis', 'App\Http\Controllers\InconsistencyController@index')->name('inconsistencis.index');
   Route::get('/inconsistencis/create', 'App\Http\Controllers\InconsistencyController@create')->name('inconsistencis.create');
