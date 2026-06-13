@@ -22,7 +22,7 @@
     <!-- Картка форми -->
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body p-4">
-            <form action="{{ route('kndks.store') }}" method="POST" id="processCreateForm">
+            <form action="{{ route('kndks_pocedure.store') }}" method="POST" id="processCreateForm">
                 @csrf
                 
                     <h5 class="text-primary mb-3 border-bottom pb-2">📂 Основна інформація про процес</h5>
@@ -33,8 +33,11 @@
                                 Назва процесу <span id="name_required_star" class="text-danger">*</span>
                             </label>
                             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" 
-                                value="{{ old('name') }}" placeholder="Введіть назву нового процесу або залиште порожнім">
-                            <div class="form-text text-muted small">Якщо залишити порожнім, новий процес не створиться, а прив'язка піде прямо до КНДК.</div>
+                                value="" placeholder="Введіть назву нового процесу або залиште порожнім">
+                            <div class="form-text text-muted small">
+                                Якщо залишити порожнім, новий процес не створиться, а прив'язка піде прямо до КНДК.
+                            <br>{{ old('name') }}
+                            </div>
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
@@ -60,7 +63,7 @@
                         <div class="col-12">
                             <label for="description" class="form-label fw-semibold">Опис процесу</label>
                             <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" 
-                                    rows="3" placeholder="Детальний опис кроків чи регламенту процесу...">{{ old('description') }}</textarea>
+                                    rows="3" placeholder="Детальний опис кроків чи регламенту процесу..."></textarea>
                             @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>

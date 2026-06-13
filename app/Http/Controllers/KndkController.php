@@ -50,81 +50,161 @@ class KndkController extends Controller
     
     public function create()
     {        
-       return view('kndks.create');
+        // Беремо останній створений запис із бази
+        $lastInserted = Kndk::latest('id')->first();
+
+        return view('kndks.create', compact('lastInserted'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
- public function store(Request $request)
-{
-    // 1. Валідація вхідних даних
-    $validated = $request->validate([
-        'name'               => 'nullable|string|max:255',
-        'process_type'       => 'required_with:name|nullable|string|in:inputs,resources,outputs,tasks,results,performance',
-        'description'        => 'nullable|string',
-        'kndk_ids'           => 'required|array|min:1',
-        'kndk_ids.*'         => 'exists:kndks,id', // Виправлено назву таблиці на 'kndk'
-        'division_ids'       => 'nullable|array',
-        'division_ids.*'     => 'exists:division,id',
-        'position_own_ids'   => 'nullable|array', // Власники процесу
-        'position_own_ids.*' => 'exists:positions,id',
-        'position_ids'       => 'nullable|array', // Учасники процесу
-        'position_ids.*'     => 'exists:positions,id',
-    ]);
-
-    $message = '';
-
-    // СЦЕНАРІЙ А: Заповнено назву процесу -> Створюємо процес
-    if (!empty($validated['name'])) {
-        
-        // 2. Створення базового запису процесу (включаючи тип)
-        $process = Process::create([
-            'name'         => $validated['name'],
-            'type' => $validated['process_type'],
-            'description'  => $validated['description'],
+    public function store(Request $request)
+    {
+        // 1. Валідація вхідних даних
+        $validated = $request->validate([
+            'level_toggle' => 'required|in:1,2,3',
+            'class'        => 'required|string',
+            'subclass'     => 'nullable|string',
+            'group'        => 'nullable|string',
+            'full_code'    => 'required|string',
+            'name'         => 'required|string|max:255',
+            'object_type'  => 'required|string|max:255',
         ]);
 
-        // 3. Прив'язка КНДК до створеного Процесу (Many-to-Many)
-        $process->kndks()->attach($validated['kndk_ids']);
+        // 2. Очищення полів залежно від обраного рівня
+        $level = (int) $validated['level_toggle'];
         
-        $message = 'Процес успішно створено та пов\'язано з КНДК. ';
+        if ($level === 1) {
+            $validated['subclass'] = null;
+            $validated['group'] = null;
+        } elseif ($level === 2) {
+            $validated['group'] = null;
+        }
+
+        // 3. Запис у базу даних (токен автоматично ігнорується, бо його немає у $fillable)
+        $kndk = Kndk::create($validated);
+          // Повертаємося назад на сторінку створення із флеш-повідомленням у сесії
+        return redirect()->route('kndks.create')->with('success', 'Елемент успішно додано до класифікатора!');
     }
 
-    // 4. Цикл для перебору всіх обраних КНДК та прив'язки підрозділів і посад
-    foreach ($validated['kndk_ids'] as $kndkId) {
-        $kndk = Kndk::find($kndkId);
+    public function store_procedure(Request $request)
+    {
+        // 1. Валідація вхідних даних (Виправлено назви таблиць у базі danych)
+        $validated = $request->validate([
+            'name'               => 'nullable|string|max:255',
+            'process_type'       => 'required_with:name|nullable|string|in:inputs,resources,outputs,tasks,results,performance',
+            'description'        => 'nullable|string',
+            'kndk_ids'           => 'required|array|min:1',
+            'kndk_ids.*'         => 'exists:kndks,id', // Зазвичай у Laravel plural: kndks
+            'division_ids'       => 'nullable|array',
+            'division_ids.*'     => 'exists:division,id', // ВИПРАВЛЕНО: назва таблиці 'division' замість 'division'
+            'position_own_ids'   => 'nullable|array', 
+            'position_own_ids.*' => 'exists:positions,id',
+            'position_ids'       => 'nullable|array', 
+            'position_ids.*'     => 'exists:positions,id',
+        ]);
 
-        if ($kndk) {
-            // Прив'язка підрозділів до конкретного КНДК
+        $message = '';
+
+        // СЦЕНАРІЙ А: Заповнено назву процесу -> Працюємо з Процесом (Функцією)
+        if (!empty($validated['name'])) {
+            
+            // 1. Очищаємо оригінальні дані від крайових пробілів (для запису)
+            $originalName = trim($validated['name']);
+            $trimmedDescription = !empty(trim($validated['description'] ?? '')) ? trim($validated['description']) : null;
+
+            // 2. Функція для створення «пошукового зліпка» тексту (лише для порівняння)
+            $cleanText = function($text) {
+                $text = mb_strtolower($text, 'UTF-8'); // Нижній регістр з підтримкою кирилиці
+                // Видаляємо крапки, коми, пробіли, тире та інші знаки
+                return preg_replace('/[\s\.,\-_–—!?;"\'«»()]/u', '', $text);
+            };
+
+            $searchName = $cleanText($originalName);
+
+            // 3. Шукаємо в базі через RAW-запит, очищуючи кожне ім'я з бази «на льоту»
+            $process = Process::where('type', $validated['process_type'])
+                ->whereRaw("
+                    LOWER(
+                        REPLACE(REPLACE(REPLACE(REPLACE(name, ' ', ''), '.', ''), ',', ''), '-', '')
+                    ) = ?", [$searchName])
+                ->first();
+
+            // 4. Логіка: знайдено (перезаписуємо опис) чи ні (створюємо новий з ОРИГІНАЛЬНИМ ім'ям)
+            if ($process) {
+                // Знайшли схожий! Перезаписуємо опис (назва з великими літерами в базі лишається БЕЗ змін)
+                $process->update([
+                    'description' => $trimmedDescription
+                ]);
+                // Тимчасово ставимо прапорець для сумісності з вашим подальшим кодом
+                $process->wasRecentlyCreated = false; 
+            } else {
+                // Нічого схожого немає — створюємо новий рядок з оригінальним гарним текстом
+                $process = Process::create([
+                    'name'        => $originalName, // Зберігає великі літери, пробіли та крапки
+                    'type'        => $validated['process_type'],
+                    'description' => $trimmedDescription,
+                ]);
+                $process->wasRecentlyCreated = true;
+            }
+
+
+
+            if (!$process->wasRecentlyCreated && !empty($validated['description'])) {
+                $process->update(['description' => $validated['description']]);
+            }
+
+            // 3. Прив'язка КНДК до Процесу
+            $process->kndks()->syncWithoutDetaching($validated['kndk_ids']);
+            
+            // МОДЕРНІЗАЦІЯ: Прив'язуємо підрозділи безпосередньо до Процесу
             if (!empty($validated['division_ids'])) {
-                $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
+                $process->divisions()->syncWithoutDetaching($validated['division_ids']);
             }
-
-            // ТУТ ЗВ'ЯЗУЄМО ВЛАСНИКІВ через ваш зв'язок responsibles()
-            if (!empty($validated['position_own_ids'])) {
-                $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
-            }
-
-            // ТУТ ЗВ'ЯЗУЄМО УЧАСНИКІВ (якщо у КНДК для них окремий зв'язок, наприклад, positions())
-            if (!empty($validated['position_ids'])) {
-                $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
+            
+            if ($process->wasRecentlyCreated) {
+                $message = 'Нову функцію успішно створено, підрозділи закріплено. ';
+            } else {
+                $message = 'Знайдено існуючу функцію, оновлено її підрозділи та зв\'язки. ';
             }
         }
+
+        // 4. Цикл для збереження зв'язків на рівні самого КНДК (для сумісності зі старою логікою)
+        foreach ($validated['kndk_ids'] as $kndkId) {
+            $kndk = Kndk::find($kndkId);
+
+            if ($kndk) {
+                if (!empty($validated['division_ids'])) {
+                    $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
+                }
+
+                if (!empty($validated['position_own_ids'])) {
+                    $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
+                }
+
+                if (!empty($validated['position_ids'])) {
+                    $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
+                }
+            }
+        }
+
+        // 5. Формування фінального тексту сповіщення та редирект
+        if (empty($validated['name'])) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('success', 'Зв\'язки підрозділів та посад з обраними КНДК успішно оновлено!');
+        } 
+        
+        // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
+        // але якщо ви повертаєте з ->withInput(), форма лишиться заповненою.
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('success', $message . 'Підрозділи та посади також прив\'язані до КНДК.');
     }
 
-    // Формування фінального тексту сповіщення
-    if (empty($validated['name'])) {
-        $message = 'Зв\'язки підрозділів та посад з обраними КНДК успішно оновлено!';
-    } else {
-        $message .= 'Підрозділи та посади також прив\'язані до КНДК.';
-    }
-
-    // 5. Перенаправлення користувача назад
-    return redirect()
-        ->route('kndks.createprocess')
-        ->with('success', $message);
-}
 
 
 
@@ -147,22 +227,55 @@ class KndkController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        // Завантажуємо КНДК разом із прив'язаними документами
-        $item = Kndk::with(['documents', 'processes', 'divisions', 'responsibles', 'positions'])->findOrFail($id);
-        $organizations = $item->documents
-        ->pluck('organization') // Беремо лише стовпчик organization [^14]
-        ->filter()              // Видаляємо null або порожні рядки (якщо такі є)
-        ->unique()              // Залишаємо лише унікальні назви [15]
-        ->values()              // Скидаємо індекси масиву до 0, 1, 2...
-        ->toArray();            // Перетворюємо у звичайний PHP масив
-        // Ваша поточна логіка обробки заголовка та опису
-        $title = Str::of($item->name)->explode("\n")->first();
-        $safeDescription = $item->name; // Або ваша логіка
-        $linkedItems = []; // Ваша логіка пошуку відповідностей
-        return view('kndks.show', compact('item', 'title', 'safeDescription', 'linkedItems','organizations'));
+        // 1. Завантажуємо КНДК разом із усіма зв'язками (включаючи підрозділи кожної функції/процесу)
+        $item = Kndk::with([
+            'documents', 
+            'processes.divisions', // ТЕПЕР ЦЕ ПРАЦЮЄ, бо ми створили цей зв'язок у моделі Process
+            'divisions', 
+            'responsibles', 
+            'positions'
+        ])->findOrFail($id);
 
+        // 2. Отримуємо унікальні організації з документів
+        $organizations = $item->documents
+            ->pluck('organization')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // 3. Шукаємо ВСІ коди форматів X.X або X.X.X у тексті назви КНДК
+        preg_match_all('/(?<!\d)\d+\.\d+(?:\.\d+)?(?!\d)/', $item->name, $matches);
+        // ВИПРАВЛЕНО: беремо саме індекс, де лежать знайдені рядки
+        $foundCodes = isset($matches[0]) ? array_unique($matches[0]) : [];
+
+        // 4. Шукаємо інші пов'язані елементи КНДК за знайденими кодами
+        $linkedItems = [];
+        if (!empty($foundCodes)) {
+            $linkedItems = Kndk::whereIn('full_code', $foundCodes)
+                ->where('id', '!=', $item->id)
+                ->get()
+                ->keyBy('full_code');
+        }
+
+        // 5. Розбиваємо оригінальний текст на заголовок (перший рядок) та опис (решта ліній)
+        $lines = Str::of($item->name)->explode("\n")->map(fn($line) => trim($line))->filter();
+        $title = $lines->first() ?? 'Назва елемента';
+        $rawDescription = $lines->skip(1)->implode("\n");
+
+        // 6. Безпечно екрануємо текст та перетворюємо знайдені коди на посилання-бейджи
+        $safeDescription = e($rawDescription);
+        foreach ($linkedItems as $code => $linkedItem) {
+            $route = route('kndks.show', $linkedItem->id);
+            $badgeHtml = '<a href="' . $route . '" class="badge bg-primary-subtle text-primary text-decoration-none border border-primary-subtle px-2 py-1 mx-1 fw-bold transition-all">' . e($code) . '</a>';
+            
+            $safeDescription = str_replace($code, $badgeHtml, $safeDescription);
+        }
+
+        // Передаємо всі готові змінні у View
+        return view('kndks.show', compact('item', 'title', 'safeDescription', 'linkedItems', 'organizations'));
     }
 
     /**
@@ -503,182 +616,168 @@ class KndkController extends Controller
         return view('kndks.search'); // Назва вашого blade-файлу (наприклад, resources/views/kndks/search.blade.php)
     }
 
-public function search(Request $request)
-{
-    $text = trim($request->get('query'));
+    public function search(Request $request)
+    {
+        $text = trim($request->get('query'));
 
-    if (empty($text)) {
-        return response()->json([]);
-    }
-
-    $lowerText = mb_strtolower($text, 'UTF-8');
-
-    // 1. Очищення від стоп-слів
-    $stopWords = [
-        'і', 'й', 'та', 'але', 'чи', 'або', 'що', 'як', 'це', 'про', 'на', 'в', 'у', 'за', 'до', 'для', 'від', 
-        'під', 'над', 'перед', 'по', 'через', 'при', 'біля', 'з', 'із', 'зі', 'між', 'без', 'якщо', 'тому', 
-        'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення'
-    ];
-
-    // Визначаємо "важкі" технічні слова, які мають критичне значення
-    $highPriorityKeywords = [
-    // Ядерна та радіаційна безпека
-    'радіаційн', 'ядерн', 'безпек', 'випромінюв', 'ізотоп', 'активн', 'дозиметр', 'дезактивац', 
-    'радіоактивн', 'рав', 'яв', 'свпп', 'гермозон', 'біозахист', 'кюрі', 'рентген', 'моніторинг',
-    
-    // Експлуатація та обладнання реакторного/турбінного цехів
-    'реактор', 'турбін', 'енергоблок', 'гцн', 'вввр', 'парогенератор', 'конденсатор', 'компресор',
-    'насос', 'арматур', 'клапан', 'трубопровід', 'маніпулятор', 'генератор', 'трансформатор', 
-    'електрообладнан', 'щит', 'бщу', 'рщу', 'свпк', 'асу', 'акнп', 'квп', 'автоматик',
-    
-    // Технічне обслуговування, ремонт та контроль (ТОіР)
-    'ремонт', 'модернізац', 'реконструкц', 'дефект', 'зварюван', 'наплавлен', 'контрол', 'діагностик', 
-    'неруйнівн', 'випробуван', 'пусконалагодж', 'техогляд', 'експертиз', 'ресурс', 'продовжен',
-    
-    // Аварійна готовність та спецконтексти
-    'аварі', 'критері', 'класифікац', 'інцидент', 'відмов', 'спрацюван', 'захист', 'блокуван', 
-    'локалізац', 'ліквідац', 'ситуац', 'план', 'плрп', 'запроектн', 'проектн', 'герметичн',
-    
-    // Хімія та паливо
-    'палив', 'твзел', 'ввп', 'уран', 'плутоній', 'водно-хімічн', 'вхр', 'фільтр', 'корозі', 'продувк',
-// Управління та організація
-    'управлінн', 'організац', 'системи', 'структур', 'наказ', 'розпоряджен', 'регламент', 'процедур',
-    'керівництв', 'адміністрац', 'менеджмент', 'плануванн', 'звітн', 'аудит', 'перевірк', 'контрол',
-    
-    // Документообіг та діловодство
-    'документ', 'архів', 'реєстрац', 'кореспонденц', 'лист', 'протокол', 'акт', 'довідк', 'договір',
-    'контракт', 'угод', 'положенн', 'інструкці', 'правил', 'супровід', 'погодженн', 'затвердженн',
-    
-    // Кадри, персонал та навчання
-    'персонал', 'кадр', 'навчанн', 'підготовк', 'кваліфікац', 'атестац', 'тренажер', 'утц', 'посад',
-    'інструктаж', 'штатн', 'розпис', 'трудов', 'дисциплін', 'резерв', 'відпустк', 'відрядженн',
-    
-    // Фінанси, економіка та закупівлі
-    'бюджет', 'фінанс', 'економік', 'закупівл', 'тендер', 'прозорро', 'кошторис', 'бухгалтері', 'оплат',
-    'рахунок', 'аудит', 'поставк', 'матеріал', 'склад', 'логістик', 'дпц', 'цін', 'вартіст',
-    
-    // Правова, юридична діяльність та охорона
-    'юрид', 'право', 'закон', 'суд', 'ліценз', 'дозвіл', 'регулятор', 'держатомрегулюван', 'дiару', 
-    'охорон', 'перепустк', 'режим', 'сб', 'загін', 'вохр', 'таємн', 'конфіденційн'
-
-    ];
-
-    preg_match_all('/[a-zA-Zа-яієїґА-ЯІЄЇҐ0-9\.\-]+/u', $lowerText, $matches);
-    $rawWords = $matches[0] ?? [];
-
-    $searchTerms = [];
-    foreach ($rawWords as $word) {
-        $word = trim($word);
-        if (in_array($word, $stopWords) || (mb_strlen($word, 'UTF-8') < 2 && !is_numeric($word))) {
-            continue;
+        if (empty($text)) {
+            return response()->json([]);
         }
 
-        // Український стемінг (обрізання закінчень)
-        $stemmed = preg_replace('/(ий|ій|ою|ею|и|і|е|а|я|у|ю|ом|ем|ів|ам|ям|ами|ями|их|ові|еві|ення|енню|енням|иця|иці|ицю|ями|ях)$/u', '', $word);
-        
-        if (mb_strlen($stemmed, 'UTF-8') >= 2 || is_numeric($stemmed)) {
-            $searchTerms[] = $stemmed;
-        } else {
-            $searchTerms[] = $word;
-        }
-    }
+        $lowerText = mb_strtolower($text, 'UTF-8');
 
-    if (empty($searchTerms)) {
-        return response()->json([]);
-    }
+        // 1. Очищення від стоп-слів
+        $stopWords = [
+            'і', 'й', 'та', 'але', 'чи', 'або', 'що', 'як', 'це', 'про', 'на', 'в', 'у', 'за', 'до', 'для', 'від', 
+            'під', 'над', 'перед', 'по', 'через', 'при', 'біля', 'з', 'із', 'зі', 'між', 'без', 'якщо', 'тому', 
+            'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення'
+        ];
 
-    $searchTerms = array_unique($searchTerms);
+        preg_match_all('/[a-zA-Zа-яієїґА-ЯІЄЇҐ0-9\.\-]+/u', $lowerText, $matches);
+        $rawWords = $matches[0] ?? [];
 
-    // 2. Вибірка з бази: завантажуємо КНДК, що містять ХОЧА Б ОДИН корінь слова
-    $kndks = Kndk::with(['documents', 'responsibles', 'positions', 'divisions'])
-        ->where(function($mainQuery) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $mainQuery->orWhere('full_code', 'LIKE', "%{$term}%")
-                    ->orWhere('name', 'LIKE', "%{$term}%")
-                    ->orWhereHas('documents', function($q) use ($term) {
-                        $q->where('short_content', 'LIKE', "%{$term}%")->orWhere('organization', 'LIKE', "%{$term}%");
-                    })
-                    ->orWhereHas('responsibles', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
-                    ->orWhereHas('positions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
-                    ->orWhereHas('divisions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); });
+        $searchTerms = [];
+        foreach ($rawWords as $word) {
+            $word = trim($word);
+            if (in_array($word, $stopWords) || (mb_strlen($word, 'UTF-8') < 2 && !is_numeric($word))) {
+                continue;
             }
-        })
-        ->get();
 
-    $sortedResults = [];
-
-    // 3. Розрахунок РЕЛЕВАНТНОСТІ за допомогою вагових коефіцієнтів
-    foreach ($kndks as $kndk) {
-        $score = 0;
-
-        // Витягуємо тексти окремо за рівнями важливості
-        $kndkMainText = mb_strtolower($kndk->full_code . ' ' . $kndk->name, 'UTF-8');
-        
-        $documentsText = '';
-        foreach ($kndk->documents as $doc) {
-            $documentsText .= ' ' . mb_strtolower($doc->short_content . ' ' . $doc->organization, 'UTF-8');
-        }
-
-        $otherRelationsText = '';
-        foreach ([$kndk->responsibles, $kndk->positions, $kndk->divisions] as $relationGroup) {
-            foreach ($relationGroup as $itemRow) {
-                $otherRelationsText .= ' ' . mb_strtolower($itemRow->name . ' ' . $itemRow->abv, 'UTF-8');
+            // Український стемінг (обрізання закінчень)
+            $stemmed = preg_replace('/(ий|ій|ою|ею|и|і|е|а|я|у|ю|ом|ем|ів|ам|ям|ами|ями|их|ові|еві|ення|енню|енням|иця|иці|ицю|ями|ях)$/u', '', $word);
+            
+            if (mb_strlen($stemmed, 'UTF-8') >= 2 || is_numeric($stemmed)) {
+                $searchTerms[] = $stemmed;
+            } else {
+                $searchTerms[] = $word;
             }
         }
 
-        // --- ПЕРЕВІРКА 1: Точні збіги фрази (Дає величезну перевагу) ---
-        // Якщо в назві КНДК є точна фраза типу "радіаційної безпеки"
-        if (mb_strpos($kndkMainText, 'радіаційн', 0, 'UTF-8') !== false && mb_strpos($kndkMainText, 'безпек', 0, 'UTF-8') !== false) {
-            $score += 150; 
-        }
-        if (mb_strpos($kndkMainText, 'аварі', 0, 'UTF-8') !== false) {
-            $score += 100;
+        if (empty($searchTerms)) {
+            return response()->json([]);
         }
 
-        // --- ПЕРЕВІРКА 2: Пословний аналіз із вагою полів ---
-        foreach ($searchTerms as $term) {
-            // Визначаємо множник для важливих слів (радіаційн, аварі = х15, забезпечення = х1)
-            $isHighPriority = false;
-            foreach ($highPriorityKeywords as $hpKey) {
-                if (mb_strpos($term, $hpKey, 0, 'UTF-8') !== false) {
-                    $isHighPriority = true;
-                    break;
+        $searchTerms = array_unique($searchTerms);
+
+        // 2. Вибірка з бази з урахуванням нової моделі Keyword
+        $kndks = Kndk::with(['documents.keywords', 'responsibles', 'positions', 'divisions', 'keywords'])
+            ->where(function($mainQuery) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $mainQuery->orWhere('full_code', 'LIKE', "%{$term}%")
+                        ->orWhere('name', 'LIKE', "%{$term}%")
+                        ->orWhereHas('keywords', function($q) use ($term) {
+                            $q->where('name', 'LIKE', "%{$term}%"); // Пошук у тегах КНДК
+                        })
+                        ->orWhereHas('documents', function($q) use ($term) {
+                            $q->where('short_content', 'LIKE', "%{$term}%")
+                            ->orWhere('organization', 'LIKE', "%{$term}%")
+                            ->orWhereHas('keywords', function($sq) use ($term) {
+                                $sq->where('name', 'LIKE', "%{$term}%"); // Пошук у тегах документів
+                            });
+                        })
+                        ->orWhereHas('responsibles', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
+                        ->orWhereHas('positions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
+                        ->orWhereHas('divisions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); });
+                }
+            })
+            ->get();
+
+        $sortedResults = [];
+
+        // 3. Розрахунок РЕЛЕВАНТНОСТІ
+        foreach ($kndks as $kndk) {
+            $score = 0;
+
+            $kndkMainText = mb_strtolower($kndk->full_code . ' ' . $kndk->name, 'UTF-8');
+            
+            // Збираємо масив усіх чистих тегів для перевірки пріоритету
+            $kndkKeywords = [];
+            $keywordsText = '';
+            
+            foreach ($kndk->keywords as $keyword) {
+                $keywordNameLower = mb_strtolower($keyword->name, 'UTF-8');
+                $kndkKeywords[] = $keywordNameLower;
+                $keywordsText .= ' ' . $keywordNameLower;
+            }
+
+            $documentsText = '';
+            foreach ($kndk->documents as $doc) {
+                $documentsText .= ' ' . mb_strtolower($doc->short_content . ' ' . $doc->organization, 'UTF-8');
+                foreach ($doc->keywords as $docKeyword) {
+                    $docKeywordNameLower = mb_strtolower($docKeyword->name, 'UTF-8');
+                    $kndkKeywords[] = $docKeywordNameLower;
+                    $keywordsText .= ' ' . $docKeywordNameLower;
                 }
             }
-            $wordWeight = $isHighPriority ? 15 : 1;
 
-            // Збіг у назві або коді КНДК (Найвищий пріоритет)
-            if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') !== false) {
-                $score += (20 * $wordWeight);
+            // Залишаємо лише унікальні теги для оптимізації циклу
+            $kndkKeywords = array_unique($kndkKeywords);
+
+            $otherRelationsText = '';
+            foreach ([$kndk->responsibles, $kndk->positions, $kndk->divisions] as $relationGroup) {
+                foreach ($relationGroup as $itemRow) {
+                    $otherRelationsText .= ' ' . mb_strtolower($itemRow->name . ' ' . $itemRow->abv, 'UTF-8');
+                }
             }
-            // Збіг у тексті документів (Середній пріоритет)
-            if (mb_strpos($documentsText, $term, 0, 'UTF-8') !== false) {
-                $score += (5 * $wordWeight);
+
+            // --- ПЕРЕВІРКА 1: Точні збіги фрази ---
+            if (mb_strpos($kndkMainText, 'радіаційн', 0, 'UTF-8') !== false && mb_strpos($kndkMainText, 'безпек', 0, 'UTF-8') !== false) {
+                $score += 150; 
             }
-            // Збіг у назвах підрозділів/посад (Низький пріоритет)
-            if (mb_strpos($otherRelationsText, $term, 0, 'UTF-8') !== false) {
-                $score += (2 * $wordWeight);
+            if (mb_strpos($kndkMainText, 'аварі', 0, 'UTF-8') !== false) {
+                $score += 100;
+            }
+
+            // --- ПЕРЕВІРКА 2: Пословний аналіз з динамічною вагою термінів ---
+            foreach ($searchTerms as $term) {
+                // Динамічний пріоритет: якщо шукане слово присутнє в системних ключових словах (тегах) цієї сутності
+                $isHighPriority = false;
+                foreach ($kndkKeywords as $keyword) {
+                    if (mb_strpos($keyword, $term, 0, 'UTF-8') !== false) {
+                        $isHighPriority = true;
+                        break;
+                    }
+                }
+                
+                // Якщо це офіційно виділене ключове слово — множник х15, інакше х1
+                $wordWeight = $isHighPriority ? 15 : 1;
+
+                // Збіг у назві або коді КНДК (вага 20)
+                if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') !== false) {
+                    $score += (20 * $wordWeight);
+                }
+                // Збіг безпосередньо у полі ключових слів (вага 12)
+                if (mb_strpos($keywordsText, $term, 0, 'UTF-8') !== false) {
+                    $score += (12 * $wordWeight);
+                }
+                // Збіг у тексті документів (вага 5)
+                if (mb_strpos($documentsText, $term, 0, 'UTF-8') !== false) {
+                    $score += (5 * $wordWeight);
+                }
+                // Збіг у назвах підрозділів/посад (вага 2)
+                if (mb_strpos($otherRelationsText, $term, 0, 'UTF-8') !== false) {
+                    $score += (2 * $wordWeight);
+                }
+            }
+
+            if ($score > 0) {
+                $sortedResults[] = [
+                    'id' => $kndk->id,
+                    'full_code' => $kndk->full_code,
+                    'name' => $kndk->name ?? 'Процес КНДК',
+                    'score' => $score 
+                ];
             }
         }
 
-        if ($score > 0) {
-            $sortedResults[] = [
-                'id' => $kndk->id,
-                'full_code' => $kndk->full_code,
-                'name' => $kndk->name ?? 'Процес КНДК',
-                'score' => $score // Сортуємо за балами релевантності
-            ];
-        }
+        usort($sortedResults, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        $finalResults = array_slice($sortedResults, 0, 20);
+
+        return response()->json($finalResults);
     }
 
-    // Сортування: КНДК з найбільшою кількістю балів піднімаються нагору
-    usort($sortedResults, function($a, $b) {
-        return $b['score'] <=> $a['score'];
-    });
-
-    $finalResults = array_slice($sortedResults, 0, 20);
-
-    return response()->json($finalResults);
-}
 
 }

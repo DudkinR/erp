@@ -11,13 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('taxiroutes', function (Blueprint $table) {
-            $table->unsignedBigInteger('division_id')->nullable()->after('car_id');
-            $table->foreign('division_id')
-                  ->references('id')
-                  ->on('divisions')
-                  ->onDelete('set null');
-        });
+      // 1. Якщо таблиці взагалі немає — створюємо її з базовими колонками
+        if (!Schema::hasTable('taxiroutes')) {
+            Schema::create('taxiroutes', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('car_id');
+                $table->date('date');
+                $table->time('time');
+                $table->timestamps();
+            });
+        }
+
+        // 2. Перевіряємо, чи немає колонки 'division_id' перед її додаванням
+        if (!Schema::hasColumn('taxiroutes', 'division_id')) {
+            Schema::table('taxiroutes', function (Blueprint $table) {
+                // Тут 'after' працює коректно, бо це Schema::table
+                $table->unsignedBigInteger('division_id')->nullable()->after('car_id');
+                
+                $table->foreign('division_id')
+                      ->references('id')
+                      ->on('divisions')
+                      ->onDelete('set null');
+            });
+        }
     }
 
     /**

@@ -141,16 +141,111 @@
                             <div id="collapseProcesses" class="accordion-collapse collapse" aria-labelledby="headingProcesses" data-bs-parent="#kndkRelationsAccordion">
                                 <div class="accordion-body px-0 py-2">
                                     @if($item->processes->count() > 0)
-                                        <ul class="list-group list-group-flush small">
-                                            @foreach($item->processes as $process)
-                                                <li class="list-group-item px-1 border-0">
-                                                    <span class="fw-semibold d-block text-dark">{{ $process->name }}</span>
-                                                    @if($process->description)
-                                                        <span class="text-muted d-block small">{{ Str::limit($process->description, 80) }}</span>
-                                                    @endif
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                       <ul class="list-group list-group-flush small">
+    @foreach($item->processes as $process)
+        <li class="list-group-item px-1 border-0 bg-transparent mb-2">
+            <!-- Назва процесу діє як інтерактивна кнопка для модалки -->
+            <button type="button" 
+                    class="btn btn-link p-0 text-start text-decoration-none fw-semibold text-dark shadow-none d-inline-block align-baseline"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#processModal{{ $process->id }}">
+                ⚙️ {{ $process->name }}
+            </button>
+
+            <!-- ПРІОРИТЕТ: Виводимо підрозділи самої функції, якщо порожньо — беремо з КНДК -->
+            @php 
+                $currentDivisions = $process->divisions->isNotEmpty() ? $process->divisions : $item->divisions;
+            @endphp
+
+            @if($currentDivisions->isNotEmpty())
+                <span class="text-muted fw-normal ms-1 text-secondary">
+                    ({{ $currentDivisions->pluck('abv')->implode(', ') }})
+                </span>
+            @endif
+
+            <!-- Короткий опис-прев'ю -->
+            @if($process->description)
+                <span class="text-muted d-block small mt-0.5" 
+                      data-bs-toggle="modal" 
+                      data-bs-target="#processModal{{ $process->id }}"
+                      style="cursor: pointer;">
+                    {{ Str::limit($process->description, 80) }}
+                </span>
+            @endif
+        </li>
+
+        <!-- Унікальне модальне вікно для кожної функції -->
+        <div class="modal fade" id="processModal{{ $process->id }}" tabindex="-1" aria-labelledby="processModalLabel{{ $process->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg rounded-3">
+                    <div class="modal-header bg-light border-bottom-0 py-3">
+                        <h5 class="modal-title fw-bold text-dark" id="processModalLabel{{ $process->id }}">
+                            📋 Картка процесу / функції
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 pt-2">
+                        <!-- Головні атрибути -->
+                        <div class="mb-4">
+                            <h4 class="text-primary fw-bold mb-2">{{ $process->name }}</h4>
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-2 text-uppercase font-monospace small">
+                                Категорія: {{ $process->type }}
+                            </span>
+                        </div>
+
+                        <!-- Повний опис -->
+                        <div class="mb-4 bg-light p-3 rounded-3 border-start border-primary border-3">
+                            <h6 class="fw-bold text-muted mb-2">📄 Детальний опис та регламент</h6>
+                            <p class="text-dark mb-0 fs-6" style="white-space: pre-line; line-height: 1.5;">
+                                {{ $process->description ?? 'Опис для цієї функції ще не додано.' }}
+                            </p>
+                        </div>
+
+                        <!-- Секція відповідальних структур -->
+                        <div class="row g-3">
+                            <!-- Підрозділи функції (або КНДК) -->
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-muted mb-2">🏢 Відповідальні підрозділи</h6>
+                                @if($currentDivisions->isNotEmpty())
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach($currentDivisions as $div)
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1.5 rounded-2 small" title="{{ $div->name }}">
+                                                {{ $div->abv }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-muted small text-italic">Не закріплено</span>
+                                @endif
+                            </div>
+
+                            <!-- Посади / Власники КНДК -->
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-muted mb-2">👤 Посади (Власники КНДК)</h6>
+                                @if($item->responsibles->isNotEmpty())
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach($item->responsibles as $pos)
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1.5 rounded-2 small">
+                                                {{ $pos->abv }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-muted small text-italic">Не закріплено</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-secondary px-4 rounded-3" data-bs-dismiss="modal">Закрити</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</ul>
+
+
                                     @else
                                         <p class="text-muted small my-2 ps-1">Процесів не закріплено</p>
                                     @endif

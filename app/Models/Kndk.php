@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\HasKeywords;
 
 class Kndk extends Model
 {
     use HasFactory;
+    use HasKeywords; // Тепер документ може мати ключові слова
 
     /**
      * Поля, які можна масово заповнювати.

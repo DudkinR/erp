@@ -3,9 +3,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
+use App\Traits\HasKeywords;
 class Document extends Model
 {
+    use HasKeywords; // Тепер документ може мати ключові слова
     protected $table = 'documents';
     protected $primaryKey = 'inv_no';
     public $incrementing = false;

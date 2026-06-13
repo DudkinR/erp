@@ -1,19 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="container-fluid position-relative p-0" style="height:100vh; overflow:hidden;">
+ <!-- Додаємо overflow: auto для появи повзунків та прибираємо обмеження висоти h-100 у самої карти -->
+<div class="container-fluid position-relative p-0" style="height:100vh; overflow:auto;">
     <!-- Фонова карта -->
     <img id="cityMap" 
          src="{{ asset('images/city-map.png') }}" 
          alt="City Map" 
-         class="w-100 h-100" 
-         style="object-fit:cover;">
+         style="display:block; min-width: 1200px; width: 100%; height: auto;">
 
-    <!-- SVG шар для стрілок -->
+    <!-- SVG шар для стрілок (повинен мати такі ж розміри, як і карта) -->
     <svg id="routeLayer" 
          class="position-absolute top-0 start-0" 
          width="100%" height="100%" 
-         style="pointer-events:none;"></svg>
+         style="pointer-events:none; min-width: 1200px;"></svg>
+</div>
+
 
     <!-- Блоки керування -->
     <div id="ordersBlock" class="draggable-block bg-light bg-opacity-75 shadow rounded p-2 position-absolute" 

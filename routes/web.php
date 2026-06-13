@@ -168,6 +168,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/createprocess', 'App\Http\Controllers\KndkController@createprocess')->name('kndks.createprocess');
 
     Route::post('/kndks', 'App\Http\Controllers\KndkController@store')->name('kndks.store');
+    Route::post('/kndks_procedure_store', 'App\Http\Controllers\KndkController@store_pocedure')->name('kndks_pocedure.store');
     Route::get('/kndks/{id}', 'App\Http\Controllers\KndkController@show')->name('kndks.show');
     Route::get('/kndks/{id}/edit', 'App\Http\Controllers\KndkController@edit')->name('kndks.edit');
     Route::put('/kndks/{id}', 'App\Http\Controllers\KndkController@update')->name('kndks.update');

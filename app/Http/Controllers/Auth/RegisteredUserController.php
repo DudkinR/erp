@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use App\Models\Personal;
 
 class RegisteredUserController extends Controller
 {
@@ -19,7 +20,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('welcome');
+      //  return view('welcome');
         return view('auth.register');
     }
 
@@ -30,23 +31,37 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        return view('welcome');
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+            // Перевіряємо, чи існує цей TN в таблиці personal і чи він ще не зайнятий в users
+
+        'tn' => ['required', 'numeric', 'unique:users,tn'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'name' => ['nullable', 'string', 'max:255'],
+    ], [
+        // Кастомні повідомлення для поля tn
+        'tn.exists' => 'Співробітника з таким табельним номером не знайдено в базі кадрів.',
+        'tn.unique' => 'Користувач із цим табельним номером вже зареєстрований.',
+        'tn.numeric' => 'Табельний номер має містити лише цифри.',
+        'tn.required' => 'Будь ласка, вкажіть табельний номер.',
+    ]);
+
+
+        // Знаходимо співробітника за ТН для імпорту його ПІБ
+        $personal = Personal::where('tn', $request->tn)->first();
+
+        // Якщо користувач не ввів ім'я вручну, беремо `fio` з картки персоналу
+        $name = $request->name ?? $personal->fio ?? 'Користувач ' . $request->tn;
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $name,
             'email' => $request->email,
+            'tn' => $request->tn,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 }
