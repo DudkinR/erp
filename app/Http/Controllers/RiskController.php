@@ -35,7 +35,7 @@ class RiskController extends Controller
         }
 
         $experiences = Experience::   where('accepted',0)
-       ->whereHas('systems', function($query) use ($systemIds) {
+       ->whereHas('systems', function($query) use ($systemIds) { 
             $query->whereIn('systems.id', $systemIds);
         })
         ->whereHas('equipments', function($query) use ($equipmentIds) {

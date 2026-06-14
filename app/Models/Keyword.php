@@ -24,4 +24,4 @@ class Keyword extends Model
     {
         return $this->morphedByMany(Kndk::class, 'keywordable');
     }
-}
+} 

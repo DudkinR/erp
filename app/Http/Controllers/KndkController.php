@@ -88,12 +88,17 @@ class KndkController extends Controller
         return redirect()->route('kndks.create')->with('success', 'Елемент успішно додано до класифікатора!');
     }
 
-    public function store_procedure(Request $request)
+    public function store_pocedure(Request $request)
     {
         // 1. Валідація вхідних даних (Виправлено назви таблиць у базі danych)
         $validated = $request->validate([
             'name'               => 'nullable|string|max:255',
-            'process_type'       => 'required_with:name|nullable|string|in:inputs,resources,outputs,tasks,results,performance',
+            'process_type' => [
+                'nullable',
+                'required_with:name',
+                'string',
+                'in:inputs,resources,outputs,tasks,results,performance'
+            ],
             'description'        => 'nullable|string',
             'kndk_ids'           => 'required|array|min:1',
             'kndk_ids.*'         => 'exists:kndks,id', // Зазвичай у Laravel plural: kndks
@@ -126,9 +131,20 @@ class KndkController extends Controller
             // 3. Шукаємо в базі через RAW-запит, очищуючи кожне ім'я з бази «на льоту»
             $process = Process::where('type', $validated['process_type'])
                 ->whereRaw("
-                    LOWER(
-                        REPLACE(REPLACE(REPLACE(REPLACE(name, ' ', ''), '.', ''), ',', ''), '-', '')
-                    ) = ?", [$searchName])
+                            LOWER(
+                                REPLACE(
+                                REPLACE(
+                                REPLACE(
+                                REPLACE(
+                                REPLACE(
+                                REPLACE(name, ' ', ''),
+                                '.', ''),
+                                ',', ''),
+                                '-', ''),
+                                '(', ''),
+                                ')', '')
+                            ) = ?
+                        ", [$searchName])
                 ->first();
 
             // 4. Логіка: знайдено (перезаписуємо опис) чи ні (створюємо новий з ОРИГІНАЛЬНИМ ім'ям)
@@ -197,7 +213,46 @@ class KndkController extends Controller
                 ->with('success', 'Зв\'язки підрозділів та посад з обраними КНДК успішно оновлено!');
         } 
         
-        // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
+        
+
+            //  Отримуємо ключові слова з форми
+            if ($request->filled('keywords')) {
+                $rawKeywords = explode(',', $request->input('keywords'));
+
+                // 2. Очищаємо пробіли та дублікати
+                $keywords = collect($rawKeywords)
+                    ->map(fn($w) => trim(mb_strtolower($w)))
+                    ->filter()
+                    ->unique();
+
+                foreach ($keywords as $word) {
+                    // 3. Знаходимо або створюємо ключове слово
+                    $keyword = Keyword::firstOrCreate(['name' => $word]);
+
+                    // 4. Прив’язуємо до процесу
+                    if (!empty($process)) {
+                        $process->keywords()->syncWithoutDetaching([$keyword->id]);
+                    }
+
+                    // 5. Прив’язуємо до документа (якщо вибраний)
+                    if ($request->filled('document_id')) {
+                        $document = Document::find($request->input('document_id'));
+                        if ($document) {
+                            $document->keywords()->syncWithoutDetaching([$keyword->id]);
+                        }
+                    }
+
+                    // 6. Прив’язуємо до кожного КНДК
+                    foreach ($validated['kndk_ids'] as $kndkId) {
+                        $kndk = Kndk::find($kndkId);
+                        if ($kndk) {
+                            $kndk->keywords()->syncWithoutDetaching([$keyword->id]);
+                        }
+                    }
+                }
+            }
+
+    // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
         // але якщо ви повертаєте з ->withInput(), форма лишиться заповненою.
         return redirect()
             ->back()

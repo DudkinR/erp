@@ -72,9 +72,27 @@
                     <div class="row g-3">
                         <!-- Зв'язок з КНДК (Багато до багато) -->
                         <div class="col-12">
-                            <label for="kndk_ids" class="form-label fw-semibold">Пов'язані елементи КНДК (СОУ НАЕК 180:2020) <span class="text-danger">*</span></label>
-                            <select name="kndk_ids[]" id="kndk_ids" class="form-select @error('kndk_ids') is-invalid @enderror" multiple required style="min-height: 150px;">
-                                @foreach($kndks as $kndk)
+                           <label for="kndk_ids" class="form-label fw-semibold">
+                                Пов'язані елементи КНДК (СОУ НАЕК 180:2020)
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="search_kndk"
+                                class="form-control mb-2"
+                                placeholder="Пошук КНДК..."
+                            >
+
+                            <select
+                                name="kndk_ids[]"
+                                id="kndk_ids"
+                                class="form-select @error('kndk_ids') is-invalid @enderror"
+                                multiple
+                                required
+                                style="min-height: 150px;"
+                            >               
+                                 @foreach($kndks as $kndk)
                                     @php
                                         $code = $kndk->class;
                                         if($kndk->subclass) $code .= '.' . $kndk->subclass;
@@ -94,9 +112,25 @@
                             <div class="card h-100 bg-light-subtle">
                                 <div class="card-body">
                                     <h6 class="card-title fw-bold text-secondary mb-3">Власник процесу</h6>
-                                    
-                                    <label for="position_own_ids" class="form-label fw-semibold">Відповідальні посади (власники)</label>
-                                    <select name="position_own_ids[]" id="position_own_ids" class="form-select @error('position_own_ids') is-invalid @enderror" multiple style="min-height: 280px;">
+                                   <label for="position_own_ids"
+                                        class="form-label fw-semibold">
+                                        Відповідальні посади (власники)
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="search_position_owner"
+                                        class="form-control mb-2"
+                                        placeholder="Пошук посади..."
+                                    >
+
+                                    <select
+                                        name="position_own_ids[]"
+                                        id="position_own_ids"
+                                        class="form-select"
+                                        multiple
+                                        style="min-height: 280px;"
+                                    >
                                         @foreach($positions as $position)
                                             <option value="{{ $position->id }}" {{ (is_array(old('position_own_ids')) && in_array($position->id, old('position_own_ids'))) ? 'selected' : '' }}>
                                                 {{ $position->abv }}
@@ -117,8 +151,25 @@
                                     
                                     <!-- Підрозділи -->
                                     <div class="mb-3">
-                                        <label for="division_ids" class="form-label fw-semibold">Відповідальні підрозділи</label>
-                                        <select name="division_ids[]" id="division_ids" class="form-select @error('division_ids') is-invalid @enderror" multiple style="min-height: 100px;">
+                                       <label for="division_ids"
+                                                class="form-label fw-semibold">
+                                                Відповідальні підрозділи
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="search_division"
+                                                class="form-control mb-2"
+                                                placeholder="Пошук підрозділу..."
+                                            >
+
+                                            <select
+                                                name="division_ids[]"
+                                                id="division_ids"
+                                                class="form-select"
+                                                multiple
+                                                style="min-height: 100px;"
+                                            >
                                             @foreach($rootDivisions as $division)
                                                 <option value="{{ $division->id }}" {{ (is_array(old('division_ids')) && in_array($division->id, old('division_ids'))) ? 'selected' : '' }}>
                                                     {{ $division->name }} {{ $division->abv ? "({$division->abv})" : '' }}
@@ -130,8 +181,25 @@
 
                                     <!-- Посади -->
                                     <div>
-                                        <label for="position_ids" class="form-label fw-semibold">Відповідальні посади</label>
-                                        <select name="position_ids[]" id="position_ids" class="form-select @error('position_ids') is-invalid @enderror" multiple style="min-height: 100px;">
+                                       <label for="position_ids"
+                                        class="form-label fw-semibold">
+                                        Відповідальні посади
+                                        </label>
+
+                                        <input
+                                        type="text"
+                                        id="search_position"
+                                        class="form-control mb-2"
+                                        placeholder="Пошук посади..."
+                                        >
+
+                                        <select
+                                        name="position_ids[]"
+                                        id="position_ids"
+                                        class="form-select"
+                                        multiple
+                                        style="min-height: 100px;"
+                                        >
                                             @foreach($positions as $position)
                                                 <option value="{{ $position->id }}" {{ (is_array(old('position_ids')) && in_array($position->id, old('position_ids'))) ? 'selected' : '' }}>
                                                     {{ $position->abv }}
@@ -145,12 +213,43 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-12 mt-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">{{ __('Документ') }} 
+                                    <input type="hidden" name="document_id" id="document_id" value="{{ old('document_id', $selectedDocument->id ?? '') }}">
+                                </h4> 
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <input type="text" id="search" class="form-control" placeholder="Введіть шифр, інв. номер або організацію">
+                                </div>                               
+                                <ul id="results" class="list-group"></ul>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-md-12 mt-4">
 
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">{{__('ключові слова')}}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <textarea name="keywords" id="keywords" class="form-control @error('keywords') is-invalid @enderror" 
+                                    rows="2" placeholder="Введіть ключові слова для цього процесу...">{{ old('keywords') }}</textarea>
 
+                                <div class="form-text text-muted small">
+                                    Введіть ключові слова, розділяючи їх комами. Це допоможе швидко знаходити процес у майбутньому.
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="generateKeywordsBtn">Згенерувати з назви та опису</button>  
+                                @error('keywords') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                 <!-- Кнопки дій -->
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                     <a href="{{ route('kndks.index') }}" class="btn btn-light px-4">Скасувати</a>
-                    <button type="submit" id="submitBtn" class="btn btn-success px-4">Зберегти зв'язки</button>
+                    <button type="submit" id="submitBtn" class="btn w-100 btn-success px-4">Зберегти зв'язки</button>
                 </div>
             </form>
         </div>
@@ -159,30 +258,53 @@
 
 {{-- JavaScript секція для інтерактивності --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const nameInput = document.getElementById('name');
-    const requiredStar = document.getElementById('name_required_star');
-    const submitBtn = document.getElementById('submitBtn');
+function performSearch(query) {
+    if (query.length < 3) return;
 
-    function toggleFormBehavior() {
-        if (nameInput.value.trim() !== '') {
-            // Сценарій: Користувач пише назву процесу
-            requiredStar.style.display = 'inline';
-            submitBtn.textContent = 'Створити процес та підв\'язати';
-            submitBtn.className = 'btn btn-success px-4';
-        } else {
-            // Сценарій: Назва процесу порожня (тільки зв'язування КНДК з підрозділами/посадами)
-            requiredStar.style.display = 'none';
-            submitBtn.textContent = 'Тільки пов\'язати з КНДК';
-            submitBtn.className = 'btn btn-primary px-4';
-        }
-    }
+    fetch("{{ route('inconsistencis.searchdoc') }}?q=" + encodeURIComponent(query))
+        .then(res => res.json())
+        .then(data => {
+            let results = document.getElementById('results');
+            results.innerHTML = '';
+            data.forEach(doc => {
+                let li = document.createElement('li');
+                li.className = 'list-group-item list-group-item-action';
+                li.textContent = '(' + doc.inv_no + ') ' + doc.short_content + ' (' + doc.code + ')';
+                
+                // Модернізована логіка кліку: додаємо в масив та відкриваємо модалку
+                li.onclick = () => {
+                    // Додаємо вибраний документ до прихованого поля форми
+                    let documentInput = document.querySelector('input[name="document_id"]');
+                    documentInput.value = doc.inv_no;
+                    let seachInput = document.getElementById('search');
+                    seachInput.value = '(' + doc.inv_no + ') ' + doc.short_content + ' (' + doc.code + ')';
 
-    // Слухаємо події введення тексту
-    nameInput.addEventListener('input', toggleFormBehavior);
-    
-    // Ініціалізуємо стан при завантаженні (на випадок повернення форми із old() даними)
-    toggleFormBehavior();
+                   
+                };
+                results.appendChild(li);
+            });
+        });
+}
+document.getElementById('search').addEventListener('input', function() {
+    performSearch(this.value);
+});
+document.getElementById('generateKeywordsBtn').addEventListener('click', function(e) {
+    // Беремо значення з потрібних полів
+    let nameText = document.getElementById('name').value || '';
+    let descriptionText = document.getElementById('description').value || '';
+    let searchText = document.getElementById('search').value || '';
+
+    // Об’єднуємо все в один рядок
+    let combined = nameText + ' ' + descriptionText + ' ' + searchText;
+
+    // Розбиваємо на слова (по пробілах і комах)
+    let words = combined.split(/[\s,]+/).filter(Boolean);
+
+    // Прибираємо дублікати
+    let uniqueWords = [...new Set(words)];
+
+    // Записуємо у поле keywords через кому
+    document.getElementById('keywords').value = uniqueWords.join(', ');
 });
 </script>
 

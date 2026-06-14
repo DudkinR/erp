@@ -65,12 +65,21 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="risk" class="form-label">{{ __('Risk') }}</label>
-                            <input type="number" class="form-control" id="risk" name="risk" value="{{ old('risk') }}" placeholder="Оцініть ризик">
+                            <label for="risk" class="form-label">{{ __('Risk') }} 0-7</label>
+                            <select class="form-select" id="risk" name="risk">
+                                <option value="0">{{ __('Select Risk') }}</option>
+                                <option value="1" {{ old('risk') == '1' ? 'selected' : '' }}>1</option>
+                                <option value="2" {{ old('risk') == '2' ? 'selected' : '' }}>2</option>
+                                <option value="3" {{ old('risk') == '3' ? 'selected' : '' }}>3</option>
+                                <option value="4" {{ old('risk') == '4' ? 'selected' : '' }}>4</option>
+                                <option value="5" {{ old('risk') == '5' ? 'selected' : '' }}>5</option>
+                                <option value="6" {{ old('risk') == '6' ? 'selected' : '' }}>6</option>
+                                <option value="7" {{ old('risk') == '7' ? 'selected' : '' }}>7</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="functional" class="form-label">{{ __('Functional') }} Ефектівність</label>
+                            <label for="functional" class="form-label">{{ __('Functional') }} Ефектівність 1-7</label>
                             <select class="form-select" id="functional" name="functional">
                                 <option value="0">{{ __('Select Functional') }}</option>
                                 <option value="1" {{ old('functional') == '1' ? 'selected' : '' }}>1</option>
@@ -78,6 +87,8 @@
                                 <option value="3" {{ old('functional') == '3' ? 'selected' : '' }}>3</option>
                                 <option value="4" {{ old('functional') == '4' ? 'selected' : '' }}>4</option>
                                 <option value="5" {{ old('functional') == '5' ? 'selected' : '' }}>5</option>
+                                <option value="6" {{ old('functional') == '6' ? 'selected' : '' }}>6</option>
+                                <option value="7" {{ old('functional') == '7' ? 'selected' : '' }}>7</option>
                             </select>
                         </div>
 

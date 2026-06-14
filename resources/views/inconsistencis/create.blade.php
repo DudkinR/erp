@@ -283,9 +283,7 @@ function insertPhrase(fieldId, phrase) {
 // Прив'язка подій
 document.getElementById('add_point_btn').addEventListener('click', addPointBlock);
 
-document.getElementById('search').addEventListener('input', function() {
-    performSearch(this.value);
-});
+
 
 document.getElementById('search').addEventListener('input', function() {
     performSearch(this.value);
@@ -353,7 +351,7 @@ document.getElementById('modal_search_doc').addEventListener('input', function()
             }
             resultsUl.classList.remove('d-none');
         });
-});
+}); 
 
 // Ховаємо випадаючий список у модалці, якщо клікнули повз нього
 document.addEventListener('click', function(e) {
