@@ -13,7 +13,8 @@ class PositionController extends Controller
     public function index()
     {
         $positions = Position::orderBy('id', 'desc')->get();
-        return view('positions.index', compact('positions'));
+        $divisions = Division::orderBy('name')->get();
+        return view('positions.index', compact('positions', 'divisions'));
     }
     // create
     public function create()
@@ -65,19 +66,32 @@ class PositionController extends Controller
     public function update(Request $request, $id)
     {
         $position = Position::find($id);
+
+        if (!$position) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Position not found'
+            ], 404);
+        }
+
         $position->name = $request->name;
         $position->description = $request->description;
-         $position->abv = $request->abv; 
+        $position->abv = $request->abv;
         $position->start = $request->start;
         $position->data_start = $request->data_start;
         $position->closed = $request->closed;
         $position->data_closed = $request->data_closed;
+
         $position->save();
-        // if has division
-        if($request->division_id){
+
+        if ($request->has('division_id')) {
             $position->divisions()->sync($request->division_id);
         }
-        return redirect()->route('positions.index');
+
+        return response()->json([
+            'success' => true,
+            'position' => $position
+        ]);
     }
     // destroy
     public function destroy($id)

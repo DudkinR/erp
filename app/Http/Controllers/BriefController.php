@@ -27,6 +27,7 @@ class BriefController extends Controller
     public function create()
     {
         //
+         return view('briefs.create');
     }
 
     /**
@@ -34,7 +35,30 @@ class BriefController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Валідація даних
+        $validated = $request->validate([
+            'name_uk'     => 'required|string|max:255',
+            'name_ru'     => 'nullable|string|max:255',
+            'name_en'     => 'nullable|string|max:255',
+            'order'       => 'nullable|integer',
+            'type'        => 'required|integer',
+            'risk'        => 'nullable|integer',
+            'functional'  => 'nullable|string',
+        ]);
+
+        try {
+            // Створення нового запису
+            Brief::create($validated);
+
+            return redirect()
+                ->route('briefs.index')
+                ->with('success', 'Brief успішно створено!');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Помилка при створенні Brief: ' . $e->getMessage());
+        }
     }
 
     /**

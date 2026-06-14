@@ -173,6 +173,10 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/kndks/{id}/edit', 'App\Http\Controllers\KndkController@edit')->name('kndks.edit');
     Route::put('/kndks/{id}', 'App\Http\Controllers\KndkController@update')->name('kndks.update');
     Route::delete('/kndks/{id}', 'App\Http\Controllers\KndkController@destroy')->name('kndks.destroy');
+     // import
+    Route::get('/kndksimport', 'App\Http\Controllers\KndkController@import')->name('kndks.import');
+    Route::post('/kndksdocsimport/{id}', 'App\Http\Controllers\KndkController@importCsvDocs')->name('kndks.DocsimportData');
+    Route::post('/kndksimport', 'App\Http\Controllers\KndkController@importData')->name('kndks.importData');
     // Сторінка з полем пошуку (візуальний інтерфейс)
     Route::get('/kndkssearch-page', 'App\Http\Controllers\KndkController@searchPage')->name('kndks.search_page');
     // AJAX-маршрут, який повертає результати у форматі JSON

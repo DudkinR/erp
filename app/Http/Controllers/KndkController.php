@@ -294,64 +294,64 @@ class KndkController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    $validated = $request->validate([
-        'class'       => 'required|integer',
-        'subclass'    => 'nullable|string|size:2',
-        'group'       => 'nullable|string',
-        'full_code'   => 'required|string' ,
-        'name'        => 'required|string', 
-        'division_ids'       => 'nullable|array',
-        'division_ids.*'     => 'exists:division,id',
-        'position_own_ids'   => 'nullable|array', // Власники процесу
-        'position_own_ids.*' => 'exists:positions,id',
-        'position_ids'       => 'nullable|array', // Учасники процесу
-        'position_ids.*'     => 'exists:positions,id',
-    ], [
-        'full_code.unique' => 'Елемент із цифровим кодом :input вже існує в класифікаторі!',
-    ]);
+    {
+        $validated = $request->validate([
+            'class'       => 'required|integer',
+            'subclass'    => 'nullable|string|size:2',
+            'group'       => 'nullable|string',
+            'full_code'   => 'required|string' ,
+            'name'        => 'required|string', 
+            'division_ids'       => 'nullable|array',
+            'division_ids.*'     => 'exists:division,id',
+            'position_own_ids'   => 'nullable|array', // Власники процесу
+            'position_own_ids.*' => 'exists:positions,id',
+            'position_ids'       => 'nullable|array', // Учасники процесу
+            'position_ids.*'     => 'exists:positions,id',
+        ], [
+            'full_code.unique' => 'Елемент із цифровим кодом :input вже існує в класифікаторі!',
+        ]);
 
-    $kndk=Kndk::find($id);
+        $kndk=Kndk::find($id);
 
-    // Присвоюємо значення властивостям об'єкта моделі
-    $kndk->class = $validated['class'];
-    $kndk->name = $validated['name'];
-    $kndk->full_code = $validated['full_code'];
+        // Присвоюємо значення властивостям об'єкта моделі
+        $kndk->class = $validated['class'];
+        $kndk->name = $validated['name'];
+        $kndk->full_code = $validated['full_code'];
 
 
-    // Обов'язково оновлюємо subclass та group відповідно до рівня
-    if ($kndk->level === 1) {
-        $kndk->subclass = null;
-        $kndk->group = null;
-    } elseif ($kndk->level === 2) {
-        $kndk->subclass = $validated['subclass'];
-        $kndk->group = null;
-    } elseif ($kndk->level === 3) {
-        $kndk->subclass = $validated['subclass'];
-        $kndk->group = $validated['group'];
+        // Обов'язково оновлюємо subclass та group відповідно до рівня
+        if ($kndk->level === 1) {
+            $kndk->subclass = null;
+            $kndk->group = null;
+        } elseif ($kndk->level === 2) {
+            $kndk->subclass = $validated['subclass'];
+            $kndk->group = null;
+        } elseif ($kndk->level === 3) {
+            $kndk->subclass = $validated['subclass'];
+            $kndk->group = $validated['group'];
+        }
+
+        // Зберігаємо змінений об'єкт у базу даних
+        $kndk->save();
+        // Прив'язка підрозділів до конкретного КНДК
+                if (!empty($validated['division_ids'])) {
+                    $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
+                }
+
+                // ТУТ ЗВ'ЯЗУЄМО ВЛАСНИКІВ через ваш зв'язок responsibles()
+                if (!empty($validated['position_own_ids'])) {
+                    $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
+                }
+
+                // ТУТ ЗВ'ЯЗУЄМО УЧАСНИКІВ (якщо у КНДК для них окремий зв'язок, наприклад, positions())
+                if (!empty($validated['position_ids'])) {
+                    $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
+                }
+        
+
+
+        return redirect()->route('kndks.index')->with('success', 'Елемент класифікатора успішно оновлено!');
     }
-
-    // Зберігаємо змінений об'єкт у базу даних
-    $kndk->save();
-     // Прив'язка підрозділів до конкретного КНДК
-            if (!empty($validated['division_ids'])) {
-                $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
-            }
-
-            // ТУТ ЗВ'ЯЗУЄМО ВЛАСНИКІВ через ваш зв'язок responsibles()
-            if (!empty($validated['position_own_ids'])) {
-                $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
-            }
-
-            // ТУТ ЗВ'ЯЗУЄМО УЧАСНИКІВ (якщо у КНДК для них окремий зв'язок, наприклад, positions())
-            if (!empty($validated['position_ids'])) {
-                $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
-            }
-    
-
-
-    return redirect()->route('kndks.index')->with('success', 'Елемент класифікатора успішно оновлено!');
-}
 
 
 
@@ -367,7 +367,11 @@ class KndkController extends Controller
         
     }
 
-    
+    public function import()
+    {
+         $kndks = Kndk::orderBy('class', 'asc')->get();
+        return view('kndks.import', compact('kndks'));
+    }
     public function showImportPage($id)
     {
         // Знаходимо конкретний КНДК або видаємо 404, якщо не знайдено
@@ -375,8 +379,117 @@ class KndkController extends Controller
 
         return view('kndks.import', compact('kndk'));
     }
+    // importData
+    public function importData(Request $request)
+    {
+       $file = $request->file('import_file');
+
+        $path = $file->getRealPath();
+
+        // читаємо як Windows-1251
+        $content = file_get_contents($path);
+
+        // конвертуємо в UTF-8
+        $content = mb_convert_encoding($content, 'UTF-8', 'Windows-1251');
+
+        // тимчасовий файл
+        $tempPath = storage_path('app/temp_import.csv');
+        file_put_contents($tempPath, $content);
+
+        $handle = fopen($tempPath, 'r');
+
+            $importedCount = 0;
+
+            DB::beginTransaction();
+
+            try {
+                while (($row = fgetcsv($handle, 0, ';')) !== false) {
+
+                    if (count(array_filter($row)) < 2) {
+                        continue;
+                    }
+
+                    $code = trim($row[0]);
+                    $name = trim($row[1] ?? '');
+                    $positionsRaw = trim($row[2] ?? '');
+                    $divisionsRaw = trim($row[3] ?? '');
+
+                    // -------------------------
+                    // 1. CODE PARSE
+                    // -------------------------
+                    $parts = explode('.', $code);
+
+                    $class = $parts[0] ?? null;
+                    $subclass = $parts[1] ?? null;
+                    $group = $parts[2] ?? null;
+
+                    // -------------------------
+                    // 2. CLEAN NAME
+                    // -------------------------
+                    $name = preg_replace('/[()]/', '', $name);
+                    $name = trim(preg_replace('/\s+/', ' ', $name));
+
+                    // -------------------------
+                    // 3. KNDK SAVE
+                    // -------------------------
+                    $kndk = Kndk::updateOrCreate(
+                        ['full_code' => $code],
+                        [
+                            'class' =>  $class,
+                            'subclass' => $subclass,
+                            'group' => $group,
+                            'full_code' => $code,
+                            'name' => $name,
+                        ]
+                    );
+
+                    // -------------------------
+                    // 4. POSITIONS (by ABBR)
+                    // -------------------------
+                    if ($positionsRaw) {
+                        $positionCodes = array_map('trim', explode(',', $positionsRaw));
+
+                        $positionIds = Position::whereIn('abv', $positionCodes)
+                            ->pluck('id')
+                            ->toArray();
+
+                        $kndk->positions()->syncWithoutDetaching($positionIds);
+                    }
+
+                    // -------------------------
+                    // 5. DIVISIONS
+                    // -------------------------
+                    if ($divisionsRaw) {
+                        $divisionNames = array_map('trim', explode(',', $divisionsRaw));
+
+                        $divisionIds = Division::whereIn('abv', $divisionNames)
+                            ->orWhereIn('name', $divisionNames)
+                            ->pluck('id')
+                            ->toArray();
+
+                        $kndk->divisions()->syncWithoutDetaching($divisionIds);
+                    }
+
+                    $importedCount++;
+                }
+
+                fclose($handle);
+                DB::commit();
+
+                return redirect()->back()->with(
+                    'success',
+                    "Імпорт завершено! Оброблено: {$importedCount}"
+                );
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                fclose($handle);
+            }
+
+        return redirect()->back()->with('error', $e->getMessage());
+     }
     
-    public function importCsvDocs(Request $request, $id)
+    public function importCsvPos(Request $request, $id)
     {
             $request->validate([
                 'import_file' => 'required|file|mimes:csv,txt',
@@ -498,10 +611,6 @@ class KndkController extends Controller
         ], 200, [], JSON_UNESCAPED_UNICODE); 
     }
 
-
-
-
-    /*
    public function importCsvDocs(Request $request, $id)
     {
         $kndk = Kndk::findOrFail($id);
@@ -596,8 +705,6 @@ class KndkController extends Controller
                 ->with('error', "Помилка при імпорті: " . $e->getMessage());
         }
     }
-        */
-
 
     // Допоміжний метод залишається без змін (оптимізовано trim)
     private function parseDate($dateString)

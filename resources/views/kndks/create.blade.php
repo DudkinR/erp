@@ -102,6 +102,7 @@
 
                 <!-- Кнопки дій -->
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{{ route('kndks.import') }}" class="btn btn-light px-4">Загрузити csv</a>
                     <a href="{{ route('kndks.index') }}" class="btn btn-light px-4">Скасувати</a>
                     <button type="submit" class="btn btn-primary px-4">Зберегти запис</button>
                 </div>

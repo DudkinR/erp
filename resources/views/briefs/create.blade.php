@@ -1,29 +1,93 @@
 @extends('layouts.app')
+
 @section('content')
-    <div class="container">
-               @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        @if(session('success'))
+<div class="container">
+    {{-- Повідомлення про помилки --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Flash повідомлення --}}
+    @if(session('success'))
         <div class="alert alert-success">{{ __(session('success')) }}</div>
     @endif
     @if(session('error'))
         <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
-        <div class="row">
-            <div class="col-md-12">
-                <h1>{{__('_______')}}</h1>
-                <form method="POST" action="{{ route('_______.store') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-primary w-100">{{__('Create')}}</button>
-                </form>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-check me-2"></i> {{ __('Протідія') }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('briefs.store') }}">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="name_uk" class="form-label">{{ __('Name (Ukrainian)') }}</label>
+                            <input type="text" class="form-control" id="name_uk" name="name_uk" value="{{ old('name_uk') }}" placeholder="Введіть назву українською">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name_ru" class="form-label">{{ __('Name (Russian)') }}</label>
+                            <input type="text" class="form-control" id="name_ru" name="name_ru" value="{{ old('name_ru') }}" placeholder="Введите название на русском">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name_en" class="form-label">{{ __('Name (English)') }}</label>
+                            <input type="text" class="form-control" id="name_en" name="name_en" value="{{ old('name_en') }}" placeholder="Enter name in English">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Порядок</label>
+                            <input type="number" class="form-control" id="order" name="order" value="{{ old('order') }}" placeholder="Наприклад: 1">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="type" class="form-label">{{ __('Type') }}</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="0">{{ __('Select Type') }}</option>
+                                <option value="0" {{ old('type') == '0' ? 'selected' : '' }}>Протідія</option>
+                                <option value="1" {{ old('type') == '1' ? 'selected' : '' }}>Тема інструктажа до роботи</option>
+                                <option value="2" {{ old('type') == '2' ? 'selected' : '' }}>Тема інструктажа під час роботи</option>
+                                <option value="3" {{ old('type') == '3' ? 'selected' : '' }}>Тема інструктажа після роботи</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="risk" class="form-label">{{ __('Risk') }}</label>
+                            <input type="number" class="form-control" id="risk" name="risk" value="{{ old('risk') }}" placeholder="Оцініть ризик">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="functional" class="form-label">{{ __('Functional') }} Ефектівність</label>
+                            <select class="form-select" id="functional" name="functional">
+                                <option value="0">{{ __('Select Functional') }}</option>
+                                <option value="1" {{ old('functional') == '1' ? 'selected' : '' }}>1</option>
+                                <option value="2" {{ old('functional') == '2' ? 'selected' : '' }}>2</option>
+                                <option value="3" {{ old('functional') == '3' ? 'selected' : '' }}>3</option>
+                                <option value="4" {{ old('functional') == '4' ? 'selected' : '' }}>4</option>
+                                <option value="5" {{ old('functional') == '5' ? 'selected' : '' }}>5</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-save me-2"></i> {{ __('Save Brief') }}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
