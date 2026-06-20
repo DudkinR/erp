@@ -49,4 +49,13 @@ class Document extends Model
             'id'                        // локальний ключ Inconsistency
         )->withTimestamps();
     }
+
+    /**
+     * Процеси, до яких відноситься цей документ.
+     */
+    public function processes(): BelongsToMany
+    {
+        return $this->belongsToMany(Process::class, 'document_process')
+                    ->withTimestamps();
+    }
 }

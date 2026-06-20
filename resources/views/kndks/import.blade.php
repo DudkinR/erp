@@ -36,7 +36,8 @@
                 Імпорт КНДК документів
 
                 @if(isset($kndk))
-                    — {{ $kndk->full_code ?? $kndk->id }}
+                    — {{ $kndk->full_code ?? $kndk->id }} 
+                   -  {{ $kndk->name }} 
                 @endif
             </h5>
         </div>

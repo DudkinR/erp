@@ -2,14 +2,7 @@
 @section('content')
 
 <div class="container py-4" style="max-width: 900px;">
-    <!-- Сповіщення про успішне збереження/оновлення -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
+   
     <!-- Заголовок -->
     <div class="mb-4">
         <a href="{{ route('kndks.index') }}" class="text-decoration-none text-muted small">
@@ -54,17 +47,41 @@
                                 <option value="tasks" {{ old('process_type') == 'tasks' ? 'selected' : '' }}>Основні завдання</option>
                                 <option value="results" {{ old('process_type') == 'results' ? 'selected' : '' }}>Результат/основна звітність</option>
                                 <option value="performance" {{ old('process_type') == 'performance' ? 'selected' : '' }}>Показники результативності</option>
+                                <option value="corporate_requirements" {{ old('process_type') == 'corporate_requirements' ? 'selected' : '' }}>Загальнокорпоративні вимоги (комплаєнс)</option>
+
                             </select>
                             <div class="form-text text-muted small">Оберіть категорію, до якої належить цей елемент процесу.</div>
                             @error('process_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <!-- Нижня колонка: Опис процесу -->
-                        <div class="col-12">
-                            <label for="description" class="form-label fw-semibold">Опис процесу</label>
-                            <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" 
-                                    rows="3" placeholder="Детальний опис кроків чи регламенту процесу..."></textarea>
-                            @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <!-- Нижня колонка: Опис процесу -->
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-semibold">Опис процесу</label>
+                        <input type="hidden" name="process_id"  id="process_id" value="">
+                        <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" 
+                                rows="3" placeholder="Детальний опис кроків чи регламенту процесу..."></textarea>
+                        @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        
+                        <!-- Кнопка пошуку подібних -->
+                        <button type="button" id="btn-find-similar" class="btn btn-outline-secondary btn-sm mt-2">
+                            🔍 Знайти подібні процеси
+                        </button>
+                    </div>
+
+                    <!-- Модальне вікно (Bootstrap 5) -->
+                    <div class="modal fade" id="similarProcessesModal" tabindex="-1" aria-labelledby="similarModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="similarModalLabel">Знайдені подібні процеси</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="list-group" id="similar-processes-list">
+                                        <!-- Сюди за допомогою JS будуть додаватися результати -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -216,19 +233,27 @@
                     <div class="col-md-12 mt-4">
                         <div class="card shadow-sm">
                             <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">{{ __('Документ') }} 
-                                    <input type="hidden" name="document_id" id="document_id" value="{{ old('document_id', $selectedDocument->id ?? '') }}">
-                                </h4> 
+                                <h4 class="mb-0">{{ __('Документ') }} </h4> 
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <input type="text" id="search" class="form-control" placeholder="Введіть шифр, інв. номер або організацію">
-                                </div>                               
+                                    <input 
+                                            type="text" 
+                                            id="search" 
+                                            class="form-control" 
+                                            placeholder="Введіть шифр, інв. номер або організацію"
+                                            value="{{ old('search_text', isset($selectedDocument) ? "[{$selectedDocument->code}] {$selectedDocument->title}" : '') }}"
+                                        >
+                                        <!-- Приховане поле для збереження тексту при помилці валідації -->
+                                        <input type="hidden" name="search_text" id="search_text_hidden" value="{{ old('search_text', isset($selectedDocument) ? "[{$selectedDocument->code}] {$selectedDocument->title}" : '') }}">
+                                         <input type="hidden" name="document_id" id="doc_id" value="{{ old('document_id', $selectedDocument->id ?? '') }}">
+                           
+                                    </div>                               
                                 <ul id="results" class="list-group"></ul>
                             </div>
                         </div>
                     </div>
-                                        <div class="col-md-12 mt-4">
+                    <div class="col-md-12 mt-4">
 
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white">
@@ -258,54 +283,377 @@
 
 {{-- JavaScript секція для інтерактивності --}}
 <script>
-function performSearch(query) {
-    if (query.length < 3) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const btnFind = document.getElementById('btn-find-similar');
+    const textareaDesc = document.getElementById('description');
+    const modalElement = document.getElementById('similarProcessesModal');
+    const modalList = document.getElementById('similar-processes-list');    
+    // Ініціалізація модального вікна Bootstrap
+    const bsModal = new bootstrap.Modal(modalElement);
+    // Масив для тимчасового зберігання знайдених процесів
+    let foundProcesses = [];
+    btnFind.addEventListener('click', function (event) {
+        // Зупиняємо стандартну відправку форми
+        event.preventDefault();
+        event.stopPropagation();
+        const textValue = textareaDesc.value.trim();
+        if (!textValue) {
+            alert('Будь ласка, введіть текст в опис процесу для пошуку!');
+            return;
+        }
+        // Блокуємо кнопку на час запиту
+        btnFind.disabled = true;
+        btnFind.innerHTML = '⏳ Шукаємо...';
+        // Кодуємо текст для GET-запиту
+        const encodedText = encodeURIComponent(textValue);
+        const baseUrl = "{{ route('processes.search_similar') }}";
+        const finalUrl = `${baseUrl}?d=${encodedText}`;
+        fetch(finalUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Помилка сервера: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(res => {
+            modalList.innerHTML = ''; // Очищаємо список у модалці
+            
+            if (res.success && res.data && res.data.length > 0) {
+                foundProcesses = res.data; // Оновлюємо масив глобально для цього scope
+                res.data.forEach((process, index) => {
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'list-group-item list-group-item-action text-start p-3';
+                    // Безпечно перевіряємо, чи є документ у масиві, щоб уникнути збоїв JS
+                    const doc = process.documents && process.documents.length > 0 ? process.documents[0] : null;
 
-    fetch("{{ route('inconsistencis.searchdoc') }}?q=" + encodeURIComponent(query))
-        .then(res => res.json())
-        .then(data => {
-            let results = document.getElementById('results');
-            results.innerHTML = '';
-            data.forEach(doc => {
-                let li = document.createElement('li');
-                li.className = 'list-group-item list-group-item-action';
-                li.textContent = '(' + doc.inv_no + ') ' + doc.short_content + ' (' + doc.code + ')';
-                
-                // Модернізована логіка кліку: додаємо в масив та відкриваємо модалку
-                li.onclick = () => {
-                    // Додаємо вибраний документ до прихованого поля форми
-                    let documentInput = document.querySelector('input[name="document_id"]');
-                    documentInput.value = doc.inv_no;
-                    let seachInput = document.getElementById('search');
-                    seachInput.value = '(' + doc.inv_no + ') ' + doc.short_content + ' (' + doc.code + ')';
+                    item.innerHTML = `
+                        <div class="d-flex w-100 justify-content-between align-items-start gap-2 mb-2">
+                            <!-- Назва процесу -->
+                            <h6 class="mb-0 fw-bold text-primary" style="flex: 1;">${process.name}</h6>
+                            
+                            <!-- Бейджі типу та документа -->
+                            <div class="d-flex flex-column align-items-end gap-1" style="white-space: nowrap;">
+                                <small class="badge bg-secondary">${process.type || 'Не вказано'}</small>
+                                
+                                <!-- Бейдж документа виводиться лише за його наявності -->
+                                ${doc ? `
+                                    <small class="badge bg-info text-dark text-wrap text-end" style="max-width: 250px;">
+                                        ${doc.code || ''} ${doc.short_content || ''} ${doc.organization || ''}
+                                    </small>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Опис процесу -->
+                        <p class="mb-0 text-muted small text-truncate-2">
+                            ${process.description ? process.description.substring(0, 150) + '...' : ''}
+                        </p>
+                    `;                
+                    // Подія натискання на процес у списку
+                    item.addEventListener('click', function () {
+                        selectProcess(index);
+                    });
+                    modalList.appendChild(item);
+                });
+                bsModal.show(); // Відкриваємо модалку
+            } else {
+                alert('Подібних процесів не знайдено.');
+            }
+        })
+        .catch(error => {
+            console.error('Помилка AJAX:', error);
+            alert('Сталася помилка при пошуку: ' + error.message);
+        })
+        .finally(() => {
+            btnFind.disabled = false;
+            btnFind.innerHTML = '🔍 Знайти подібні процеси';
+        });
+    });
 
-                   
-                };
-                results.appendChild(li);
+    // Функція, яка заповнює форму обраним процесом та дублює посади
+    function selectProcess(index) {
+        const process = foundProcesses[index];
+        if (!process) return;
+
+        // 1. Заповнюємо основні текстові поля
+        if (document.getElementById('name')) {
+            document.getElementById('name').value = process.name || '';
+        }
+        
+        // Заповнюємо тип процесу
+        const typeSelect = document.getElementById('process_type');
+        if (typeSelect) {
+            typeSelect.value = process.type || '';
+            typeSelect.dispatchEvent(new Event('change'));
+        }
+        
+        // Заповнюємо опис процесу
+        if (textareaDesc) {
+            textareaDesc.value = process.description || '';
+        }
+       // process_id
+        document.getElementById('process_id').value = process.id;
+        // 2. Автозаповнення даних документа (зв'язок 'documents')
+        if (process.documents && process.documents.length > 0) {
+            const firstDoc = process.documents[0]; // Беремо перший документ із колекції
+            console.log(firstDoc);
+            if (document.getElementById('doc_id')) {
+                document.getElementById('doc_id').value = firstDoc.inv_no;
+            }
+            if (document.getElementById('search')) {
+                document.getElementById('search').value = firstDoc.short_content;
+                document.getElementById('search_text_hidden').value = firstDoc.short_content;
+            }
+        } else {
+            if (document.getElementById('doc_id')) document.getElementById('doc_id').value = '';
+            if (document.getElementById('search')) document.getElementById('search_text').value = '';
+        }
+
+        // --- ЗБИРАЄМО ВСІ СЕЛЕКТОРИ НА ФОРМІ ДЛЯ СКИДАННЯ ТА ЗАПОВНЕННЯ ---
+        const kndkInputs = document.querySelectorAll('input[name="kndk_ids[]"], select[name="kndk_ids[]"] option');
+        const divisionInputs = document.querySelectorAll('input[name="division_ids[]"], select[name="division_ids[]"] option');
+        
+        // Поля власних посад та посад КНДК
+        const posOwnInputs = document.querySelectorAll('input[name="position_own_ids[]"], select[name="position_own_ids[]"] option');
+        const posInputs = document.querySelectorAll('input[name="position_ids[]"], select[name="position_ids[]"] option');
+
+        // 3. Скидаємо всі раніше обрані чекбокси/селекти
+        const allInputs = [...kndkInputs, ...divisionInputs, ...posOwnInputs, ...posInputs];
+        allInputs.forEach(input => {
+            if (input.tagName === 'INPUT') input.checked = false;
+            if (input.tagName === 'OPTION') input.selected = false;
+        });
+
+        // 4. Заповнюємо КНДК та збираємо їхні посади
+        if (process.kndks && process.kndks.length > 0) {
+            const kndkIds = process.kndks.map(k => k.id.toString());
+            kndkInputs.forEach(input => {
+                if (kndkIds.includes(input.value.toString())) {
+                    if (input.tagName === 'INPUT') input.checked = true;
+                    if (input.tagName === 'OPTION') input.selected = true;
+                }
+            });
+            
+            // Збираємо унікальні ID посад з усіх КНДК цього процесу
+            let autoPositionIds = [];
+            process.kndks.forEach(kndk => {
+                // ВИПРАВЛЕНО: Прибрано помилкову змінну kndkindex
+                if (kndk.positions && kndk.positions.length > 0) {
+                    kndk.positions.forEach(pos => {
+                        autoPositionIds.push(pos.id.toString());
+                    });
+                }
+            });
+
+            // 5. ДУБЛЮВАННЯ: Заповнюємо посади КНДК (position_ids)
+            posInputs.forEach(input => {
+                if (autoPositionIds.includes(input.value.toString())) {
+                    if (input.tagName === 'INPUT') input.checked = true;
+                    if (input.tagName === 'OPTION') input.selected = true;
+                }
+            });
+
+            // 6. ДУБЛЮВАННЯ: Паралельно заповнюємо власні посади (position_own_ids) тими самими ID
+            posOwnInputs.forEach(input => {
+                if (autoPositionIds.includes(input.value.toString())) {
+                    if (input.tagName === 'INPUT') input.checked = true;
+                    if (input.tagName === 'OPTION') input.selected = true;
+                }
+            });
+        }
+
+        // 7. Заповнюємо підрозділи (division_ids)
+        if (process.divisions && process.divisions.length > 0) {
+            const divisionIds = process.divisions.map(d => d.id.toString());
+            divisionInputs.forEach(input => {
+                if (divisionIds.includes(input.value.toString())) {
+                    if (input.tagName === 'INPUT') input.checked = true;
+                    if (input.tagName === 'OPTION') input.selected = true;
+                }
+            });
+        }
+        console.log(process);
+        if (process.keywords && process.keywords.length > 0) {
+            console.log(process.keywords);
+            // Збираємо масив імен ключових слів і склеюємо їх через кому з пробілом
+            const keywordsString = process.keywords.map(k => k.name).join(', ');
+            console.log(keywordsString);
+            if (document.getElementById('keywords')) {
+                document.getElementById('keywords').value = keywordsString;
+            }
+        } else {
+            if (document.getElementById('keywords')) {
+                document.getElementById('keywords').value = '';
+            }
+        }
+        // 8. Оновлюємо візуальний стан мультиселектів (Select2 тощо)
+        const multiSelects = document.querySelectorAll('select[name="kndk_ids[]"], select[name="division_ids[]"], select[name="position_own_ids[]"], select[name="position_ids[]"]');
+        multiSelects.forEach(select => select.dispatchEvent(new Event('change')));
+
+        // Закриваємо модальне вікно
+        bsModal.hide();
+    }
+
+
+
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    
+    // ==========================================
+    // 1. УНІВЕРСАЛЬНИЙ ЛАЙВ-ПОШУК ДЛЯ СЕЛЕКТІВ
+    // ==========================================
+    function initLiveSearch(inputId, selectId) {
+        const searchInput = document.getElementById(inputId);
+        const selectElement = document.getElementById(selectId);
+        
+        if (!searchInput || !selectElement) return;
+
+        const options = Array.from(selectElement.options);
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase().trim();
+
+            options.forEach(option => {
+                const optionText = option.text.toLowerCase();
+
+                if (option.selected) {
+                    option.style.display = '';
+                    return;
+                }
+
+                if (optionText.includes(searchTerm)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
             });
         });
-}
-document.getElementById('search').addEventListener('input', function() {
-    performSearch(this.value);
+    }
+
+    // Ініціалізуємо лайв-пошук для всіх списків на сторінці
+    initLiveSearch('search_position_owner', 'position_own_ids'); // Власник: Посади
+    initLiveSearch('search_division', 'division_ids');           // Учасники: Підрозділи
+    initLiveSearch('search_position', 'position_ids');           // Учасники: Посади
+    initLiveSearch('search_kndk', 'kndk_ids');                   // Зв'язок з КНДК
+
+    // ==========================================
+    // 2. ДИНАМІЧНИЙ АЯКС-ПОШУК ДОКУМЕНТІВ (FETCH)
+    // ==========================================
+    const resultsContainer = document.getElementById('results');
+    const searchDocInput = document.getElementById('search');
+
+    function performSearch(query) {
+        if (!resultsContainer || query.length < 3) return;
+
+        fetch("{{ route('inconsistencis.searchdoc') }}?q=" + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                resultsContainer.innerHTML = '';
+                data.forEach(doc => {
+                    let li = document.createElement('li');
+                    li.className = 'list-group-item list-group-item-action';
+                    
+                    let displayText = '(' + doc.inv_no + ') ' + doc.short_content + ' (' + doc.code + ')';
+                    li.textContent = displayText;
+                    
+                    // Зберігаємо дані в нижньому регістрі атрибутів DOM
+                    li.dataset.invno = doc.inv_no; 
+                    li.dataset.text = displayText;
+
+                    resultsContainer.appendChild(li);
+                });
+            })
+            .catch(err => console.error('Помилка пошуку документів:', err));
+    }
+
+    // Слухач введення тексту для пошуку документів
+    if (searchDocInput) {
+        searchDocInput.addEventListener('input', function() {
+            performSearch(this.value);
+        });
+    }
+
+    // Обробник вибору документа зі списку результатів (Делегування подій)
+    if (resultsContainer) {
+        resultsContainer.addEventListener('click', function(e) {
+            const li = e.target.closest('li');
+           
+            if (!li) return;
+
+            const invno = li.dataset.invno; 
+            const docText = li.dataset.text;
+ 
+            var documentInput = document.getElementById('doc_id').value = invno;
+            
+
+            if (searchDocInput) {
+                searchDocInput.value = docText;
+            }
+            
+            const hiddenTextInput = document.getElementById('search_text_hidden');
+            if (hiddenTextInput) {
+                hiddenTextInput.value = docText;
+            }
+
+            resultsContainer.innerHTML = '';
+        });
+    }
+
 });
+
 document.getElementById('generateKeywordsBtn').addEventListener('click', function(e) {
-    // Беремо значення з потрібних полів
-    let nameText = document.getElementById('name').value || '';
     let descriptionText = document.getElementById('description').value || '';
-    let searchText = document.getElementById('search').value || '';
+    
+    // 1. Очищаємо текст від специфічних символів
+    // Додано обов'язкове очищення від дужок (, ), лапок та інших знаків
+    let cleanedText = descriptionText.replace(/[:;()"'«».,!?;\-\[\]\{\}\/]/g, ' ');
 
-    // Об’єднуємо все в один рядок
-    let combined = nameText + ' ' + descriptionText + ' ' + searchText;
+    // 2. Розбиваємо текст на окремі слова по пробілах та очищаємо порожні елементи
+    let words = cleanedText.split(/\s+/).filter(Boolean);
 
-    // Розбиваємо на слова (по пробілах і комах)
-    let words = combined.split(/[\s,]+/).filter(Boolean);
+    // Список стоп-слів, які потрібно ігнорувати (у нижньому регістрі)
+    const stopWords = [
+        'яка', 'про', 'хаес', 'при', 'від', 'для', 'неї', 'інші', 'метою', 'під', 'або',  'яких' , 'інших', 
+        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' ,'які'
+    ];
 
-    // Прибираємо дублікати
-    let uniqueWords = [...new Set(words)];
+    // 3. Фільтруємо масив слів за вашими правилами
+    let filteredWords = words.filter(word => {
+        // Приводимо до нижнього регістру перед фільтрацією для точного порівняння
+        let lowerWord = word.toLowerCase();
 
-    // Записуємо у поле keywords через кому
+        // Перевіряємо довжину слова (повинно бути 3 або більше символів, як у вашому запиті)
+        // Якщо потрібно від 4 символів, замініть на < 4
+        if (lowerWord.length < 3) return false;
+
+        // Перевіряємо на наявність цифр
+        if (/\d/.test(lowerWord)) return false;
+
+        // Видаляємо стоп-слова, які не несуть смислового навантаження
+        if (stopWords.includes(lowerWord)) return false;
+
+        return true;
+    });
+
+    // 4. Приводимо залишок слів до нижнього регістру
+    let lowerCasedWords = filteredWords.map(word => word.toLowerCase());
+
+    // 5. Видаляємо дублікати за допомогою Set
+    let uniqueWords = [...new Set(lowerCasedWords)];
+
+    // 6. Записуємо результат у поле keywords через кому з пробілом
     document.getElementById('keywords').value = uniqueWords.join(', ');
 });
+
+
+
 </script>
 
 @endsection

@@ -8,6 +8,7 @@ use App\Models\Process;
 use App\Models\Document;
 use App\Models\Division;
 use App\Models\Position;
+use App\Models\Keyword;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -90,14 +91,15 @@ class KndkController extends Controller
 
     public function store_pocedure(Request $request)
     {
+           // return $request;
         // 1. Валідація вхідних даних (Виправлено назви таблиць у базі danych)
         $validated = $request->validate([
-            'name'               => 'nullable|string|max:255',
+            'name'               => 'nullable|string',
             'process_type' => [
                 'nullable',
                 'required_with:name',
                 'string',
-                'in:inputs,resources,outputs,tasks,results,performance'
+                'in:inputs,resources,outputs,tasks,results,performance,corporate_requirements'
             ],
             'description'        => 'nullable|string',
             'kndk_ids'           => 'required|array|min:1',
@@ -108,6 +110,10 @@ class KndkController extends Controller
             'position_own_ids.*' => 'exists:positions,id',
             'position_ids'       => 'nullable|array', 
             'position_ids.*'     => 'exists:positions,id',
+            'document_id' => 'nullable|string',
+            'search_text' => 'nullable|string',
+            'process_id' => 'nullable|exists:processes,id',
+
         ]);
 
         $message = '';
@@ -128,9 +134,26 @@ class KndkController extends Controller
 
             $searchName = $cleanText($originalName);
 
-            // 3. Шукаємо в базі через RAW-запит, очищуючи кожне ім'я з бази «на льоту»
-            $process = Process::where('type', $validated['process_type'])
-                ->whereRaw("
+          // 1. Спочатку перевіряємо, чи передано конкретний id процесу для редагування/апдейту
+            if (!empty($validated['process_id'])) {
+                $process = Process::find($validated['process_id']);
+                
+                if ($process) {
+                    // Оновлюємо опис (за потреби сюди можна додати й 'name' => $validated['name'])
+                    $process->update([
+                         'name'        => $originalName, // Зберігає великі літери, пробіли та крапки
+                        'type'        => $validated['process_type'],
+                        'description' => $trimmedDescription
+                    ]);
+                    $process->wasRecentlyCreated = false;
+                }
+            }
+
+            // 2. Якщо id не передано, виконуємо ваш стандартний RAW-пошук за нормалізованим іменем
+            if (!isset($process)) {
+                    // 3. Шукаємо в базі через RAW-запит, очищуючи кожне ім'я з бази «на льоту»
+                    $process = Process::where('type', $validated['process_type'])
+                        ->whereRaw("
                             LOWER(
                                 REPLACE(
                                 REPLACE(
@@ -145,39 +168,46 @@ class KndkController extends Controller
                                 ')', '')
                             ) = ?
                         ", [$searchName])
-                ->first();
+                        ->first();
 
-            // 4. Логіка: знайдено (перезаписуємо опис) чи ні (створюємо новий з ОРИГІНАЛЬНИМ ім'ям)
-            if ($process) {
-                // Знайшли схожий! Перезаписуємо опис (назва з великими літерами в базі лишається БЕЗ змін)
-                $process->update([
-                    'description' => $trimmedDescription
-                ]);
-                // Тимчасово ставимо прапорець для сумісності з вашим подальшим кодом
-                $process->wasRecentlyCreated = false; 
-            } else {
-                // Нічого схожого немає — створюємо новий рядок з оригінальним гарним текстом
-                $process = Process::create([
-                    'name'        => $originalName, // Зберігає великі літери, пробіли та крапки
-                    'type'        => $validated['process_type'],
-                    'description' => $trimmedDescription,
-                ]);
-                $process->wasRecentlyCreated = true;
+                    // 4. Логіка: знайдено (перезаписуємо опис) чи ні (створюємо новий з ОРИГІНАЛЬНИМ ім'ям)
+                    if ($process) {
+                        // Знайшли схожий! Перезаписуємо опис (назва з великими літерами в базі лишається БЕЗ змін)
+                        $process->update([
+                            'name'        => $originalName, // Зберігає великі літери, пробіли та крапки
+                            'type'        => $validated['process_type'],
+                            'description' => $trimmedDescription
+                        ]);
+                        // Тимчасово ставимо прапорець для сумісності з вашим подальшим кодом
+                        $process->wasRecentlyCreated = false; 
+                    } else {
+                    // Нічого схожого немає — створюємо новий рядок з оригінальним гарним текстом
+                    $process = Process::create([
+                        'name'        => $originalName, // Зберігає великі літери, пробіли та крапки
+                        'type'        => $validated['process_type'],
+                        'description' => $trimmedDescription,
+                    ]);
+                    $process->wasRecentlyCreated = true;
+                }
             }
-
-
-
             if (!$process->wasRecentlyCreated && !empty($validated['description'])) {
                 $process->update(['description' => $validated['description']]);
             }
 
             // 3. Прив'язка КНДК до Процесу
             $process->kndks()->syncWithoutDetaching($validated['kndk_ids']);
-            
-            // МОДЕРНІЗАЦІЯ: Прив'язуємо підрозділи безпосередньо до Процесу
-            if (!empty($validated['division_ids'])) {
+            $process->documents()->syncWithoutDetaching($validated['document_id'] ?? []);
+
+           // МОДЕРНІЗАЦІЯ: Прив'язуємо підрозділи безпосередньо до Процесу
+            if ($validated['process_type'] === 'corporate_requirements') {
+                // Якщо це загальнокорпоративні вимоги — беремо ID абсолютно всіх підрозділів
+                $allDivisionIds = Division::pluck('id')->toArray(); 
+                $process->divisions()->syncWithoutDetaching($allDivisionIds);
+            } else if (!empty($validated['division_ids'])) {
+                // Для звичайних процесів — тільки ті підрозділи, які обрав користувач
                 $process->divisions()->syncWithoutDetaching($validated['division_ids']);
             }
+
             
             if ($process->wasRecentlyCreated) {
                 $message = 'Нову функцію успішно створено, підрозділи закріплено. ';
@@ -252,17 +282,13 @@ class KndkController extends Controller
                 }
             }
 
-    // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
+        // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
         // але якщо ви повертаєте з ->withInput(), форма лишиться заповненою.
         return redirect()
             ->back()
             ->withInput()
             ->with('success', $message . 'Підрозділи та посади також прив\'язані до КНДК.');
     }
-
-
-
-
     public function pairs($divisions_id, $positions_id)
     {
         $divisions = Division::whereIn('id', $divisions_id)->get();
@@ -278,7 +304,6 @@ class KndkController extends Controller
         } 
         return $pairs;
     }
-
     /**
      * Display the specified resource.
      */
@@ -292,7 +317,6 @@ class KndkController extends Controller
             'responsibles', 
             'positions'
         ])->findOrFail($id);
-
         // 2. Отримуємо унікальні організації з документів
         $organizations = $item->documents
             ->pluck('organization')
@@ -300,7 +324,6 @@ class KndkController extends Controller
             ->unique()
             ->values()
             ->toArray();
-
         // 3. Шукаємо ВСІ коди форматів X.X або X.X.X у тексті назви КНДК
         preg_match_all('/(?<!\d)\d+\.\d+(?:\.\d+)?(?!\d)/', $item->name, $matches);
         // ВИПРАВЛЕНО: беремо саме індекс, де лежать знайдені рядки
@@ -744,10 +767,24 @@ class KndkController extends Controller
             }
 
             DB::commit();
+            $nextKndk = Kndk::where('id', '>', $kndk->id)
+                ->orderBy('id', 'asc')
+                ->first();
 
+            // 3. Визначаємо ID для перенаправлення (наступний або залишаємо поточний, якщо наступного немає)
+            $redirectId = $nextKndk ? $nextKndk->id : $kndk->id;
+
+            // 4. Формуємо повідомлення залежно від того, чи є наступний запис
+            $message = "Дані успішно імпортовано! Оброблено документів: {$attachedCount}.";
+            if (!$nextKndk) {
+                $message .= " Це був останній запис.";
+            }
+
+            // 5. Перенаправляємо
             return redirect()
-                ->route('kndks.importPage', $kndk->id)
-                ->with('success', "Дані успішно імпортовано! Оброблено документів: {$attachedCount}");
+                ->route('kndks.importPage', $redirectId)
+                ->with('success', $message);
+           
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -940,6 +977,72 @@ class KndkController extends Controller
 
         return response()->json($finalResults);
     }
+
+   
+
+public function searchSimilarPr(Request $request)
+{
+    // Отримуємо текст з textarea опису
+    $searchTerm = $request->input('d', '');
+    
+    // Очищаємо запит та розбиваємо його на окремі слова (ігноруємо подвійні пробіли)
+    $words = array_filter(explode(' ', trim($searchTerm)));
+
+    // Починаємо побудову запиту через модель Process та підвантажуємо підрозділи
+    $query = Process::with('divisions','documents','kndks.positions','keywords');
+
+    if (empty($words)) {
+        return response()->json([
+            'success' => true,
+            'data' => $query->limit(5)->get()
+        ]);
+    }
+
+    // 1. Фільтрація: кожне слово має бути або в імені, або в описі
+    $query->where(function ($q) use ($words) {
+        foreach ($words as $word) {
+            $q->where(function ($subQ) use ($word) {
+                $subQ->where('name', 'LIKE', "%{$word}%")
+                    ->orWhere('description', 'LIKE', "%{$word}%");
+            });
+        }
+    });
+
+    // 2. Сортування за релевантністю (динамічно будуємо SQL для підрахунку ваги)
+    $scoreRaw = "(";
+    $bindings = [];
+
+    foreach ($words as $word) {
+        // Додаємо бали, якщо слово знайдено в імені (вага 10) або в описі (вага 2)
+        // Також додаємо бонус, якщо слово стоїть ближче до початку поля name
+        $scoreRaw .= "
+            (CASE WHEN LOCATE(?, name) > 0 THEN (10 + (100 / LOCATE(?, name))) ELSE 0 END) +
+            (CASE WHEN LOCATE(?, description) > 0 THEN 2 ELSE 0 END) + ";
+        
+        // Наповнюємо масив біндінгів для безпеки (захист від SQL-інєкцій)
+        $bindings[] = $word;
+        $bindings[] = $word;
+        $bindings[] = $word;
+    }
+    
+    // Закриваємо дужку математичного виразу та прибираємо зайвий плюс наприкінці
+    $scoreRaw = rtrim($scoreRaw, ' + ') . ") DESC";
+
+    // Отримуємо 5 відсортованих за релевантністю записів
+    $processes = $query
+        ->orderByRaw($scoreRaw, $bindings)
+        ->orderByRaw("LENGTH(name) ASC") // Коротші назви при однаковій кількості слів йдуть вище
+        ->limit(5)
+        ->get();
+
+    // Повертаємо стандартизовану JSON-відповідь для AJAX-скрипту
+    return response()->json([
+        'success' => true,
+        'data' => $processes
+    ]);
+}
+
+
 
 
 }

@@ -111,22 +111,41 @@ class ProviderController extends Controller
         return  view('provider.import');
      }
 
-     public function importData(Request $request)
+    public function importData(Request $request)
     {
-       //return $request->all();
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
         ]);
 
         $file = fopen($request->file('file')->getRealPath(), 'r');
-        $header = fgetcsv($file); // Пропускаємо заголовок
+        
+        // Вказуємо третій параметр ';' для правильного розділення колонок
+        fgetcsv($file, 0, ';'); // Пропускаємо заголовок
 
-        $count = 0;
-        while (($row = fgetcsv($file)) !== false) {
-            // Очистка даних
-            $row = array_map('trim', $row);
+        $createdCount = 0;
+        $updatedCount = 0;
+        $rowNumber = 1;
 
-            // Мапінг колонок
+        // Читаємо CSV, також вказуючи роздільник ';'
+        while (($row = fgetcsv($file, 0, ';')) !== false) {
+            $rowNumber++;
+
+            if (empty($row) || (count($row) === 1 && empty($row[0]))) {
+                continue;
+            }
+
+            // Конвертуємо кодування кожного елемента з Windows-1251 в UTF-8 та очищаємо пробіли
+            $row = array_map(function ($value) {
+                if ($value === null) return null;
+                // Перекладаємо кирилицю у зрозумілий для бази формат
+                $converted = mb_convert_encoding($value, 'UTF-8', 'Windows-1251');
+                return trim($converted);
+            }, $row);
+
+            if (count($row) < 10) {
+                $row = array_pad($row, 10, null);
+            }
+
             [
                 $full_name,
                 $short_name,
@@ -140,32 +159,51 @@ class ProviderController extends Controller
                 $notes
             ] = $row;
 
-            // Перевірка на дублікати
-            $exists = Provider::where('full_name', $full_name)
-                ->orWhere('edrpou_code', $edrpou_code)
-                ->exists();
+            if (empty($full_name)) {
+                continue;
+            }
 
-            if (!$exists) {
-                Provider::create([
-                    'full_name' => $full_name,
-                    'short_name' => $short_name,
-                    'ownership_form' => $ownership_form,
-                    'edrpou_code' => $edrpou_code,
-                    'country' => $country,
-                    'products_services' => $products_services,
-                    'decision_number' => $decision_number,
-                    'decision_date' => $this->parseDate($decision_date),
-                    'valid_until' => $this->parseDate($valid_until),
-                    'notes' => $notes,
+            $parsedDecisionDate = !empty($decision_date) ? $this->parseDate($decision_date) : null;
+            $parsedValidUntil = !empty($valid_until) ? $this->parseDate($valid_until) : null;
+
+            try {
+                $provider = Provider::updateOrCreate(
+                    ['full_name' => $full_name],
+                    [
+                        'short_name'        => $short_name,
+                        'ownership_form'    => $ownership_form,
+                        'edrpou_code'       => $edrpou_code,
+                        'country'           => $country,
+                        'products_services' => $products_services,
+                        'decision_number'   => $decision_number,
+                        'decision_date'     => $parsedDecisionDate,
+                        'valid_until'       => $parsedValidUntil,
+                        'notes'             => $notes,
+                    ]
+                );
+
+                if ($provider->wasRecentlyCreated) {
+                    $createdCount++;
+                } else {
+                    $updatedCount++;
+                }
+            } catch (\Illuminate\Database\QueryException $e) {
+                fclose($file);
+                
+                return back()->withErrors([
+                    'import_error' => "Помилка бази даних на рядку {$rowNumber}! " . 
+                                    "Повідомлення: {$e->getMessage()}. " . 
+                                    "Дані рядка (вже в UTF-8): " . implode(' | ', $row)
                 ]);
-                $count++;
             }
         }
 
         fclose($file);
 
-        return back()->with('success', "Імпортовано $count нових постачальників.");
+        return back()->with('success', "Імпорт завершено успішно. Створено: $createdCount, оновлено: $updatedCount.");
     }
+
+
 
     private function parseDate($value)
     {

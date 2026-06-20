@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Doc;
+use App\Http\Controllers\CsvController;
 use Illuminate\Support\Facades\Route;
 require __DIR__.'/auth.php';
 
@@ -146,7 +147,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/providers/create', 'App\Http\Controllers\ProviderController@create')->name('providers.create');
     Route::post('/providers', 'App\Http\Controllers\ProviderController@store')->name('providers.store');
     Route::post('/contacts', 'App\Http\Controllers\ProviderController@store_contract')->name('providers.store_contract');   
-    Route::post('/documents', 'App\Http\Controllers\ProviderController@store_document')->name('providers.store_document');
+    Route::post('/pdocuments', 'App\Http\Controllers\ProviderController@store_document')->name('providers.store_document');
     Route::get('/providers/{id}', 'App\Http\Controllers\ProviderController@show')->name('providers.show');
     Route::get('/providers/{id}/edit', 'App\Http\Controllers\ProviderController@edit')->name('providers.edit');
     Route::put('/providers/{id}', 'App\Http\Controllers\ProviderController@update')->name('providers.update');
@@ -166,6 +167,16 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/kndks/create', 'App\Http\Controllers\KndkController@create')->name('kndks.create');
     // createprocess
     Route::get('/createprocess', 'App\Http\Controllers\KndkController@createprocess')->name('kndks.createprocess');
+
+    Route::get('/processes-search-similar', 'App\Http\Controllers\KndkController@searchSimilarPr')->name('processes.search_similar');
+
+    
+
+    Route::get('/csv', [CsvController::class, 'index'])->name('csv.index');
+    Route::post('/csv_analyze', [CsvController::class, 'analyze'])->name('csv.analyze');
+    //Метод обробки та генерації нового CSV
+    Route::post('/csv_process', [CsvController::class, 'process'])->name('csv.process');
+
 
     Route::post('/kndks', 'App\Http\Controllers\KndkController@store')->name('kndks.store');
     Route::post('/kndks_procedure_store', 'App\Http\Controllers\KndkController@store_pocedure')->name('kndks_pocedure.store');
@@ -322,9 +333,12 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::post('/docsimport', 'App\Http\Controllers\DocController@importData')->name('docs.importData');
     Route::get('/addDocs', 'App\Http\Controllers\DocController@addDocs')->name('docs.addDocs');
     Route::any('/store_to_project', 'App\Http\Controllers\DocController@store_to_project')->name('docs.store_to_project');
+    
+    Route::get('/documents', 'App\Http\Controllers\DocumentController@index')->name('documents.index');
+    Route::post('/documents', 'App\Http\Controllers\DocumentController@store')->name('documents.store');
 
-    Route::get('/documents/{path}', 'App\Http\Controllers\DocumentController@show')->name('documents.show');
-
+    Route::get('/documents/create', 'App\Http\Controllers\DocumentController@create')->name('documents.create');
+     Route::get('/documents/{path}', 'App\Http\Controllers\DocumentController@show')->name('documents.show');  
     //all imports index 
     Route::get('/imports', 'App\Http\Controllers\CommonController@index')->name('imports.index');
 

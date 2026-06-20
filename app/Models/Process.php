@@ -42,4 +42,20 @@ class Process extends Model /// вважаємо їх функціями а пр
             'division_id'          // Ключ моделі Division у pivot
         )->withTimestamps();
     }
+     public function documents(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_process')
+                    ->withTimestamps(); // щоб автоматично оновлювалися created_at/updated_at у pivot-таблиці
+    }
+       
+    public function positions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Position::class,      // Пов'язана модель посади
+            'kndk_position',      // Назва вашої проміжної (pivot) таблиці (або position_kndk)
+            'kndk_id',            // Зовнішній ключ моделі Kndk у pivot-таблиці
+            'position_id'         // Зовнішній ключ моделі Position у pivot-таблиці
+        )->withTimestamps();
+    }
+    
 }
