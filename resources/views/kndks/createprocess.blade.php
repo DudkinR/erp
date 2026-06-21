@@ -148,9 +148,9 @@
                                         multiple
                                         style="min-height: 280px;"
                                     >
-                                        @foreach($positions as $position)
+                                        @foreach($Bosspositions as $position)
                                             <option value="{{ $position->id }}" {{ (is_array(old('position_own_ids')) && in_array($position->id, old('position_own_ids'))) ? 'selected' : '' }}>
-                                                {{ $position->abv }}
+                                                [{{ $position->abv }}] {{ $position->name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -219,7 +219,7 @@
                                         >
                                             @foreach($positions as $position)
                                                 <option value="{{ $position->id }}" {{ (is_array(old('position_ids')) && in_array($position->id, old('position_ids'))) ? 'selected' : '' }}>
-                                                    {{ $position->abv }}
+                                                    [{{ $position->abv }}] {{ $position->name }}
                                                 </option>
                                             @endforeach
                                         </select>

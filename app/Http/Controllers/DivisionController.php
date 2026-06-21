@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Division;
 // position model
 use App\Models\Position;
+use App\Models\Kndk;
 
 
 class DivisionController extends Controller
@@ -15,10 +16,22 @@ class DivisionController extends Controller
      */
     public function index()
     {
-        //
-        $divisions = Division::with('children')->get();
-        return view('divisions.index', compact('divisions'));
+      $divisions = Division::with([
+        'children',
+        'parent',
+        'positions',
+        'structures',
+        'personals',
+        'systems'
+        ])->get()->map(function($d){
+            $d->positions = $d->positions ?? [];
+            $d->personals = $d->personals ?? [];
+            $d->systems   = $d->systems ?? [];
+            return $d;
+        });
 
+
+        return view('divisions.index', compact('divisions'));
     }
 
     /**
@@ -122,10 +135,11 @@ class DivisionController extends Controller
     public function edit(string $id)
     {
         //
-        $parents = Division::orderBy('name', 'asc')->get();
+        $parents = Division::where('parent_id', 0)->orderBy('name', 'asc')->get();
         $positions = Position::orderBy('name', 'asc')->get();
         $division = Division::find($id);
-        return view('divisions.edit', compact('division', 'parents', 'positions'));
+        $kndks = Kndk::orderBy('id', 'asc')->get();
+        return view('divisions.edit', compact('division', 'parents', 'positions', 'kndks'));
     }
 
     /**
@@ -133,23 +147,66 @@ class DivisionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $division = Division::find($id);
-        $division->name = $request->name;
-        $division->description = $request->description;
-        $division->abv = $request->abv;
-        $division->slug = $request->slug;
-        $division->parent_id = $request->parent_id;
-        $division->save();
-        // sync positions
-        $division->positions()->sync($request->positions);
-        return redirect()->route('divisions.index')->with('success', 'Division updated successfully');
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'abv'         => 'nullable|string|max:50',
+            'slug'        => 'nullable|string|max:255',
+            'parent_id'   => 'nullable|exists:division,id',
+            'positions'   => 'array',
+            'positions.*' => 'exists:positions,id',
+            'kndks'       => 'array',
+            'kndks.*'     => 'exists:kndks,id',
+        ]);
+
+        $division = Division::findOrFail($id);
+
+        // оновлюємо основні поля
+        $division->update([
+            'name'        => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'abv'         => $validated['abv'] ?? null,
+            'slug'        => $validated['slug'] ?? null,
+            'parent_id'   => $validated['parent_id'] ?? null,
+        ]);
+
+        // синхронізація зв’язків
+        if (isset($validated['positions'])) {
+            $division->positions()->sync($validated['positions']);
+        }
+
+        if (isset($validated['kndks'])) {
+            $division->kndks()->sync($validated['kndks']);
+        }
+
+        return redirect()
+            ->route('divisions.index')
+            ->with('success', 'Division updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $division = Division::findOrFail($id);
+
+        // Очистка зв’язків many-to-many
+        $division->positions()->detach();
+        $division->structures()->detach();
+        $division->personals()->detach();
+        $division->systems()->detach();
+        if (method_exists($division, 'kndks')) {
+            $division->kndks()->detach();
+        }
+
+        // Видалення самого підрозділу
+        $division->delete();
+
+        return redirect()
+            ->route('divisions.index')
+            ->with('success', 'Division deleted successfully.');
     }
+
 }

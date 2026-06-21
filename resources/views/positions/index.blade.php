@@ -70,7 +70,9 @@
                         name="id"
                         id="editId"
                     >
-
+                    <lable for="editName" class="form-label">
+                        {{ __('Name') }}
+                    </lable>
                     <input
                         type="text"
                         name="name"
@@ -78,15 +80,19 @@
                         class="form-control mb-2"
                         placeholder="Name"
                     >
-
-                    <input
-                        type="text"
+                    <lable for="editDescription" class="form-label">
+                        {{ __('Description') }}
+                    </lable>
+                    <textarea
                         name="description"
                         id="editDescription"
                         class="form-control mb-2"
                         placeholder="Description"
-                    >
+                    ></textarea>    
 
+                    <lable for="editAbv" class="form-label">
+                        {{ __('Abbreviation') }}
+                    </lable>
                     <input
                         type="text"
                         name="abv"
@@ -96,13 +102,18 @@
                     >
 
                     <!-- Пошук підрозділів -->
+                     <lable for="divisionSearch" class="form-label">
+                        {{ __('Search Division') }}
+                    </lable>
                     <input
                         type="text"
                         id="divisionSearch"
                         class="form-control mb-2"
                         placeholder="Пошук підрозділу..."
                     >
-
+                    <label for="editDivision" class="form-label">
+                        {{ __('Select Division') }}
+                    </label>
                     <select
                         name="division_id[]"
                         id="editDivision"

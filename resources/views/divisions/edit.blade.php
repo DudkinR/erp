@@ -1,64 +1,75 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container">
-               @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        @if(session('success'))
+<div class="container">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+        </div>
+    @endif
+    @if(session('success'))
         <div class="alert alert-success">{{ __(session('success')) }}</div>
     @endif
     @if(session('error'))
         <div class="alert alert-danger">{{ __(session('error')) }}</div>
     @endif
-        <div class="row">
-            <div class="col-md-12">
-            <h1>{{__('Division')}}</h1>
-                <form method="POST" action="{{ route('divisions.update',$division) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="PUT">
-                    <div class="form-group">
-                        <label for="name">{{__('Name')}}</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ $division->name }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="description">{{__('Description')}}</label>
-                        <textarea class="form-control" id="description" name="description">{{ $division->description }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="abv">{{__('Abbreviation')}}</label>
-                        <input type="text" class="form-control" id="abv" name="abv" value="{{ $division->abv }}">
-                    </div>                   
-                    <div class="form-group">
-                        <label for="slug">{{__('Slug')}}</label>
-                        <input type="text" class="form-control" id="slug" name="slug" value="{{ $division->slug }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="parent_id">{{__('Parent')}}</label>
-                        <select class="form-control" id="parent_id" name="parent_id">
-                            <option value=""></option>
-                            @foreach($parents as $parent)
-                                <option value="{{ $parent->id }}" @if($division->parent_id == $parent->id) selected @endif>{{ $parent->name }}</option>  
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="positions">{{__('Positions')}}</label>
-                        <select class="form-control" id="positions" name="positions[]" multiple>
-                            @foreach($positions as $position)
-                                <option value="{{ $position->id }}" @if(in_array($position->id, $division->positions->pluck('id')->toArray())) selected @endif>{{ $position->name }}</option>  
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <button type="submit" class="btn btn-primary">{{__('Update')}}</button>
-                </form>
-            </div>
+    <h1>{{__('Division')}}</h1>
+    <form method="POST" action="{{ route('divisions.update',$division) }}">
+        @csrf
+        @method('PUT')
+
+        <!-- Name -->
+        <div class="form-group mb-3">
+            <label for="name">{{__('Name')}}</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ $division->name }}">
         </div>
-    </div>
+
+        <!-- Description -->
+        <div class="form-group mb-3">
+            <label for="description">{{__('Description')}}</label>
+            <textarea class="form-control" id="description" name="description">{{ $division->description }}</textarea>
+        </div>
+
+        <!-- Abbreviation -->
+        <div class="form-group mb-3">
+            <label for="abv">{{__('Abbreviation')}}</label>
+            <input type="text" class="form-control" id="abv" name="abv" value="{{ $division->abv }}">
+        </div>
+
+        <!-- Slug -->
+        <div class="form-group mb-3">
+            <label for="slug">{{__('Slug')}}</label>
+            <input type="text" class="form-control" id="slug" name="slug" value="{{ $division->slug }}">
+        </div>
+
+        <!-- Parent Division -->
+        <x-search-multiselect
+            id="parent_id"
+            name="parent_id"
+            label="Parent Division"
+            :data="$parents"
+            :selected="[$division->parent_id]"
+        />
+
+        <!-- Positions -->
+        <x-search-multiselect
+            id="positions"
+            name="positions[]"
+            label="Positions"
+            :data="$positions"
+            :selected="$division->positions->pluck('id')->toArray()"
+        />
+
+        <!-- Kndk -->
+        <x-search-multiselect
+            id="kndks"
+            name="kndk_ids[]"
+            label="KNDK (СОУ НАЕК 180:2020)"
+            :data="$kndks"
+            :selected="$division->kndks->pluck('id')->toArray()"
+        />
+
+        <button type="submit" class="btn btn-primary">{{__('Update')}}</button>
+    </form>
+</div>
 @endsection

@@ -41,5 +41,15 @@ class Division extends Model
     {
         return $this->belongsToMany(System::class, 'divisions_systems', 'division_id', 'system_id');
     }
+    public function kndks()
+    {
+        return $this->belongsToMany(
+            Kndk::class,
+            'division_kndk',   // pivot-таблиця
+            'division_id',     // FK для Division
+            'kndk_id'          // FK для Kndk
+        )->withTimestamps();
+    }
+
 
 }

@@ -8,6 +8,7 @@ use App\Models\Goal;
 use App\Models\Position;
 use App\Models\Objective;
 use App\Models\Division;
+use App\Models\Kndk;
 
 
 class FunController extends Controller
@@ -39,11 +40,15 @@ class FunController extends Controller
     // create
     public function create(Request $request)
     {
-        $goals = Goal::orderBy('id', 'asc')->get();
+      /*  $goals = Goal::orderBy('id', 'asc')->get();
         $gl = $request->gl;
         $objs= Objective::orderBy('id', 'asc')->get();
         $positions = Position::orderBy('id', 'asc')->get();
-        return view('funs.create', compact('goals', 'gl', 'objs', 'positions'));
+        return view('funs.create', compact('goals', 'gl', 'objs', 'positions'));*/
+    // rediret to KndkController@createprocess
+    return redirect()->action([KndkController::class, 'createprocess']);
+
+
     }
     // store
     public function store(Request $request)

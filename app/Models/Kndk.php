@@ -16,6 +16,7 @@ class Kndk extends Model
     /**
      * Поля, які можна масово заповнювати.
      */
+       protected $table = 'kndks'; 
     protected $fillable = [
         'class',
         'subclass',

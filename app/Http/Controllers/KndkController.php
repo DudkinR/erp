@@ -45,8 +45,9 @@ class KndkController extends Controller
         ->withCount('documents')
         ->get();
         $rootDivisions = Division::where('parent_id', 0)->orderBy('name', 'asc')->get();
-        $positions = Position::orderBy('id', 'asc')->take(19)->get();
-        return view('kndks.createprocess', compact('kndks','rootDivisions','positions')); 
+        $Bosspositions = Position::orderBy('id', 'asc')->take(19)->get();
+        $positions = Position::orderBy('id', 'asc')->get();
+        return view('kndks.createprocess', compact('kndks','rootDivisions','positions','Bosspositions')); 
     }
     
     public function create()
