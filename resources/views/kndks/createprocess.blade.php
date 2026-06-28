@@ -440,32 +440,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
             
-            // Збираємо унікальні ID посад з усіх КНДК цього процесу
-            let autoPositionIds = [];
-            process.kndks.forEach(kndk => {
-                // ВИПРАВЛЕНО: Прибрано помилкову змінну kndkindex
-                if (kndk.positions && kndk.positions.length > 0) {
-                    kndk.positions.forEach(pos => {
-                        autoPositionIds.push(pos.id.toString());
-                    });
-                }
-            });
+            // 
+                   // 1. Створюємо окремі масиви для автоматичних ID
+        let autoPositionIds = [];    // Для виконавців (executors)
+        let autoPositionOwnIds = []; // Для власників (owners)
 
-            // 5. ДУБЛЮВАННЯ: Заповнюємо посади КНДК (position_ids)
-            posInputs.forEach(input => {
-                if (autoPositionIds.includes(input.value.toString())) {
-                    if (input.tagName === 'INPUT') input.checked = true;
-                    if (input.tagName === 'OPTION') input.selected = true;
-                }
-            });
+        if (process.kndks && process.kndks.length > 0) {
+                process.kndks.forEach(kndk => {
+                    if (kndk.positions && kndk.positions.length > 0) {
+                        kndk.positions.forEach(pos => {
+                            // Перевіряємо роль через pivot-таблицю Laravel
+                            if (pos.pivot && pos.pivot.role === 'owner') {
+                                autoPositionOwnIds.push(pos.id.toString());
+                            } else {
+                                // За замовчуванням або якщо роль 'executor'
+                                autoPositionIds.push(pos.id.toString());
+                            }
+                        });
+                    }
+                });
 
-            // 6. ДУБЛЮВАННЯ: Паралельно заповнюємо власні посади (position_own_ids) тими самими ID
-            posOwnInputs.forEach(input => {
-                if (autoPositionIds.includes(input.value.toString())) {
-                    if (input.tagName === 'INPUT') input.checked = true;
-                    if (input.tagName === 'OPTION') input.selected = true;
-                }
-            });
+                // 2. Автозаповнення для виконавців (position_ids)
+                posInputs.forEach(input => {
+                    if (autoPositionIds.includes(input.value.toString())) {
+                        if (input.tagName === 'INPUT') input.checked = true;
+                        if (input.tagName === 'OPTION') input.selected = true;
+                    }
+                });
+
+                // 3. Автозаповнення для власників (position_own_ids) - тепер суто своїми ID
+                posOwnInputs.forEach(input => {
+                    if (autoPositionOwnIds.includes(input.value.toString())) {
+                        if (input.tagName === 'INPUT') input.checked = true;
+                        if (input.tagName === 'OPTION') input.selected = true;
+                    }
+                });
+            }
+
         }
 
         // 7. Заповнюємо підрозділи (division_ids)
@@ -620,8 +631,9 @@ document.getElementById('generateKeywordsBtn').addEventListener('click', functio
 
     // Список стоп-слів, які потрібно ігнорувати (у нижньому регістрі)
     const stopWords = [
-        'яка', 'про', 'хаес', 'при', 'від', 'для', 'неї', 'інші', 'метою', 'під', 'або',  'яких' , 'інших', 
-        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' ,'які'
+        'яка', 'про', 'хаес','час', 'крім', 'при', 'від', 'для', 'неї', 'інші','них', 'всіх', 'своєчасне','часу','усіх','вимог',
+        'цих', 'через', 'після', 'його',  'чинного', 'зокрема',  'метою', 'під','наек', 'енергоатом',  'або',  'яких' , 'разі', 'інших', 
+        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' , 'тому','перед', 'числі' ,'які' 
     ];
 
     // 3. Фільтруємо масив слів за вашими правилами

@@ -21,7 +21,7 @@ return new class extends Migration
                     ->onDelete('cascade');
                     
                 // Зв'язок з таблицею documents
-                $table->foreignId('document_id')
+                $table->foreignId('document_inv_no')
                     ->constrained()
                     ->onDelete('cascade');
 

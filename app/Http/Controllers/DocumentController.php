@@ -8,6 +8,7 @@ use App\Models\Inconsistency;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Kndk;
+use App\Models\Process;
 use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
@@ -139,4 +140,47 @@ class DocumentController extends Controller
         });
     }
 
+    public function verifyDocumentCompliance($invNo) //Контроль обов'язкових процесів (Чого не вистачає документу?)
+    {
+        $document = Document::with('processes')->findOrFail($invNo);
+
+        // 1. Збираємо всі процеси, які цей документ покриває ФАКТИЧНО + УСПАДКОВАНО (йти вгору по parent_id)
+        $coveredProcessIds = collect();
+        
+        foreach ($document->processes as $process) {
+            $coveredProcessIds->push($process->id);
+            // Додаємо ID всіх батьківських процесів, від яких мігрувала вимога
+            $coveredProcessIds = $coveredProcessIds->merge($process->all_parents->pluck('id'));
+        }
+        $coveredProcessIds = $coveredProcessIds->unique()->toArray();
+
+        // 2. Визначаємо список обов'язкових процесів вищого рівня (наприклад, тип 'mandatory')
+        $mandatoryProcessIds = Process::where('type', 'mandatory')->pluck('id')->toArray();
+
+        // 3. Шукаємо, яких обов'язкових процесів немає в нашому списку покриття
+        $missingIds = array_diff($mandatoryProcessIds, $coveredProcessIds);
+
+        // 4. Виводимо результат
+        if (empty($missingIds)) {
+            return "✅ Документ {$document->inv_no} повністю відповідає ієрархії вимог.";
+        }
+
+        $missingProcesses = Process::whereIn('id', $missingIds)->get();
+        echo "❌ У документі '{$document->short_content}' не вистачає покриття для таких процесів:\n";
+        foreach ($missingProcesses as $missing) {
+            echo "   - [ID {$missing->id}] {$missing->name} (Має бути прописаний або успадкований)\n";
+        }
+    }
+     public function verifyDocumentsCompliance() //Які вимоги (процеси) ні у кого не прописані
+    {
+     
+
+        // Отримуємо процеси, у яких немає жодного зв'язку в таблиці document_process
+        $unlinkedProcesses = Process::whereDoesntHave('documents')->get();
+
+        foreach ($unlinkedProcesses as $process) {
+            echo "⚠ Вимога не покрита жодним документом: ID {$process->id} — {$process->name}\n";
+        }
+
+    }
 }

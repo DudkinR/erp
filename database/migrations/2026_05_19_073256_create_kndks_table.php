@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('group', 2)->nullable()->comment('Третій рівень (двозначний код)');
             
             // Повний текстовий код для зручності відображення (напр., "1.40.05")
-            $table->string('full_code', 7)->unique()->comment('Повний код формування X.XX.XX');
+            $table->string('full_code', 10)->unique()->comment('Повний код формування X.XX.XX.XX');
             
             // Текстові назви та об'єкти
             $table->string('name')->comment('Назва сфери, напряму або виду діяльності');

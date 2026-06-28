@@ -53,7 +53,7 @@ class FunController extends Controller
     // store
     public function store(Request $request)
     {
-        // 
+        /*
         if($request->exist !== 0){
             $new_funct = Fun::find($request->exist);
         }
@@ -86,7 +86,7 @@ class FunController extends Controller
           
         }
 
-        return redirect()->route('funs.index');
+        return redirect()->route('funs.index');*/
     }
     // store_api
     public function store_api(Request $request)

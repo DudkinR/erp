@@ -108,7 +108,8 @@ class Kndk extends Model
             'inv_no'              // Локальный ключ модели Document
         )->withTimestamps();
     }
-     public function processes(): BelongsToMany
+
+    public function processes(): BelongsToMany
     {
         return $this->belongsToMany(
             Process::class,     // Пов'язана модель
@@ -117,6 +118,7 @@ class Kndk extends Model
             'process_id'        // Зовнішній ключ пов'язаної моделі в pivot-таблиці
         )->withTimestamps();    // Автоматично оновлювати created_at/updated_at у pivot
     }
+
     public function divisions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -128,24 +130,51 @@ class Kndk extends Model
     }
 
     /**
-     * Зв'язок «багато до багатьох» з посадами.
+     * Зв'язок із ВИКОНАВЦЯМИ (таблиця kndk_position)
+    * Єдиний базовий зв'язок з посадами через таблицю kndk_position.
+     * Обов'язково додаємо withPivot('role'), щоб Laravel бачив стовпець ролі.
      */
     public function positions(): BelongsToMany
     {
-        return $this->belongsToMany(
-            Position::class,      // Пов'язана модель посади
-            'kndk_position',      // Назва вашої проміжної (pivot) таблиці (або position_kndk)
-            'kndk_id',            // Зовнішній ключ моделі Kndk у pivot-таблиці
-            'position_id'         // Зовнішній ключ моделі Position у pivot-таблиці
-        )->withTimestamps();
+        return $this->belongsToMany(Position::class, 'kndk_position', 'kndk_id', 'position_id')
+                    ->withPivot('role') 
+                    ->withTimestamps();
     }
-    public function responsibles(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Position::class,         // Зв'язуємося з моделлю Посад
-            'kndk_responsible',     // Назва вашої таблиці в БД
-            'kndk_id',              // Ключ КНДК у проміжній таблиці
-            'position_id'           // Ключ Посади у проміжній таблиці
-        )->withTimestamps();
+
+    // =========================================================================
+    // ДИНАМІЧНІ РОЛІ (Точно під ваш код збереження)
+    // =========================================================================
+
+    /**
+  
+     * Власники (owners)
+     */
+    public function owners(): BelongsToMany 
+    { 
+        return $this->positions()
+                    ->wherePivot('role', 'owner')
+                    ->withPivot('division_id', 'role'); // Додали division_id у pivot
+    } 
+
+    /**
+     * Виконавці / Учасники (executors)
+     */
+    public function executors(): BelongsToMany 
+    { 
+        return $this->positions()
+                    ->wherePivot('role', 'executor')
+                    ->withPivot('division_id', 'role'); 
+    } 
+
+    /**
+     * Відповідальні (responsibles)
+     */
+    public function responsibles(): BelongsToMany 
+    { 
+        // Виправлено: роль змінено з 'executor' на 'responsible'
+        return $this->positions()
+                    ->wherePivot('role', 'responsible') 
+                    ->withPivot('division_id', 'role'); 
     }
+
 }

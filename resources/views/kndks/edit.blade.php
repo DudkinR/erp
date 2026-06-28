@@ -101,14 +101,14 @@
                 
                 <label for="position_own_ids" class="form-label fw-semibold">Відповідальні посади (власники)</label>
                 <select name="position_own_ids[]" id="position_own_ids" class="form-select @error('position_own_ids') is-invalid @enderror" multiple style="min-height: 280px;">
-                    @foreach($positions as $position)
+                    @foreach($Bosspositions as $position)
                         <option value="{{ $position->id }}" 
                             {{ 
                                 (is_array(old('position_own_ids')) && in_array($position->id, old('position_own_ids'))) || 
                                 (isset($kndk) && $kndk->responsibles->contains($position->id)) 
                                 ? 'selected' : '' 
                             }}>
-                            {{ $position->abv }}
+                            [{{ $position->abv }}] -{{ $position->name }}
                         </option>
                     @endforeach
                 </select>
@@ -153,7 +153,7 @@
                                     (isset($kndk) && $kndk->positions->contains($position->id)) 
                                     ? 'selected' : '' 
                                 }}>
-                                {{ $position->abv }}
+                                [{{ $position->abv }}] -{{ $position->name }}
                             </option>
                         @endforeach
                     </select>

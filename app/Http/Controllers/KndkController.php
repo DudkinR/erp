@@ -21,19 +21,19 @@ class KndkController extends Controller
     {
         //
          $kndks = Kndk::orderBy('class', 'asc')
-    ->orderByRaw('CASE WHEN subclass IS NULL THEN 0 ELSE 1 END')
-    ->orderBy('subclass', 'asc')
-    ->orderByRaw('CASE WHEN `group` IS NULL THEN 0 ELSE 1 END')
-    ->orderBy('group', 'asc')
-    ->withCount('documents')
-    ->get();
+        ->orderByRaw('CASE WHEN subclass IS NULL THEN 0 ELSE 1 END')
+        ->orderBy('subclass', 'asc')
+        ->orderByRaw('CASE WHEN `group` IS NULL THEN 0 ELSE 1 END')
+        ->orderBy('group', 'asc')
+        ->withCount('documents')
+        ->get();
         return view('kndks.index', compact('kndks'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function createprocess()
+    public function createprocess(Request $request)
     {
         //
         //return view('kndks.create'); все додано
@@ -44,12 +44,42 @@ class KndkController extends Controller
         ->orderBy('group', 'asc')
         ->withCount('documents')
         ->get();
+        //?kndk=67
+        $kndkId = $request->query('kndk');
         $rootDivisions = Division::where('parent_id', 0)->orderBy('name', 'asc')->get();
         $Bosspositions = Position::orderBy('id', 'asc')->take(19)->get();
         $positions = Position::orderBy('id', 'asc')->get();
-        return view('kndks.createprocess', compact('kndks','rootDivisions','positions','Bosspositions')); 
+        return view('kndks.createprocess', compact('kndks','rootDivisions','positions','Bosspositions', 'kndkId')); 
     }
     
+    public function massprocess(Request $request)
+    {
+        //
+        //return view('kndks.create'); все додано
+         $kndks = Kndk::orderBy('class', 'asc')
+        ->orderByRaw('CASE WHEN subclass IS NULL THEN 0 ELSE 1 END')
+        ->orderBy('subclass', 'asc')
+        ->orderByRaw('CASE WHEN `group` IS NULL THEN 0 ELSE 1 END')
+        ->orderBy('group', 'asc')
+        ->withCount('documents')
+        ->get();
+        $rootDivisions = Division::orderBy('name', 'asc')->get();
+        $Bosspositions = Position::orderBy('id', 'asc')->take(19)->get();
+        $positions = Position::orderBy('id', 'asc')->get();
+        $processTypes = [
+            'inputs' => 'Входи процесу',
+            'resources' => 'Ресурси/управлінські впливи',
+            'outputs' => 'Виходи процесу',
+            'tasks' => 'Основні завдання',
+            'results' => 'Результат/основна звітність',
+            'performance' => 'Показники результативності',
+            'corporate_requirements' => 'Загальнокорпоративні вимоги (комплаєнс)',
+        ];
+        $kndkId = $request->query('kndk');
+        return view('kndks.massprocess', compact('kndks','rootDivisions','positions','Bosspositions','processTypes', 'kndkId' )); 
+    }
+
+
     public function create()
     {        
         // Беремо останній створений запис із бази
@@ -90,8 +120,90 @@ class KndkController extends Controller
         return redirect()->route('kndks.create')->with('success', 'Елемент успішно додано до класифікатора!');
     }
 
+  
+
+    public function massStore(Request $request)
+    {
+       // return $request;
+        // 1. Первинна валідація, що прийшов саме масив процесів
+        $request->validate([
+            'paragraphs' => 'required|array|min:1',
+        ]);
+
+        $insertedCount = 0;
+
+        // 2. Проходимо циклом по кожному отриманому абзацу
+        foreach ($request->input('paragraphs') as $paragraphData) {
+            
+            // Створюємо чистий екземпляр Request для одного процесу
+            $individualRequest = new Request();
+
+            // Формуємо масив даних у тому вигляді, який очікує ваша функція store_pocedure
+            $individualData = [
+                'name'             => $paragraphData['title'] ?? null,       // перейменовуємо title в name
+                'description'      => $paragraphData['full_text'] ?? null,   // перейменовуємо full_text в description
+                'process_type'     => $paragraphData['process_type'] ?? null,
+                'kndk_ids'         => $paragraphData['kndk_ids'] ?? [],
+                'division_ids'     => $paragraphData['division_ids'] ?? [],
+                'position_own_ids' => $paragraphData['position_own_ids'] ?? [],
+                'position_ids'     => $paragraphData['position_ids'] ?? [],
+                'document_id'      => $request->input('doc0_id'),             // спільне поле з верхньої форми
+                'search_text'      => $request->input('doc0_name'), // спільне поле з верхньої форми
+                'process_id'       => $request->input('process_id'),         // спільне поле з верхньої форми
+            ];
+
+            // Ініціалізуємо новий запит даними та поточним оточенням сервера
+            $individualRequest->initialize(
+                $individualData, 
+                [], // query параметри
+                [], // attributes
+                $request->cookies->all(), 
+                [], // files
+                $request->server->all()
+            );
+
+            // Передаємо сесію, якщо вона є
+            if ($request->hasSession()) {
+                $individualRequest->setLaravelSession($request->session());
+            }
+            
+            // ВИПРАВЛЕНО: Правильно копіюємо механізм отримання користувача (Auth)
+            $individualRequest->setUserResolver($request->getUserResolver());
+
+            try {
+                // 3. Викликаємо вашу готову процедуру
+                $this->store_pocedure($individualRequest);
+                $insertedCount++;
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                // Логуємо помилку валідації для конкретного абзацу, щоб не падала вся сторінка
+                \Log::warning("Масове збереження: абзац №" . ($insertedCount + 1) . " не пройшов валідацію.", $e->errors());
+                
+                // Якщо хочете, щоб при першій же помилці переривався весь процес збереження — розкоментуйте рядок:
+                // throw $e;
+            }
+        }
+
+        // 4. Повертаємо користувача назад з успішним повідомленням
+       $first = $request->input('paragraphs.0');
+
+        return redirect()
+            ->route('kndks.massprocess')
+            ->with('success', "Успішно оброблено та збережено елементів: {$insertedCount}.")
+            ->with('form_data', [
+                'doc_id' => $request->document0_id ??  null,
+                'doc_name' => $request->doc0_name ??  null,
+                'process_type' => $first['process_type'] ?? null,
+                'kndk_ids' => $first['kndk_ids'] ?? [],
+                'position_own_ids' => $first['position_own_ids'] ?? [],
+                'division_ids' => $first['division_ids'] ?? [],
+                'position_ids' => $first['position_ids'] ?? [],
+            ]);
+    }
+
+   
     public function store_pocedure(Request $request)
     {
+
            // return $request;
         // 1. Валідація вхідних даних (Виправлено назви таблиць у базі danych)
         $validated = $request->validate([
@@ -200,14 +312,16 @@ class KndkController extends Controller
             $process->documents()->syncWithoutDetaching($validated['document_id'] ?? []);
 
            // МОДЕРНІЗАЦІЯ: Прив'язуємо підрозділи безпосередньо до Процесу
-            if ($validated['process_type'] === 'corporate_requirements') {
+           $allDivisionIds = [];
+            /* if ($validated['process_type'] === 'corporate_requirements') {
                 // Якщо це загальнокорпоративні вимоги — беремо ID абсолютно всіх підрозділів
-                $allDivisionIds = Division::pluck('id')->toArray(); 
+               $allDivisionIds = Division::pluck('id')->toArray(); 
                 $process->divisions()->syncWithoutDetaching($allDivisionIds);
             } else if (!empty($validated['division_ids'])) {
+             */
                 // Для звичайних процесів — тільки ті підрозділи, які обрав користувач
                 $process->divisions()->syncWithoutDetaching($validated['division_ids']);
-            }
+           /* } */
 
             
             if ($process->wasRecentlyCreated) {
@@ -225,14 +339,31 @@ class KndkController extends Controller
                 if (!empty($validated['division_ids'])) {
                     $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
                 }
-
                 if (!empty($validated['position_own_ids'])) {
-                    $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
+                    $data = [];
+                    foreach ($validated['position_own_ids'] as $id) {
+
+                         $data[$id] = [
+                            'role' => 'owner',
+                            'division_id' => null,
+                        ];
+                    } 
+                    $kndk->positions()->syncWithoutDetaching($data);
                 }
 
                 if (!empty($validated['position_ids'])) {
-                    $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
+                    $data = [];
+
+                    foreach ($validated['position_ids'] as $id) {
+                        $data[$id] = [
+                            'role' => 'executor',
+                            'division_id' => null,
+                        ];
+                    }
+
+                    $kndk->positions()->syncWithoutDetaching($data);
                 }
+
             }
         }
 
@@ -311,11 +442,17 @@ class KndkController extends Controller
     public function show($id)
     {
         // 1. Завантажуємо КНДК разом із усіма зв'язками (включаючи підрозділи кожної функції/процесу)
-        $item = Kndk::with([
-            'documents', 
-            'processes.divisions', // ТЕПЕР ЦЕ ПРАЦЮЄ, бо ми створили цей зв'язок у моделі Process
-            'divisions', 
-            'responsibles', 
+      $item = Kndk::with([
+            'documents',
+            'processes'
+            => function ($query) {
+                $query->whereNot('type', 'corporate_requirements')
+
+                    ->with('divisions'); // завантажуємо підзв'язок для відфільтрованих процесів
+            }
+            ,
+            'divisions',
+            'responsibles',
             'positions'
         ])->findOrFail($id);
         // 2. Отримуємо унікальні організації з документів
@@ -365,8 +502,10 @@ class KndkController extends Controller
         //
         $kndk = Kndk::with(['responsibles', 'positions', 'divisions'])->find($id);
          $rootDivisions = Division::where('parent_id', 0)->orderBy('name', 'asc')->get();
-        $positions = Position::orderBy('id', 'asc')->take(19)->get();
-        return view('kndks.edit', compact('kndk','rootDivisions','positions'));
+         $Bosspositions = Position::orderBy('id', 'asc')->take(19)->get();
+        $positions = Position::orderBy('name', 'asc')->get();
+
+        return view('kndks.edit', compact('kndk','rootDivisions','positions','Bosspositions'));
     }
 
     /**
@@ -412,22 +551,33 @@ class KndkController extends Controller
 
         // Зберігаємо змінений об'єкт у базу даних
         $kndk->save();
-        // Прив'язка підрозділів до конкретного КНДК
-                if (!empty($validated['division_ids'])) {
-                    $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
-                }
+        $syncData = [];
 
-                // ТУТ ЗВ'ЯЗУЄМО ВЛАСНИКІВ через ваш зв'язок responsibles()
                 if (!empty($validated['position_own_ids'])) {
-                    $kndk->responsibles()->syncWithoutDetaching($validated['position_own_ids']);
+                    $data = [];
+                    foreach ($validated['position_own_ids'] as $id) {
+
+                         $data[$id] = [
+                            'role' => 'owner',
+                            'division_id' => null,
+                        ];
+                    } 
+                    $kndk->positions()->syncWithoutDetaching($data);
                 }
 
-                // ТУТ ЗВ'ЯЗУЄМО УЧАСНИКІВ (якщо у КНДК для них окремий зв'язок, наприклад, positions())
                 if (!empty($validated['position_ids'])) {
-                    $kndk->positions()->syncWithoutDetaching($validated['position_ids']);
-                }
-        
+                    $data = [];
 
+                    foreach ($validated['position_ids'] as $id) {
+                        $data[$id] = [
+                            'role' => 'executor',
+                            'division_id' => null,
+                        ];
+                    }
+
+                    $kndk->positions()->syncWithoutDetaching($data);
+                }
+                
 
         return redirect()->route('kndks.index')->with('success', 'Елемент класифікатора успішно оновлено!');
     }
@@ -531,8 +681,12 @@ class KndkController extends Controller
                         $positionIds = Position::whereIn('abv', $positionCodes)
                             ->pluck('id')
                             ->toArray();
+                             // Трансформуємо масив [1, 2, 3] у формат [1 => ['role' => 'owner'], 2 => ['role' => 'owner'], ...]
+                            $ownersData = array_fill_keys($positionIds, ['role' => 'owner']);
 
-                        $kndk->positions()->syncWithoutDetaching($positionIds);
+                            // Записуємо в базу даних як власників
+                            $kndk->positions()->syncWithoutDetaching($ownersData);
+
                     }
 
                     // -------------------------
@@ -815,7 +969,17 @@ class KndkController extends Controller
     {
         return view('kndks.search'); // Назва вашого blade-файлу (наприклад, resources/views/kndks/search.blade.php)
     }
+/*
 
+        // 1. Очищення від стоп-слів
+        $stopWords = [
+            'і', 'й', 'та', 'але', 'чи', 'або', 'що', 'як', 'це', 'про', 'на', 'в', 'у', 'за', 'до', 'для', 'від', 
+            'під', 'над', 'перед', 'по', 'через', 'при', 'біля', 'з', 'із', 'зі', 'між', 'без', 'якщо', 'тому', 
+            'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення', 'яка', 'про', 'хаес','час', 'крім', 'при', 'від', 'для', 'неї', 'інші','них', 'всіх', 'своєчасне','часу','усіх','вимог',
+        'цих', 'через', 'після', 'його',  'чинного', 'зокрема',  'метою', 'під','наек', 'енергоатом',  'або',  'яких' , 'разі', 'інших', 
+        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' , 'тому','перед', 'числі' ,'які' 
+        ];
+        */
     public function search(Request $request)
     {
         $text = trim($request->get('query'));
@@ -826,11 +990,12 @@ class KndkController extends Controller
 
         $lowerText = mb_strtolower($text, 'UTF-8');
 
-        // 1. Очищення від стоп-слів
         $stopWords = [
             'і', 'й', 'та', 'але', 'чи', 'або', 'що', 'як', 'це', 'про', 'на', 'в', 'у', 'за', 'до', 'для', 'від', 
             'під', 'над', 'перед', 'по', 'через', 'при', 'біля', 'з', 'із', 'зі', 'між', 'без', 'якщо', 'тому', 
-            'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення'
+            'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення', 'яка', 'про', 'хаес','час', 'крім', 'при', 'від', 'для', 'неї', 'інші','них', 'всіх', 'своєчасне','часу','усіх','вимог',
+        'цих', 'через', 'після', 'його',  'чинного', 'зокрема',  'метою', 'під','наек', 'енергоатом',  'або',  'яких' , 'разі', 'інших', 
+        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' , 'тому','перед', 'числі' ,'які' 
         ];
 
         preg_match_all('/[a-zA-Zа-яієїґА-ЯІЄЇҐ0-9\.\-]+/u', $lowerText, $matches);
@@ -858,29 +1023,54 @@ class KndkController extends Controller
         }
 
         $searchTerms = array_unique($searchTerms);
-
+        //response()->json($searchTerms);
         // 2. Вибірка з бази з урахуванням нової моделі Keyword
-        $kndks = Kndk::with(['documents.keywords', 'responsibles', 'positions', 'divisions', 'keywords'])
+        // ЗМІНЕНО: тепер кожне слово має обов'язково десь збігатися (логіка AND між різними словами)
+     return   $kndks = Kndk::with([
+                'documents.keywords', 
+                'responsibles',  
+                'positions', 
+                'divisions', 
+                'keywords',
+                'processes.keywords' // 1. ПІДВАНТАЖУЄМО процеси (і їхні теги, якщо потрібно для релевантності)
+            ])
             ->where(function($mainQuery) use ($searchTerms) {
                 foreach ($searchTerms as $term) {
-                    $mainQuery->orWhere('full_code', 'LIKE', "%{$term}%")
-                        ->orWhere('name', 'LIKE', "%{$term}%")
-                        ->orWhereHas('keywords', function($q) use ($term) {
-                            $q->where('name', 'LIKE', "%{$term}%"); // Пошук у тегах КНДК
-                        })
-                        ->orWhereHas('documents', function($q) use ($term) {
-                            $q->where('short_content', 'LIKE', "%{$term}%")
-                            ->orWhere('organization', 'LIKE', "%{$term}%")
-                            ->orWhereHas('keywords', function($sq) use ($term) {
-                                $sq->where('name', 'LIKE', "%{$term}%"); // Пошук у тегах документів
+                    $mainQuery->where(function($subQuery) use ($term) {
+                        $subQuery->orWhere('full_code', 'LIKE', "%{$term}%")
+                            ->orWhere('name', 'LIKE', "%{$term}%")
+                            ->orWhereHas('keywords', function($q) use ($term) {
+                                $q->where('name', 'LIKE', "%{$term}%"); 
+                            })
+                            ->orWhereHas('documents', function($q) use ($term) {
+                                $q->where('short_content', 'LIKE', "%{$term}%")
+                                ->orWhere('organization', 'LIKE', "%{$term}%")
+                                ->orWhereHas('keywords', function($sq) use ($term) {
+                                    $sq->where('name', 'LIKE', "%{$term}%"); 
+                                });
+                            })
+                            ->orWhereHas('responsibles', function($q) use ($term) { 
+                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
+                            })
+                            ->orWhereHas('positions', function($q) use ($term) { 
+                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
+                            })
+                            ->orWhereHas('divisions', function($q) use ($term) { 
+                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
+                            })
+                            // 2. ДОДАЄМО ПОШУК У ПРОЦЕСАХ (за назвою, описом та їхніми тегами)
+                            ->orWhereHas('processes', function($q) use ($term) {
+                                $q->where('name', 'LIKE', "%{$term}%")
+                                ->orWhere('description', 'LIKE', "%{$term}%")
+                                ->orWhereHas('keywords', function($sq) use ($term) {
+                                    $sq->where('name', 'LIKE', "%{$term}%");
+                                });
                             });
-                        })
-                        ->orWhereHas('responsibles', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
-                        ->orWhereHas('positions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); })
-                        ->orWhereHas('divisions', function($q) use ($term) { $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); });
+                    });
                 }
             })
             ->get();
+
 
         $sortedResults = [];
 
@@ -920,17 +1110,25 @@ class KndkController extends Controller
                 }
             }
 
-            // --- ПЕРЕВІРКА 1: Точні збіги фрази ---
-            if (mb_strpos($kndkMainText, 'радіаційн', 0, 'UTF-8') !== false && mb_strpos($kndkMainText, 'безпек', 0, 'UTF-8') !== false) {
-                $score += 150; 
-            }
-            if (mb_strpos($kndkMainText, 'аварі', 0, 'UTF-8') !== false) {
-                $score += 100;
+            // --- ПЕРЕВІРКА 1: Точні динамічні збіги словосполучень ---
+            // Якщо користувач ввів кілька слів, перевіряємо, чи є вони поруч у назві
+            if (count($searchTerms) > 1) {
+                $allTermsFoundInMain = true;
+                foreach ($searchTerms as $term) {
+                    if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') === false) {
+                        $allTermsFoundInMain = false;
+                        break;
+                    }
+                }
+                // Якщо ВСІ введені користувачем корені слів одночасно присутні в назві/коді КНДК
+                if ($allTermsFoundInMain) {
+                    $score += 150; 
+                }
             }
 
             // --- ПЕРЕВІРКА 2: Пословний аналіз з динамічною вагою термінів ---
             foreach ($searchTerms as $term) {
-                // Динамічний пріоритет: якщо шукане слово присутнє в системних ключових словах (тегах) цієї сутності
+                // Визначаємо, чи є шуканий корінь частиною офіційних ключових слів (тегів)
                 $isHighPriority = false;
                 foreach ($kndkKeywords as $keyword) {
                     if (mb_strpos($keyword, $term, 0, 'UTF-8') !== false) {
@@ -939,22 +1137,22 @@ class KndkController extends Controller
                     }
                 }
                 
-                // Якщо це офіційно виділене ключове слово — множник х15, інакше х1
+                // Ваговий множник: х15 для офіційних ключових слів, х1 для звичайного тексту
                 $wordWeight = $isHighPriority ? 15 : 1;
 
-                // Збіг у назві або коді КНДК (вага 20)
+                // Збіг у назві або коді КНДК (базова вага 20)
                 if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') !== false) {
                     $score += (20 * $wordWeight);
                 }
-                // Збіг безпосередньо у полі ключових слів (вага 12)
+                // Збіг безпосередньо у полі ключових слів (базова вага 12)
                 if (mb_strpos($keywordsText, $term, 0, 'UTF-8') !== false) {
                     $score += (12 * $wordWeight);
                 }
-                // Збіг у тексті документів (вага 5)
+                // Збіг у тексті документів (базова вага 5)
                 if (mb_strpos($documentsText, $term, 0, 'UTF-8') !== false) {
                     $score += (5 * $wordWeight);
                 }
-                // Збіг у назвах підрозділів/посад (вага 2)
+                // Збіг у назвах підрозділів/посад (базова вага 2)
                 if (mb_strpos($otherRelationsText, $term, 0, 'UTF-8') !== false) {
                     $score += (2 * $wordWeight);
                 }
@@ -970,6 +1168,7 @@ class KndkController extends Controller
             }
         }
 
+        // Сортування за спаданням балів релевантності
         usort($sortedResults, function($a, $b) {
             return $b['score'] <=> $a['score'];
         });
@@ -981,67 +1180,80 @@ class KndkController extends Controller
 
    
 
-public function searchSimilarPr(Request $request)
-{
-    // Отримуємо текст з textarea опису
-    $searchTerm = $request->input('d', '');
-    
-    // Очищаємо запит та розбиваємо його на окремі слова (ігноруємо подвійні пробіли)
-    $words = array_filter(explode(' ', trim($searchTerm)));
+    public function searchSimilarPr(Request $request) 
+    {
+        // Отримуємо текст з textarea опису
+        $searchTerm = $request->input('d', '');
 
-    // Починаємо побудову запиту через модель Process та підвантажуємо підрозділи
-    $query = Process::with('divisions','documents','kndks.positions','keywords');
+        // Очищаємо запит та розбиваємо його на окремі слова
+        $words = array_filter(explode(' ', trim($searchTerm)));
 
-    if (empty($words)) {
+        // Починаємо побудову запиту через модель Process та підвантажуємо підрозділи
+        $query = Process::with('divisions', 'documents', 'kndks.positions', 'keywords');
+
+        if (empty($words)) {
+            return response()->json([
+                'success' => true,
+                'data' => $query->limit(5)->get()
+            ]);
+        }
+
+        // 1. Фільтрація: кожне слово має бути в імені, описі АБО в ключових словах
+        $query->where(function ($q) use ($words) {
+            foreach ($words as $word) {
+                $q->where(function ($subQ) use ($word) {
+                    $subQ->where('name', 'LIKE', "%{$word}%")
+                        ->orWhere('description', 'LIKE', "%{$word}%")
+                        ->orWhereHas('keywords', function ($keywordQ) use ($word) {
+                            $keywordQ->where('name', 'LIKE', "%{$word}%");
+                        });
+                });
+            }
+        });
+
+        // 2. Сортування за релевантністю (динамічно будуємо SQL для підрахунку ваги)
+        $scoreRaw = "(";
+        $bindings = [];
+
+        foreach ($words as $word) {
+            // Додаємо бали: name (вага 10 + бонус за позицію), description (вага 2)
+            $scoreRaw .= " (CASE WHEN LOCATE(?, name) > 0 THEN (10 + (100 / LOCATE(?, name))) ELSE 0 END) + ";
+            $scoreRaw .= " (CASE WHEN LOCATE(?, description) > 0 THEN 2 ELSE 0 END) + ";
+            
+            // ДОДАЄМО ВАГУ ДЛЯ КЛЮЧОВИХ СЛІВ (вага 15, бо це точні теги)
+            // Використовуємо підзапит EXISTS для зв'язку багатьох до багатьох (через проміжну таблицю keywordables)
+            $scoreRaw .= " (CASE WHEN EXISTS (
+                SELECT 1 FROM keywords 
+                INNER JOIN keywordables ON keywords.id = keywordables.keyword_id 
+                WHERE keywordables.keywordable_type = 'App\\\\Models\\\\Process' 
+                AND keywordables.keywordable_id = processes.id 
+                AND keywords.name LIKE ?
+            ) THEN 15 ELSE 0 END) + ";
+
+            // Наповнюємо масив біндінгів для безпеки (захист від SQL-ін'єкцій)
+            $bindings[] = $word; // для LOCATE(?, name)
+            $bindings[] = $word; // для LOCATE(?, name) другий раз
+            $bindings[] = $word; // для LOCATE(?, description)
+            $bindings[] = "%{$word}%"; // для LIKE у підзапиті keywords
+        }
+
+        // Закриваємо дужку математичного виразу та прибираємо зайвий плюс наприкінці
+        $scoreRaw = rtrim($scoreRaw, ' + ') . ") DESC";
+
+        // Отримуємо 5 відсортованих за релевантністю записів
+        $processes = $query
+            ->orderByRaw($scoreRaw, $bindings)
+            ->orderByRaw("LENGTH(name) ASC") // Коротші назви при однаковій кількості слів йдуть вище
+            ->limit(5)
+            ->get();
+
+        // Повертаємо стандартизовану JSON-відповідь для AJAX-скрипту
         return response()->json([
             'success' => true,
-            'data' => $query->limit(5)->get()
+            'data' => $processes
         ]);
     }
 
-    // 1. Фільтрація: кожне слово має бути або в імені, або в описі
-    $query->where(function ($q) use ($words) {
-        foreach ($words as $word) {
-            $q->where(function ($subQ) use ($word) {
-                $subQ->where('name', 'LIKE', "%{$word}%")
-                    ->orWhere('description', 'LIKE', "%{$word}%");
-            });
-        }
-    });
-
-    // 2. Сортування за релевантністю (динамічно будуємо SQL для підрахунку ваги)
-    $scoreRaw = "(";
-    $bindings = [];
-
-    foreach ($words as $word) {
-        // Додаємо бали, якщо слово знайдено в імені (вага 10) або в описі (вага 2)
-        // Також додаємо бонус, якщо слово стоїть ближче до початку поля name
-        $scoreRaw .= "
-            (CASE WHEN LOCATE(?, name) > 0 THEN (10 + (100 / LOCATE(?, name))) ELSE 0 END) +
-            (CASE WHEN LOCATE(?, description) > 0 THEN 2 ELSE 0 END) + ";
-        
-        // Наповнюємо масив біндінгів для безпеки (захист від SQL-інєкцій)
-        $bindings[] = $word;
-        $bindings[] = $word;
-        $bindings[] = $word;
-    }
-    
-    // Закриваємо дужку математичного виразу та прибираємо зайвий плюс наприкінці
-    $scoreRaw = rtrim($scoreRaw, ' + ') . ") DESC";
-
-    // Отримуємо 5 відсортованих за релевантністю записів
-    $processes = $query
-        ->orderByRaw($scoreRaw, $bindings)
-        ->orderByRaw("LENGTH(name) ASC") // Коротші назви при однаковій кількості слів йдуть вище
-        ->limit(5)
-        ->get();
-
-    // Повертаємо стандартизовану JSON-відповідь для AJAX-скрипту
-    return response()->json([
-        'success' => true,
-        'data' => $processes
-    ]);
-}
 
 
 

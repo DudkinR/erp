@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('full_name');
             $table->string('short_name')->nullable();
+            $table->string('status', 50)->nullable(); 
             $table->string('ownership_form')->nullable();
             $table->string('edrpou_code')->nullable();
             $table->string('country')->nullable();

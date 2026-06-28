@@ -16,6 +16,7 @@ class Process extends Model /// вважаємо їх функціями а пр
      * @var array<int, string>
      */
     protected $fillable = [
+         'parent_id', 
         'name',
         'description',
         'type'
@@ -48,14 +49,48 @@ class Process extends Model /// вважаємо їх функціями а пр
                     ->withTimestamps(); // щоб автоматично оновлювалися created_at/updated_at у pivot-таблиці
     }
        
-    public function positions(): BelongsToMany
+
+    /**
+     * Батьківський (вищий) процес.
+     */
+   public function parent(): BelongsTo
+        {
+            return $this->belongsTo(Process::class, 'parent_id', 'id')
+                        ->withDefault([
+                            'id' => 0,
+                            'name' => 'Кореневий процес'
+                        ]);
+        }
+
+
+    /**
+     * Дочірні (підлеглі) процеси першого рівня вкладеності.
+     */
+    public function children()
     {
-        return $this->belongsToMany(
-            Position::class,      // Пов'язана модель посади
-            'kndk_position',      // Назва вашої проміжної (pivot) таблиці (або position_kndk)
-            'kndk_id',            // Зовнішній ключ моделі Kndk у pivot-таблиці
-            'position_id'         // Зовнішній ключ моделі Position у pivot-таблиці
-        )->withTimestamps();
+        return $this->hasMany(Process::class, 'parent_id');
     }
-    
+
+    /**
+     * Рекурсивне отримання всіх підлеглих процесів на всіх рівнях униз.
+     */
+    public function allChildren()
+    {
+        return $this->children()->with('allChildren');
+    }
+
+    /**
+     * Рекурсивний шлях угору (магічний атрибут для збору всіх батьківських процесів).
+     */
+    public function getAllParentsAttribute()
+    {
+        $parents = collect();
+        
+        if ($this->parent && $this->parent->id !== 0) {
+            $parents->push($this->parent);
+            $parents = $parents->merge($this->parent->all_parents);
+        }
+        
+        return $parents;
+    }
 }

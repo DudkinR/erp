@@ -167,6 +167,10 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/kndks/create', 'App\Http\Controllers\KndkController@create')->name('kndks.create');
     // createprocess
     Route::get('/createprocess', 'App\Http\Controllers\KndkController@createprocess')->name('kndks.createprocess');
+    // massprocess
+    Route::get('/massprocess', 'App\Http\Controllers\KndkController@massprocess')->name('kndks.massprocess');
+    //kndks.massStore
+    Route::post('/massprocess', 'App\Http\Controllers\KndkController@massStore')->name('kndks.massStore');
 
     Route::get('/processes-search-similar', 'App\Http\Controllers\KndkController@searchSimilarPr')->name('processes.search_similar');
 
@@ -191,7 +195,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // Сторінка з полем пошуку (візуальний інтерфейс)
     Route::get('/kndkssearch-page', 'App\Http\Controllers\KndkController@searchPage')->name('kndks.search_page');
     // AJAX-маршрут, який повертає результати у форматі JSON
-    Route::get('/kndkssearch', 'App\Http\Controllers\KndkController@search')->name('kndks.search');
+    Route::post('/kndkssearch', 'App\Http\Controllers\KndkController@search')->name('kndks.search');
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');
     Route::get('/funs/create', 'App\Http\Controllers\FunController@create')->name('funs.create');

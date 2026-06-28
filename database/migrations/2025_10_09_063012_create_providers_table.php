@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->string('full_name');              // Повна назва
             $table->string('short_name')->nullable(); // Коротка назва
+            $table->string('status', 50)->nullable();         // Статус (активний, неактивний, тимчасово призупинений)
             $table->string('ownership_form')->nullable(); // Форма власності
             $table->string('edrpou_code', 10)->nullable(); // Код за ЄДРПОУ
             $table->string('country')->nullable();    // Країна

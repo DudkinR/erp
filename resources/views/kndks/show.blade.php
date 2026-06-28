@@ -250,8 +250,11 @@
                                         <p class="text-muted small my-2 ps-1">Процесів не закріплено</p>
                                     @endif
                                       @if(Auth::user()->hasRole('admin')) 
-                                        <a href="{{route('kndks.createprocess')}}" class="btn btn-primary">
+                                        <a href="{{route('kndks.createprocess')}}?kndk={{ $item->id }}" class="btn btn-primary">
                                             <i class="bi bi-plus-lg"></i> Додати елемент
+                                        </a>
+                                         <a href="{{route('kndks.massprocess')}}?kndk={{ $item->id }}" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg"></i> Додати елементи
                                         </a>
                                         @endif
                                      </div>

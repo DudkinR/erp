@@ -58,4 +58,30 @@ class Document extends Model
         return $this->belongsToMany(Process::class, 'document_process')
                     ->withTimestamps();
     }
+
+    /**
+     * Отримати вищі (батьківські) документи.
+     * Це документи, які містять процеси, що є батьківськими для процесів поточного документа.
+     */
+    public function getDynamicParentsAttribute()
+    {
+        // 1. Беремо ID усіх процесів поточного документа
+        $processIds = $this->processes->pluck('id');
+
+        // 2. Знаходимо ID їхніх батьківських процесів
+        $parentProcessIds = Process::whereIn('id', $processIds)
+            ->where('parent_id', '!=', 0)
+            ->pluck('parent_id')
+            ->unique();
+
+        if ($parentProcessIds->isEmpty()) {
+            return collect();
+        }
+
+        // 3. Знаходимо документи, які жорстко прив'язані до цих батьківських процесів
+        return Document::whereHas('processes', function ($query) use ($parentProcessIds) {
+            $query->whereIn('processes.id', $parentProcessIds);
+        })->where('inv_no', '!=', $this->inv_no)->get();
+    }
+
 }

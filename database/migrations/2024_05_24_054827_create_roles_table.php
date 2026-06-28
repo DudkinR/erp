@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
+            //owner_subdivision
+              $table->string('owner_subdivision')->nullable();   
             $table->text('description')->nullable();            
             $table->timestamps();
         });
@@ -34,7 +36,7 @@ return new class extends Migration
             // начальник цеху
             ['name' => 'Начальник цеху', 'slug' => 'workshop-chief', 'description' => 'Роль начальника цеху'],
             ['name' => 'Начальник відділу', 'slug' => 'department-chief', 'description' => 'Роль начальника відділу'],
-        ]);
+               ]);
     }
      
         if (!Schema::hasTable('role_user')) {

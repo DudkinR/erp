@@ -1,11 +1,15 @@
 @extends('layouts.app')
 @section('content')
 <div class="container mt-5" style="max-width: 700px;">
+    <!-- CSRF-токен для безпечних POST-запитів -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="card shadow-sm border-0">
         <div class="card-body p-4">
             <h4 class="mb-4 fw-bold text-primary"><i class="bi bi-search me-2"></i> Пошук КНДК</h4>
             
-            <form id="kndkSearchForm" onsubmit="return false;">
+            <!-- ВИПРАВЛЕНО: Додано метод POST та повне блокування стандартного надсилання форми через event.preventDefault() -->
+            <form id="kndkSearchForm" method="POST" action="{{ route('kndks.search') }}" onsubmit="event.preventDefault();">
                 <!-- Велика текстова область -->
                 <div class="mb-3 position-relative">
                     <label for="kndkSearchInput" class="form-label text-muted small fw-semibold">Введіть або вставте текст для пошуку</label>
@@ -46,7 +50,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnLoader = document.getElementById('btnLoader');
     const btnIcon = document.getElementById('btnIcon');
 
-    // Функція запуску пошуку
+    const viewBaseUrl = "{{ url('/kndks') }}";
+
+    function toggleClearButton() {
+        clearBtn.classList.toggle('d-none', searchInput.value.trim().length === 0);
+    }
+
+    toggleClearButton();
+
     function handleSearch() {
         const query = searchInput.value.trim();
         
@@ -59,33 +70,46 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchResults(query);
     }
 
-    // Подія при кліку на кнопку "Пошук"
     submitBtn.addEventListener('click', handleSearch);
 
-    // Гарячі клавіші: Ctrl+Enter або Cmd+Enter для відправки
+    // ВИПРАВЛЕНО: Коректна обробка клавіш у textarea.
+    // Звичайний Enter робить перенос рядка, а Ctrl+Enter або Cmd+Enter запускає пошук без перезавантаження сторінки.
     searchInput.addEventListener('keydown', function (e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            e.preventDefault();
-            handleSearch();
+        if (e.key === 'Enter') {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault(); // Зупиняємо перенос рядка та надсилання форми
+                handleSearch();     // Запускаємо AJAX
+            }
         }
     });
 
-    // Перевірка введення для кнопки очищення
-    searchInput.addEventListener('input', function () {
-        clearBtn.classList.toggle('d-none', this.value.trim().length === 0);
-    });
+    searchInput.addEventListener('input', toggleClearButton);
 
     async function fetchResults(query) {
         submitBtn.disabled = true;
         btnLoader.classList.remove('d-none');
         btnIcon.classList.add('d-none');
         
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+        
         try {
-            const response = await fetch(`{{ route('kndks.search') }}?query=${encodeURIComponent(query)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            // Використовуємо POST запит замість GET
+            const response = await fetch(`{{ route('kndks.search') }}`, {
+                method: 'POST',
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ query: query })
             });
-            const data = await response.json();
             
+            if (!response.ok) {
+                throw new Error(`Сервер повернув код стану: ${response.status}`);
+            }
+
+            const data = await response.json();
             renderResults(data);
         } catch (error) {
             console.error('Помилка пошуку:', error);
@@ -109,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         items.forEach(item => {
             const html = `
-                <a href="/kndks/${item.id}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
+                <a href="${viewBaseUrl}/${item.id}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
                     <div>
                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-2 font-monospace">${item.full_code}</span>
                         <span class="text-dark fw-medium">${item.name || 'Процес КНДК'}</span>
@@ -123,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
         searchResults.classList.remove('d-none');
     }
 
-    // Очищення тексту
     clearBtn.addEventListener('click', function () {
         searchInput.value = '';
         searchResults.innerHTML = '';
@@ -133,4 +156,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 @endsection

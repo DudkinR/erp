@@ -293,7 +293,7 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
     }
     // при изменение любого select и input  отсылать запрос на сервер запоминать в сессии  имя и значение 
     // и при загрузке страницы заполнять поля select и input
-    var inputs = document.querySelectorAll( 'input, select' );
+   /* var inputs = document.querySelectorAll( 'input, select' );
     for (var i = 0; i < inputs.length; i++) {
         inputs[i].addEventListener('change', function(event) {
             var name = event.target.name ? event.target.name : event.target.id;
@@ -318,7 +318,7 @@ function add_stage_to_project(stage_id,project_id,deadline ,responsible_position
             });
         });
     }
-
+    */
     function WhatPersonelByTN() {
         const tn = document.getElementById('tab_number').value;
 
