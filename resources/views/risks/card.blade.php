@@ -1,30 +1,31 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container position-relative">
-    <h3>Оцінка ризиків</h3>
+<div class="container my-5">
+    <h2 class="mb-4 text-center">📊 Оцінка ризиків</h2>
 
     <!-- Панель середнього ризику -->
     <div id="avgRiskPanel" 
-         style="position:fixed; top:10px; right:10px; 
-                background-color:rgba(0,255,0,0.3); 
-                padding:10px 20px; border-radius:8px; font-weight:bold; 
-                z-index:999;">
+         class="shadow-lg mb-4 p-3 rounded text-white fw-bold text-center"
+         style="background-color: rgba(0,255,0,0.6);">
         Середній ризик: 0 (Прийнятний)
     </div>
 
     <!-- Форма -->
-    <form id="riskForm" method="POST" action="{{ route('risks.createform') }}">
+    <form id="riskForm" method="POST" action="{{ route('risks.store') }}">
         @csrf
-        <div id="risk-table" class="mt-4"></div>
-        <button type="submit" class="btn btn-primary mt-3">Зберегти оцінку</button>
+        <div id="risk-table"></div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-lg btn-primary shadow">
+                💾 Зберегти оцінку
+            </button>
+        </div>
     </form>
 </div>
 
 <script>
-// Масив небезпек
 const eventsData = @json($eventsData);
 
-// групування по work_type
 function groupByWorkType(data) {
     return data.reduce((acc, ev) => {
         if (!acc[ev.work_type]) acc[ev.work_type] = [];
@@ -32,7 +33,6 @@ function groupByWorkType(data) {
         return acc;
     }, {});
 }
-
 function renderRiskTable() {
     const grouped = groupByWorkType(eventsData);
     let html = "";
@@ -108,7 +108,7 @@ function renderRiskTable() {
     document.querySelectorAll('.group-toggle').forEach(cb => {
         cb.addEventListener('change', function() {
             const groupName = this.dataset.group;
-            const table = document.querySelector(`.group-table[data-group="${groupName}"]`);
+            const table = document.querySelector(`.group-table[data-group="${CSS.escape(groupName)}"]`);
 
             if (!this.checked) {
                 table.style.opacity = 0.4;
@@ -123,36 +123,6 @@ function renderRiskTable() {
     });
 
     recalcAll(true);
-}
-
-
-
-function animateValue(element, start, end, duration = 10000) {
-    let startTime = null;
-
-    function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        let progress = (timestamp - startTime) / duration;
-        if (progress > 1) progress = 1;
-
-        // плавне збільшення
-        let value = start + (end - start) * progress;
-
-        // невеликі коливання ±1
-        let oscillation = Math.sin(progress * Math.PI * 4) * 0.5; 
-        value = value + oscillation;
-
-        element.textContent = value.toFixed(2);
-
-        if (progress < 1) {
-            requestAnimationFrame(step);
-        } else {
-            // фінальне значення
-            element.textContent = end.toFixed(2);
-        }
-    }
-
-    requestAnimationFrame(step);
 }
 
 function recalcAll(initial=false) {
@@ -208,6 +178,27 @@ function recalcAll(initial=false) {
 
     panel.style.backgroundColor = color;
     panel.textContent = `Середній ризик: ${avgRisk} (${text})`;
+}
+
+
+function animateValue(element, end, duration = 3000) {
+    let startTime = null;
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        let progress = (timestamp - startTime) / duration;
+        if (progress > 1) progress = 1;
+
+        let value = end * progress;
+        let oscillation = Math.sin(progress * Math.PI * 4) * 0.5; 
+        element.textContent = (value + oscillation).toFixed(2);
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            element.textContent = end.toFixed(2);
+        }
+    }
+    requestAnimationFrame(step);
 }
 
 

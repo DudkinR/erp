@@ -1,34 +1,265 @@
 @extends('layouts.app')
+
 @section('content')
-    <div class="container">
-               @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+<div class="container my-5">
+    <h2 class="mb-4 text-center text-primary">📊 Результати оцінки ризиків</h2>
+
+    <div class="card shadow-lg border-info">
+        <div class="card-body">
+
+            @php
+                // групуємо події за work_type
+                $grouped = [];
+                foreach($eventsData as $id => $event) {
+                    $grouped[$event['work_type']][] = $event;
+                }
+            @endphp
+
+            <table class="table table-hover table-bordered align-middle shadow-sm">
+                <thead class="table-info text-center">
+                    <tr>
+                        <th>Група</th>
+                        <th>Подія</th>
+                        <th>Т (Severity)</th>
+                        <th>І (Probability)</th>
+                        <th>Ч (Frequency)</th>
+                        <th>R</th>
+                        <th>Категорія</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($grouped as $workType => $groupEvents)
+                        @php
+                            $groupRisk = 0;
+                            $count = count($groupEvents);
+                        @endphp
+                        @foreach($groupEvents as $index => $event)
+                            @php
+                                $severity = (float)$event['severity'];
+                                $probability = (float)$event['probability'];
+                                $frequency = (float)$event['frequency'];
+                                $R = $severity * $probability * $frequency;
+
+                                if ($R <= 7) { $category = 'Прийнятний'; $rowClass = ''; }
+                                elseif ($R <= 20) { $category = 'Допустимий'; $rowClass = 'table-warning'; }
+                                else { $category = 'Значний'; $rowClass = 'table-danger'; }
+
+                                $groupRisk += $R;
+                            @endphp
+                            <tr class="{{ $rowClass }}">
+                                @if($index === 0)
+                                    <td rowspan="{{ $count }}" class="align-middle fw-bold text-info">
+                                        {{ $workType }}
+                                    </td>
+                                @endif
+                                <td>{{ $event['name'] }}</td>
+                                <td class="text-center">{{ number_format($severity, 2) }}</td>
+                                <td class="text-center">{{ number_format($probability, 2) }}</td>
+                                <td class="text-center">{{ number_format($frequency, 2) }}</td>
+                                <td class="text-center fw-bold">{{ number_format($R, 2) }}</td>
+                                <td class="text-center">{{ $category }}</td>
+                            </tr>
+                        @endforeach
+
+                        @php
+                            $avgRisk = $count > 0 ? $groupRisk / $count : 0;
+                            if ($avgRisk <= 7) { $summary = 'Прийнятний'; $class = 'table-info'; }
+                            elseif ($avgRisk <= 20) { $summary = 'Допустимий'; $class = 'table-warning'; }
+                            else { $summary = 'Значний'; $class = 'table-danger'; }
+                        @endphp
+                        <tr class="{{ $class }} fw-bold">
+                            <td colspan="5" class="text-end">Підсумок для групи:</td>
+                            <td class="text-center">{{ number_format($avgRisk, 2) }}</td>
+                            <td class="text-center">{{ $summary }}</td>
+                        </tr>
                     @endforeach
-                </ul>
-            </div>
-        @endif
-        @if(session('success'))
-        <div class="alert alert-success">{{ __(session('success')) }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ __(session('error')) }}</div>
-    @endif
-        <div class="row">
-            <div class="col-md-12">
-                show
-            <h1>{{__('_______')}}</h1>
-                <a class="btn btn-light w-100" href="{{ route('risks.index') }}">
-                {{__('Back')}}</a>
-            </div>  
+                </tbody>
+            </table>
+
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-               </div>
-            </div>
-        </div>
-   </div>
+    </div>
+</div>
+
+<script>
+const eventsData = @json($eventsData);
+
+function groupByWorkType(data) {
+    return data.reduce((acc, ev) => {
+        if (!acc[ev.work_type]) acc[ev.work_type] = [];
+        acc[ev.work_type].push(ev);
+        return acc;
+    }, {});
+}
+function renderRiskTable() {
+    const grouped = groupByWorkType(eventsData);
+    let html = "";
+
+    for (const [workType, events] of Object.entries(grouped)) {
+        // чекбокс для групи
+        html += `
+        <div class="form-check mb-2">
+            <input class="form-check-input group-toggle" type="checkbox" 
+                   id="group_${workType}" data-group="${workType}" checked>
+            <label class="form-check-label fw-bold text-info" for="group_${workType}">
+                ${workType}
+            </label>
+        </div>`;
+
+        html += `<table class="table table-bordered group-table" data-group="${workType}">
+            <thead class="table-info">
+                <tr>
+                    <th>Від події та інші небезпечні фактори</th>
+                    <th>Т</th>
+                    <th>І</th>
+                    <th>Ч</th>
+                    <th>R</th>
+                    <th>Категорія</th>
+                </tr>
+            </thead><tbody>`;
+
+        events.forEach(ev => {
+            html += `
+            <tr>
+                <td>
+                    ${ev.name}
+                    <input type="hidden" name="events[${ev.id}][name]" value="${ev.name}">
+                    <input type="hidden" name="events[${ev.id}][work_type]" value="${ev.work_type}">
+                </td>
+                <td><input type="number" min="0" max="7" step="0.01" 
+                           class="form-control risk-input" 
+                           name="events[${ev.id}][severity]"
+                           value="${ev.severity}" data-original="${ev.severity}"></td>
+                <td><input type="number" min="0" max="7" step="0.01" 
+                           class="form-control risk-input" 
+                           name="events[${ev.id}][probability]"
+                           value="${ev.probability}" data-original="${ev.probability}"></td>
+                <td><input type="number" min="0" max="7" step="0.01" 
+                           class="form-control risk-input" 
+                           name="events[${ev.id}][frequency]"
+                           value="${ev.frequency}" data-original="${ev.frequency}"></td>
+                <td class="risk-value">0</td>
+                <td class="risk-category">Прийнятний</td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+    }
+
+    document.getElementById('risk-table').innerHTML = html;
+
+    // слухачі для інпутів
+    document.querySelectorAll('.risk-input').forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value !== this.dataset.original) {
+                this.style.borderColor = 'red';
+                this.style.backgroundColor = '#ffe5e5';
+            } else {
+                this.style.borderColor = '';
+                this.style.backgroundColor = '';
+            }
+            recalcAll();
+        });
+    });
+
+    // слухачі для чекбоксів груп
+    document.querySelectorAll('.group-toggle').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const groupName = this.dataset.group;
+            const table = document.querySelector(`.group-table[data-group="${CSS.escape(groupName)}"]`);
+
+            if (!this.checked) {
+                table.style.opacity = 0.4;
+                table.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            } else {
+                table.style.opacity = 1;
+                table.querySelectorAll('input').forEach(inp => inp.disabled = false);
+            }
+
+            recalcAll();
+        });
+    });
+
+    recalcAll(true);
+}
+
+function recalcAll(initial=false) {
+    let totalRisk = 0;
+    let count = 0;
+
+    document.querySelectorAll('.group-table').forEach(table => {
+        const groupName = table.dataset.group;
+        const groupEnabled = document.querySelector(`#group_${CSS.escape(groupName)}`).checked;
+
+        if (!groupEnabled) {
+            // якщо група виключена — пропускаємо її
+            table.style.opacity = 0.4;
+            return;
+        } else {
+            table.style.opacity = 1;
+        }
+
+        table.querySelectorAll('tbody tr').forEach(row => {
+            const T = parseFloat(row.querySelector('td:nth-child(2) input').value) || 0;
+            const I = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
+            const C = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;
+            const R = T * I * C;
+
+            let category = '';
+            let rowClass = '';
+            if (R <= 7) { category = 'Прийнятний'; rowClass = ''; }
+            else if (R <= 20) { category = 'Допустимий'; rowClass = 'table-warning'; }
+            else { category = 'Значний/Неприйнятний'; rowClass = 'table-danger'; }
+
+            row.className = rowClass;
+
+            if (initial) {
+                animateValue(row.querySelector('.risk-value'), 0, R, 1000);
+            } else {
+                row.querySelector('.risk-value').textContent = R.toFixed(2);
+            }
+            row.querySelector('.risk-category').textContent = category;
+
+            totalRisk += R;
+            count++;
+        });
+    });
+
+    const avgRisk = count > 0 ? (totalRisk / count).toFixed(2) : 0;
+    const panel = document.getElementById('avgRiskPanel');
+
+    let color = 'rgba(0,255,0,0.3)';
+    let text = 'Прийнятний';
+    if (avgRisk > 7 && avgRisk <= 20) { color = 'rgba(255,255,0,0.3)'; text = 'Ризиковано'; }
+    else if (avgRisk > 20 && avgRisk <= 50) { color = 'rgba(255,165,0,0.3)'; text = 'Значний'; }
+    else if (avgRisk > 50) { color = 'rgba(255,0,0,0.3)'; text = 'Неприйнятний'; }
+
+    panel.style.backgroundColor = color;
+    panel.textContent = `Середній ризик: ${avgRisk} (${text})`;
+}
+
+
+function animateValue(element, end, duration = 3000) {
+    let startTime = null;
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        let progress = (timestamp - startTime) / duration;
+        if (progress > 1) progress = 1;
+
+        let value = end * progress;
+        let oscillation = Math.sin(progress * Math.PI * 4) * 0.5; 
+        element.textContent = (value + oscillation).toFixed(2);
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            element.textContent = end.toFixed(2);
+        }
+    }
+    requestAnimationFrame(step);
+}
+
+
+
+renderRiskTable();
+</script>
 @endsection
