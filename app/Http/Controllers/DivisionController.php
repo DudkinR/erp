@@ -135,10 +135,21 @@ class DivisionController extends Controller
     public function edit(string $id)
     {
         //
-        $parents = Division::where('parent_id', 0)->orderBy('name', 'asc')->get();
+        $parents = Division::where('parent_id', 0)        
+        ->orderBy('name', 'asc')->get();
+        
+        // Створюємо новий пустий об'єкт моделі та задаємо йому потрібні атрибути
+        $noParent = new Division();
+        $noParent->id = 0;
+        $noParent->name = 'Без підрозділу';
+
+        // Додаємо об'єкт на початок колекції
+        $parents->prepend($noParent);
         $positions = Position::orderBy('name', 'asc')->get();
         $division = Division::find($id);
+        $division->load('kndks');
         $kndks = Kndk::orderBy('id', 'asc')->get();
+        $division->kndks->pluck('id')->toArray();
         return view('divisions.edit', compact('division', 'parents', 'positions', 'kndks'));
     }
 
@@ -152,11 +163,11 @@ class DivisionController extends Controller
             'description' => 'nullable|string',
             'abv'         => 'nullable|string|max:50',
             'slug'        => 'nullable|string|max:255',
-            'parent_id'   => 'nullable|exists:division,id',
+            'parent_id'   => 'nullable|integer', 
             'positions'   => 'array',
             'positions.*' => 'exists:positions,id',
-            'kndks'       => 'array',
-            'kndks.*'     => 'exists:kndks,id',
+            'kndk_ids'       => 'array',
+            'kndk_ids.*'     => 'exists:kndks,id',
         ]);
 
         $division = Division::findOrFail($id);
@@ -167,17 +178,13 @@ class DivisionController extends Controller
             'description' => $validated['description'] ?? null,
             'abv'         => $validated['abv'] ?? null,
             'slug'        => $validated['slug'] ?? null,
-            'parent_id'   => $validated['parent_id'] ?? null,
+            'parent_id'   => $validated['parent_id'] ?? 0,
         ]);
 
-        // синхронізація зв’язків
-        if (isset($validated['positions'])) {
-            $division->positions()->sync($validated['positions']);
-        }
-
-        if (isset($validated['kndks'])) {
-            $division->kndks()->sync($validated['kndks']);
-        }
+    // Якщо масив не прийшов (зняли всі галочки), передається пустий масив [], і sync() видалить усі старі зв'язки.
+    $division->positions()->sync($validated['positions'] ?? []);
+   // return $validated;
+    $division->kndks()->sync($validated['kndk_ids'] ?? []);
 
         return redirect()
             ->route('divisions.index')

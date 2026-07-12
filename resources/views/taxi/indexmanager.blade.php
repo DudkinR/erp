@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+        /* Стиль для запобігання зміщення SVG шару */
+        #routeLayer {
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
  <!-- Додаємо overflow: auto для появи повзунків та прибираємо обмеження висоти h-100 у самої карти -->
 <div class="container-fluid position-relative p-0" style="height:100vh; overflow:auto;">
     <!-- Фонова карта -->
@@ -409,17 +417,23 @@
       const createObjectModal = new bootstrap.Modal(modalElement);
 
       const cityMap = document.getElementById('cityMap');
+      
       cityMap.addEventListener('click', function(e) {
-          // перевіряємо чи натиснуто Ctrl
+          // Перевіряємо чи натиснуто Ctrl
           if (!e.ctrlKey) return;
-
-          const rect = e.target.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          document.getElementById('objectX').value = Math.round(x);
-          document.getElementById('objectY').value = Math.round(y);
-
+          const rect = cityMap.getBoundingClientRect();          
+          // Позиція кліку всередині відображуваного елемента картинки
+          const displayX = e.clientX - rect.left;
+          const displayY = e.clientY - rect.top;          
+          // Розрахунок коефіцієнта масштабу (Реальний розмір файлу / Поточний розмір на екрані)
+          const scaleX = cityMap.naturalWidth / rect.width;
+          const scaleY = cityMap.naturalHeight / rect.height;          
+          // Точні координати в пікселях оригінального зображення
+          const actualX = displayX * scaleX;
+          const actualY = displayY * scaleY;
+          // Записуємо округлені значення у приховані поля
+          document.getElementById('objectX').value = Math.round(actualX);
+          document.getElementById('objectY').value = Math.round(actualY);
           createObjectModal.show();
       });
 
@@ -445,58 +459,71 @@
       const routeLayer = document.getElementById("routeLayer");
 
       // Вішаємо обробник на всі <li> у списку маршрутів
-      document.querySelectorAll("#ordersBlock li").forEach(item => {
-          item.addEventListener("click", function() {
-              // очищаємо попередні стрілки
-              routeLayer.innerHTML = "";
+    document.querySelectorAll("#ordersBlock li").forEach(item => {
+        item.addEventListener("click", function() {
+            // Очищаємо попередні стрілки
+            const routeLayer = document.getElementById('routeLayer');
+            const cityMap = document.getElementById('cityMap');
+            routeLayer.innerHTML = "";
 
-              // отримуємо координати та назву машини
-              const [fromX, fromY] = this.dataset.from.split(",").map(Number);
-              const [toX, toY] = this.dataset.to.split(",").map(Number);
-              const carName = this.dataset.car;
+            // Розраховуємо поточний коефіцієнт масштабу екрана відносно оригінального файлу карти
+            const rect = cityMap.getBoundingClientRect();
+            const currentScaleX = rect.width / cityMap.naturalWidth;
+            const currentScaleY = rect.height / cityMap.naturalHeight;
 
-              // додаємо маркер стрілки
-              const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-              defs.innerHTML = `
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-                        refX="10" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" fill="red" />
-                </marker>`;
-              routeLayer.appendChild(defs);
+            // Отримуємо оригінальні координати та назву машини
+            const [origFromX, origFromY] = this.dataset.from.split(",").map(Number);
+            const [origToX, origToY] = this.dataset.to.split(",").map(Number);
+            const carName = this.dataset.car;
 
-              // малюємо лінію
-              const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-              line.setAttribute("x1", fromX);
-              line.setAttribute("y1", fromY);
-              line.setAttribute("x2", toX);
-              line.setAttribute("y2", toY);
-              line.setAttribute("stroke", "red");
-              line.setAttribute("stroke-width", "2");
-              line.setAttribute("marker-end", "url(#arrowhead)");
-              routeLayer.appendChild(line);
+            // Перераховуємо координати під поточний розмір екрана
+            const fromX = origFromX * currentScaleX;
+            const fromY = origFromY * currentScaleY;
+            const toX = origToX * currentScaleX;
+            const toY = origToY * currentScaleY;
 
-              // середина лінії
-              const midX = (fromX + toX) / 2;
-              const midY = (fromY + toY) / 2;
+            // Додаємо маркер стрілки
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = `
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                      refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+              </marker>`;
+            routeLayer.appendChild(defs);
 
-              // іконка машини (кружок)
-              const carIcon = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-              carIcon.setAttribute("cx", midX);
-              carIcon.setAttribute("cy", midY);
-              carIcon.setAttribute("r", 10);
-              carIcon.setAttribute("fill", "blue");
-              routeLayer.appendChild(carIcon);
+            // Малюємо лінію
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", fromX);
+            line.setAttribute("y1", fromY);
+            line.setAttribute("x2", toX);
+            line.setAttribute("y2", toY);
+            line.setAttribute("stroke", "red");
+            line.setAttribute("stroke-width", "2");
+            line.setAttribute("marker-end", "url(#arrowhead)");
+            routeLayer.appendChild(line);
 
-              // назва машини
-              const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-              text.setAttribute("x", midX + 15);
-              text.setAttribute("y", midY + 5);
-              text.setAttribute("fill", "black");
-              text.setAttribute("font-size", "14");
-              text.textContent = carName;
-              routeLayer.appendChild(text);
-          });
-      });
+            // Середина лінії
+            const midX = (fromX + toX) / 2;
+            const midY = (fromY + toY) / 2;
+
+            // Іконка машини (кружок)
+            const carIcon = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            carIcon.setAttribute("cx", midX);
+            carIcon.setAttribute("cy", midY);
+            carIcon.setAttribute("r", 10);
+            carIcon.setAttribute("fill", "blue");
+            routeLayer.appendChild(carIcon);
+
+            // Назва машини
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", midX + 15);
+            text.setAttribute("y", midY + 5);
+            text.setAttribute("fill", "black");
+            text.setAttribute("font-size", "14");
+            text.textContent = carName;
+            routeLayer.appendChild(text);
+        });
+    });
   });
   document.addEventListener("DOMContentLoaded", function() {
       const editCarModal = new bootstrap.Modal(document.getElementById('editCarModal'));

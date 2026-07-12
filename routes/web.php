@@ -177,9 +177,12 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     
 
     Route::get('/csv', [CsvController::class, 'index'])->name('csv.index');
-    Route::post('/csv_analyze', [CsvController::class, 'analyze'])->name('csv.analyze');
+    Route::post('/csv_analyze', [CsvController::class, 'download'])->name('csv.analyze');
     //Метод обробки та генерації нового CSV
-    Route::post('/csv_process', [CsvController::class, 'process'])->name('csv.process');
+    Route::post('/csv_process', [CsvController::class, 'download'])->name('csv.process');
+    
+    Route::get('/construction_jobs', [CsvController::class, 'construction_jobs'])->name('construction_jobs');
+
 
 
     Route::post('/kndks', 'App\Http\Controllers\KndkController@store')->name('kndks.store');
@@ -664,7 +667,23 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::get('/experiences', 'App\Http\Controllers\RiskController@experiences')->name('experiences');  
     // createform
      Route::get('/createformrisk','App\Http\Controllers\RiskController@createform')->name('createformrisk');  
-    // cars
+    // ConstructionJobController
+    Route::get('/constructionjobs', 'App\Http\Controllers\ConstructionJobController@index')->name('constructionjobs.index');
+    Route::get('/constructionjobs/create', 'App\Http\Controllers\ConstructionJobController@create')->name('constructionjobs.create');
+    Route::post('/constructionjobs', 'App\Http\Controllers\ConstructionJobController@store')->name('constructionjobs.store');
+    Route::get('/constructionjobs/{id}', 'App\Http\Controllers\ConstructionJobController@show')->name('constructionjobs.show');
+    Route::get('/constructionjobs/{id}/edit', 'App\Http\Controllers\ConstructionJobController@edit')->name('constructionjobs.edit');
+    Route::put('/constructionjobs/{id}', 'App\Http\Controllers\ConstructionJobController@update')->name('constructionjobs.update');
+    Route::delete('/constructionjobs/{id}', 'App\Http\Controllers\ConstructionJobController@destroy')->name('constructionjobs.destroy');
+    Route::post('/constructionjobsmonth/{id}', 'App\Http\Controllers\ConstructionJobController@addmonth')->name('constructionjobs.addmonth');
+    
+    // CSV
+    Route::get('/construction_jobs_csv', [App\Http\Controllers\ConstructionJobController::class, 'index_csv'])->name('construction_jobs_csv');
+    Route::post('/constructionjobs_csv', [App\Http\Controllers\ConstructionJobController::class, 'download'])->name('constructionjobs_csv');
+    Route::get('/construction_jobs', [App\Http\Controllers\ConstructionJobController::class, 'construction_jobs'])->name('construction_jobs');
+
+
+     // cars
     Route::get('/cars', 'App\Http\Controllers\CarController@index')->name('cars.index');
     Route::get('/cars/create', 'App\Http\Controllers\CarController@create')->name('cars.create');
     Route::post('/cars', 'App\Http\Controllers\CarController@store')->name('cars.store');

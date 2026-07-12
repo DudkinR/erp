@@ -8,7 +8,8 @@ use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Carbon;
-
+use App\Models\ConstructionJob;
+    use Illuminate\Support\Facades\Log;
 class CsvController extends Controller
 {
     private $availableFunctions = [
@@ -58,8 +59,12 @@ class CsvController extends Controller
             'functions' => $this->availableFunctions
         ]);
     }
+    
+
+
 
        // 2. Метод обробки та генерації нового CSV
+       /*
         public function process(Request $request): StreamedResponse
         {
             // 1. Валідація вхідного файлу
@@ -172,11 +177,11 @@ class CsvController extends Controller
             $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
             $response->headers->set('Pragma', 'no-cache');
             $response->headers->set('Expires', '0');
-
+        return response()->json($dataToSave, 200, [], JSON_INVALID_UTF8_SUBSTITUTE);
             return $response;
         }
   
-
+    */
 
     private function applyTransformation($value, $action)
     {
