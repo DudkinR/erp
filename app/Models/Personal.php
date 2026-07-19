@@ -11,8 +11,7 @@ class Personal extends Model
     // table name
     protected $table = 'personal';
 
-    // fillable fields `tn`, `nickname`, `fio`, `email`, `phone`, `date_start`, `status`, `date_status`
-
+ 
     protected $fillable = ['tn', 'nickname', 'fio', 'email', 'phone', 'date_start' , 'status', 'date_status'];
 
   
@@ -64,7 +63,29 @@ class Personal extends Model
     // personal_division - таблица связи belongtomany
     public function divisions()
     {
-        return $this->belongsToMany(Division::class, 'personal_division', 'personal_id', 'division_id');
+        return $this->belongsToMany(Division::class, 'personal_division', 'personal_id', 'division_id')
+                ->withPivot('position_id', 'is_current', 'started_at', 'ended_at')
+                ->withTimestamps();
+    }
+    // Новий зв'язок: Чітке поточне місце роботи (підрозділи та посади в них)
+    public function currentJobs()
+    {
+        return $this->divisions()->wherePivot('is_current', true);
+    }
+
+    // Аксесор для легкого доступу до поточної посади та підрозділу (наприклад, $personal->current_job)
+    public function getCurrentJobAttribute()
+    {
+        $job = $this->currentJobs()->first();
+        if (!$job) return null;
+
+        // Шукаємо модель посади за id з pivot-таблиці
+        $position = Position::find($job->pivot->position_id);
+
+        return [
+            'division' => $job,
+            'position' => $position
+        ];
     }
     // personal_briefing - таблица связи  one 
     public function briefings()

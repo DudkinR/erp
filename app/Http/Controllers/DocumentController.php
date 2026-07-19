@@ -23,7 +23,7 @@ class DocumentController extends Controller
         // Создаем путь к файлу в хранилище
         $storagePath = storage_path('app/' . $path);
     
-       
+        
         // Получаем тип файла
         $mimeType = Storage::mimeType($storagePath);
     
@@ -112,7 +112,7 @@ class DocumentController extends Controller
             
             // Оскільки у формі поле kndk_ids має атрибут 'required', валідуємо його як обов'язковий масив
             'kndk_ids'           => 'required|array|min:1',
-            'kndk_ids.*'         => 'exists:kndk,id', // замініть 'kndk' на назву вашої таблиці КНДК
+            'kndk_ids.*'         => 'exists:kndks,id', // замініть 'kndk' на назву вашої таблиці КНДК
         ]);
 
         // 2. Безпечна обробка логічних прапорців (checkbox)

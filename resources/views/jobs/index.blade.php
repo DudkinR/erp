@@ -12,9 +12,10 @@
 
     <h2>Річна статистика чоловіко‑годин</h2>
 
-
+    @if(Auth::user()->hasRole('admin'))  
     <a href="{{ route('construction_jobs') }}" class="btn btn-primary mb-3 w-100">Скачати CSV</a>
-    <a href="{{ route('construction_jobs_csv') }}" class="btn btn-primary mb-3 w-100">Завантажити CSV</a>
+    <a href="{{ route('construction_jobs_csv') }}" class="btn btn-primary mb-3 w-100">ОНОВИТИ CSV</a>
+    @endif 
     
     <canvas id="yearChart"></canvas>
 

@@ -44,16 +44,16 @@ public function definition()
     $set = $this->faker->randomElement($keywords);
     $text = $this->faker->sentence(6) . ' ' . implode(' ', $set);
 
-    return [
-        'text_uk'     => $text,
-        'text_ru'     => $text,
-        'text_en'     => $this->faker->sentence(6),
-        'npp'         => $this->faker->numberBetween(1, 100),
-        'year' => $this->faker->numberBetween(2025, 2026),
-        'consequence' => $this->faker->numberBetween(1, 5),
-        'accepted'    => $this->faker->boolean(),
-        'author_tn'   => $this->faker->numberBetween(1, 51000),
-    ];
+      return [
+            'text_ru' => $this->faker->sentence(),
+            'text_uk' => $text ,
+            'text_en' => $this->faker->sentence(),
+            'npp' => $this->faker->randomElement(['0','1','2']),
+            'year' => $this->faker->year(),
+            'consequence' => $this->faker->numberBetween(1,10),
+            'accepted' => $this->faker->boolean(),
+            'author_tn' => $this->faker->randomNumber(5),
+        ];
 }
 
 }

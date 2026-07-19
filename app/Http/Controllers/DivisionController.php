@@ -16,19 +16,15 @@ class DivisionController extends Controller
      */
     public function index()
     {
-      $divisions = Division::with([
-        'children',
-        'parent',
-        'positions',
-        'structures',
-        'personals',
-        'systems'
-        ])->get()->map(function($d){
-            $d->positions = $d->positions ?? [];
-            $d->personals = $d->personals ?? [];
-            $d->systems   = $d->systems ?? [];
-            return $d;
-        });
+     $divisions = Division::with([
+    'children',
+    'parent',
+    'positions',
+    'structures',
+    'personals',
+    'systems'
+])->get();
+
 
 
         return view('divisions.index', compact('divisions'));
@@ -77,13 +73,16 @@ class DivisionController extends Controller
      */
     public function show(string $id)
     {
-        //
-        $division = Division::find($id);
-        $under_divisions = Division::where('parent_id', $id)->get();
-        $count_personal = $this->personalDivisionCount($id);
-        $rooms = $this->roomsInDivision($id);
-        $buildings = $this->buildingsInDivision($id);
-        return view('divisions.show', compact('division', 'under_divisions', 'count_personal', 'rooms', 'buildings'));
+        $division = Division::with([
+            'positions.personals',
+            'currentPersonals',
+            'children.positions.personals',
+            'children.currentPersonals',
+            'children.children' // рекурсія
+        ])->findOrFail($id);
+
+        return view('divisions.show', compact('division'));
+    
     }
 
     // personal division count all with under divisions

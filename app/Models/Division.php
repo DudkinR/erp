@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasKeywords;
 
 class Division extends Model
 {
     use HasFactory;
+    use HasKeywords;
     // table name
     protected $table = 'division';
     // fillable
@@ -31,11 +33,20 @@ class Division extends Model
     {
         return $this->belongsToMany(Struct::class, 'structure_division');
     }
-    // personal_division
+    // Всередині класу Division
+
     public function personals()
-    {
-        return $this->belongsToMany(Personal::class, 'personal_division');
-    }
+{
+    return $this->belongsToMany(Personal::class, 'personal_division', 'division_id', 'personal_id')
+                ->withTimestamps();
+}
+
+  public function currentPersonals()
+{
+    return $this->personals(); // без wherePivot
+}
+
+   
     // divisions_systems
     public function systems()
     {

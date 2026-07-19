@@ -49,9 +49,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const clearBtn = document.getElementById('clearSearchBtn');
     const btnLoader = document.getElementById('btnLoader');
     const btnIcon = document.getElementById('btnIcon');
-
-    const viewBaseUrl = "{{ url('/kndks') }}";
-
+    const searchRouteUrl = "{{ route('kndks.search') }}"; 
+    const viewBaseUrl = "{{ url('/kndks') }}";    
+    const urlPrefixes = {
+        kndks: "{{ url('kndks') }}",
+        processes: "{{ url('processes') }}",
+        documents: "{{ url('documents') }}",
+        positions: "{{ url('positions') }}",
+        divisions: "{{ url('divisions') }}"
+    };
     function toggleClearButton() {
         clearBtn.classList.toggle('d-none', searchInput.value.trim().length === 0);
     }
@@ -94,8 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
         
         try {
-            // Використовуємо POST запит замість GET
-            const response = await fetch(`{{ route('kndks.search') }}`, {
+            const response = await fetch(searchRouteUrl, {
                 method: 'POST',
                 headers: { 
                     'X-Requested-With': 'XMLHttpRequest',
@@ -111,6 +116,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             renderResults(data);
+            
+            // Показуємо кнопку очищення, оскільки в полі є текст і є результати
+            if (clearBtn && query.length > 0) {
+                clearBtn.classList.remove('d-none');
+            }
         } catch (error) {
             console.error('Помилка пошуку:', error);
             searchResults.innerHTML = `<div class="list-group-item p-3 text-danger text-center small">Сталася помилка під час виконання запиту</div>`;
@@ -121,28 +131,118 @@ document.addEventListener('DOMContentLoaded', function () {
             btnIcon.classList.remove('d-none');
         }
     }
-
-    function renderResults(items) {
+    function renderResults(data) {
         searchResults.innerHTML = '';
         
-        if (items.length === 0) {
-            searchResults.innerHTML = `<div class="list-group-item p-3 text-muted text-center small">Нічого не знайдено за цим запитом</div>`;
+        // Перевірка: якщо прийшла пуста відповідь або не об'єкт
+        if (!data || typeof data !== 'object') {
+            searchResults.innerHTML = `<div class="list-group-item p-3 text-danger text-center small">Помилка обробки результатів</div>`;
             searchResults.classList.remove('d-none');
             return;
         }
 
-        items.forEach(item => {
-            const html = `
-                <a href="${viewBaseUrl}/${item.id}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
+        // Конфігурація відображення блоків: назва, масив даних, префікс посилання та генератор контенту
+        const categories = [
+            {
+                title: 'Класифікатор КНДК',
+                items: data.kndks || [],
+                baseUrl: urlPrefixes.kndks,
+                renderRow: (item) => `
                     <div>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-2 font-monospace">${item.full_code}</span>
-                        <span class="text-dark fw-medium">${item.name || 'Процес КНДК'}</span>
-                    </div>
-                    <i class="bi bi-chevron-right text-muted small"></i>
-                </a>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-2 font-monospace">${item.full_code || ''}</span>
+                        <span class="text-dark fw-medium">${item.name || ''}</span>
+                    </div>`
+            },
+            {
+                title: 'Технологічні процеси',
+                items: data.processes || [],
+                baseUrl: urlPrefixes.processes,
+                renderRow: (item) => `
+                    <div>
+                        <span class="text-dark fw-medium">${item.name || ''}</span>
+                        ${item.description ? `<div class="text-muted small mt-1 text-truncate" style="max-width: 500px;">${item.description}</div>` : ''}
+                    </div>`
+            },
+            {
+                title: 'Пов\'язані документи',
+                items: data.documents || [],
+                baseUrl: urlPrefixes.documents,
+                renderRow: (item) => `
+                    <div>
+                        <span class="text-dark fw-medium text-wrap">${item.short_content || 'Документ без назви'}</span>
+                        ${item.organization ? `<div class="text-muted small mt-1 font-monospace">${item.organization}</div>` : ''}
+                    </div>`
+            },
+            {
+                title: 'Посади та виконавці',
+                items: data.positions || [],
+                baseUrl: urlPrefixes.positions,
+                renderRow: (item) => `
+                    <div>
+                        ${item.abv ? `<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle me-2">${item.abv}</span>` : ''}
+                        <span class="text-dark fw-medium">${item.name || ''}</span>
+                    </div>`
+            },
+            {
+                title: 'Структурні підрозділи (Цехи)',
+                items: data.divisions || [],
+                baseUrl: urlPrefixes.divisions,
+                renderRow: (item) => `
+                    <div>
+                        ${item.abv ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-2">${item.abv}</span>` : ''}
+                        <span class="text-dark fw-medium">${item.name || ''}</span>
+                    </div>`
+            }
+        ];
+
+        let totalFound = 0;
+
+        // Проходимо по кожній категорії та рендеримо її блок, якщо є результати
+        categories.forEach(category => {
+            if (category.items.length === 0) return;
+
+            totalFound += category.items.length;
+
+         
+            // Шаблон заголовка блоку (категорії) з покращеним візуальним виділенням
+            const categoryHeader = `
+                <div class="list-group-item bg-body-secondary text-dark fw-bold small text-uppercase py-3 px-3 border-start border-primary border-4 shadow-sm mt-3 mb-1 d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="bi bi-folder2-open me-2 text-primary"></i>${category.title}
+                    </span>
+                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">${category.items.length} результатів</span>
+                </div>
             `;
-            searchResults.insertAdjacentHTML('beforeend', html);
+            searchResults.insertAdjacentHTML('beforeend', categoryHeader);
+
+
+            // Рендеримо рядки для поточного блоку
+            category.items.forEach(item => {
+                // Якщо це категорія документів, використовуємо інвентарний номер замість id
+                let targetId = item.id;
+                if (category.baseUrl === urlPrefixes.documents) {
+                    baseurl='document_show';
+                    targetId = item.inv_no;
+                }
+                else{
+                    baseurl=category.baseUrl;
+                }
+
+                const htmlRow = `
+                    <a href="${baseurl}/${targetId}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center border-start-0 border-end-0">
+                        ${category.renderRow(item)}
+                        <i class="bi bi-chevron-right text-muted small"></i>
+                    </a>
+                `;
+                searchResults.insertAdjacentHTML('beforeend', htmlRow);
+            });
+
         });
+
+        // Якщо взагалі ні в одному масиві нічого немає
+        if (totalFound === 0) {
+            searchResults.innerHTML = `<div class="list-group-item p-3 text-muted text-center small">Нічого не знайдено за цим запитом</div>`;
+        }
 
         searchResults.classList.remove('d-none');
     }
@@ -154,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
         this.classList.add('d-none');
         searchInput.focus();
     });
+
 });
 </script>
 

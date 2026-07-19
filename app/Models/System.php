@@ -17,5 +17,10 @@ class System extends Model
     {
         return $this->belongsToMany(Division::class, 'divisions_systems', 'system_id', 'division_id');
     }
+    public function object()
+    {
+        return $this->belongsTo(Type::class, 'svb'); // поле svb зберігає id одного об’єкта
+    }
+
     
 }

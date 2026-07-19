@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Jit;
 use App\Models\Brief;
+use App\Models\Risk;
+use App\Models\Keyword;
+
+use App\Models\Kndk;
+
 use Illuminate\Support\Facades\Auth;    
 
 
@@ -17,39 +22,32 @@ class RiskController extends Controller
     // index
     public function index(Request $request)
     {
+        $systemIds = $request->systems ?? System::all()->pluck('id')->toArray();
+        $equipmentIds = $request->equipments ?? Type::where('slug', 'equipment')->first()->children->pluck('id')->toArray();
+        $actionIds = $request->actions ?? Type::where('slug', 'action')->first()->children->pluck('id')->toArray();
+        $riskIds = $request->risks ?? Risk::all()->pluck('id')->toArray();
 
-      if($request->systems){
-        $systemIds = $request->systems;
-        }else{
-            $systemIds = System::all()->pluck('id')->toArray();
-        }
-        if($request->equipments){
-            $equipmentIds =  $request->equipments;
-        }else{
-            $equipmentIds = Type::where('slug', 'equipment')->first()->children->pluck('id')->toArray();
-        }
-        if($request->actions){
-            $actionIds = $request->actions;
-        }else{
-            $actionIds = Type::where('slug', 'action')->first()->children->pluck('id')->toArray();
-        }
+        $experiences = Experience::where('accepted', 0)
+            ->whereHas('systems', function($query) use ($systemIds) {
+                $query->whereIn('systems.id', $systemIds);
+            })
+            ->whereHas('equipments', function($query) use ($equipmentIds) {
+                $query->whereIn('types.id', $equipmentIds);
+            })
+            ->whereHas('actions', function($query) use ($actionIds) {
+                $query->whereIn('types.id', $actionIds);
+            })
+            ->whereHas('risks', function($query) use ($riskIds) {
+                $query->whereIn('risks.id', $riskIds);
+            })
+            ->orderBy('consequence', 'desc')
+            ->get();
 
-        $experiences = Experience::   where('accepted',0)
-       ->whereHas('systems', function($query) use ($systemIds) { 
-            $query->whereIn('systems.id', $systemIds);
-        })
-        ->whereHas('equipments', function($query) use ($equipmentIds) {
-            $query->whereIn('types.id', $equipmentIds);
-        })
-        ->whereHas('actions', function($query) use ($actionIds) {
-            $query->whereIn('types.id', $actionIds);
-        })
-        ->orderBy('consequence' , 'desc')
-        ->get();
-      
         $risk = $this->calculateRisk($experiences);
-       return  view('risks.index', compact('experiences', 'risk'));
+
+        return view('risks.index', compact('experiences', 'risk'));
     }
+
 
     public function StartBriefRisk(){
         // equipment
@@ -215,11 +213,12 @@ class RiskController extends Controller
         $equipments_parent = Type::where('slug', 'equipment')->first();
         $equipments = Type::where('parent_id', $equipments_parent->id)->get();
         $systems = System::all()->keyBy('id')->values();
-       $causes_parent = Type::where('slug', 'cause')->first();
+        $causes_parent = Type::where('slug', 'cause')->first();
         $causes = Type::where('parent_id', $causes_parent->id)->get();
         $actions_parent = Type::where('slug', 'action')->first();
         $actions = Type::where('parent_id', $actions_parent->id)->get();
-        return view('risks.create', compact('equipments', 'systems', 'causes', 'actions'));
+        $risks = Risk::all();
+        return view('risks.create', compact('equipments', 'systems', 'causes', 'actions', 'risks'));
     }
 
     // store
@@ -255,6 +254,8 @@ class RiskController extends Controller
         $experience->equipments()->sync($request->equipments);
         $experience->actions()->sync($request->actions);
         $experience->reasons()->sync($request->causes);
+        $experience->risks()->sync($request->risks);
+
         return redirect()->route('risks.index');
     }
     // edit
@@ -526,31 +527,262 @@ class RiskController extends Controller
 
         return view('risk', ['eventsData' => $eventsData]);
     }
-    public function createform(Request $request)
+   public function createform(Request $request)
     {   
-        // тут ви формуєте масив $eventsData з вашої логіки
-        $eventsData = [
-            [
-                'id' => 1,
-                'work_type' => 'Будівництво',
-                'name' => 'Падіння предмета',
-                'severity' => 3.5,
-                'probability' => 2.1,
-                'frequency' => 0.25,
-            ],
-            [
-                'id' => 2,
-                'work_type' => 'Транспорт',
-                'name' => 'Зіткнення з авто',
-                'severity' => 5.0,
-                'probability' => 3.2,
-                'frequency' => 0.40,
-            ],
-        ];
+        $risks = Risk::all();
+        $eventsData = [];
+
+        // усі досвіди за останні 2 роки
+        $allExperiences = Experience::where('year', '>=', date('Y') - 2)->get();
+        $totalAll = $allExperiences->count();
+
+        foreach ($risks as $risk) {
+            // досвіди, що містять цей ризик
+            $experiences = Experience::where('year', '>=', date('Y') - 2)
+                ->whereHas('risks', function($query) use ($risk) {
+                    $query->where('risks.id', $risk->id);
+                })
+                ->get();
+
+            $count = $experiences->count();
+
+            // Frequency = кількість випадків
+            $frequency = $count;
+
+            // Severity = середнє consequence
+            $severity = $count > 0 ? $experiences->avg('consequence') : 0;
+
+            // Probability = частка від усіх досвідів
+            $probability = $totalAll > 0 ? $count / $totalAll : 0;
+
+            $eventsData[] = [
+                'id' => $risk->id,
+                'work_type' => $risk->name,
+                'name' => $risk->description,
+                'severity' => round($severity, 2),
+                'probability' => round($probability, 2),
+                'frequency' => $frequency,
+            ];
+        }
 
         return view('risks.show', compact('eventsData'));
     }
 
-    
-    
+
+
+// ****************************************************************************************************************************** */
+     public function indexr()
+    {
+        // Завантажуємо ризики разом із КНДК, до яких вони прив'язані
+        $risks = Risk::with('kndks')->get();
+        
+        return view('r.index', compact('risks'));
+    }
+
+    /**
+     * Форма створення нового ризику
+     */
+    public function creater()
+    {
+        $kndks = Kndk::all();
+
+        return view('r.create', compact('kndks'));
+    }
+
+   public function showr($id)
+    {
+        $risk = Risk::with('kndks')->findOrFail($id);
+
+        return view('r.show', compact('risk'));
+    }
+
+    public function storer(Request $request)
+    {
+        $validated = $request->validate([
+            'risks'              => 'required|array|min:1',
+            'risks.*.name'        => 'required|string|max:255',
+            'risks.*.description' => 'nullable|string',
+            'risks.*.kndk_ids'    => 'required|array|min:1',
+            'risks.*.kndk_ids.*'  => 'exists:kndks,id',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['risks'] as $riskData) {
+                // 🔎 Нормалізація назви для пошуку дубліката
+                $normalizedName = mb_strtolower(
+                    preg_replace('/[^a-zA-Zа-яієїґА-ЯІЄЇҐ0-9]/u', '', $riskData['name'])
+                );
+
+                // Шукаємо ризик з такою ж нормалізованою назвою
+                $existingRisk = Risk::whereRaw("REPLACE(LOWER(REGEXP_REPLACE(name, '[^a-zA-Zа-яієїґА-ЯІЄЇҐ0-9]', '')), '', '') = ?", [$normalizedName])->first();
+
+                if ($existingRisk) {
+                    // Якщо знайшли — додаємо нове пояснення як абзац
+                    $newDescription = trim(($existingRisk->description ?? '') . "\n\n" . ($riskData['description'] ?? ''));
+                    $existingRisk->update(['description' => $newDescription]);
+
+                    // Повністю перезаписуємо КНДК
+                    $existingRisk->kndks()->sync($riskData['kndk_ids']);
+
+                    // Синхронізація ключових слів
+                    $this->syncKeywordsForRisk($existingRisk);
+                } else {
+                    // Якщо не знайшли — створюємо новий ризик
+                    $risk = Risk::create([
+                        'name'        => $riskData['name'],
+                        'description' => $riskData['description'] ?? null,
+                    ]);
+
+                    $risk->kndks()->sync($riskData['kndk_ids']);
+
+                    // Синхронізація ключових слів
+                    $this->syncKeywordsForRisk($risk);
+                }
+
+            }
+        });
+
+        return redirect()->route('r.index')
+            ->with('success', 'Пакет ризиків успішно внесено/оновлено. Перевірка назв виконана без дублювання.');
+    }
+
+
+
+    /**
+     * Форма редагування ризику
+     */
+    public function editr($id)
+    {
+        $risk = Risk::with('kndks')->findOrFail($id);
+        $kndks = Kndk::all();
+
+        return view('r.edit', compact('risk', 'kndks'));
+    }
+
+    /**
+     * ОНОВЛЕННЯ ризику та його оцінок
+     */
+   public function updater(Request $request, $id)
+    {
+        $risk = Risk::findOrFail($id);
+
+        $validated = $request->validate([
+            'risks'              => 'required|array|min:1',
+            'risks.0.name'        => 'required|string|max:255',
+            'risks.0.description' => 'nullable|string',
+            'risks.0.kndk_ids'    => 'required|array|min:1',
+            'risks.0.kndk_ids.*'  => 'exists:kndks,id',
+        ]);
+
+        $riskData = $validated['risks'][0];
+
+        DB::transaction(function () use ($riskData, $risk) {
+            $normalizedName = mb_strtolower(
+                preg_replace('/[^a-zA-Zа-яієїґА-ЯІЄЇҐ0-9]/u', '', $riskData['name'])
+            );
+
+            // шукаємо схожий ризик
+            $risk_similar = Risk::all()->first(function ($r) use ($normalizedName) {
+                $name = mb_strtolower(preg_replace('/[^a-zA-Zа-яієїґА-ЯІЄЇҐ0-9]/u', '', $r->name));
+                return $name === $normalizedName;
+            });
+
+            if ($risk_similar && $risk_similar->id !== $risk->id) {
+                $newDescription = trim(($risk_similar->description ?? '') . "\n\n" . ($riskData['description'] ?? ''));
+                $risk->update([
+                    'name'        => $riskData['name'],
+                    'description' => $riskData['description'] ?? null,
+                ]);
+                
+              $risk->kndks()->sync($riskData['kndk_ids']);
+              $risk->kndks()->syncWithoutDetaching($risk_similar->kndks->pluck('id')->toArray());
+              $this->syncKeywordsForRisk($risk);
+              // Видаляємо схожий ризик після перенесення опису та КНДК
+                $risk_similar->delete();
+
+            } else {
+                $risk->update([
+                    'name'        => $riskData['name'],
+                    'description' => $riskData['description'] ?? null,
+                ]);
+
+              $risk->kndks()->sync($riskData['kndk_ids']);
+                $this->syncKeywordsForRisk($risk);
+            }
+        });
+
+        return redirect()->route('r.index')
+            ->with('success', 'Ризик успішно модернізовано/створено.');
+    }
+
+
+
+    /**
+     * Метод для ключових слів
+     */
+    protected function syncKeywordsForRisk(Risk $risk)
+    {
+         $stopWords = [
+            'а', 'або', 'але', 'багато', 'би', 'біля', 'бо', 'більш', 'буде', 'будемо', 
+            'будете', 'будешь', 'буди', 'була', 'були', 'було', 'бути', 'в', 'вже', 'ви', 
+            'вимог', 'він', 'від', 'відповідно', 'вона', 'вони', 'воно', 'всі', 'всій', 
+            'всіх', 'всієї', 'всіма', 'всьому', 'всупереч', 'де', 'для', 'до', 'доки', 
+            'дуже', 'енергатом', 'енергоатом', 'є', 'за', 'завдяки', 'загалом', 'зараз', 
+            'згідно', 'зі', 'зокрема', 'й', 'його', 'йому', 'і', 'із', 'інша', 
+            'інше', 'інши', 'інших', 'іншим', 'іншими', 'інші', 'категорично', 'коли', 
+            'коло', 'котрий', 'крім', 'куди', 'лише', 'має', 'мають', 'майже', 'мало', 
+            'мене', 'метою', 'ми', 'між', 'мірі', 'мій', 'може', 'можуть', 'мов', 
+            'на', 'над', 'навіть', 'наек', 'нам', 'нами', 'нас', 'наш', 'наша', 
+            'наше', 'наші', 'наче', 'не', 'неї', 'нехай', 'нижче', 'них', 'ні', 
+            'ніби', 'ніж', 'ніхто', 'нічого', 'ну', 'о', 'об', 'обов\'язково', 'обмежено', 
+            'один', 'одна', 'однак', 'одне', 'одні', 'ось', 'офіційно', 'перед', 'під', 
+            'після', 'по', 'поки', 'потім', 'при', 'про', 'проте', 'протягом', 'разі', 
+            'разом', 'рік', 'років', 'року', 'році', 'саме', 'свій', 'своє', 'своєчасне', 
+            'свої', 'своїх', 'себе', 'собою', 'та', 'так', 'така', 'таке', 'такі', 
+            'такого', 'такому', 'також', 'там', 'твій', 'те', 'теж', 'ти', 'тим', 
+            'тисяч', 'ті', 'тільки', 'то', 'тоді', 'того', 'тож', 'тому', 'тощо', 
+            'треба', 'тут', 'у', 'усі', 'усіх', 'усьому', 'хаес', 'хай', 'хто', 
+            'це', 'цей', 'ця', 'цих', 'цим', 'цими', 'ці', 'час', 'часу', 'через', 
+            'чи', 'чий', 'чинного', 'числі', 'що', 'щоб', 'щодо', 'ще', 'я', 
+            'яка', 'який', 'якого', 'якому', 'яких', 'які', 'якість', 'як', 'якби', 
+            'якщо'
+        ];
+
+        $text = mb_strtolower($risk->name.' '.($risk->description ?? ''));
+        preg_match_all('/[a-zA-Zа-яієїґА-ЯІЄЇҐ0-9\-]+/u', $text, $matches);
+
+        $words = collect($matches[0] ?? [])
+            ->map(fn($w) => trim($w))
+            ->filter(fn($w) => !empty($w) && !in_array($w, $stopWords) && mb_strlen($w) >= 3)
+            ->unique();
+
+        if ($words->isEmpty()) return;
+
+        $keywordIds = [];
+        foreach ($words as $word) {
+            $keyword = Keyword::firstOrCreate(['name' => $word]);
+            $keywordIds[] = $keyword->id;
+        }
+
+        // Прив’язка ключових слів до ризику
+        $risk->keywords()->syncWithoutDetaching($keywordIds);
+
+        // Прив’язка ключових слів до КНДК
+        foreach ($risk->kndks as $kndk) {
+            $kndk->keywords()->syncWithoutDetaching($keywordIds);
+        }
+    }
+
+    /**
+     * ВИДАЛЕННЯ ризику (автоматично видалить і записи з kndk_risk завдяки onDelete('cascade'))
+     */
+    public function destroyr($id)
+    {
+        $risk = Risk::findOrFail($id);
+        $risk->delete();
+
+        return redirect()->route('r.index')
+                         ->with('success', 'Ризик успішно видалено з реєстру.');
+    }
+ 
 }

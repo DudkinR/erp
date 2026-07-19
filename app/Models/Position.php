@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasKeywords;
 
 class Position extends Model
 {
     use HasFactory;
+    use HasKeywords;
     // table name
     protected $table = 'positions';
     // fillable fields 

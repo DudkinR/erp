@@ -18,6 +18,7 @@
                         <a class="dropdown-item" href="{{ route('projects.grantt') }}">{{__('Grantt')}}</a>
                         <a class="dropdown-item" href="{{ route('problems.index') }}">{{__('Problems')}}</a>
                         <a class="dropdown-item" href="{{ route('tasks.index') }}">{{__('Tasks')}}</a>
+                        <a class="dropdown-item" href="{{ route('constructionjobs.index') }}">{{__('Jobs')}}</a>
                     
                     </div>
                 </li>
@@ -33,7 +34,8 @@
                         <a class="dropdown-item" href="{{ route('providers.index') }}">{{__('Providers')}}</a>
                         <a class="dropdown-item" href="{{ route('goals.index') }}"> {{__('Goals')}}</a>
                         <a class="dropdown-item" href="{{ route('objectives.index') }}">{{__('Objectives')}}</a>
-                        <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Functions')}}</a>                            
+                        <a class="dropdown-item" href="{{ route('funs.index') }}">{{__('Functions')}}</a>   
+                        <a class="dropdown-item" href="{{ route('common.meeting') }}">{{__('Meeting')}}</a>   
                         @if(Auth::user()->hasRole('admin'))
                         <a class="dropdown-item" href="{{ route('facts.index') }}">{{__('Facts')}}</a>
                         <a class="dropdown-item" href="{{ route('cats.index') }}">{{__('Category')}}</a>
@@ -116,11 +118,13 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{ route('risks.StartBriefRisk') }}">{{__('Risk brief')}}</a>
                     <a class="dropdown-item" href="{{ route('createformrisk') }}">{{__('Risk calculator')}}</a>
+                    <a class="dropdown-item" href="{{ route('r.index') }}">{{__('Risks')}}</a>
                 @if(Auth::user()->hasRole('admin'))       
                     <a class="dropdown-item" href="{{ route('experiences') }}">{{__('Experiences')}}</a>
                     <a class="dropdown-item" href="{{ route('briefs.index') }}">{{__('Briefs')}}</a>
                     <a class="dropdown-item" href="{{ route('jits.index') }}">{{__('JITs')}}</a>
                     <a class="dropdown-item" href="{{ route('jitqws.index') }}">{{__('JITQws')}}</a>
+                   
                  @endif     
                  <a class="dropdown-item" href="{{ route('callings.index') }}">{{__('Callings')}}</a>
                 </div>

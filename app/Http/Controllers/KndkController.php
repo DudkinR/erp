@@ -19,6 +19,34 @@ class KndkController extends Controller
      */
     public function index()
     {
+        // Обробляємо КНДК порціями (chunk) через моделі для оптимізації пам'яті
+       /* Kndk::with(['keywords', 'positions', 'divisions'])->chunk(100, function ($kndks) {
+            foreach ($kndks as $kndk) {
+                
+                // Перетворюємо колекцію ключових слів КНДК на звичайний масив їхніх ID
+                $keywordIds = $kndk->keywords->pluck('id')->toArray();
+
+                // Якщо у цього КНДК немає ключових слів — йдемо далі
+                if (empty($keywordIds)) {
+                    continue;
+                }
+
+                // 1. Перебираємо пов'язані моделі Посад через Eloquent
+                foreach ($kndk->positions as $position) {
+                    // Перевіряємо наявність методу, щоб уникнути фатальних помилок
+                    if (method_exists($position, 'keywords')) {
+                        $position->keywords()->syncWithoutDetaching($keywordIds);
+                    }
+                }
+
+                // 2. Перебираємо пов'язані моделі Підрозділів через Eloquent
+                foreach ($kndk->divisions as $division) {
+                    if (method_exists($division, 'keywords')) {
+                        $division->keywords()->syncWithoutDetaching($keywordIds);
+                    }
+                }
+            }
+        });*/
         //
          $kndks = Kndk::orderBy('class', 'asc')
         ->orderByRaw('CASE WHEN subclass IS NULL THEN 0 ELSE 1 END')
@@ -332,40 +360,50 @@ class KndkController extends Controller
         }
 
         // 4. Цикл для збереження зв'язків на рівні самого КНДК (для сумісності зі старою логікою)
-        foreach ($validated['kndk_ids'] as $kndkId) {
+      foreach ($validated['kndk_ids'] as $kndkId) {
             $kndk = Kndk::find($kndkId);
 
             if ($kndk) {
+                // 1. Прив'язка підрозділів (залишається без змін)
                 if (!empty($validated['division_ids'])) {
                     $kndk->divisions()->syncWithoutDetaching($validated['division_ids']);
                 }
-                if (!empty($validated['position_own_ids'])) {
-                    $data = [];
-                    foreach ($validated['position_own_ids'] as $id) {
 
-                         $data[$id] = [
+                // 2. Готуємо ОДИН спільний масив для всіх посад КНДК
+                $positionsData = [];
+
+                // Спочатку наповнюємо власниками (owner)
+                if (!empty($validated['position_own_ids'])) {
+                    foreach ($validated['position_own_ids'] as $id) {
+                        $positionsData[$id] = [
                             'role' => 'owner',
                             'division_id' => null,
                         ];
-                    } 
-                    $kndk->positions()->syncWithoutDetaching($data);
-                }
-
-                if (!empty($validated['position_ids'])) {
-                    $data = [];
-
-                    foreach ($validated['position_ids'] as $id) {
-                        $data[$id] = [
-                            'role' => 'executor',
-                            'division_id' => null,
-                        ];
                     }
-
-                    $kndk->positions()->syncWithoutDetaching($data);
                 }
 
+                // Потім додаємо або оновлюємо виконавців (executor)
+                if (!empty($validated['position_ids'])) {
+                    foreach ($validated['position_ids'] as $id) {
+                        // Якщо посада ВЖЕ є у масиві як owner, ви можете вирішити: 
+                        // або залишити її owner, або перезаписати на executor.
+                        // Наприклад, якщо пріоритет у owner, додаємо перевірку:
+                        if (!isset($positionsData[$id])) {
+                            $positionsData[$id] = [
+                                'role' => 'executor',
+                                'division_id' => null,
+                            ];
+                        }
+                    }
+                }
+
+                // 3. Робимо ОДИН єдиний виклик syncWithoutDetaching для всіх посад цього КНДК
+                if (!empty($positionsData)) {
+                    $kndk->positions()->syncWithoutDetaching($positionsData);
+                }
             }
         }
+
 
         // 5. Формування фінального тексту сповіщення та редирект
         if (empty($validated['name'])) {
@@ -377,42 +415,81 @@ class KndkController extends Controller
         
         
 
-            //  Отримуємо ключові слова з форми
+            // Отримуємо ключові слова з форми
             if ($request->filled('keywords')) {
                 $rawKeywords = explode(',', $request->input('keywords'));
 
-                // 2. Очищаємо пробіли та дублікати
+                // 1. Очищаємо пробіли та дублікати
                 $keywords = collect($rawKeywords)
                     ->map(fn($w) => trim(mb_strtolower($w)))
                     ->filter()
                     ->unique();
 
+                // 2. Збираємо ID всіх ключових слів (створюємо нові або знаходимо старі за один прохід)
+                $keywordIds = [];
                 foreach ($keywords as $word) {
-                    // 3. Знаходимо або створюємо ключове слово
                     $keyword = Keyword::firstOrCreate(['name' => $word]);
+                    $keywordIds[] = $keyword->id;
+                }
 
-                    // 4. Прив’язуємо до процесу
+                // Якщо масив не пустий, робимо масову прив'язку за 1 запит на кожну сутність
+                if (!empty($keywordIds)) {
+                    
+                    // 3. Прив’язуємо до процесу
                     if (!empty($process)) {
-                        $process->keywords()->syncWithoutDetaching([$keyword->id]);
+                        $process->keywords()->syncWithoutDetaching($keywordIds);
                     }
 
-                    // 5. Прив’язуємо до документа (якщо вибраний)
+                    // 4. Прив’язуємо до документа (якщо вибраний)
                     if ($request->filled('document_id')) {
                         $document = Document::find($request->input('document_id'));
                         if ($document) {
-                            $document->keywords()->syncWithoutDetaching([$keyword->id]);
+                            $document->keywords()->syncWithoutDetaching($keywordIds);
                         }
                     }
 
-                    // 6. Прив’язуємо до кожного КНДК
-                    foreach ($validated['kndk_ids'] as $kndkId) {
-                        $kndk = Kndk::find($kndkId);
-                        if ($kndk) {
-                            $kndk->keywords()->syncWithoutDetaching([$keyword->id]);
+                    // 5. Прив’язуємо до КНДК
+                    if (!empty($validated['kndk_ids'])) {
+                        foreach ($validated['kndk_ids'] as $kndkId) {
+                            $kndk = Kndk::find($kndkId);
+                            if ($kndk) {
+                                $kndk->keywords()->syncWithoutDetaching($keywordIds);
+                            }
+                        }
+                    }
+
+                    // 6. ДОДАНО: Прив’язуємо до структурних підрозділів (divisions)
+                    if (!empty($validated['division_ids'])) {
+                        foreach ($validated['division_ids'] as $divisionId) {
+                            $division = Division::find($divisionId);
+                            if ($division) {
+                                $division->keywords()->syncWithoutDetaching($keywordIds);
+                            }
+                        }
+                    }
+
+                    // 7. ДОДАНО: Прив’язуємо до посад-власників (position_own_ids)
+                    if (!empty($validated['position_own_ids'])) {
+                        foreach ($validated['position_own_ids'] as $positionId) {
+                            $position = Position::find($positionId);
+                            if ($position) {
+                                $position->keywords()->syncWithoutDetaching($keywordIds);
+                            }
+                        }
+                    }
+
+                    // 8. ДОДАНО: Прив’язуємо до інших посад (position_ids)
+                    if (!empty($validated['position_ids'])) {
+                        foreach ($validated['position_ids'] as $positionId) {
+                            $position = Position::find($positionId);
+                            if ($position) {
+                                $position->keywords()->syncWithoutDetaching($keywordIds);
+                            }
                         }
                     }
                 }
             }
+
 
         // Якщо процес успішно створено/знайдено, краще очистити форму, крім КНДК (опціонально),
         // але якщо ви повертаєте з ->withInput(), форма лишиться заповненою.
@@ -985,197 +1062,179 @@ class KndkController extends Controller
         $text = trim($request->get('query'));
 
         if (empty($text)) {
-            return response()->json([]);
+            return response()->json([
+                'kndks' => [],
+                'processes' => [],
+                'documents' => [],
+                'positions' => [],
+                'divisions' => []
+            ]);
         }
 
         $lowerText = mb_strtolower($text, 'UTF-8');
 
-        $stopWords = [
-            'і', 'й', 'та', 'але', 'чи', 'або', 'що', 'як', 'це', 'про', 'на', 'в', 'у', 'за', 'до', 'для', 'від', 
-            'під', 'над', 'перед', 'по', 'через', 'при', 'біля', 'з', 'із', 'зі', 'між', 'без', 'якщо', 'тому', 
-            'все', 'всі', 'його', 'її', 'їх', 'процес', 'документ', 'інструкція', 'положення', 'яка', 'про', 'хаес','час', 'крім', 'при', 'від', 'для', 'неї', 'інші','них', 'всіх', 'своєчасне','часу','усіх','вимог',
-        'цих', 'через', 'після', 'його',  'чинного', 'зокрема',  'метою', 'під','наек', 'енергоатом',  'або',  'яких' , 'разі', 'інших', 
-        'всієї', 'щодо', 'також', 'тощо', 'згідно', 'саме', 'більш',  'мірі' , 'який' , 'тому','перед', 'числі' ,'які' 
+        $stopWords  = [
+        'а', 'або', 'але', 'багато', 'би', 'біля', 'бо', 'більш', 'буде', 'будемо', 
+        'будете', 'будешь', 'буди', 'була', 'були', 'було', 'бути', 'в', 'вже', 'ви', 
+        'вимог', 'він', 'від', 'відповідно', 'вона', 'вони', 'воно', 'всі', 'всій', 
+        'всіх', 'всієї', 'всіма', 'всьому', 'всупереч', 'де', 'для', 'до', 'доки', 
+        'дуже', 'енергатом', 'енергоатом', 'є', 'за', 'завдяки', 'загалом', 'зараз', 
+        'згідно', 'зі', 'зокрема', 'й', 'його', 'йому', 'і', 'із', 'інша', 
+        'інше', 'інши', 'інших', 'іншим', 'іншими', 'інші', 'категорично', 'коли', 
+        'коло', 'котрий', 'крім', 'куди', 'лише', 'має', 'мають', 'майже', 'мало', 
+        'мене', 'метою', 'ми', 'між', 'мірі', 'мій', 'може', 'можуть', 'мов', 
+        'на', 'над', 'навіть', 'наек', 'нам', 'нами', 'нас', 'наш', 'наша', 
+        'наше', 'наші', 'наче', 'не', 'неї', 'нехай', 'нижче', 'них', 'ні', 
+        'ніби', 'ніж', 'ніхто', 'нічого', 'ну', 'о', 'об', 'обов\'язково', 'обмежено', 
+        'один', 'одна', 'однак', 'одне', 'одні', 'ось', 'офіційно', 'перед', 'під', 
+        'після', 'по', 'поки', 'потім', 'при', 'про', 'проте', 'протягом', 'разі', 
+        'разом', 'рік', 'років', 'року', 'році', 'саме', 'свій', 'своє', 'своєчасне', 
+        'свої', 'своїх', 'себе', 'собою', 'та', 'так', 'така', 'таке', 'такі', 
+        'такого', 'такому', 'також', 'там', 'твій', 'те', 'теж', 'ти', 'тим', 
+        'тисяч', 'ті', 'тільки', 'то', 'тоді', 'того', 'тож', 'тому', 'тощо', 
+        'треба', 'тут', 'у', 'усі', 'усіх', 'усьому', 'хаес', 'хай', 'хто', 
+        'це', 'цей', 'ця', 'цих', 'цим', 'цими', 'ці', 'час', 'часу', 'через', 
+        'чи', 'чий', 'чинного', 'числі', 'що', 'щоб', 'щодо', 'ще', 'я', 
+        'яка', 'який', 'якого', 'якому', 'яких', 'які', 'якість', 'як', 'якби', 
+        'якщо'
         ];
+
 
         preg_match_all('/[a-zA-Zа-яієїґА-ЯІЄЇҐ0-9\.\-]+/u', $lowerText, $matches);
         $rawWords = $matches[0] ?? [];
 
         $searchTerms = [];
         foreach ($rawWords as $word) {
-            $word = trim($word);
-            if (in_array($word, $stopWords) || (mb_strlen($word, 'UTF-8') < 2 && !is_numeric($word))) {
-                continue;
-            }
-
-            // Український стемінг (обрізання закінчень)
-            $stemmed = preg_replace('/(ий|ій|ою|ею|и|і|е|а|я|у|ю|ом|ем|ів|ам|ям|ами|ями|их|ові|еві|ення|енню|енням|иця|иці|ицю|ями|ях)$/u', '', $word);
-            
-            if (mb_strlen($stemmed, 'UTF-8') >= 2 || is_numeric($stemmed)) {
-                $searchTerms[] = $stemmed;
-            } else {
-                $searchTerms[] = $word;
-            }
-        }
-
-        if (empty($searchTerms)) {
-            return response()->json([]);
-        }
-
-        $searchTerms = array_unique($searchTerms);
-        //response()->json($searchTerms);
-        // 2. Вибірка з бази з урахуванням нової моделі Keyword
-        // ЗМІНЕНО: тепер кожне слово має обов'язково десь збігатися (логіка AND між різними словами)
-     return   $kndks = Kndk::with([
-                'documents.keywords', 
-                'responsibles',  
-                'positions', 
-                'divisions', 
-                'keywords',
-                'processes.keywords' // 1. ПІДВАНТАЖУЄМО процеси (і їхні теги, якщо потрібно для релевантності)
-            ])
-            ->where(function($mainQuery) use ($searchTerms) {
-                foreach ($searchTerms as $term) {
-                    $mainQuery->where(function($subQuery) use ($term) {
-                        $subQuery->orWhere('full_code', 'LIKE', "%{$term}%")
-                            ->orWhere('name', 'LIKE', "%{$term}%")
-                            ->orWhereHas('keywords', function($q) use ($term) {
-                                $q->where('name', 'LIKE', "%{$term}%"); 
-                            })
-                            ->orWhereHas('documents', function($q) use ($term) {
-                                $q->where('short_content', 'LIKE', "%{$term}%")
-                                ->orWhere('organization', 'LIKE', "%{$term}%")
-                                ->orWhereHas('keywords', function($sq) use ($term) {
-                                    $sq->where('name', 'LIKE', "%{$term}%"); 
-                                });
-                            })
-                            ->orWhereHas('responsibles', function($q) use ($term) { 
-                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
-                            })
-                            ->orWhereHas('positions', function($q) use ($term) { 
-                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
-                            })
-                            ->orWhereHas('divisions', function($q) use ($term) { 
-                                $q->where('name', 'LIKE', "%{$term}%")->orWhere('abv', 'LIKE', "%{$term}%"); 
-                            })
-                            // 2. ДОДАЄМО ПОШУК У ПРОЦЕСАХ (за назвою, описом та їхніми тегами)
-                            ->orWhereHas('processes', function($q) use ($term) {
-                                $q->where('name', 'LIKE', "%{$term}%")
-                                ->orWhere('description', 'LIKE', "%{$term}%")
-                                ->orWhereHas('keywords', function($sq) use ($term) {
-                                    $sq->where('name', 'LIKE', "%{$term}%");
-                                });
-                            });
-                    });
+                $word = trim($word);
+                if (in_array($word, $stopWords) || (mb_strlen($word, 'UTF-8') < 2 && !is_numeric($word))) {
+                    continue;
                 }
-            })
-            ->get();
 
-
-        $sortedResults = [];
-
-        // 3. Розрахунок РЕЛЕВАНТНОСТІ
-        foreach ($kndks as $kndk) {
-            $score = 0;
-
-            $kndkMainText = mb_strtolower($kndk->full_code . ' ' . $kndk->name, 'UTF-8');
-            
-            // Збираємо масив усіх чистих тегів для перевірки пріоритету
-            $kndkKeywords = [];
-            $keywordsText = '';
-            
-            foreach ($kndk->keywords as $keyword) {
-                $keywordNameLower = mb_strtolower($keyword->name, 'UTF-8');
-                $kndkKeywords[] = $keywordNameLower;
-                $keywordsText .= ' ' . $keywordNameLower;
-            }
-
-            $documentsText = '';
-            foreach ($kndk->documents as $doc) {
-                $documentsText .= ' ' . mb_strtolower($doc->short_content . ' ' . $doc->organization, 'UTF-8');
-                foreach ($doc->keywords as $docKeyword) {
-                    $docKeywordNameLower = mb_strtolower($docKeyword->name, 'UTF-8');
-                    $kndkKeywords[] = $docKeywordNameLower;
-                    $keywordsText .= ' ' . $docKeywordNameLower;
-                }
-            }
-
-            // Залишаємо лише унікальні теги для оптимізації циклу
-            $kndkKeywords = array_unique($kndkKeywords);
-
-            $otherRelationsText = '';
-            foreach ([$kndk->responsibles, $kndk->positions, $kndk->divisions] as $relationGroup) {
-                foreach ($relationGroup as $itemRow) {
-                    $otherRelationsText .= ' ' . mb_strtolower($itemRow->name . ' ' . $itemRow->abv, 'UTF-8');
-                }
-            }
-
-            // --- ПЕРЕВІРКА 1: Точні динамічні збіги словосполучень ---
-            // Якщо користувач ввів кілька слів, перевіряємо, чи є вони поруч у назві
-            if (count($searchTerms) > 1) {
-                $allTermsFoundInMain = true;
-                foreach ($searchTerms as $term) {
-                    if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') === false) {
-                        $allTermsFoundInMain = false;
-                        break;
-                    }
-                }
-                // Якщо ВСІ введені користувачем корені слів одночасно присутні в назві/коді КНДК
-                if ($allTermsFoundInMain) {
-                    $score += 150; 
-                }
-            }
-
-            // --- ПЕРЕВІРКА 2: Пословний аналіз з динамічною вагою термінів ---
-            foreach ($searchTerms as $term) {
-                // Визначаємо, чи є шуканий корінь частиною офіційних ключових слів (тегів)
-                $isHighPriority = false;
-                foreach ($kndkKeywords as $keyword) {
-                    if (mb_strpos($keyword, $term, 0, 'UTF-8') !== false) {
-                        $isHighPriority = true;
-                        break;
-                    }
-                }
+                // Український стемінг (обрізання закінчень)
+                $stemmed = preg_replace('/(ий|ій|ою|ею|и|і|е|а|я|у|ю|ом|ем|ів|ам|ям|ами|ями|их|ові|еві|ення|енню|енням|иця|иці|ицю|ями|ях)$/u', '', $word);
                 
-                // Ваговий множник: х15 для офіційних ключових слів, х1 для звичайного тексту
-                $wordWeight = $isHighPriority ? 15 : 1;
-
-                // Збіг у назві або коді КНДК (базова вага 20)
-                if (mb_strpos($kndkMainText, $term, 0, 'UTF-8') !== false) {
-                    $score += (20 * $wordWeight);
-                }
-                // Збіг безпосередньо у полі ключових слів (базова вага 12)
-                if (mb_strpos($keywordsText, $term, 0, 'UTF-8') !== false) {
-                    $score += (12 * $wordWeight);
-                }
-                // Збіг у тексті документів (базова вага 5)
-                if (mb_strpos($documentsText, $term, 0, 'UTF-8') !== false) {
-                    $score += (5 * $wordWeight);
-                }
-                // Збіг у назвах підрозділів/посад (базова вага 2)
-                if (mb_strpos($otherRelationsText, $term, 0, 'UTF-8') !== false) {
-                    $score += (2 * $wordWeight);
+                if (mb_strlen($stemmed, 'UTF-8') >= 2 || is_numeric($stemmed)) {
+                    $searchTerms[] = $stemmed;
+                } else {
+                    $searchTerms[] = $word;
                 }
             }
+            if (empty($searchTerms)) {
+                    return response()->json([
+                        'kndks' => [],
+                        'processes' => [],
+                        'documents' => [],
+                        'positions' => [],
+                        'divisions' => []
+                    ]);
+                }
 
-            if ($score > 0) {
-                $sortedResults[] = [
-                    'id' => $kndk->id,
-                    'full_code' => $kndk->full_code,
-                    'name' => $kndk->name ?? 'Процес КНДК',
-                    'score' => $score 
-                ];
-            }
-        }
+                $searchTerms = array_unique($searchTerms);
 
-        // Сортування за спаданням балів релевантності
-        usort($sortedResults, function($a, $b) {
-            return $b['score'] <=> $a['score'];
-        });
+                // Універсальний пошук по полях та ключових словах
+           $applySearch = function($query, $searchTerms, $fields = []) {
+                $query->where(function($q) use ($searchTerms, $fields) {
+                    $hasKeywordsRelation = method_exists($q->getModel(), 'keywords');
+                    foreach ($searchTerms as $term) {
+                        if ($hasKeywordsRelation) {
+                            $q->orWhereHas('keywords', function($kwQuery) use ($term) {
+                                $kwQuery->where('name', 'LIKE', "%{$term}%");
+                            });
+                        }
+                        foreach ($fields as $field) {
+                            $q->orWhere($field, 'LIKE', "%{$term}%");
+                        }
+                    }
+                });
+            };
 
-        $finalResults = array_slice($sortedResults, 0, 20);
+            // Функція підрахунку балів релевантності, фільтрації та очищення від keywords
+            $rankAndLimit = function($collection, $searchTerms, $mainFields = []) {
+                return $collection->map(function($item) use ($searchTerms, $mainFields) {
+                    $score = 0;
 
-        return response()->json($finalResults);
+                    // 1. Шукаємо в назві / головних полях (Пріоритет №1)
+                    foreach ($mainFields as $field) {
+                        $fieldValue = mb_strtolower($item->{$field} ?? '', 'UTF-8');
+                        foreach ($searchTerms as $term) {
+                            if (mb_strpos($fieldValue, $term) !== false) {
+                                $score += 100;
+                            }
+                        }
+                    }
+
+                    // 2. Шукаємо в приєднаних ключових словах (Пріоритет №2)
+                    if ($item->relationLoaded('keywords') || isset($item->keywords)) {
+                        foreach ($item->keywords as $keyword) {
+                            $keywordName = mb_strtolower($keyword->name ?? '', 'UTF-8');
+                            foreach ($searchTerms as $term) {
+                                if (mb_strpos($keywordName, $term) !== false) {
+                                    $score += 30;
+                                }
+                            }
+                        }
+                    }
+
+                    $item->relevance_score = $score;
+
+                    // КРИТИЧНЕ ОЧИЩЕННЯ: прибираємо ключові слова, щоб їх не було у вихідному JSON
+                    $item->makeHidden('keywords'); 
+                    // Якщо keywords — це звичайне динамічне поле/масив, додатково страхуємося:
+                    unset($item->keywords); 
+
+                    return $item;
+                })
+                ->sortByDesc('relevance_score') 
+                ->take(5)                       
+                ->values();
+            };
+
+            // Визначаємо наявність зв'язку для безпечного підвантаження (Eager Loading)
+            $withKeywords = function($modelClass) {
+                return method_exists(new $modelClass, 'keywords') ? ['keywords'] : [];
+            };
+
+            // 1. КНДК (Додано з викликом with() для уникнення N+1)
+            $rawKndks = Kndk::with($withKeywords(Kndk::class))->where(function($q) use ($applySearch, $searchTerms) {
+                $applySearch($q, $searchTerms, ['full_code', 'name']);
+            })->get();
+            $kndks = $rankAndLimit($rawKndks, $searchTerms, ['full_code', 'name']);
+
+            // 2. Процеси
+            $rawProcesses = Process::with($withKeywords(Process::class))->where(function($q) use ($applySearch, $searchTerms) {
+                $applySearch($q, $searchTerms, ['name', 'description']);
+            })->get();
+            $processes = $rankAndLimit($rawProcesses, $searchTerms, ['name']);
+
+            // 3. Документи
+            $rawDocs = Document::with($withKeywords(Document::class))->where(function($q) use ($applySearch, $searchTerms) {
+                $applySearch($q, $searchTerms, ['short_content', 'organization']);
+            })->get();
+            $documents = $rankAndLimit($rawDocs, $searchTerms, ['short_content']);
+
+            // 4. Посади
+            $rawPositions = Position::with($withKeywords(Position::class))->where(function($q) use ($applySearch, $searchTerms) {
+                $applySearch($q, $searchTerms, ['name', 'abv']);
+            })->get();
+            $positions = $rankAndLimit($rawPositions, $searchTerms, ['name', 'abv']);
+
+            // 5. Підрозділи
+            $rawDivisions = Division::with($withKeywords(Division::class))->where(function($q) use ($applySearch, $searchTerms) {
+                $applySearch($q, $searchTerms, ['name', 'abv']);
+            })->get();
+            $divisions = $rankAndLimit($rawDivisions, $searchTerms, ['name', 'abv']);
+
+
+            return response()->json([
+                'kndks'     => $kndks,
+                'processes' => $processes,
+                'documents' => $documents,
+                'positions' => $positions,
+                'divisions' => $divisions,
+            ]);
+
+
+
     }
 
    

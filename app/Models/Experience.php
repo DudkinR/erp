@@ -33,5 +33,10 @@ class Experience extends Model
     {
         return $this->belongsToMany(Type::class, 'experiences_reasons', 'experience_id', 'reason_id');
     }
+    public function risks()
+    {
+        return $this->belongsToMany(Risk::class, 'experience_risk');
+    }
+
 
 }

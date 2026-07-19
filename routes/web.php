@@ -16,6 +16,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 Route::get('/words/{id}', 'App\Http\Controllers\WordsController@show')->name('words.show');
+ Route::get('/meeting', 'App\Http\Controllers\CommonController@meeting')->name('common.meeting');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', 'App\Http\Controllers\Auth\AuthenticatedSessionController@create')->name('login');
@@ -198,7 +199,7 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     // Сторінка з полем пошуку (візуальний інтерфейс)
     Route::get('/kndkssearch-page', 'App\Http\Controllers\KndkController@searchPage')->name('kndks.search_page');
     // AJAX-маршрут, який повертає результати у форматі JSON
-    Route::post('/kndkssearch', 'App\Http\Controllers\KndkController@search')->name('kndks.search');
+    Route::any('/kndkssearch', 'App\Http\Controllers\KndkController@search')->name('kndks.search');
     // funs routes
     Route::get('/funs', 'App\Http\Controllers\FunController@index')->name('funs.index');
     Route::get('/funs/create', 'App\Http\Controllers\FunController@create')->name('funs.create');
@@ -677,6 +678,15 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::delete('/constructionjobs/{id}', 'App\Http\Controllers\ConstructionJobController@destroy')->name('constructionjobs.destroy');
     Route::post('/constructionjobsmonth/{id}', 'App\Http\Controllers\ConstructionJobController@addmonth')->name('constructionjobs.addmonth');
     
+     // risk kndk
+    Route::get('/r', 'App\Http\Controllers\RiskController@indexr')->name('r.index');
+    Route::get('/r/create', 'App\Http\Controllers\RiskController@creater')->name('r.create');
+    Route::post('/r', 'App\Http\Controllers\RiskController@storer')->name('r.store');
+    Route::get('/r/{id}', 'App\Http\Controllers\RiskController@showr')->name('r.show');
+    Route::get('/r/{id}/edit', 'App\Http\Controllers\RiskController@editr')->name('r.edit');
+    Route::put('/r/{id}', 'App\Http\Controllers\RiskController@updater')->name('r.update');
+    Route::delete('/r/{id}', 'App\Http\Controllers\RiskController@destroyr')->name('r.destroy');
+
     // CSV
     Route::get('/construction_jobs_csv', [App\Http\Controllers\ConstructionJobController::class, 'index_csv'])->name('construction_jobs_csv');
     Route::post('/constructionjobs_csv', [App\Http\Controllers\ConstructionJobController::class, 'download'])->name('constructionjobs_csv');
@@ -833,6 +843,8 @@ Route::delete('/jitqws/{id}', 'App\Http\Controllers\JitqwController@destroy')->n
     Route::put('/procedures/{id}', 'App\Http\Controllers\ProcedureController@update')->name('procedures.update');
     Route::delete('/procedures/{id}', 'App\Http\Controllers\ProcedureController@destroy')->name('procedures.destroy');
     Route::post('/proceduresupdateSteps', 'App\Http\Controllers\ProcedureController@updateSteps')->name('procedures.updateSteps');
+
+    
 });
 
 

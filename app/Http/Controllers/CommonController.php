@@ -12,5 +12,11 @@ class CommonController extends Controller
         return view('import.index');
 
     }
+
+    public function meeting()
+    {
+        return view('calculator.meeting');
+
+    }
     
 }

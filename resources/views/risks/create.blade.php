@@ -81,13 +81,38 @@
                             </div>
                         </div>
                     </div>
-                    {{-- Text Section --}}
-                    <div class="mb-3 p-3" style="background-color: #e6ffe6; border-radius: 8px;">
-                        <div class="form-group">
-                            <label for="text">{{ __('Text of Experience') }}</label>
-                            <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                    <div class="row">
+                            {{-- Text Section --}}
+                        <div class="col-md-6 mb-3 p-3" style="background-color: #e6ffe6; border-radius: 8px;">
+                            <div class="form-group">
+                                <label for="text">{{ __('Text of Experience') }}</label>
+                                <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                            </div>
+                        </div>
+                     
+                        <!-- Пошук і мультивибір -->
+                        <div class="col-md-6 mb-3 p-3" style="background-color: #e6ffe6; border-radius: 8px;">
+                            <label class="form-label">{{__('Risks')}}</label>
+                            <input type="text" id="risksSearch" class="form-control mb-2" placeholder="Пошук ризиків...">
+                            <button type="button" class="btn btn-sm btn-outline-primary mb-2" onclick="selectAll('risks')">
+                                {{__('Select All')}}
+                            </button>
+                            <div id="risksList" class="border rounded p-2" style="max-height: 250px; overflow-y: auto;">
+                                @foreach($risks as $risk)
+                                    <div class="form-check">
+                                        <input class="form-check-input risk-checkbox" type="checkbox" 
+                                            name="risks[]" value="{{ $risk->id }}"
+                                            id="risk{{ $risk->id }}"
+                                            @if(in_array($risk->id, old('risks', []))) checked @endif>
+                                        <label class="form-check-label" for="risk{{ $risk->id }}">
+                                            {{ $risk->name }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
+                    
                     {{-- Actions & Equipments --}}
                     <div class="row mb-3 p-3" style="background-color: #fff0f5; border-radius: 8px;">
                         <div class="col-md-6 border">
@@ -152,17 +177,28 @@
         </div>
     </div>
     <script>
-        function selectAll(name) {
+    function selectAll(name) {
             var checkboxes = document.getElementsByName(name + '[]');
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = true;
             }
         }
-        function selectsAll(name) {
-            var checkboxes = document.getElementById(name);
-            for (var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].selected = true;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function setupSearch(inputId, checkboxClass) {
+                const searchInput = document.getElementById(inputId);
+                const checkboxes = document.querySelectorAll('.' + checkboxClass);
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    checkboxes.forEach(cb => {
+                        const label = cb.nextElementSibling.textContent.toLowerCase();
+                        cb.parentElement.style.display = label.includes(query) ? '' : 'none';
+                    });
+                });
             }
-        }
+
+ 
+            setupSearch('risksSearch', 'risk-checkbox'); // додано для ризиків
+        });
     </script>
 @endsection
